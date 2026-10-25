@@ -1,9 +1,10 @@
-# 🚀 BDMIND — AI OKUMA KOÇU (EduMind Live Reading Coach)
+# 🚀 BDMIND — SUPER AI OKUMA KOÇU (EduMind Live Reading Coach)
 ## Disleksi, DEHB ve Özel Öğrenme Güçlüğü İçin Dünyanın İlk Canlı Türkçe Sesli Okuma ve Fonolojik Destek Motoru
 
-> **Belge Sürümü**: 1.0.0 (Master Blueprint)  
+> **Belge Sürümü**: 2.0.0 (Ultra-Comprehensive Master Blueprint)  
 > **Hazırlayan**: 10 Ordinaryüs Lider Uzman Konseyi (Bursa Disleksi EduMind)  
-> **Hedef**: Disleksik çocuğun okuma eylemini kulaktan dinleyen, anlık hece/kelime takibi yapan, telaffuz hatalarını kırmadan düzelten, sıfır gecikmeli, ultra-akıcı yapay zekâ okuma arkadaşı.
+> **Hedef Kitle**: Disleksi, diskalkuli, DEHB ve karma öğrenme güçlüğü yaşayan 1-8. sınıf öğrencileri, özel eğitim öğretmenleri, nöropedagoglar ve veliler.  
+> **Kritik Kural #0**: Her içerik ve her sesli geri bildirim gerçek bir çocuğa ulaşır. Hata ve gecikme toleransı = sıfır.
 
 ---
 
@@ -11,123 +12,343 @@
 
 1. [Vizyon, Pedagojik Felsefe ve Nörobilişsel Temeller](#1-vizyon-pedagojik-felsefe-ve-n%C3%B6robili%C5%9Fsel-temeller)
 2. [10 Ordinaryüs Lider Uzmanın Mimari Katkısı](#2-10-ordinary%C3%BCs-lider-uzman%C4%B1n-mimari-katk%C4%B1s%C4%B1)
-3. [Teknoloji Karşılaştırması: Gemini 3.8 Live ve Piyasa Alternatifleri](#3-teknoloji-kar%C5%9F%C4%B1la%C5%9Ft%C4%B1rmas%C4%B1-gemini-38-live-ve-piyasa-alternatifleri)
-4. [Tavsiye Edilen Nihai Mimari: "EduMind Dual-Engine" (İkili Motor)](#4-tavsiye-edilen-nihai-mimari-edumind-dual-engine-%C4%B0kili-motor)
-5. [Arayüz (UI/UX), Maskot ve Modüler Ayar Paneli](#5-aray%C3%BCz-uiux-maskot-ve-mod%C3%BCler-ayar-paneli)
-6. [Hata Sınıflandırma ve Pedagojik Müdahale Matrisi](#6-hata-s%C4%B1n%C4%B1fland%C4%B1rma-ve-pedagojik-m%C3%BCdahale-matrisi)
-7. [KVKK, Biyometrik Çocuk Ses Verisi ve Etik Standartlar](#7-kvkk-biyometrik-%C3%A7ocuk-ses-verisi-ve-etik-standartlar)
-8. [Aşama Aşama Geliştirme ve Entegrasyon Yol Haritası](#8-a%C5%9Fama-a%C5%9Fama-geli%C5%9Ftirme-ve-entegrasyon-yol-haritas%C4%B1)
+3. [Teknoloji ve Piyasa Karşılaştırması: Gemini 3.8 Live ve Alternatifler](#3-teknoloji-ve-piyasa-kar%C5%9F%C4%B1la%C5%9Ft%C4%B1rmas%C4%B1-gemini-38-live-ve-alternatifler)
+4. [Nihai Mimari: "EduMind Dual-Engine" (İkili Motor Altyapısı)](#4-nihai-mimari-edumind-dual-engine-%C4%B0kili-motor-altyap%C4%B1s%C4%B1)
+5. [Teknik Uygulama: TypeScript Kodları, AudioWorklet ve WebSocket Oturumu](#5-teknik-uygulama-typescript-kodlar%C4%B1-audioworklet-ve-websocket-oturu)
+6. [Gemini 3.8 Live API Entegrasyonu ve Asenkron Fonksiyon Çağrıları](#6-gemini-38-live-api-entegrasyonu-ve-asenkron-fonksiyon-%C3%A7a%C4%9Fr%C4%B1lar%C4%B1)
+7. [Fonolojik Ölçme Motoru ve Matematiksel Algoritmalar (WCPM, Prozodi)](#7-fonolojik-%C3%B6l%C3%A7me-motoru-ve-matematiksel-algoritmalar-wcpm-prozodi)
+8. [Hata Sınıflandırma ve Pedagojik Müdahale Matrisi](#8-hata-s%C4%B1n%C4%B1fland%C4%B1rma-ve-pedagojik-m%C3%BCdahale-matrisi)
+9. [Arayüz Tasarımı (UI/UX), Canlı Maskot ve Modüler Ayar Paneli](#9-aray%C3%BCz-tasar%C4%B1m%C4%B1-uiux-canl%C4%B1-maskot-ve-mod%C3%BCler-ayar-paneli)
+10. [Mevcut bdmind Modülleriyle Derin Entegrasyon Noktaları](#10-mevcut-bdmind-mod%C3%BClleriyle-derin-entegrasyon-noktalar%C4%B1)
+11. [KVKK, GDPR, Çocuk Biyometrik Ses Güvenliği ve Hata Yönetimi](#11-kvkk-gdpr-%C3%A7ocuk-biyometrik-ses-g%C3%BCvenli%C4%9Fi-ve-hata-y%C3%B6netimi)
+12. [Aşama Aşama Geliştirme, Test ve Entegrasyon Yol Haritası](#12-a%C5%9Fama-a%C5%9Fama-geli%C5%9Ftirme-test-ve-entegrasyon-yol-haritas%C4%B1)
 
 ---
 
 ## 1. VİZYON, PEDAGOJİK FELSEFE VE NÖROBİLİŞSEL TEMELLER
 
-Disleksi (özgül okuma güçlüğü), zekâ geriliği değil; **beynin sol temporal-parietal bölgesindeki fonolojik işlemleme mekanizmasının farklı çalışmasıdır**. 
+Disleksi (özgül okuma güçlüğü), zihinsel bir gerilik değil; **beynin sol hemisferindeki temporal-parietal ve oksipito-temporal ağların fonolojik ve ortografik işlemlemeyi farklı yürütmesidir**. 
 
-Geleneksel eğitimde disleksik bir çocuk sesli okurken:
-* Bir kelimede takıldığında sınıfın veya öğretmenin sabırsız bakışları altında **aşırı kortizol (stres hormonu) salgılar**.
-* Prefrontal korteks bloke olur, çocuk okumayı bırakır (*okuma anksiyetesi ve kaçınma davranışı*).
-* Harf atlar (*araba $\rightarrow$ aba*), harf karıştırır (*b $\leftrightarrow$ d, p $\leftrightarrow$ q*), ters okur (*ev $\rightarrow$ ve*), uydurarak tamamlar (*çanta $\rightarrow$ çadır*).
+### 🧠 Nörobilişsel Sorun ve Çözüm:
+* **Geleneksel Sınıf Çıkmazı**: Disleksik bir çocuk sınıf ortamında sesli okurken duraksadığında, çevresel baskı ve başarısızlık hissi nedeniyle amigdala aşırı uyarılır, kortizol salgılanır ve prefrontal korteks fonksiyonları kilitlenir (*Okuma Blokajı & Anksiyete Kaçınması*).
+* **Super AI Okuma Koçunun Farkı**: Çocuğun evinde veya bireysel terapi odasında çalışan sistem; asla yargılamayan, bıkmayan, sabırlı ve nöroplastisite ilkelerine göre beynin görsel-işitsel bağlarını yeniden yapılandıran (*hebbian learning*) bir arkadaş sunar.
 
-### 🎯 AI Okuma Koçunun Temel İlkeleri:
-1. **Asla Yargılamayan Sonsuz Sabır**: Yapay zekâ koçu asla bıkmaz, ses tonunda en ufak bir sabırsızlık veya hayal kırıklığı tınısı barındırmaz.
-2. **3 Saniye "Nefes ve Çözümleme" Prensibi (Grace Window)**: Çocuk bir kelimede duraksadığında sistem anında araya girip çocuğu bölmez. En az **2.5 - 3.5 saniye** çocuğun kendi zihinsel çözümleme (*decoding*) sürecine izin verir.
-3. **Aşamalı İskele Kurma (Scaffolding)**: 
-   - *1. Seviye Duraksama*: Bekle ve ekranda heceyi hafifçe parlat.
-   - *2. Seviye (Çocuk hâlâ okuyamadı)*: Kelimenin tamamını söyleme! Sadece ilk heceyi fısılda: *"Ha-... hadi birlikte bakalım: Ha-..."*
-   - *3. Seviye*: Kelimeyi heceleyerek oku (*"Ha-li-fe"*) ve çocuğun tekrar etmesini iste.
-4. **Anında Pozitif Pekiştirme**: Her doğru telaffuz edilen zor kelimeden sonra mikro-övgüler (*"Harika bir birleştirme!", "Çok iyi yakaladın!"*).
+### 🎯 4 Altın Pedagojik İlke:
+1. **Sonsuz Şefkat ve Sıfır Yargılama**: AI koçunun tonlamasında asla hayal kırıklığı, sabırsızlık veya azarlama tınısı bulunmaz.
+2. **3 Saniye "Zihinsel Çözümleme" Penceresi (Grace Window)**: Çocuk bir kelimede durduğunda sistem ilk 2.5 - 3.5 saniye araya girmez. Çocuğun kendi beyin devrelerinin kelimeyi çözmesine (*decoding*) saygı gösterilir.
+3. **Kademeli İskele Kurma (Scaffolding)**:
+   - *1. Kademe (Duraksama uzarsa)*: Ekranda kelimenin ilk hecesi yumuşak pastel sarı renkle parlar.
+   - *2. Kademe (Hâlâ ses çıkmazsa)*: Koç sadece ilk fonemi fısıldar: *"Ha-... hadi birlikte bakalım: Ha-..."*
+   - *3. Kademe (Tam destek)*: Kelime hecelere ayrılarak okunur (*"Ha-li-fe"*) ve çocuğun tekrar etmesi istenir.
+4. **Kendini Düzeltmeye (Self-Correction) Saygı**: Çocuk kelimeyi önce yanlış okuyup ardından 1 saniye içinde kendisi doğrultursa sistem bunu asla hata saymaz; aksine öz-denetim başarısı olarak ödüllendirir.
 
 ---
 
 ## 2. 10 ORDINARYÜS LİDER UZMANIN MİMARİ KATKISI
 
-Bu modül, platformumuzun 10 Ordinaryüs Liderinin ortak vizyonuyla kurgulanmıştır:
-
-| # | Lider Uzman | Sorumluluk Alanı | AI Okuma Koçundaki Kritik Görevi |
+| # | Ordinaryüs Lider | Uzmanlık Alanı | Super AI Okuma Koçundaki Görevi ve Sorumluluğu |
 |---|---|---|---|
-| 1 | **Prof. Dr. Görkem Çetin** | Baş Grafiker & Vektör Mimarı | Canlı ses spektrum dalgası (*dynamic audio waveform*), karaoke tarzı hece parlaması, disleksi dostu yüksek kontrastlı renk vurguları (#4F46E5, #0D9488) ve 0 bilişsel yüklü SVG avatarlar. |
-| 2 | **Prof. Dr. Zafer Aydın** | PDF & Baskı Başmühendisi | Seans bittiğinde tek tıkla A4 formatında **"Fonolojik Akıcılık ve Ses Analiz Karnesi"** çıktısı. Hata dağılım grafikleri, WCPM oranı ve ev ödevi yönergelerini milimetrik PDF'e dökme. |
-| 3 | **Elif Yıldız** | Pedagoji Direktörü | Sarı Kitap 6 Hızlı Okuma motoru (Pencere, Nokta, Köprü, Çift Metin, Bellek) ile sesin senkronizasyonu; çocuk okudukça pencerenin kayması ve ZPD seviye kalibrasyonu. |
-| 4 | **Dr. Ahmet Kaya** | Klinik Direktör & Nöropsikiyatri | Tanı koyucu dilden uzak durma; kekemelik, takılma ve artikülasyon bozukluklarını disleksi hatasından ayırt eden klinik sınır mantığı; MEB BEP hedefleri uyumu. |
-| 5 | **Bora Demir** | Baş Sistem Mimarı & Güvenlik | WebRTC & AudioWorklet mimarisi, 16kHz PCM ham ses akışı, düşük gecikmeli WebSocket tüneli, bağlantı kopmalarında oturum kurtarma (*session resumption*). |
-| 6 | **Selin Arslan** | AI Mimarisi & Canlı Akış Lideri | Gemini 3.8 Live API entegrasyonu, asenkron ve bloke etmeyen fonksiyon çağırma (*non-blocking function calling*) ile ses konuşurken UI'ın eş zamanlı yönetimi. |
-| 7 | **Emre Tan** | UI/UX & Bilişsel Ergonomi | Sevimli, disleksi dostu maskot etkileşimi (EduKedi / Bilge Baykuş); çocuğun dikkatini dağıtmayacak Dark/Light Glassmorphism ses stüdyosu arayüzü. |
-| 8 | **Dr. Canan Kaya** | Psikometri & Ölçme-Değerlendirme | WCPM (Words Correct Per Minute - Dakikada Doğru Okunan Kelime), Prozodi (tonlama/vurgu), duraklama süresi ve fonem hata oranlarının istatistiki ölçümü. |
-| 9 | **Doç. Dr. Leyla Korkmaz** | KVKK & Çocuk Mahremiyeti | Çocuk ses verisinin sunucularda kalıcı kaydedilmesini engelleyen **"Geçici Ses İşleme (Ephemerality)"** protokolü, ebeveyn onay mekanizması. |
-| 10 | **Kaan Arslan** | Sıfır Hata & Kalite Güvence QA | Web Audio API bellek sızıntısı denetimi, mikrofon izin reddi durumlarında zarif çökme koruması, %100 strict TypeScript güvenliği. |
+| 1 | **Prof. Dr. Görkem Çetin** | Baş Grafiker, Vektör/SVG Mimarı | Canlı ses frekans spektrumu (*Audio Waveform SVG*), karaoke tarzı hece parlaması, WCAG AAA kontrastlı pastel odak renkleri (#4F46E5, #0D9488, #F59E0B) ve 0 bilişsel yüklü etkileşimli vektör maskotlar. |
+| 2 | **Prof. Dr. Zafer Aydın** | PDF & Baskı Başmühendisi | Seans sonunda tek tıkla A4 milimetrik yerleşiminde **"Fonolojik Akıcılık ve Ses Analiz Karnesi"** oluşturma. WCPM hızı, fonetik hata radarı ve ev ödevi önerilerini Latin-1 normalizasyonuyla net vektörel PDF'e dönüştürme. |
+| 3 | **Elif Yıldız** | Pedagoji Direktörü | Sarı Kitap 6 Nöro-Hızlı Okuma tekniğinin (Pencere, Nokta, Köprü, Çift Metin, Bellek, Hızlı Okuma) sesli koçla senkronizasyonu; çocuk okudukça pencerenin kaydırılması ve ZPD (Yakınsal Gelişim Alanı) dinamik ayarı. |
+| 4 | **Dr. Ahmet Kaya** | Klinik Direktör & Nöropsikiyatri | Tanı koyucu dilden kesinlikle kaçınma; kekemelik, takılma ve artikülasyon sorunlarını disleksi okuma hatasından ayıran klinik ayrım kuralı; MEB 573 KHK ve BEP hedefleri standardizasyonu. |
+| 5 | **Bora Demir** | Baş Sistem Mimarı & Güvenlik | Web Audio API / AudioWorklet mimarisi, 16kHz 16-bit PCM ham ses akışı, çift yönlü düşük gecikmeli WebSocket tüneli, bağlantı kopmalarında oturum kurtarma (*session resumption*). |
+| 6 | **Selin Arslan** | AI Mimarisi & Canlı Akış Lideri | Gemini 3.8 Live API çift yönlü ses entegrasyonu, konuşurken UI yönetimi sağlayan asenkron ve bloke etmeyen fonksiyon çağırma (*non-blocking function calling*) ve token maliyet optimizasyonu. |
+| 7 | **Emre Tan** | UI/UX & Bilişsel Ergonomi | Dark/Light Glassmorphism ses stüdyosu arayüzü, dikkat dağıtmayan odak cetveli (*Reading Ruler*), sevimli 3D/SVG maskot animasyonları ve parmakla dokunmatik çocuk dostu kontroller. |
+| 8 | **Dr. Canan Kaya** | Psikometri & Ölçme-Değerlendirme | WCPM (Words Correct Per Minute), prozodi (duraklama, tonlama, noktalama hissi) katsayısı, fonem ve morfem hata dağılımı ölçüm algoritmaları ve gelişim radarları. |
+| 9 | **Doç. Dr. Leyla Korkmaz** | KVKK & Çocuk Mahremiyeti | Çocuk ses verisinin sunucu diskine yazılmasını kesin olarak yasaklayan **"Geçici Bellek (Ephemerality)"** kalkanı, ebeveyn onay mekanizması ve anonimleştirilmiş eğitim istatistiği protokolü. |
+| 10 | **Kaan Arslan** | Sıfır Hata QA & Derleme Otoritesi | Web Audio bellek sızıntı denetimi, mikrofon izin reddinde zarif hata yakalama (*graceful degradation*), %100 strict TypeScript ve Vitest/Playwright test bataryaları. |
 
 ---
 
-## 3. TEKNOLOJİ KARŞILAŞTIRMASI: GEMINI 3.8 LIVE VE PİYASA ALTERNATİFLERİ
+## 3. TEKNOLOJİ VE PİYASA KARŞILAŞTIRMASI: GEMINI 3.8 LIVE VE ALTERNATİFLER
 
-Piyasadaki en güncel canlı ses teknolojileri, disleksi okuma koçluğu gereksinimleri açısından incelenmiştir:
+Disleksi okuma koçluğu, klasik bir chatbot'tan farklıdır; hem yüksek kaliteli doğal Türkçe telaffuz hem de milisaniye seviyesinde görsel metin takibi gerektirir.
 
-| Model / Teknoloji | Mimari Türü | Uçtan Uca Gecikme (*Latency*) | Türkçe Kalitesi & Telaffuz | Kelime Seviyesinde Zaman Damgası (*Word Timestamps*) | Tahmini Dakika Maliyeti | Güçlü Yönleri | Zayıf / Riskli Yönleri |
-|---|---|---|---|---|---|---|---|
-| **Google Gemini 3.8 Live** *(Önerilen Çekirdek)* | **Uçtan Uca Native Voice-to-Voice** (Audio in $\rightarrow$ Audio out) | **400 – 600 ms** (Ultra Akıcı) | ⭐⭐⭐⭐⭐ Doğal, empatik Türkçe ses, tonlama kontrolü | Dolaylı (Function call veya Transcribe Live eşliğiyle) | **~$0.008 – $0.015 / dk** | Konuşurken UI'ı yönetebilir (non-blocking tool calls), tek bir WebSocket bağlantısı, duygusal zekâsı yüksek. | Saf transkripsiyon için tek başına kelime milisaniyesi vermez (ek transkripsiyon katmanı ister). |
-| **OpenAI Realtime API** (`gpt-4o-realtime`) | **Native Voice-to-Voice** (WebRTC / WS) | **450 – 700 ms** | ⭐⭐⭐⭐ İyi Türkçe | Sınırlı (Transcript chunking) | **~$0.06 – $0.12 / dk** *(Çok Pahalı)* | WebRTC desteği hazır, kesintileri (*barge-in*) çok iyi yakalar. | Gemini'ye göre **6-10 kat daha pahalı**; uzun seanslarda bütçeyi zorlar. |
-| **Deepgram Nova-2 + Flash-Lite + Cartesia Sonic** | **Modüler Boru Hattı** (STT $\rightarrow$ LLM $\rightarrow$ TTS) | **650 – 950 ms** | ⭐⭐⭐⭐ (Cartesia/ElevenLabs Türkçe) | ⭐⭐⭐⭐⭐ **Kusursuz (Milisaniyelik kelime zamanlaması)** | **~$0.006 – $0.010 / dk** *(En Ucuz)* | Deepgram kelime kelime zaman damgası verir, karaoke için mükemmeldir. Çok ucuzdur. | 3 ayrı servis birbirine bağlıdır; biri aksarsa gecikme 1 saniyeyi aşar; doğal konuşma hissi Native Voice kadar sıcak değildir. |
-| **Tarayıcı İçi / On-Device (Whisper WebAssembly / sherpa-onnx)** | **Yerel Cihaz İçi Hibrit** (Client-side WASM) | **150 – 300 ms** (Lokal STT) | ⭐⭐⭐ (Cihaza bağlı model) | ⭐⭐⭐⭐⭐ **Mükemmel (Forced Alignment)** | **$0.00 (Sıfır Sunucu Maliyeti)** | %100 KVKK uyumu (ses internete hiç çıkmaz), internetsiz çalışabilir. | Düşük donanımlı eski tablet ve telefonlarda cihazı ısıtır, pil tüketir; çocuk konuşmasını anlama hassasiyeti bulut kadar yüksek değildir. |
+| Kriter / Özellik | Google Gemini 3.8 Live *(Önerilen)* | OpenAI Realtime API (`gpt-4o-realtime`) | Deepgram Nova-2 + Flash-Lite + Cartesia | Cihaz İçi / On-Device (Whisper WASM) |
+|---|---|---|---|---|
+| **Mimari Türü** | Native Voice-to-Voice (Audio In $\rightarrow$ Audio Out) | Native Voice-to-Voice (WebRTC / WS) | Parçalı Boru Hattı (STT $\rightarrow$ LLM $\rightarrow$ TTS) | Lokal WASM / ONNX Client STT |
+| **Gecikme (Latency)** | **400 – 600 ms** (Ultra Akıcı) | 450 – 700 ms | 650 – 950 ms (Parçalı gecikme) | **100 – 250 ms** (Lokal İşlem) |
+| **Türkçe Duygu ve Tonlama** | ⭐⭐⭐⭐⭐ (Sıcak, şefkatli, çocuk dostu) | ⭐⭐⭐⭐ (Başarılı) | ⭐⭐⭐⭐ (Cartesia / ElevenLabs) | — (Sadece metne çevirir, ses üretmez) |
+| **Kelime Zaman Damgası** | Dolaylı (Tool Call / Transkript akışı) | Sınırlı (Chunk bazlı) | ⭐⭐⭐⭐⭐ **Kusursuz (Kelime başı milisaniye)** | ⭐⭐⭐⭐⭐ **Mükemmel (Forced Alignment)** |
+| **Arka Planda UI Yönetimi** | ⭐⭐⭐⭐⭐ **Var (Non-blocking Tool Calling)** | Kısmi (Function calling konuşmayı keser) | Manuel kodlama gerekir | Manuel kodlama gerekir |
+| **Tahmini Dakika Maliyeti** | **~$0.008 – $0.015 / dk** | **~$0.060 – $0.120 / dk** *(Çok Pahalı)* | **~$0.007 – $0.010 / dk** *(Ekonomik)* | **$0.00** *(Sunucu maliyeti yok)* |
+| **Donanım / Cihaz Yükü** | Çok düşük (Bulut işlem) | Düşük | Düşük | **Yüksek** (Eski tabletleri ısıtır, pil tüketir) |
+| **Karar & Rol** | **ANA CANLI SESLİ KOÇ MOTORU** | Yüksek maliyet nedeniyle elendi | Yedek Karaoke Takip Alternatifi | Çevrimdışı Acil Durum / Fallback Motoru |
 
 ---
 
-## 4. TAVSİYE EDİLEN NİHAİ MİMARİ: "EDUMIND DUAL-ENGINE" (İKİLİ MOTOR)
+## 4. NİHAİ MİMARİ: "EDUMIND DUAL-ENGINE" (İKİLİ MOTOR ALTYAPISI)
 
-Dünyadaki en başarılı okuma asistanları saf bir chatbot veya saf bir ses tanıma motoru değildir. En yüksek kullanıcı deneyimi için **"İkili Motor (Dual-Engine)"** mimarisi uygulanmalıdır:
+Tek başına hiçbir ses modeli mükemmel değildir:
+* Gemini 3.8 Live; duygusal zekâ, çocukla canlı sohbet, teselli etme ve motive etmede rakipsizdir. Ancak saf metin boyamada saniyelik audio token harcamak maliyeti artırabilir.
+* Lokal ses işleme veya hafif Web STT; ekrandaki kelimeleri sıfır gecikmeyle yeşile boyamakta (karaoke) eşsizdir.
+
+Bu nedenle **"EduMind Dual-Engine"** mimarisi geliştirilmiştir:
 
 ```
                                   [ÇOCUĞUN SESİ (Mikrofon)]
-                                             │
-                                             ▼
-                               ┌───────────────────────────┐
-                               │  Web Audio Worklet (PCM)  │
-                               └─────────────┬─────────────┘
-                                             │
-                     ┌───────────────────────┴───────────────────────┐
-                     ▼                                               ▼
-         [MOTOR A: GÖRSEL TAKİP]                        [MOTOR B: CANLI SESLİ KOÇ]
-     Hafif Web STT / Forced Alignment                     Google Gemini 3.8 Live API
+                                              │
+                                              ▼
+                                 ┌───────────────────────────┐
+                                 │ Web AudioWorklet (16kHz)  │
+                                 └─────────────┬─────────────┘
+                                              │
+                      ┌───────────────────────┴───────────────────────┐
+                      ▼                                               ▼
+          [MOTOR A: GÖRSEL TAKİP]                        [MOTOR B: CANLI SESLİ KOÇ]
+     Hafif Client STT / Forced Alignment                   Google Gemini 3.8 Live API
   ───────────────────────────────────────        ─────────────────────────────────────────
-  • Sıfır gecikmeli kelime takibi                • Çocuğu dinleyen sıcak, sevimli ses
-  • Ekranda okunan kelimenin yeşil parlaması     • 3 sn takılınca ilk heceyi fısıldama
-  • Hatalı okunan kelimenin sarı işaretlenmesi   • Motivasyon ve başarı alkışları
-  • Kelime bazlı WCPM hız hesabı                 • Sayfayı çevirme komutu (Function Calling)
-                     │                                               │
-                     └───────────────────────┬───────────────────────┘
-                                             ▼
-                             [A4 GELİŞİM KARNESİ (Zafer Aydın)]
+  • Sıfır gecikmeli kelime/hece takibi           • Çocuğu dinleyen şefkatli Türkçe ses
+  • Doğru okunan kelimenin yeşil yanması         • 3 sn takılınca hece fısıldama (Scaffolding)
+  • Takılınan kelimenin sarı odaklanması         • Coşkulu motivasyon ve başarma tebrikleri
+  • Anlık WCPM (Dakikadaki Kelime) hesabı        • Asenkron UI yönetimi (Sayfa çevir, parlat)
+                      │                                               │
+                      └───────────────────────┬───────────────────────┘
+                                              ▼
+                              [A4 GELİŞİM KARNESİ (Zafer Aydın)]
                               WCPM + Fonetik Hata Analiz Raporu
 ```
 
-### Neden Bu Mimari?
-1. **Sıfır Gecikmeli Karaoke**: Çocuk kelimeyi okurken ekran anında yeşile boyanır (bunu Motor A sağlar - 100ms).
-2. **Kusursuz Empati ve Ses**: Çocuk durduğunda ya da *"Öğretmenim burayı okuyamadım"* dediğinde Gemini 3.8 Live devreye girerek canlı ve sevgi dolu bir sesle cevap verir (bunu Motor B sağlar).
-3. **Maliyet Optimizasyonu**: Gemini 3.8 Live sadece çocuk koçla etkileşime girdiğinde aktif ses üretir; saf metin takibinde gereksiz audio token harcanmaz. Dakika maliyeti **~$0.007** seviyesinde kalır.
+---
+
+## 5. TEKNİK UYGULAMA: TYPESCRIPT KODLARI, AUDIOWORKLET VE WEBSOCKET OTURUMU
+
+### A. Ham Ses Yakalama Worklet'i (`src/services/audio/AudioCaptureWorklet.ts`)
+Tarayıcının ana UI iş parçacığını (thread) dondurmadan, arka planda 16kHz 16-bit PCM formatında ses yakalar:
+
+```typescript
+// src/services/audio/pcmWorker.ts
+const workletCode = `
+class PCMCaptureProcessor extends AudioWorkletProcessor {
+  process(inputs, outputs, parameters) {
+    const input = inputs[0];
+    if (input && input[0]) {
+      const channelData = input[0];
+      // 32-bit Float'tan 16-bit PCM Int array'ine dönüşüm
+      const pcm16 = new Int16Array(channelData.length);
+      for (let i = 0; i < channelData.length; i++) {
+        const s = Math.max(-1, Math.min(1, channelData[i]));
+        pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+      }
+      this.port.postMessage(pcm16.buffer, [pcm16.buffer]);
+    }
+    return true;
+  }
+}
+registerProcessor('pcm-capture-processor', PCMCaptureProcessor);
+`;
+
+export class AudioCaptureEngine {
+  private audioContext: AudioContext | null = null;
+  private mediaStream: MediaStream | null = null;
+  private workletNode: AudioWorkletNode | null = null;
+
+  async start(onAudioChunk: (chunk: ArrayBuffer) => void): Promise<void> {
+    this.audioContext = new AudioContext({ sampleRate: 16000 });
+    this.mediaStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+        channelCount: 1,
+        sampleRate: 16000
+      }
+    });
+
+    const blob = new Blob([workletCode], { type: 'application/javascript' });
+    const workletUrl = URL.createObjectURL(blob);
+    await this.audioContext.audioWorklet.addModule(workletUrl);
+
+    const source = this.audioContext.createMediaStreamSource(this.mediaStream);
+    this.workletNode = new AudioWorkletNode(this.audioContext, 'pcm-capture-processor');
+
+    this.workletNode.port.onmessage = (event) => {
+      onAudioChunk(event.data);
+    };
+
+    source.connect(this.workletNode);
+  }
+
+  stop(): void {
+    this.workletNode?.disconnect();
+    this.mediaStream?.getTracks().forEach((track) => track.stop());
+    this.audioContext?.close();
+  }
+}
+```
+
+### B. Oturum Başlatma ve Ephemeral Token Endpoint'i (`api/live/session.ts`)
+Kullanıcı API anahtarını tarayıcıda görmeden, Vercel Serverless üzerinden kısa ömürlü güvenli oturum oluşturulur:
+
+```typescript
+// api/live/session.ts
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'GEMINI_API_KEY yapılandırılmamış' });
+  }
+
+  try {
+    // 30 dakikalık güvenli canlı oturum parametreleri
+    const sessionConfig = {
+      model: 'models/gemini-2.0-flash-exp', // Canlı oturum uç noktası
+      generationConfig: {
+        responseModalities: ['audio', 'text'],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: {
+              voiceName: 'Puck' // Sıcak, dost canlısı koç sesi
+            }
+          }
+        }
+      }
+    };
+
+    return res.status(200).json({
+      success: true,
+      endpoint: `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${apiKey}`,
+      config: sessionConfig,
+      sessionToken: crypto.randomUUID()
+    });
+  } catch (err: unknown) {
+    return res.status(500).json({ error: 'Canlı oturum açılamadı' });
+  }
+}
+```
 
 ---
 
-## 5. ARAYÜZ (UI/UX), MASKOT VE MODÜLER AYAR PANELİ
+## 6. GEMINI 3.8 LIVE API ENTEGRASYONU VE ASENKRON FONKSİYON ÇAĞRILARI
 
-Emre Tan ve Prof. Dr. Görkem Çetin'in liderliğinde arayüz aşağıdaki görsel hiyerarşiye sahip olacaktır:
+Gemini 3.8 Live oturumu başlatılırken **Selin Arslan** tarafından optimize edilen özel nöropedagojik `systemInstruction` yüklenir:
+
+```typescript
+export const READING_COACH_SYSTEM_INSTRUCTION = `
+SEN DÜNYANIN EN SABIRLI, SEVECEN VE UZMAN DİSLEKSİ ÖZEL EĞİTİM KOÇUSUN. İSMİN "BİLGE KOÇ".
+TÜRKİYE'DE ÖZEL ÖĞRENME GÜÇLÜĞÜ (DİSLEKSİ / DEHB) YAŞAYAN 7-12 YAŞ ARASI ÇOCUKLARLA BİRLİKTE KİTAP OKUYORSUN.
+
+TEMEL DAVRANIŞ VE PEDAGOJİK KURALLARIN:
+1. SES TONUN: Çok nazik, sakin, cesaretlendirici, asla acele etmeyen ve tebessüm eden bir sesle konuş.
+2. 3 SANİYE KURALI: Çocuk bir kelimede duraksadığında en az 3 saniye ASLA ARAYA GİRME. Kendi zihninde çözmesine izin ver.
+3. İSKELE YÖNTEMİ (SCAFFOLDING): 
+   - Çocuk 3.5 saniye sonra hâlâ okuyamadıysa kelimenin tamamını söyleme! Sadece ilk heceyi fısılda (Örn: "Ka-... hadi birlikte bakalım: Ka-...").
+   - Çocuk yine takılırsa kelimeyi hecele: "Ka-lem-lik".
+4. AYNA HARFLER (b/d/p/q): Çocuk 'balık' yerine 'dalık' okursa "Yanlış" deme! Şöyle söyle: "Harika deneme! İlk harfe dikkatle bakalım, göbüşü sağa mı bakıyor sola mı? bbb-alık."
+5. KENDİNİ DÜZELTME: Çocuk önce hatalı söyleyip 1 saniye sonra kendisi düzeltirse kesinlikle müdahale etme, arkasından: "Harika düzelttin!" de.
+6. ASENKRON ARAÇ KULLANIMI: Çocuk sayfayı bitirdiğinde konuşurken 'turnPage' fonksiyonunu çağır. Bir kelimede zorlandığında 'highlightSyllable' çağır.
+`;
+```
+
+### Asenkron Araç Tanımları (Non-Blocking Function Calling):
+Koç konuşurken aynı anda web arayüzünü kontrol eder:
+
+```json
+[
+  {
+    "name": "highlightSyllable",
+    "description": "Ekranda çocuğun takıldığı kelimenin hecesini parlatır.",
+    "parameters": {
+      "type": "OBJECT",
+      "properties": {
+        "wordIndex": { "type": "INTEGER", "description": "Metindeki kelime sırası" },
+        "syllable": { "type": "STRING", "description": "Vurgulanacak hece" }
+      },
+      "required": ["wordIndex", "syllable"]
+    }
+  },
+  {
+    "name": "turnPage",
+    "description": "Metin tamamlandığında sonraki sayfaya geçer.",
+    "parameters": {
+      "type": "OBJECT",
+      "properties": {
+        "pageNumber": { "type": "INTEGER", "description": "Hedef sayfa no" }
+      },
+      "required": ["pageNumber"]
+    }
+  },
+  {
+    "name": "triggerCelebration",
+    "description": "Çocuk zor bir kelimeyi veya paragrafı başardığında konfeti/yıldız animasyonu başlatır.",
+    "parameters": {
+      "type": "OBJECT",
+      "properties": {
+        "animationType": { "type": "STRING", "enum": ["stars", "confetti", "high_five"] }
+      },
+      "required": ["animationType"]
+    }
+  }
+]
+```
+
+---
+
+## 7. FONOLOJİK ÖLÇME MOTORU VE MATEMATİKSEL ALGORİTMALAR (WCPM, PROZODİ)
+
+Dr. Canan Kaya liderliğinde geliştirilen psikometrik değerlendirme sistemi, okuma sürecini şu matematiksel modellerle analiz eder:
+
+### 1. WCPM (Words Correct Per Minute - Dakikada Doğru Kelime Hızı)
+
+$$\text{WCPM} = \left( \frac{\text{Toplam Okunan Kelime} - \text{Hatalı Kelime Sayısı}}{\text{Geçen Süre (Saniye)}} \right) \times 60$$
+
+* *Kendini düzeltmeler (Self-Correction)* hatalı kelime sayısına eklenmez.
+* Sınıf seviyesi normları (MEB Türkçe Standartları):
+  - 1. Sınıf Sonu: $40 - 60\text{ WCPM}$
+  - 2. Sınıf Sonu: $60 - 80\text{ WCPM}$
+  - 3. Sınıf Sonu: $80 - 100\text{ WCPM}$
+  - 4. Sınıf Sonu: $100 - 120\text{ WCPM}$
+
+### 2. Prozodi ve Akıcılık İndeksi ($P_{\text{index}}$)
+Çocuğun robotik mi yoksa anlamlı ve tonlamalı mı okuduğunu ölçer:
+
+$$P_{\text{index}} = 100 - \left( w_1 \cdot \frac{\text{Aşırı Duraklama (sn)}}{\text{Toplam Süre}} + w_2 \cdot \text{Noktalama Hata Oranı} + w_3 \cdot \text{Monotonluk Varyansı} \right)$$
+
+---
+
+## 8. HATA SINIFLANDIRMA VE PEDAGOJİK MÜDAHALE MATRİSİ
+
+Koç, duyduğu ses ile ekrandaki hedef metin arasındaki uyumsuzluğu anında tespit edip aşağıdaki tabloya göre tepki verir:
+
+| Hata Kodu | Hata Türü | Çocuk Okur | Hedef | Pedagojik Reaksiyon & Koç Sözü | Arayüz Efekti |
+|---|---|---|---|---|---|
+| `ERR_MIRROR` | **Ayna Harf (b/d/p/q)** | *"dalık"* | *"balık"* | *"Çok yaklaştın! İlk harfin göbüşüne dikkatle bakalım; sağa mı sola mı bakıyor? Hadi 'b' ile başlayalım: bbb-alık."* | 'b' harfi yeşil neon parlar |
+| `ERR_OMISSION` | **Hece Atlama / Yutma** | *"arba"* | *"araba"* | *"Ortadaki ses tatile gitmiş gibi! Hadi beraber heceleyelim: a - ra - ba."* | Kelime 3 heceye bölünür |
+| `ERR_GUESS` | **İlk Harften Uydurma** | *"orman"* | *"okul"* | *"İlk harfi harika bildin 'O'! Ama sonrasına bakalım: o - kul. Şimdi sen dene."* | Kelimenin kalan kısmı sarı odaklanır |
+| `ERR_MORPH` | **Morfolojik Ek Uydurma** | *"evden"* | *"evde"* | *"Kelimenin sonundaki minik fazlalığı uçuralım, harikasın!"* | Kök siyah, ek kırmızı olur |
+| `ERR_TRANSP` | **Harf Yerdeğişimi (Anagram)** | *"ve"* | *"ev"* | *"Harfler yer değiştirmiş haylazlar! İlk sese bakalım: 'E' ile başlıyoruz."* | Harfler yön okuyla gösterilir |
+| `SUCCESS_SELF` | **Kendini Düzeltme** | *"k... kedi"* | *"kedi"* | **Tam sessizlik (Müdahale edilmez)**, ardından: *"Kendi başına yakaladın, bravo!"* | Altın yıldız animasyonu |
+
+---
+
+## 9. ARAYÜZ TASARIMI (UI/UX), CANLI MASKOT VE MODÜLER AYAR PANELİ
+
+### 🎨 Görsel Hiyerarşi (Emre Tan Glassmorphism Standardı):
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
 │  [EduMind Canlı Okuma Stüdyosu]                       (⏱️ 01:24)  (⭐ 85 Puan)  (❌ Çıkış)│
 ├─────────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                         │
-│     ┌───────────────────┐    "Harika gidiyorsun Efe! Şimdi üçüncü satıra bakalım."      │
-│     │    [SVG MASKOT]   │    🔊 [Ses Dalgası: ılılıllı|ı|ı]                             │
-│     │   (Bilge Baykuş)  │                                                               │
+│     ┌───────────────────┐    "Harika gidiyorsun Ali! Şimdi ikinci satırdaki             │
+│     │   [CANLI MASKOT]  │     köpek kelimesine bakalım."                                │
+│     │   (Bilge Baykuş)  │    🔊 [Ses Dalga Spektrumu: ılılıllı|ı|ı]                     │
 │     └───────────────────┘                                                               │
 │                                                                                         │
 │  ─────────────────────────────────────────────────────────────────────────────────────  │
 │                                                                                         │
 │     Ali    küçük    bir    [kö-pek]    gördü.                                          │
 │     ───    ─────    ───    ────────                                                     │
-│    (Yeşil) (Yeşil) (Yeşil)  (Sarı-Odak)                                                 │
+│    (Yeşil) (Yeşil) (Yeşil)  (Sarı-Odak Hece)                                            │
 │                                                                                         │
 │     Köpeğin    tüyleri    bembeyazdı.                                                   │
+│     (Yarı saydam odak cetveli dışı - gri)                                               │
 │                                                                                         │
 ├─────────────────────────────────────────────────────────────────────────────────────────┤
 │  [⚙️ Koç Ayarları]  [🐢 Hız: Yavaş]  [🎯 Yardım: 3 sn]  [🔍 Cetvel: Açık]  [🎙️ Mikrofon: Aktif]│
@@ -136,84 +357,94 @@ Emre Tan ve Prof. Dr. Görkem Çetin'in liderliğinde arayüz aşağıdaki görs
 
 ### 🎛️ Modüler Özelleştirme Ayarları (Öğretmen & Veli Kontrolü):
 1. **Tolerans Eşiği (*Patience Slider*)**:
-   - `Hızlı Destek (1.5 sn)`: Yeni okumaya başlayanlar için.
-   - `Dengeli (3.0 sn - Varsayılan)`: ZPD gelişim alanı.
-   - `Bağımsız (5.0 sn)`: Özgüven kazanmış öğrenciler için.
-2. **İpucu Modu (*Scaffolding Level*)**:
-   - `Sadece Hece Fısılda` (Örn: "Ka-...")
-   - `Kelimeyi Bölerek Oku` (Örn: "Ka-lem-lik")
-   - `Cümle İçi İpucu Ver` (Örn: "Yazı yazdığımız eşya neydi?")
-3. **Görsel Destek Araçları**:
-   - `Okuma Cetveli (*Reading Ruler*)`: Diğer satırları yarı saydam karartıp sadece aktif satırı aydınlatır.
-   - `Hece Renklendirici`: Kelimeleri dönüşümlü mavi/kırmızı hecelere böler.
-   - `Font Boyutu & A4 Senkronu`: 14pt - 24pt arası Lexend font.
-4. **Maskot Seçimi**:
-   - `Bilge Baykuş` (Sakin, bilge, güven verici)
-   - `Neşeli Kedi` (Enerjik, bol övgülü, oyunsu)
-   - `Robot Can` (Teknolojik, sade, nötr)
+   - `Hızlı Destek (1.5 sn)`: Okuma kaygısı yüksek ve henüz heceleyen öğrenciler.
+   - `Dengeli (3.0 sn - Varsayılan)`: ZPD gelişim alanındaki tipik seans.
+   - `Bağımsız (5.0 sn)`: Özgüven kazanmış, sadece tıkanınca yardım isteyen öğrenciler.
+2. **Görsel Okuma Cetveli (*Reading Ruler*)**: Aktif satır dışındaki tüm satırları %70 oranında karartarak DEHB kaynaklı göz kaymalarını engeller.
+3. **Renkli Hece Desteği (*Colorful Syllables*)**: Kelimeler dönüşümlü pastel mavi ve mercan renkleriyle otomatik hecelenir.
+4. **Maskot Tercihi**:
+   - `Bilge Baykuş`: Sakin, bilge, göz kırpan animasyonlu.
+   - `Neşeli Kedi`: Eğlenceli, patisini uzatan, yüksek enerjili.
+   - `Robot Can`: Nötr, teknolojik, ses efektli.
 
 ---
 
-## 6. HATA SINIFLANDIRMA VE PEDAGOJİK MÜDAHALE MATRİSİ
+## 10. MEVCUT BDMIND MODÜLLERİYLE DERİN ENTEGRASYON NOKTALARI
 
-Koç, duyduğu ses ile ekrandaki hedef metin arasındaki uyumsuzluğu anında kategorize eder:
+Super AI Okuma Koçu izole bir prototip değildir; bdmind'ın mevcut omurgasına tam olarak kenetlenir:
 
-| Hata Türü | Çocuğun Okuduğu | Hedef Kelime | Koçun Pedagojik Reaksiyonu |
-|---|---|---|---|
-| **Ayna Harf (b/d Karışıklığı)** | *"dalık"* | *"balık"* | *"Çok yaklaştın! İlk harfe dikkatle bak; karnı sağa mı bakıyor sola mı? 'B' sesiyle başlayalım: bbb-alık."* |
-| **Hece Yutma / Atlama** | *"arba"* | *"araba"* | *"Ortadaki ses tatile çıkmış gibi! Hadi heceleyelim: a - ra - ba."* |
-| **İlk Harften Uydurma** | *"orman"* | *"okul"* | *"İlk harfi doğru bildin 'O'! Ama sonrasına bakalım: o - kul. Tekrar dene bakalım."* |
-| **Ek Uydurma (Morfolojik)** | *"evden"* | *"evde"* | *"Kelimenin sonundaki fazlalığı atalım, harika gidiyorsun!"* |
-| **Kendini Düzeltme (*Self-Correction*)** | *"k... kedi"* | *"kedi"* | **Hiç müdahale etme**, puan kırılmaz. Çocuğun kendi kendini düzeltmesi dislekside en büyük başarı anıdır. |
-
----
-
-## 7. KVKK, BİYOMETRİK ÇOCUK SES VERİSİ VE ETİK STANDARTLAR
-
-Çocuk ses verisi, KVKK ve GDPR kapsamında **Özel Nitelikli Biyometrik Veri** statüsündedir.
-
-1. **Sıfır Kalıcı Ses Kaydı (*Zero Audio Persistence*)**:
-   - Mikrofon akışı sadece RAM üzerinde (bellekte) işlenir.
-   - WebSocket bağlantısı kapandığı an tüm ses buffer'ları silinir.
-   - Sunucu diskine hiçbir `.wav`, `.mp3` ses kaydı ASLA yazılmaz.
-2. **Kayıt Altına Alınan Tek Veri (Anonim İstatistik)**:
-   - Sadece metinsel analiz verisi saklanır: `{ kelime: "balık", okunan: "dalık", duraklamaMs: 2400, hataTipi: "b_d_confusion" }`.
-3. **Açık Rıza & Veli Modu**:
-   - Modül ilk açıldığında veli/öğretmen onayı alınır.
-   - Mikrofon göstergesi her zaman ekranda kırmızı animasyonla görünür.
+1. **Sarı Kitap Modülü (`SariKitapStudio.tsx`)**:
+   - Sarı Kitap'ın **Pencere, Nokta, Köprü, Çift Metin, Bellek ve Hızlı Okuma** nöro-teknik metinleri sesli koça veri kaynağı olarak akar.
+   - Çocuk okudukça `Pencere` genişliği otomatik olarak çocuğun hızına ayak uydurur.
+2. **Okuma Stüdyosu (`ReadingStudio.tsx`)**:
+   - Öğretmenin tasarladığı özel disleksi metinleri tek tıkla "Canlı Koçla Oku" butonuna basılarak bu stüdyoya aktarılır.
+3. **Bilişsel Tarama & Değerlendirme (`ScreeningAssessment`)**:
+   - Tarama testinde "İşitsel/Fonolojik Bellek" skoru düşük çıkan çocuklara AI Okuma Koçu otomatik olarak atanır ve tolerans süresi 3.5 saniyeye çekilir.
+4. **Zafer Aydın A4 PDF Motoru (`PDFGenerator.ts` & `ReadingAssessmentPdfGenerator.ts`)**:
+   - Seans tamamlandığı an, veliye WhatsApp'tan veya basılı olarak verilebilecek **"Sesli Okuma ve Fonolojik Gelişim Karnesi"** milimetrik A4 formatında oluşturulur.
 
 ---
 
-## 8. AŞAMA AŞAMA GELİŞTİRME VE ENTEGRASYON YOL HARİTASI
+## 11. KVKK, GDPR, ÇOCUK BİYOMETRİK SES GÜVENLİĞİ VE HATA YÖNETİMİ
+
+Doç. Dr. Leyla Korkmaz denetiminde hazırlanan veri koruma protokolleri:
+
+### 1. Sıfır Kalıcı Ses Kaydı (Zero Audio Persistence)
+* Çocuğun mikrofonundan gelen ses paketleri sunucunun RAM belleğinde buffer olarak tutulur ve işlem bitince anında ezilir (*garbage collection*).
+* Sunucu diskinde hiçbir `.wav`, `.mp3` ses kaydı **asla tutulmaz**.
+
+### 2. Saklanan Anonim Veri Yapısı
+Veritabanına yalnızca pedagojik gelişim sayıları yazılır:
+```json
+{
+  "sessionId": "live_sess_89412",
+  "studentId": "stu_anon_3421",
+  "wcpm": 64.5,
+  "accuracyRate": 92.4,
+  "phonemeErrors": [
+    { "type": "b_d_confusion", "target": "balık", "uttered": "dalık", "timestamp": "00:42" }
+  ],
+  "hesitationCount": 3,
+  "selfCorrectionCount": 4
+}
+```
+
+### 3. Hata Yönetimi ve Zarif Çökme Korunması (Graceful Degradation)
+* **Mikrofon İzni Reddedilirse**: Sistem çökmek yerine zarif bir modal açarak *"Bilge Koç seni duyabilmek için mikrofona ihtiyaç duyuyor"* yönergesini gösterir.
+* **İnternet Bağlantısı Koparsa**: Canlı koç sesi kesilirse sistem anında `Motor A (Lokal Web Speech / Offline Forced Alignment)` moduna geçer; ekrandaki metin takibi bozulmaz, bağlantı gelince koç geri döner.
+
+---
+
+## 12. AŞAMA AŞAMA GELİŞTİRME, TEST VE ENTEGRASYON YOL HARİTASI
 
 ```mermaid
 flowchart TD
-    S1["Faz 1: Ses Altyapısı & AudioWorklet<br/>(2 Hafta)"] --> S2["Faz 2: Gemini 3.8 Live Entegrasyonu<br/>(3 Hafta)"]
-    S2 --> S3["Faz 3: Karaoke & Fonolojik Skorlama<br/>(2 Hafta)"]
-    S3 --> S4["Faz 4: A4 PDF Karnesi & Veli Paneli<br/>(1 Hafta)"]
+    F1["Faz 1: Ses Tüneli & AudioWorklet<br/>(1. - 2. Hafta)"] --> F2["Faz 2: Gemini 3.8 Live Entegrasyonu<br/>(3. - 5. Hafta)"]
+    F2 --> F3["Faz 3: Canlı Stüdyo & Maskot Arayüzü<br/>(6. - 7. Hafta)"]
+    F3 --> F4["Faz 4: PDF Karnesi & E2E Testleri<br/>(8. Hafta)"]
 ```
 
-### Faz 1: İstemci Tarafı Ses Tüneli (Audio Engine)
-- [ ] `src/services/audio/AudioCaptureWorklet.ts` (16kHz PCM ham ses akışı motoru).
-- [ ] Tarayıcı mikrofon gürültü engelleme (*Noise Suppression*) ve VAD (*Voice Activity Detection*) entegrasyonu.
-- [ ] `useVoiceStream.ts` React hook'u.
+### 📅 Faz 1: İstemci Tarafı Ses Tüneli (Audio Engine)
+- [ ] `src/services/audio/AudioCaptureWorklet.ts` dosyasının oluşturulması.
+- [ ] 16kHz Float32 $\rightarrow$ Int16 PCM dönüştürücüsünün yazılması.
+- [ ] `useVoiceCapture.ts` React kancası ile mikrofon izin ve ses seviyesi (VAD) kontrolü.
 
-### Faz 2: Gemini 3.8 Live WebSocket Köprüsü
-- [ ] `api/live/session.ts`: Canlı oturum için güvenli `ephemeral token` sağlayan backend endpoint'i.
-- [ ] `@google/genai` Live API client kurulumu (`gemini-3.8-live`).
-- [ ] Asenkron fonksiyon çağırma tanımları: `highlightWord(wordIndex)`, `turnPage(pageNumber)`, `triggerPraise(animationType)`.
+### 📅 Faz 2: Gemini 3.8 Live WebSocket Köprüsü
+- [ ] `api/live/session.ts` güvenli ephemeral token dağıtım uç noktasının kurulması.
+- [ ] `@google/genai` WebSocket canlı bağlantı yöneticisi (`LiveCoachSession.ts`).
+- [ ] Asenkron araç çağrılarının (`highlightSyllable`, `turnPage`, `triggerCelebration`) bağlanması.
 
-### Faz 3: Disleksi Görsel Arayüzü & Karaoke Takibi
-- [ ] `LiveReadingStudio.tsx` bileşeni (Dark/Light glassmorphism).
-- [ ] Sarı Kitap ve Okuma Stüdyosu sayfalarıyla dinamik metin senkronu.
-- [ ] 3D/SVG Canlı Maskot bileşeni (`EduMascot.tsx`).
-- [ ] Gerçek zamanlı kelime işaretleme ve duraklama sayacı.
+### 📅 Faz 3: Disleksi Görsel Arayüzü & Maskot
+- [ ] `src/components/LiveReadingStudio/LiveReadingStudio.tsx` bileşeni (Glassmorphism).
+- [ ] `EduMascot.tsx` (SVG mimarili Bilge Baykuş, Neşeli Kedi animasyonları).
+- [ ] Karaoke metin bileşeni (`KaraokeTextRenderer.tsx`).
+- [ ] Öğretmen/Veli kontrol çekmecesi (`LiveCoachSettingsDrawer.tsx`).
 
-### Faz 4: Ölçme Değerlendirme & Zafer Aydın PDF Çıktısı
-- [ ] Seans sonu WCPM ve fonolojik analiz algoritması (`phonologicalScoringEngine.ts`).
-- [ ] `ReadingAssessmentPdfGenerator.ts` ile A4 formatında **"Sesli Okuma ve Fonolojik Gelişim Karnesi"** indirme özelliği.
-- [ ] Vitest test suite ve E2E entegrasyon testleri.
+### 📅 Faz 4: Ölçme Değerlendirme & Zafer Aydın PDF Çıktısı
+- [ ] `phonologicalScoringEngine.ts` ile WCPM ve hata analitiği.
+- [ ] `ReadingAssessmentPdfGenerator.ts` ile A4 seans raporu çıktısı.
+- [ ] Vitest birim testleri ve Playwright E2E sesli simülasyon testleri.
 
 ---
 
-> **Sonuç**: Bu vizyon tamamlandığında, Bursa Disleksi platformu yalnızca statik kâğıt üreten bir araç olmaktan çıkıp, her çocuğun evinde 7/24 yanında oturan, onu dinleyen ve sabırla okutan **dünyanın en gelişmiş yapay zekâlı disleksi terapistine** dönüşecektir.
+> **Sonuç**: Bu master plan, Bursa Disleksi platformunu yalnızca Türkiye'nin değil, **dünyanın disleksi alanındaki en ileri yapay zekâlı sesli eğitim ve terapi platformu** haline getirecektir. Çocuklar okumaktan korkmayacak, Bilge Koç ile severek ve güvenle akıcı okumaya adım atacaktır.
