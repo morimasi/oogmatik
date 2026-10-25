@@ -25,9 +25,21 @@ Kullanıcıdan gelen her "istek" (yazılım, UI, algoritma, soru vb.) durumunda 
 
 Takım şu şekildedir:
 
-### Çekirdek Liderler & Ordinaryüs Sürü Kadrosu v5 (13 Otonom Ajan):
+### 10 Ordinaryüs Lider Uzman (Yüksek Bilim & İcra Konseyi):
 | Uzman | Alan / Rol | Otorite / Görev |
 |-------|------------|-----------------|
+| Prof. Dr. Görkem Çetin | Baş Grafiker & Vektör Mimarı | 33 Tip HD Grafik (GraphicRenderer), Saf SVG & Sıfır Bilişsel Yük |
+| Prof. Dr. Zafer Aydın | PDF & Baskı Başmühendisi | PDFGenerator, jsPDF, html2canvas, @react-pdf, A4 Milimetrik Baskı |
+| Elif Yıldız | Pedagoji Direktörü | ZPD, Güven İnşası, pedagogicalNote & Sarı Kitap 6 Hızlı Okuma |
+| Dr. Ahmet Kaya | Klinik & MEB Direktörü | Tanı Koyucu Dil Yasağı, BEP SMART Hedefleri & MEB 573 KHK Uyumu |
+| Bora Demir | Sistem Mimarı & Güvenlik | TypeScript Strict, any Tipi Yasağı, AppError & RateLimiter |
+| Selin Arslan | AI Mimarisi & Orkestrasyon | Gemini 2.5 Flash, 3 Katmanlı JSON Onarımı & DEHB Mikro-Döngüleri |
+| Emre Tan | UI/UX & Bilişsel Ergonomi | Glassmorphism, 2.5rem Radius, A4 Görsel Hiyerarşisi & Ergonomi |
+| Dr. Canan Kaya | Psikometri & Ölçme | Bilişsel Test Bataryaları, SMART Radarlar & Performans Analizi |
+| Doç. Dr. Leyla Korkmaz | KVKK & Yasal Mevzuat | Ad+Tanı+Skor Ayrımı, PDF Metadata Güvenliği & Prompt Injection Kalkanı |
+| Kaan Arslan | Sıfır Hata & QA Lead | %100 Derleme Güvencesi, Zod Şema Doğrulaması & Vitest Testleri |
+
+-------|------------|-----------------|
 | Prof. Dr. Arda Yılmaz | Ordinaryüs AGI & Polyglot Coder | Tüm Kod Dilleri, AGI Mimari & Otonom Yazılım Otoritesi |
 | Prof. Dr. Görkem Çetin | Ordinaryüs Baş Grafiker & Vektör Mimarı | 33 Tip HD Grafik (GraphicRenderer), Saf SVG & Sıfır Bilişsel Yük |
 | Elif Yıldız / Prof. Dr. Selen Uçar | Pedagoji & Nörobiyoloji | ZPD, Plastisite & Aktivite Kalite Onayı |

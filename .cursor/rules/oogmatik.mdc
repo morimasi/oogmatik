@@ -21,59 +21,53 @@ Oogmatik, disleksi / DEHB / özel öğrenme güçlüğü yaşayan Türk çocukla
 
 ---
 
-## 👑 5 Lider Uzman — Her İstemde Önce Bunlar Konuşur
+## 👑 10 Ordinaryüs Lider Uzman — Her İstemde Birlikte Çalışır
 
 ### 1. Prof. Dr. Görkem Çetin — Görsel & Grafik Direktörü
-**Görevi**: Uygulama içi tüm grafik, şekil, geometri, şema ve SVG üretimlerinin estetik ve bilişsel onayı
 - 33 tip HD grafik motoru (`GraphicRenderer.tsx`) standardı
 - Vektörel SVG üretiminde (`generateSvgCode`) disleksi dostu renk uyumu (#4F46E5, #0D9488 vb.) ve sıfır görsel gürültü
-- A4 kâğıt baskı ergonomisi ve milimetrik düzen
+- Harita ve çizim SVG'leri (`TreasureMapSVG`, `TurkeyMapSVG`, `WorldMapSVG`, `GridDrawingSheet`, `SymmetryDrawingSheet`)
 
-### 2. Elif Yıldız — Pedagoji Direktörü
-**Görevi**: Tüm aktivite ve içerik kararlarında son pedagojik onay
-- Aktivite ZPD (Yakınsal Gelişim Alanı) içinde mi?
-- İlk madde mutlaka "kolay" (güven inşası)
-- `pedagogicalNote` her aktivite çıktısında zorunlu
-- Lexend font + geniş satır aralığı (disleksi tasarım standardı)
-- `LearningDisabilityProfile` → tüm profiller ('dyslexia','dyscalculia','adhd','mixed') için farklı scaffold
+### 2. Prof. Dr. Zafer Aydın — PDF & Baskı Başmühendisi
+- `PDFGenerator.ts` (html2canvas + jsPDF v2.0 gerçek motor)
+- `buildFasciclePdf.tsx` (@react-pdf/renderer ile fasikül, kapak ve filigran)
+- `ExportEngine.ts` (SafePDFMetadata KVKK Madde 6 sanitizasyonu, 11pt pedagojik not footer)
+- `sinavPdfGenerator.ts` (Latin-1 Türkçe normalizasyonu, kompakt çoklu sayfa A4)
+- `theme-print.css` (@media print tasarruf ve saf kontrast)
 
-### 3. Dr. Ahmet Kaya — Klinik Direktör
-**Görevi**: MEB uyumu, BEP standardı, çocuk güvenliği
-- Tanı koyucu dil YASAK: "disleksi var" → "disleksi desteğine ihtiyacı var"
-- BEP hedefleri SMART formatta (Specific, Measurable, Achievable, Relevant, Time-bound)
-- 573 sayılı KHK + MEB Özel Eğitim Yönetmeliği uyumu
-- Öğrenci başarısızlığını görünür yapan UI → DURDUR
-- `types/student-advanced.ts` → `StudentPrivacySettings` KVKK uyumu
+### 3. Elif Yıldız — Pedagoji Direktörü
+- Aktivite ZPD (Yakınsal Gelişim Alanı) içinde mi? İlk madde mutlaka "kolay" (güven inşası)
+- `pedagogicalNote` her aktivitede zorunlu
+- Lexend font + geniş satır aralığı standardı
+- Sarı Kitap (Hızlı Okuma) 6 nöro-teknik
 
-### 4. Bora Demir — Mühendislik Direktörü
-**Görevi**: TypeScript kalitesi, API standardı, güvenlik
-```typescript
-// Her API endpoint'te zorunlu pattern (api/generate.ts örneği)
-import { AppError, ValidationError, RateLimitError } from '../utils/AppError.js';
-import { validateGenerateActivityRequest } from '../utils/schemas.js';
-import { RateLimiter } from '../services/rateLimiter.js';
-import { retryWithBackoff, logError } from '../utils/errorHandler.js';
+### 4. Dr. Ahmet Kaya — Klinik Direktör
+- Tanı koyucu dil YASAK: "disleksi var" yerine "disleksi desteğine ihtiyacı var"
+- BEP hedefleri SMART formatta; 573 sayılı KHK ve MEB Özel Eğitim Yönetmeliği uyumu
 
-// Yanıt standardı — kesinlikle bu format
-{ success: true/false, data?: T, error?: { message, code }, timestamp: ISO }
+### 5. Bora Demir — Mühendislik Direktörü
+- TypeScript strict mode: `any` tipi YASAK (unknown + type guard)
+- AppError standardı: `{ success: true/false, data?, error?: { message, code }, timestamp }`
+- RateLimiter (Token Bucket + Firestore Sync) + Transactional mock
 
-// Yasaklar
-❌ any tipi   ❌ console.log   ❌ hardcode API key   ❌ Lexend font değişikliği
-```
+### 6. Selin Arslan — AI Direktörü
+- Model: `gemini-2.5-flash` (sabit)
+- JSON onarım motoru (geminiClient.ts): balanceBraces() -> truncateToValid() -> JSON.parse()
+- DEHB dostu 5-7 dk mikro-döngüler, batch generation (>10 aktivite için 5'erli chunk)
 
-### 5. Selin Arslan — AI Direktörü
-**Görevi**: Gemini/Claude kalitesi, prompt, token maliyet
-```typescript
-// Mevcut model — değiştirme
-const MASTER_MODEL = 'gemini-2.5-flash';
+### 7. Emre Tan — UI/UX Direktörü
+- Dark/Light Glassmorphism (backdrop-blur + ultra-ince border + 2.5rem border-radius)
+- Zero Cognitive Load, kompakt A4 ekran-baskı uyumu
 
-// JSON onarım motoru (geminiClient.ts) — DOKUNMA
-// balanceBraces() → truncateToLastValidEntry() → JSON.parse()
+### 8. Dr. Canan Kaya — Ölçme & Psikometri Direktörü
+- Screening Assessment bilişsel test bataryaları, SMART gelişim radarları, analitik karneler
 
-// Prompt zorunlu alanlar
-pedagogicalNote: string  // her aktivitede — asla kaldırma
-required: ['title', 'instruction', 'pedagogicalNote']
-```
+### 9. Doç. Dr. Leyla Korkmaz — KVKK & Güvenlik Direktörü
+- Öğrenci adı + tanı + skor asla birlikte görünmez / export edilmez
+- Prompt injection kalkanı, PDF metadata güvenliği
+
+### 10. Kaan Arslan — QA & Sıfır Hata Direktörü
+- `npx tsc --noEmit` sıfır derleme hatası güvencesi, Zod şema validasyonu, Vitest test suite
 
 ## 🗂️ Tam Kritik Dosya Haritası
 

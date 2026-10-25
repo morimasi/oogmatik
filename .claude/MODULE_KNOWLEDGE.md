@@ -25,6 +25,7 @@
 12. [Phase 4: Generative Engine (Otonom)](#phase-4-generative-engine)
 13. [Profesyonel Mesajlaşma Modülü](#mesajlaşma-modülü)
 14. [Grafik ve Vektörel Görsel Motoru (GraphicRenderer & Görsel Mimari)](#grafik-ve-vektörel-görsel-motoru)
+15. [PDF, Baskı ve Çıktı Motoru (PDFGenerator, jsPDF, @react-pdf & A4 Mimarisi)](#pdf-baskı-ve-çıktı-motoru)
 
 ---
 
@@ -1443,7 +1444,67 @@ Tüm bdmind modülleri/stüdyoları için AI destekli, özelleştirilebilir rekl
 - **Marjinler**: 10-15 mm kompakt A4 güvenli sınırları.
 - **html2canvas Entegrasyonu**: Vektörlerin rasterize edilmeden önce net SVG olarak gömülmesi.
 
+
 ---
+
+## 15. PDF, Baskı ve Çıktı Motoru (PDFGenerator, jsPDF, @react-pdf & A4 Mimarisi) {#pdf-baskı-ve-çıktı-motoru}
+
+**Lider & Direktör**: **Prof. Dr. Zafer Aydın** (Ordinaryüs PDF & Baskı Sistemleri Başmühendisi)
+
+### 15.1 Gerçek PDF Üretim Motoru v2.0 (`PDFGenerator.ts`)
+**Dosya Konumu**: `src/utils/print/PDFGenerator.ts`
+- **Çalışma Prensibi**: `html2canvas` ile her sayfayı yüksek çözünürlüklü yakalar -> `jsPDF` ile tek bir vektörel/resim PDF dosyasına birleştirir.
+- **Tüm Platformlar**: Masaüstü, tablet ve mobil cihazlarda aynı piksel-mükemmel çıktıyı üretir.
+- **Desteklenen Kâğıt Boyutları**:
+  - `A4` (210 x 297 mm) — Standart çalışma kâğıtları ve fasiküller
+  - `Letter` (216 x 279 mm) & `Legal` (216 x 356 mm)
+  - `Extreme_Yatay` (297 x 210 mm) & `Extreme_Dikey` (210 x 297 mm)
+- **Kalite Seviyeleri (QUALITY_SCALE_MAP)**:
+  - `standard` (scale: 1.5) — Hızlı önizleme ve hafif dosya
+  - `high` (scale: 2.0) — Standart dijital paylaşım
+  - `print` (scale: 3.0) — 300 DPI matbaa/fiziksel baskı kalitesi
+- **Kritik Alt Servisler**:
+  - `preloadFontsForCapture()`: Lexend ve Inter web fontlarının tam yüklenmesini bekler, font kaymasını önler.
+  - `forceRenderAllPages()`: Sayfalandırma yapılmış çok sayfalı fasiküllerde DOM'daki tüm sayfaları görünür kılar.
+  - `hideUIElements()`: `.edit-handle`, `.page-navigator`, `.no-print`, `.overlay-ui` gibi arayüz kontrollerini PDF'te gizler.
+
+### 15.2 ActivityStudio & ExportEngine (`ExportEngine.ts`)
+**Dosya Konumu**: `src/components/ActivityStudio/preview/ExportEngine.ts`
+- **Formatlar**: `pdf`, `png`, `json`
+- **SafePDFMetadata & KVKK Madde 6 Güvenliği**:
+  - PDF meta verilerine (Author, Subject, Keywords) öğrenci adı (`studentName`) veya klinik tanı (`learningProfile`) KESİNLİKLE yazılmaz.
+  - `sanitizeForKVKK` ve `sanitizeDiagnosticLanguage` fonksiyonları ile tanı koyucu dil temizlenir.
+- **Pedagojik Not Standardı**:
+  - Sayfa altındaki pedagojik not alanı **11pt** boyutunda kalıcıdır (asla 8pt'ye düşürülemez — Elif Yıldız & Zafer Aydın kuralı).
+
+### 15.3 Sınav Stüdyosu PDF Motoru (`sinavPdfGenerator.ts`)
+**Dosya Konumu**: `src/utils/sinavPdfGenerator.ts`
+- **Özellikler**: 1 veya 2 sütunlu kompakt A4 LGS/MEB sınav kitapçığı formatı.
+- **Karakter Kodlama Normalizasyonu**: jsPDF Helvetica motoru için Türkçe özel karakterleri latin-1 muadilleriyle hatasız encode eder.
+- **Dinamik Sütun ve Sayfa Kırma**: Soru yüksekliğini (`y + need > PAGE_H - 14`) hesaplayarak soruları sayfa veya sütun ortasında bölmeden bir sonraki sütuna/sayfaya aktarır.
+
+### 15.4 Fasikül PDF Motoru (`buildFasciclePdf.tsx`)
+**Dosya Konumu**: `src/utils/buildFasciclePdf.tsx`
+- **Teknoloji**: `@react-pdf/renderer` (Native SVG ve metin render motoru).
+- **Öğeler**:
+  - Kurumsal kapak sayfası (4 tema x 6 pastel palet seçimi).
+  - Yarı saydam arka plan filigranı (`watermarkText`: "EduMind / Özel Eğitim", opacity: 0.06, rotate: -45deg).
+  - Otomatik içindekiler tablosu (`FascicleTableOfContentsPage`).
+  - Sayfa numaralandırma ve dipnot yönetimi.
+
+### 15.5 Toplu Dışa Aktarma Motoru (`useBatchExport.ts` & `BatchExportManager.tsx`)
+**Dosya Konumu**: `src/components/UniversalWorksheetViewer/hooks/useBatchExport.ts`
+- Çoklu çalışma kâğıdını arka planda asenkron işleyerek toplu PDF veya JSON zip paketi oluşturur.
+- İlerleme yüzdesi, iptal desteği ve başarısız sayfaları otomatik yeniden deneme (`retryFailed`) mimarisi.
+
+### 15.6 Yazdırma Teması & Mürekkep Tasarrufu (`theme-print.css`)
+**Dosya Konumu**: `src/styles/theme-print.css`
+- `@media print` altında tüm glassmorphism arka planları, bulanıklıkları ve renkli kutuları temizler.
+- Yazıcı mürekkebini korumak için saf beyaz arka plan ve net siyah metin (`--text-primary: #000000`) zorlar.
+- Disleksi fontu `Lexend`'i fiziksel kâğıt üzerinde en yüksek optik netlikte tutar.
+
+---
+
 
 
 

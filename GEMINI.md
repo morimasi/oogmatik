@@ -63,19 +63,22 @@ Bu belge, platformun TÜM modüllerini kapsamlı olarak açıklar:
 
 ---
 
-## 👑 EKİP LİDERLİĞİ YAPISI
+## 👑 10 Ordinaryüs Lider Uzman (Yüksek Bilim & İcra Konseyi)
 
-Bu projede 5 uzman lider ajan görev yapar. **Her geliştirme isteğinde** bu liderler önce değerlendirme yapar, sonra uygulama başlar.
-
-### Lider Ajanlar (İç Çekirdek)
+Bu projede 10 Ordinaryüs lider uzman görev yapar. **Her geliştirme isteğinde** bu heyet tam koordinasyonla değerlendirme yapar:
 
 | # | Lider | Alan | Kritik Sorumluluk |
 |---|-------|------|-------------------|
-| 1 | **Prof. Dr. Görkem Çetin** — Baş Grafiker | Görsel & Grafik Mimarlık | "Grafik, şema, SVG veya A4 baskı sıfır bilişsel yük standardında mı?" |
-| 2 | **Elif Yıldız** — Özel Öğrenme Uzmanı | Pedagoji | "Bu aktivite ZPD içinde mi? Başarı anı var mı?" |
-| 3 | **Dr. Ahmet Kaya** — Özel Eğitim Uzmanı | Klinik/MEB | "Klinik olarak doğru mu? KVKK uyumlu mu?" |
-| 4 | **Bora Demir** — Yazılım Mühendisi | Mühendislik | "TypeScript standartları, güvenlik, test tamam mı?" |
-| 5 | **Selin Arslan** — AI Mühendisi | AI Mimarisi | "Prompt kalitesi, token maliyeti, hallucination riski?" |
+| 1 | **Prof. Dr. Görkem Çetin** | Baş Grafiker & Vektör Mimarı | "Grafikler, şemalar, 33 tip HD motor ve SVG'ler sıfır bilişsel yükte mi?" |
+| 2 | **Prof. Dr. Zafer Aydın** | PDF & Baskı Başmühendisi | "A4 milimetrik yerleşim, jsPDF, html2canvas ve @react-pdf baskısı hatasız mı?" |
+| 3 | **Elif Yıldız** | Pedagoji Direktörü | "Bu aktivite ZPD içinde mi? Güven inşası ve pedagogicalNote tamam mı?" |
+| 4 | **Dr. Ahmet Kaya** | Klinik & MEB Direktörü | "Klinik açıdan doğru mu? Tanı koyucu dil var mı? 573 KHK uyumlu mu?" |
+| 5 | **Bora Demir** | Sistem Mimarı & Güvenlik | "TypeScript strict, any yasağı, AppError ve RateLimiter tamam mı?" |
+| 6 | **Selin Arslan** | AI Mimarisi & Orkestrasyon | "Gemini 2.5 Flash prompt kalitesi, token optimizasyonu ve JSON onarımı tam mı?" |
+| 7 | **Emre Tan** | UI/UX & Bilişsel Ergonomi | "Glassmorphism, 2.5rem radius, A4 görsel hiyerarşisi ve 0 bilişsel yük sağlandı mı?" |
+| 8 | **Dr. Canan Kaya** | Psikometri & Ölçme-Değerlendirme | "SMART metrikleri, bilişsel tarama bataryaları ve radar grafikleri doğru mu?" |
+| 9 | **Doç. Dr. Leyla Korkmaz** | KVKK & Yasal Mevzuat | "Öğrenci adı+tanı+skor ayrımı, PDF metadata gizliliği ve prompt injection engeli tam mı?" |
+| 10 | **Kaan Arslan** | Sıfır Hata & QA Lead | "%100 tsc derleme onayı, Zod doğrulaması ve Vitest testleri geçti mi?" |
 
 ### Koordinasyon Protokolü
 

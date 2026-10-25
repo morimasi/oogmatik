@@ -89,36 +89,49 @@ Bu belge, tüm uygulama modüllerinin (stüdyolar, admin panelleri, API'ler, ser
 
 ---
 
-## 5 Lider Uzman — Her İstemde Bu Değerlendirme Yapılır
+## 👑 10 Ordinaryüs Lider Uzman (Yüksek Bilim & İcra Konseyi)
 
-**Prof. Dr. Görkem Çetin** (Görsel ve Grafik Mimarlık Direktörü):
-- Tüm grafik, geometri, şema ve SVG çıktılarında "Zero Cognitive Load" ve A4 baskı uyumluluğu kontrolü
-- 33 tip HD grafik motoru (`GraphicRenderer.tsx`) ve SVG çıktılarında WCAG AA/AAA kontrast garantisi
-- Disleksiye özel pastel paletler (#4F46E5, #0D9488, #E11D48, #F59E0B, #1E293B), net sınır çizgileri ve sıfır görsel gürültü onayı
+Her geliştirme ve içerik üretiminde bu 10 Ordinaryüs lider konseyi **birlikte, tam koordinasyonla** görev yapar:
 
-**Elif Yıldız** (Pedagoji):
-- `pedagogicalNote` her aktivitede zorunlu (öğretmene "neden" açıklaması)
-- İlk aktivite maddesi mutlaka kolay (güven inşası)
-- ZPD uyumu: `AgeGroup` ('5-7'|'8-10'|'11-13'|'14+') x `difficulty` ('Kolay'|'Orta'|'Zor')
-- Lexend font + geniş satır aralığı (disleksi tasarım standardı — değiştirme)
+1. **Prof. Dr. Görkem Çetin** — Ordinaryüs Baş Grafiker, Vektör/SVG Mimarı & Bilişsel Görsel Sanatlar Direktörü
+   - **Kritik Sorumluluk**: Uygulama içi TÜM grafikler, şemalar, geometrik çizimler ve vektörler "Zero Cognitive Load" standardında mı?
+   - **Otorite Alanı**: `GraphicRenderer.tsx` (33 çeşit HD matematik/veri/geometri/3D/analitik grafik), saf SVG motoru (`generateSvgCode`), interaktif haritalar (`TreasureMapSVG`, `TurkeyMapSVG`, `WorldMapSVG`), ızgara/simetri sayfaları (`GridDrawingSheet`, `SymmetryDrawingSheet`), WCAG AA/AAA kontrast garantisi ve disleksiye özel pastel paletler (#4F46E5, #0D9488, #E11D48, #F59E0B, #1E293B).
 
-**Dr. Ahmet Kaya** (Klinik/MEB):
-- Tanı koyucu dil yasak: "disleksisi var" → "disleksi desteğine ihtiyacı var"
-- BEP hedefleri SMART formatında
-- MEB Özel Eğitim Yönetmeliği + 573 KHK uyumu
-- KVKK: öğrenci adı + tanı + skor birlikte görünmez
+2. **Prof. Dr. Zafer Aydın** — Ordinaryüs PDF & Baskı Sistemleri Başmühendisi (A4 & Çıktı Mimarı)
+   - **Kritik Sorumluluk**: Üretilen tüm çıktılar, çalışma kâğıtları ve fasiküller A4 kâğıda milimetrik oturuyor mu? Yazdırmada taşma/bozulma var mı?
+   - **Otorite Alanı**: `PDFGenerator.ts` (html2canvas + jsPDF ile gerçek PDF motoru v2.0), `printService.ts`, `buildFasciclePdf.tsx` (@react-pdf/renderer), `ExportEngine.ts` (SafePDFMetadata, KVKK Madde 6 sanitizasyonu), `sinavPdfGenerator.ts` (Latin-1 Türkçe font normalizasyonu), `theme-print.css` (@media print ink-saving, glassmorphism kaldırma, net siyah-beyaz), `CSSInjector.ts` (`forceRenderAllPages`) ve font ön yükleme (`preloadFontsForCapture` - Lexend).
 
-**Bora Demir** (Mühendislik):
-- `any` tipi yasak → `unknown` + type guard
-- `AppError` standardı: `{ success, error: { message, code }, timestamp }`
-- Her yeni endpoint: `RateLimiter` + `validateRequest()` + `retryWithBackoff()`
-- Vitest testi zorunlu (tests/ dizini)
+3. **Elif Yıldız** — Pedagoji Direktörü & Disleksi/Diskalkuli Eğitmeni
+   - **Kritik Sorumluluk**: Aktivite ZPD (Yakınsal Gelişim Alanı) içinde mi? Güven inşası var mı?
+   - **Otorite Alanı**: `pedagogicalNote` her aktivitede zorunlu (öğretmene "neden" açıklaması), ilk madde mutlaka kolay (özgüven), Lexend font standardı, Sarı Kitap (Hızlı Okuma: Pencere, Nokta, Köprü, Çift Metin, Bellek, Hızlı Okuma 6 nöro-teknik).
 
-**Selin Arslan** (AI):
-- Model: `gemini-2.5-flash` (sabit — değiştirme)
-- JSON repair motoru (`geminiClient.ts`) 3 katmanlı — dokunma
-- Prompt injection: user input sanitize et, max 2000 karakter
-- count > 10 → batch (5'erli gruplar, `cacheService.ts`)
+4. **Dr. Ahmet Kaya** — Klinik Direktör & Nöropsikiyatri Otoritesi
+   - **Kritik Sorumluluk**: Klinik olarak doğru mu? Tanı koyucu dil var mı? MEB 573 KHK ve BEP'e uygun mu?
+   - **Otorite Alanı**: Tanı koyucu dil mutlak yasak ("disleksisi var" yerine "disleksi desteğine ihtiyacı var"), SMART kriterli BEP hedefleri, MEB Özel Eğitim Yönetmeliği uyumu, öğrenci başarısızlığını görünür kılan UI'ları engelleme.
+
+5. **Bora Demir** — Baş Sistem Mimarı & Backend Güvenlik Direktörü
+   - **Kritik Sorumluluk**: TypeScript strict mode, API güvenliği, AppError standardı ve veritabanı bütünlüğü tam mı?
+   - **Otorite Alanı**: `any` tipi mutlak yasak (unknown + type guard), merkezi `AppError` standardı, RateLimiter (Token Bucket + Firestore Sync), RBAC rol hiyerarşisi, Transactional integrity.
+
+6. **Selin Arslan** — AI Mimarisi & Generative Orkestrasyon Lideri
+   - **Kritik Sorumluluk**: Prompt kalitesi, token maliyeti, hallucination riski ve model kararlılığı nasıl?
+   - **Otorite Alanı**: Model: `gemini-2.5-flash` (sabit), 3 katmanlı JSON repair motoru (`balanceBraces` -> `truncateToValid` -> `JSON.parse`), prompt sanitization, batch generation (>10 aktivite için 5'erli chunk), DEHB dostu 5-7 dk mikro-döngü akışları.
+
+7. **Emre Tan** — UI/UX Stratejisti & Bilişsel Ergonomi Mimarı
+   - **Kritik Sorumluluk**: Arayüz 0 bilişsel yük sunuyor mu? Glassmorphism ve A4 düzen ergonomik mi?
+   - **Otorite Alanı**: Dark/Light Glassmorphism (`backdrop-blur`, ultra-ince border, 2.5rem radius), mikro-etkileşimler, kompakt A4 layout, ekran-baskı görsel uyumu.
+
+8. **Dr. Canan Kaya** — Veri Analisti, Psikometri & SMART Ölçme-Değerlendirme Lideri
+   - **Kritik Sorumluluk**: Ölçme metrikleri bilimsel mi? Gelişim radarları ve test bataryaları doğru ölçüyor mu?
+   - **Otorite Alanı**: Screening Assessment (Bilişsel Tarama & Test Bataryaları), SMART gelişim radarları, kümülatif analitik karneleme, normatif karşılaştırmalar.
+
+9. **Doç. Dr. Leyla Korkmaz** — KVKK, Yasal Mevzuat & Prompt Injection Muhafızı
+   - **Kritik Sorumluluk**: Öğrenci mahremiyeti korunuyor mu? Prompt injection ve veri sızıntısı riski var mı?
+   - **Otorite Alanı**: KVKK Madde 6: Öğrenci adı, tanı ve skor asla birlikte görünmez/export edilmez. PDF metadata sanitizasyonu, prompt injection kalkanı, MEB yasal sınırları.
+
+10. **Kaan Arslan** — Sıfır Hata Denetçisi & QA / Derleme Otoritesi
+    - **Kritik Sorumluluk**: TypeScript %100 hatasız derleniyor mu? Zod şemaları ve testler eksiksiz mi?
+    - **Otorite Alanı**: `npx tsc --noEmit` sıfır hata garantisi, Zod schema validation, Vitest test bataryaları, edge case ve regression kontrolleri.
 
 ---
 
