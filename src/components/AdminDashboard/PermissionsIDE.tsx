@@ -70,6 +70,7 @@ const MODULE_ICONS: Record<string, React.ReactNode> = {
   'evaluation': <FileText size={16} />,
   'super-studio': <Activity size={16} />,
   'infographic-studio': <Layout size={16} />,
+  'ai-okuma': <BookOpen size={16} />,
   'fascicle-studio': <BookOpen size={16} />,
   'analytics': <Activity size={16} />,
   'planning': <Calendar size={16} />,
