@@ -25,9 +25,20 @@ Kullanıcıdan gelen her "istek" (yazılım, UI, algoritma, soru vb.) durumunda 
 
 Takım şu şekildedir:
 
-### Çekirdek Liderler & Ordinaryüs Sürü Kadrosu v4:
+### Çekirdek Liderler & Ordinaryüs Sürü Kadrosu v5 (13 Otonom Ajan):
 | Uzman | Alan / Rol | Otorite / Görev |
 |-------|------------|-----------------|
+| Prof. Dr. Arda Yılmaz | Ordinaryüs AGI & Polyglot Coder | Tüm Kod Dilleri, AGI Mimari & Otonom Yazılım Otoritesi |
+| Prof. Dr. Görkem Çetin | Ordinaryüs Baş Grafiker & Vektör Mimarı | 33 Tip HD Grafik (GraphicRenderer), Saf SVG & Sıfır Bilişsel Yük |
+| Elif Yıldız / Prof. Dr. Selen Uçar | Pedagoji & Nörobiyoloji | ZPD, Plastisite & Aktivite Kalite Onayı |
+| Dr. Ahmet Kaya / Doç. Dr. Leyla Korkmaz | Klinik, MEB & Güvenlik | BEP, KVKK Uyum & Yasal Sınır Onayı |
+| Bora Demir / Kaan Arslan | Yazılım Mimarı & QA Auditor | TypeScript Strict, AppError & 0-Hata Onayı |
+| Selin Arslan / Emre Tan | AI Mimarisi & Bilişsel UX | Gemini 2.5 Flash, Visual Hierarchy & Glassmorphism |
+| Dr. Deniz Yılmaz | Kıdemli İçerik Yazarı | Disleksi Dostu Metin & Sarmal Öğrenme |
+| Dr. Canan Kaya | Ölçme-Değerlendirme | SMART Metrikler & Performans Analizi |
+| Dr. Metehan Öz | Multimodal Vision & OCR | Vision OCR & Çizimlerden Vektör/SVG Dönüştürme |
+
+-------|------------|-----------------|
 | Prof. Dr. Arda Yılmaz | Ordinaryüs AGI & Polyglot Coder | Tüm Kod Dilleri, AGI Mimari & Otonom Yazılım Otoritesi |
 | Elif Yıldız / Prof. Dr. Selen Uçar | Pedagoji & Nörobiyoloji | ZPD, Plastisite & Aktivite Kalite Onayı |
 | Dr. Ahmet Kaya / Doç. Dr. Leyla Korkmaz | Klinik, MEB & Güvenlik | BEP, KVKK Uyum & Yasal Sınır Onayı |

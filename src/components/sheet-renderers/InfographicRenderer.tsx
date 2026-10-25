@@ -2,8 +2,8 @@ import React from 'react';
 import type { ContentBlock, ThemeConfig, CompactA4Config } from '@/types/activityStudio';
 
 interface InfographicRendererProps {
-  data: any;
-  settings?: any;
+  data: unknown;
+  settings?: unknown;
 }
 
 function getBlockLabel(type: string): string {
@@ -67,21 +67,36 @@ function getBlockStyle(
   }
 }
 
+interface RawWizardData {
+  title?: string;
+  goal?: { title?: string };
+  blocks?: ContentBlock[];
+  themeConfig?: ThemeConfig | null;
+  compactA4Config?: CompactA4Config | null;
+}
+
 /**
  * InfographicRenderer - Handles modular output from ActivityStudio
+ * Fully compliant with Ordinaryus Grafiker & Zero Cognitive Load protocols
  */
 export const InfographicRenderer: React.FC<InfographicRendererProps> = ({ data }) => {
-  // Extract data from standard wrapper
-  const item = Array.isArray(data) ? data[0] : (data.items ? data.items[0] : data);
-  const wizardData = item.data || item.wizardData || item;
+  // Extract data from standard wrapper safely without any
+  const rawDataRecord = (data && typeof data === 'object' ? data : {}) as Record<string, unknown>;
+  const rawItems = Array.isArray(rawDataRecord.items) ? rawDataRecord.items : undefined;
+  const item = Array.isArray(data)
+    ? (data[0] as Record<string, unknown> | undefined)
+    : (rawItems ? (rawItems[0] as Record<string, unknown> | undefined) : rawDataRecord);
+
+  const itemRecord = (item && typeof item === 'object' ? item : {}) as Record<string, unknown>;
+  const wizardData = ((itemRecord.data || itemRecord.wizardData || itemRecord) as RawWizardData) || {};
   
   const title = wizardData.title || wizardData.goal?.title || 'Etkinlik';
-  const blocks = wizardData.blocks || [];
+  const blocks: ContentBlock[] = Array.isArray(wizardData.blocks) ? wizardData.blocks : [];
 
   const themeConfig = wizardData.themeConfig || null;
   const compactA4Config = wizardData.compactA4Config || null;
 
-  const sortedBlocks = [...blocks].sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+  const sortedBlocks = [...blocks].sort((a, b) => ((a.order ?? 0) - (b.order ?? 0)));
 
   return (
     <div className="infographic-render-container w-full" style={{ fontFamily: "'Lexend', sans-serif" }}>
@@ -102,7 +117,7 @@ export const InfographicRenderer: React.FC<InfographicRendererProps> = ({ data }
 
         {/* İçerik Blokları */}
         <div style={{ marginBottom: '24px' }}>
-          {sortedBlocks.map((block: any) => {
+          {sortedBlocks.map((block) => {
             if (block.type === 'spacing') {
               return <div key={block.id} style={getBlockStyle(block.type, themeConfig, compactA4Config)} />;
             }

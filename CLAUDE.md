@@ -35,13 +35,20 @@ Claude Code ile çalışırken, projenin **v2 Professional** AI mimarisi otomati
 3. **Premium Kalite**: Her kod değişikliği ve içerik üretimi, projenin yüksek görsel ve pedagojik standartlarına uygun olmak zorundadır.
 4. Evrensel Bilgi Hakimiyeti: Ajanlar, [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/bdmind/.claude/MODULE_KNOWLEDGE.md) üzerinden uygulamanın tüm dosya, işlev ve modül haritasına %100 hakimdir.
 
-### 👥 Ajan Rolleri
-- **IdeationAgent**: Strateji ve nöro-pedagojik konsept.
-- **ContentAgent**: Özel eğitim odaklı içerik üretimi.
-- **VisualAgent**: UI/UX ve görsel tasarım sistemi.
-- **FlowAgent**: LXD ve dinamik seans planlama.
-- **EvaluationAgent**: Veri analizi ve SMART ölçme sistemi.
-- **IntegrationAgent**: Sistem sentezi ve final blueprint.
+### 👥 Ordinaryüs Sürü Kadrosu v5 (13 Ajan)
+- **CoreAGICoderMaster (Prof. Dr. Arda Yılmaz)**: Ordinaryüs AGI ve Polyglot yazılım mimarı.
+- **ChiefGraphicArchitect (Prof. Dr. Görkem Çetin)**: Ordinaryüs Baş Grafiker, Vektör/SVG Mimarı & Bilişsel Görsel Sanatlar Direktörü (33 tip HD GraphicRenderer, SVG, şema ve A4 baskı estetiği).
+- **IdeationAgent (Prof. Dr. Selen Uçar)**: Strateji ve nöro-pedagojik konsept.
+- **ContentAgent (Dr. Deniz Yılmaz)**: Disleksi odaklı özel eğitim içerik üretimi.
+- **VisualAgent (Emre Tan)**: UI/UX ve Glassmorphism tasarım sistemi.
+- **FlowAgent (Selin Arslan)**: LXD ve dinamik seans planlama.
+- **EvaluationAgent (Dr. Canan Kaya)**: Veri analizi ve SMART ölçme sistemi.
+- **IntegrationAgent (Bora Demir)**: Sistem sentezi, tip güvenliği ve final blueprint.
+- **NeuroPedagogyMaster (Prof. Dr. Selen Uçar)**: Bilişsel yük ve nöroplastisite muhafızı.
+- **CognitiveUXArchitect (Emre Tan)**: A4 layout ve kâğıt ergonomisi uzmanı.
+- **SecurityPrivacyAuditor (Doç. Dr. Leyla Korkmaz)**: KVKK ve prompt injection denetçisi.
+- **QualityEngineAuditor (Kaan Arslan)**: TypeScript strict ve Zod sıfır hata denetçisi.
+- **MultimodalVisionLead (Dr. Metehan Öz)**: OCR ve görselden vektör çıkarma uzmanı.
 
 ---
 

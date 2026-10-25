@@ -24,6 +24,7 @@
 11. [İnfografik Stüdyosu v3](#infografik-stüdyosu-v3)
 12. [Phase 4: Generative Engine (Otonom)](#phase-4-generative-engine)
 13. [Profesyonel Mesajlaşma Modülü](#mesajlaşma-modülü)
+14. [Grafik ve Vektörel Görsel Motoru (GraphicRenderer & Görsel Mimari)](#grafik-ve-vektörel-görsel-motoru)
 
 ---
 
@@ -1386,7 +1387,65 @@ Tüm bdmind modülleri/stüdyoları için AI destekli, özelleştirilebilir rekl
 - Tüm modüller hedef olarak seçilebilir
 - AI servisi: `/api/generate` endpoint'i (Gemini 2.5 Flash)
 
+
 ---
+
+## 14. Grafik ve Vektörel Görsel Motoru {#grafik-ve-vektörel-görsel-motoru}
+
+**Lider & Direktör**: **Prof. Dr. Görkem Çetin** (Ordinaryüs Baş Grafiker, Vektör/SVG Mimarı & Bilişsel Görsel Sanatlar Direktörü)
+
+### 14.1 HD Kalite Matematik ve Veri Görsel Motoru (`GraphicRenderer.tsx`)
+**Dosya Konumu**: `src/components/MatSinavStudyosu/components/GraphicRenderer.tsx` (1533 satır)
+
+**Desteklenen 33 Çeşit Görsel Türü**:
+1. **Veri Grafikleri**:
+   - `siklik_tablosu` — Sıklık Tablosu (çerçeveli, yüksek kontrastlı sayısal dağılım)
+   - `cetele_tablosu` — Çetele Tablosu (5'li gruplanmış çetele çizgileri)
+   - `sutun_grafigi` — Sütun Grafiği (dikey/yatay çubuklar, değer etiketleri)
+   - `nesne_grafigi` — Nesne Grafiği (sembolik görsel ikonlarla frekans gösterimi)
+   - `pasta_grafigi` — Pasta Grafiği (SVG dilimleri, yüzde hesaplamaları, renk lejantı)
+   - `cizgi_grafigi` — Çizgi Grafiği (veri noktaları, kesikli/sürekli trend çizgileri)
+2. **2D Geometri**:
+   - `ucgen`, `dik_ucgen` — Açı, köşe ve kenar uzunluk etiketli üçgenler
+   - `kare`, `dikdortgen`, `paralel_kenar`, `cokgen`, `daire` — Kenarlık kalınlığı, iç açı ve yarıçap gösterimleri
+   - `dogru_parcasi`, `isin`, `dogru`, `aci`, `simetri` — Temel geometrik kavramlar
+   - `kesisen_dogrular`, `dik_kesisen_dogrular`, `paralel_dogrular` — Doğru ilişkileri
+3. **3D Geometri**:
+   - `kup`, `silindir`, `koni`, `piramit`, `dikdortgenler_prizmasi` — Saydam katmanlar, kesikli arka çizgiler, derinlik hissi
+4. **Analitik Matematik**:
+   - `koordinat_sistemi`, `koordinat_grafigi`, `koordinat_donusum` — I-IV bölgeler, orijin, (x, y) nokta yerleşimi
+   - `sayi_dogrusu` — Eşit aralıklı adımlar, negatif/pozitif sayılar, kesir gösterimleri
+5. **Kavramsal ve Olasılık Modelleri**:
+   - `kesir_modeli` — Daire ve dikdörtgen üzerinde taranmış kesir parçaları
+   - `venn_diyagrami` — Kesişim, birleşim ve fark kümeleri (yarı saydam renk bindirmeleri)
+   - `olaslik_cark` — Eşit ve farklı açılı dönen olasılık çarkları
+
+### 14.2 Vektörel SVG Üretim Motoru (`geminiClient.ts` & `generateSvgCode`)
+- **Rol**: Her türlü aktivite için saf, temiz ve ölçeklenebilir SVG vektörleri üretir.
+- **Standartlar**:
+  - `viewBox="0 0 100 100"` standart oran.
+  - Sadece geçerli `<svg>` kodu, harici markdown çiti içermez.
+  - Disleksiye özel renk paleti: `#4F46E5` (çivit mavisi), `#0D9488` (turkuaz), `#E11D48` (gül kurusu), `#F59E0B` (kehribar), `#1E293B` (koyu arduvaz).
+  - Anti-flicker & zero cognitive load: Karmaşık 3D gölgeler ve parlamalar yerine temiz sınır çizgileri (2-4px stroke).
+
+### 14.3 İnfografik ve Şematik Render Motoru (`InfographicRenderer.tsx`)
+- **Rol**: Başlık, soru, açıklama, etkinlik ve kaynak bloklarını modüler, A4'e sığacak şekilde düzenler.
+- **Tip Güvenliği**: Sıfır `any`, tam `ContentBlock`, `ThemeConfig` ve `CompactA4Config` uyumu.
+
+### 14.4 Etkileşimli Harita ve Çizim Vektörleri
+- `TreasureMapSVG.tsx`: Korsan hazine haritası koordinat ve yön bulma simülatörü.
+- `TurkeyMapSVG.tsx`: 81 il vektörel Türkiye haritası, coğrafi yön ve konum aktiviteleri.
+- `WorldMapSVG.tsx`: Kıtalar ve okyanuslar dünya haritası.
+- `GridDrawingSheet.tsx` & `SymmetryDrawingSheet.tsx`: Milimetrik ızgara ve ayna simetri çizim sayfaları.
+
+### 14.5 A4 Kâğıt Baskı ve Bilişsel Ergonomi Kuralları
+- **Font**: Zorunlu disleksi dostu `Lexend`.
+- **Marjinler**: 10-15 mm kompakt A4 güvenli sınırları.
+- **html2canvas Entegrasyonu**: Vektörlerin rasterize edilmeden önce net SVG olarak gömülmesi.
+
+---
+
+
 
 **NOT**: Bu belge, tüm ajanların bdmind uygulamasını tam olarak anlaması için oluşturulmuştur. Her geliştirme öncesi ilgili modül bölümü okunmalıdır.
 

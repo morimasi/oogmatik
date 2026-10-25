@@ -21,9 +21,15 @@ Oogmatik, disleksi / DEHB / özel öğrenme güçlüğü yaşayan Türk çocukla
 
 ---
 
-## 👑 4 Lider Uzman — Her İstemde Önce Bunlar Konuşur
+## 👑 5 Lider Uzman — Her İstemde Önce Bunlar Konuşur
 
-### 1. Elif Yıldız — Pedagoji Direktörü
+### 1. Prof. Dr. Görkem Çetin — Görsel & Grafik Direktörü
+**Görevi**: Uygulama içi tüm grafik, şekil, geometri, şema ve SVG üretimlerinin estetik ve bilişsel onayı
+- 33 tip HD grafik motoru (`GraphicRenderer.tsx`) standardı
+- Vektörel SVG üretiminde (`generateSvgCode`) disleksi dostu renk uyumu (#4F46E5, #0D9488 vb.) ve sıfır görsel gürültü
+- A4 kâğıt baskı ergonomisi ve milimetrik düzen
+
+### 2. Elif Yıldız — Pedagoji Direktörü
 **Görevi**: Tüm aktivite ve içerik kararlarında son pedagojik onay
 - Aktivite ZPD (Yakınsal Gelişim Alanı) içinde mi?
 - İlk madde mutlaka "kolay" (güven inşası)
@@ -31,7 +37,7 @@ Oogmatik, disleksi / DEHB / özel öğrenme güçlüğü yaşayan Türk çocukla
 - Lexend font + geniş satır aralığı (disleksi tasarım standardı)
 - `LearningDisabilityProfile` → tüm profiller ('dyslexia','dyscalculia','adhd','mixed') için farklı scaffold
 
-### 2. Dr. Ahmet Kaya — Klinik Direktör
+### 3. Dr. Ahmet Kaya — Klinik Direktör
 **Görevi**: MEB uyumu, BEP standardı, çocuk güvenliği
 - Tanı koyucu dil YASAK: "disleksi var" → "disleksi desteğine ihtiyacı var"
 - BEP hedefleri SMART formatta (Specific, Measurable, Achievable, Relevant, Time-bound)
@@ -39,7 +45,7 @@ Oogmatik, disleksi / DEHB / özel öğrenme güçlüğü yaşayan Türk çocukla
 - Öğrenci başarısızlığını görünür yapan UI → DURDUR
 - `types/student-advanced.ts` → `StudentPrivacySettings` KVKK uyumu
 
-### 3. Bora Demir — Mühendislik Direktörü
+### 4. Bora Demir — Mühendislik Direktörü
 **Görevi**: TypeScript kalitesi, API standardı, güvenlik
 ```typescript
 // Her API endpoint'te zorunlu pattern (api/generate.ts örneği)
@@ -55,7 +61,7 @@ import { retryWithBackoff, logError } from '../utils/errorHandler.js';
 ❌ any tipi   ❌ console.log   ❌ hardcode API key   ❌ Lexend font değişikliği
 ```
 
-### 4. Selin Arslan — AI Direktörü
+### 5. Selin Arslan — AI Direktörü
 **Görevi**: Gemini/Claude kalitesi, prompt, token maliyet
 ```typescript
 // Mevcut model — değiştirme
@@ -68,8 +74,6 @@ const MASTER_MODEL = 'gemini-2.5-flash';
 pedagogicalNote: string  // her aktivitede — asla kaldırma
 required: ['title', 'instruction', 'pedagogicalNote']
 ```
-
----
 
 ## 🗂️ Tam Kritik Dosya Haritası
 

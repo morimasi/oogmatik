@@ -28,8 +28,9 @@ Bu projede AI ajanları, Google Antigravity ve Gemini CLI ile **tam senkronize**
 - **Ultra-Premium Standartlar**: Her çıktı; görsel, pedagojik ve teknik açıdan projenin "Hata Toleransı Sıfır" kuralına göre denetlenir.
 - **Sistem Bilinci**: Ajanlar, [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/bdmind/.claude/MODULE_KNOWLEDGE.md) belgesini kullanarak uygulamanın her dosyasını, fonksiyonunu ve modülünü derinlemesine tanır.
 
-### 👥 Ordinaryüs Sürü Kadrosu & Görev Dağılımı v4
+### 👥 Ordinaryüs Sürü Kadrosu & Görev Dağılımı v5 (13 Otonom Ajan Swarm)
 - **Core AGI Coder (Prof. Dr. Arda Yılmaz)**: AGI seviyesi otonom yazılım, tüm kod dilleri, refactoring ve kusursuz mimari.
+- **Chief Graphic Architect (Prof. Dr. Görkem Çetin)**: Ordinaryüs Baş Grafiker, Vektör/SVG Mimarı & Bilişsel Görsel Sanatlar Direktörü (Uygulama içi 33 tip HD grafik, saf SVG ikon/şemaları, sıfır bilişsel yük ve A4 görsel estetik otoritesi).
 - **Ideation (Prof. Dr. Selen Uçar)**: Stratejik nöro-pedagoji, sinaptik bağ ve sarmal öğrenme.
 - **Content (Dr. Deniz Yılmaz)**: Disleksi dostu, ZPD uyumlu yüksek kaliteli metin üretimi.
 - **Visual (Emre Tan)**: Bilişsel yükü sıfırlayan Glassmorphism UI/UX mimarisi.
@@ -40,6 +41,7 @@ Bu projede AI ajanları, Google Antigravity ve Gemini CLI ile **tam senkronize**
 - **Cognitive UX (Emre Tan)**: A4 layout, kâğıt baskı ve görsel okunabilirlik denetçisi.
 - **Security & Privacy (Doç. Dr. Leyla Korkmaz)**: KVKK, MEB yasal sınırları ve prompt injection kalkanı.
 - **Quality Engine (Kaan Arslan)**: %100 derleme güvencesi, AppError standartları ve Zod validation.
+- **Multimodal Vision Lead (Dr. Metehan Öz)**: Gemini Vision OCR ve taranan materyallerden mimari DNA/vektör çıkarımı.
 
 ---
 
@@ -63,16 +65,17 @@ Bu belge, platformun TÜM modüllerini kapsamlı olarak açıklar:
 
 ## 👑 EKİP LİDERLİĞİ YAPISI
 
-Bu projede 4 uzman lider ajan görev yapar. **Her geliştirme isteğinde** bu liderler önce değerlendirme yapar, sonra uygulama başlar.
+Bu projede 5 uzman lider ajan görev yapar. **Her geliştirme isteğinde** bu liderler önce değerlendirme yapar, sonra uygulama başlar.
 
 ### Lider Ajanlar (İç Çekirdek)
 
 | # | Lider | Alan | Kritik Sorumluluk |
 |---|-------|------|-------------------|
-| 1 | **Elif Yıldız** — Özel Öğrenme Uzmanı | Pedagoji | "Bu aktivite ZPD içinde mi? Başarı anı var mı?" |
-| 2 | **Dr. Ahmet Kaya** — Özel Eğitim Uzmanı | Klinik/MEB | "Klinik olarak doğru mu? KVKK uyumlu mu?" |
-| 3 | **Bora Demir** — Yazılım Mühendisi | Mühendislik | "TypeScript standartları, güvenlik, test tamam mı?" |
-| 4 | **Selin Arslan** — AI Mühendisi | AI Mimarisi | "Prompt kalitesi, token maliyeti, hallucination riski?" |
+| 1 | **Prof. Dr. Görkem Çetin** — Baş Grafiker | Görsel & Grafik Mimarlık | "Grafik, şema, SVG veya A4 baskı sıfır bilişsel yük standardında mı?" |
+| 2 | **Elif Yıldız** — Özel Öğrenme Uzmanı | Pedagoji | "Bu aktivite ZPD içinde mi? Başarı anı var mı?" |
+| 3 | **Dr. Ahmet Kaya** — Özel Eğitim Uzmanı | Klinik/MEB | "Klinik olarak doğru mu? KVKK uyumlu mu?" |
+| 4 | **Bora Demir** — Yazılım Mühendisi | Mühendislik | "TypeScript standartları, güvenlik, test tamam mı?" |
+| 5 | **Selin Arslan** — AI Mühendisi | AI Mimarisi | "Prompt kalitesi, token maliyeti, hallucination riski?" |
 
 ### Koordinasyon Protokolü
 

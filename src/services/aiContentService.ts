@@ -140,7 +140,8 @@ UYARI:
 - Yaş ve sınıf seviyesine uygun dil kullan (5-7: max 2 hece, 8-10: max 3 hece, 11-13: karmaşık, 14+: akademik)
 - Karmaşık yönergelerden kaçın, basit ve net talimatlar ver (max 12 kelime/cümle)
 - b-d, p-q karışıklığına duyarlı kelime seçimi yap
-- Görsel öğeler kullanılıyorsa, disleksi dostu olacak şekilde tasarla
+- Görsel ve grafik öğeler (Prof. Dr. Görkem Çetin standardı): Yüksek kontrastlı, disleksi dostu (#4F46E5, #0D9488, #E11D48 vb.), sıfır bilişsel yüklü ve A4 kâğıt baskısına (html2canvas) tam uyumlu tasarla
+- 33 tip HD grafik motoruna (GraphicRenderer.tsx) veya saf SVG formatına uygun görsel açıklamalar sağla
 - Scaffolding: zor kavramlar için kısa hatırlatıcı bilgi notu ekle
 - Tanı koyucu dil KESİNLİKLE KULLANMA
 - JSON formatında sadece geçerli veri döndür, ek açıklama verme

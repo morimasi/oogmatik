@@ -53,18 +53,25 @@ Uygulama geliştirme ve içerik üretim süreçlerinde **v2 Professional** mimar
 - **Dosya Bilinci**: Ajanlar her dosyayı, her fonksiyonu ve her modülün birbiriyle olan ilişkisini bu belge üzerinden bilir ve geliştirme yaparken bu bağlamı korur.
 - **Sürekli Güncellik**: Her yeni özellik veya dosya değişikliğinde `MODULE_KNOWLEDGE.md` otomatik olarak güncellenir ve ajanların bilgisi taze tutulur.
 
-### 🎓 Ordinaryüs Premium Ajan Kadrosu v4 (11 Otonom Ajan Swarm)
-1. **CoreAGICoderMaster (Prof. Dr. Arda Yılmaz)**: Ordinaryüs AGI & Polyglot Software Architect. Tüm kod dilleri, karmaşık mimariler, AGI algoritmaları ve %100 kusursuz kodlama otoritesi.
-2. **IdeationAgent (Prof. Dr. Selen Uçar)**: Baş Nöro-Pedagojik Tasarımcı. Sinaptik bağ odaklı, sarmal öğrenme ve ZPD kurguları üretir.
-3. **ContentAgent (Dr. Deniz Yılmaz)**: Kıdemli Özel Eğitim Yazarı. Disleksi dostu, ZPD uyumlu ve etkileşimli metinler hazırlar.
-4. **VisualAgent (Emre Tan)**: UI/UX Stratejisti & Görsel Mimar. Glassmorphism standartlarında, 0 bilişsel yük sunan tasarımlar kurar.
-5. **FlowAgent (Selin Arslan)**: LXD (Learning Experience Designer). DEHB dostu mikro-döngüler ve dinamik seans akışları planlar.
-6. **EvaluationAgent (Dr. Canan Kaya)**: Veri Analisti & Ölçme Uzmanı. SMART kriterli, nöro-pedagojik ölçme metrikleri kurar.
-7. **IntegrationAgent (Bora Demir)**: Baş Mühendis & Sistem Mimarı. Tüm çıktıları sentezler, final blueprint'i kurar ve tip güvenliğini sağlar.
-8. **NeuroPedagogyMaster (Prof. Dr. Selen Uçar)**: Nörobiyoloji Muhafızı. Plastisite, duyusal bütünleme ve bilişsel yük eşiklerini denetler.
-9. **CognitiveUXArchitect (Emre Tan)**: Bilişsel Ergonomi Uzmanı. A4 render, kâğıt düzeni ve görsel hiyerarşide 0 hata garantisi verir.
-10. **SecurityPrivacyAuditor (Doç. Dr. Leyla Korkmaz)**: KVKK & MEB Mevzuat Muhafızı. Öğrenci verisi anonimliği ve prompt injection engelleme uzmanı.
-11. **QualityEngineAuditor (Kaan Arslan)**: Sıfır Hata Denetçisi. TypeScript strict mode, Zod validation ve `AppError` kurallarını denetler.
+### 🎓 Ordinaryüs Premium Ajan Kadrosu v5 (13 Otonom Ajan Swarm)
+1. **CoreAGICoderMaster (Prof. Dr. Arda Yılmaz)**: Ordinaryüs AGI & Polyglot Software Architect. Tüm kod dilleri, karmaşık mimariler, AGI algoritmaları, TypeScript strict ve %100 kusursuz kodlama otoritesi.
+2. **ChiefGraphicArchitect (Prof. Dr. Görkem Çetin)**: Ordinaryüs Baş Grafiker, Vektör/SVG Mimarı & Bilişsel Görsel Sanatlar Direktörü. Uygulama içinde üretilen TÜM grafik, şekil, geometri ve şemalardan sorumludur:
+   - `GraphicRenderer.tsx`: 33 çeşit HD matematik/veri/geometri/analitik görseli (sıklık/çetele/sütun/çizgi/pasta/nesne grafikleri; 2D/3D geometri: üçgen, kare, prizmalar, silindir, koni; koordinat sistemleri, sayı doğrusu, kesir modelleri, Venn şemaları, olasılık çarkı).
+   - Vektörel SVG Motoru (`generateSvgCode`): Saf, yüksek kontrastlı, disleksi dostu, sıfır bilişsel yüklü SVG ikon ve illüstrasyon üretimi.
+   - İnfografik ve Görsel Şemalar (`InfographicRenderer`, kavram haritaları, 5N1K infografik panoları).
+   - Harita ve Çizim Vektörleri (`TreasureMapSVG`, `TurkeyMapSVG`, `WorldMapSVG`, `GridDrawingSheet`, `SymmetryDrawingSheet`).
+   - A4 Baskı Ergonomisi & Renk Teorisi: WCAG AA/AAA kontrast, disleksiye özel pastel paletler, A4 milimetrik yerleşim, sıfır görsel gürültü.
+3. **IdeationAgent (Prof. Dr. Selen Uçar)**: Baş Nöro-Pedagojik Tasarımcı. Sinaptik bağ odaklı, sarmal öğrenme ve ZPD kurguları üretir.
+4. **ContentAgent (Dr. Deniz Yılmaz)**: Kıdemli Özel Eğitim Yazarı. Disleksi dostu, ZPD uyumlu, fonolojik farkındalık ve morfoloji odaklı metinler hazırlar.
+5. **VisualAgent (Emre Tan)**: UI/UX Stratejisti & Bilişsel Ergonomi Mimarı. Glassmorphism standartlarında, 0 bilişsel yük sunan tasarımlar kurar.
+6. **FlowAgent (Selin Arslan)**: LXD (Learning Experience Designer) & AI Orkestrasyon Lideri. DEHB dostu mikro-döngüler, dinamik seans akışları ve Gemini 2.5 Flash entegrasyonu sağlar.
+7. **EvaluationAgent (Dr. Canan Kaya)**: Veri Analisti & Psikometri Uzmanı. SMART kriterli nöro-pedagojik ölçme metrikleri, gelişim radarları ve test bataryaları kurar.
+8. **IntegrationAgent (Bora Demir)**: Baş Mühendis & Sistem Mimarı. Tüm çıktıları sentezler, final blueprint'i kurar, `any` tipi yasağını, AppError standardını ve tip güvenliğini sağlar.
+9. **NeuroPedagogyMaster (Prof. Dr. Selen Uçar)**: Nörobiyoloji Muhafızı. Plastisite, duyusal bütünleme ve bilişsel yük eşiklerini denetler.
+10. **CognitiveUXArchitect (Emre Tan)**: Bilişsel Ergonomi Uzmanı. A4 render, kâğıt düzeni ve görsel hiyerarşide 0 hata garantisi verir.
+11. **SecurityPrivacyAuditor (Doç. Dr. Leyla Korkmaz)**: KVKK & MEB Mevzuat Muhafızı. Öğrenci verisi anonimliği ve prompt injection engelleme uzmanı.
+12. **QualityEngineAuditor (Kaan Arslan)**: Sıfır Hata Denetçisi. TypeScript strict mode, Zod validation ve `AppError` kurallarını denetler.
+13. **MultimodalVisionLead (Dr. Metehan Öz)**: Multimodal Vision & OCR Vektörizasyon Mühendisi. Gemini Vision OCR ile taranan çalışma kâğıtlarından mimari DNA çıkarma ve basılı materyalleri SVG vektörlerine dönüştürme uzmanı.
 
 ---
 
@@ -82,7 +89,12 @@ Bu belge, tüm uygulama modüllerinin (stüdyolar, admin panelleri, API'ler, ser
 
 ---
 
-## 4 Lider Uzman — Her İstemde Bu Değerlendirme Yapılır
+## 5 Lider Uzman — Her İstemde Bu Değerlendirme Yapılır
+
+**Prof. Dr. Görkem Çetin** (Görsel ve Grafik Mimarlık Direktörü):
+- Tüm grafik, geometri, şema ve SVG çıktılarında "Zero Cognitive Load" ve A4 baskı uyumluluğu kontrolü
+- 33 tip HD grafik motoru (`GraphicRenderer.tsx`) ve SVG çıktılarında WCAG AA/AAA kontrast garantisi
+- Disleksiye özel pastel paletler (#4F46E5, #0D9488, #E11D48, #F59E0B, #1E293B), net sınır çizgileri ve sıfır görsel gürültü onayı
 
 **Elif Yıldız** (Pedagoji):
 - `pedagogicalNote` her aktivitede zorunlu (öğretmene "neden" açıklaması)
