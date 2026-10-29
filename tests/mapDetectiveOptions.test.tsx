@@ -3,7 +3,14 @@ import { generateOfflineMapInstruction } from '../src/services/offlineGenerators
 import { generateMapInstructionFromAI } from '../src/services/generators/mapInstruction';
 import { generateCreativeMultimodal } from '../src/services/geminiClient';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { TurkeyMapSVG } from '../src/components/sheets/visual/TurkeyMapSVG';
+import {
+  TurkeyMapSVG,
+  getRegionLabelBoxes,
+  labelsOverlap,
+  resolveMapLabelPlacement,
+} from '../src/components/sheets/visual/TurkeyMapSVG';
+import { MapDetectiveSheet } from '../src/components/sheets/visual/MapDetectiveSheet';
+import { CALIBRATED_CITIES } from '../src/services/generators/geoData';
 
 vi.mock('../src/services/geminiClient', () => ({
   generateCreativeMultimodal: vi.fn(),
@@ -104,5 +111,76 @@ describe('Harita Dedektifi yapılandırma seçenekleri', () => {
     expect(monochromeMarkup).toContain('fill="#ffffff"');
     expect(monochromeMarkup).toContain('fill="#0f172a"');
     expect(pastelMarkup).toContain('fill="#ede9fe"');
+  });
+
+  it('bölge etiketlerini OpenDyslexic ile halosuz ve okunaklı çizer', () => {
+    const markup = renderToStaticMarkup(<TurkeyMapSVG />);
+
+    expect(markup).toContain('OpenDyslexic');
+    expect(markup).not.toContain('paint-order');
+    expect(markup).not.toContain('font-weight="900"');
+  });
+
+  it('tüm şehir etiketlerini bölge etiketleriyle ve birbirleriyle çakışmadan yerleştirir', () => {
+    const regionBoxes = getRegionLabelBoxes('all', true);
+    const marmaraBox = regionBoxes.find(box => box.y === 90);
+    expect(marmaraBox).toBeDefined();
+
+    // Marmara etiketinin tam merkezine denk gelen şehir etiketi kaydırılmalı
+    const marmaraPlacement = resolveMapLabelPlacement({
+      text: 'İstanbul',
+      x: 155,
+      y: 110,
+      fontSize: 12,
+      blocked: regionBoxes,
+    });
+    expect(labelsOverlap(marmaraPlacement.box, marmaraBox!)).toBe(false);
+
+    const boxes = [...regionBoxes];
+    for (const city of CALIBRATED_CITIES) {
+      const placement = resolveMapLabelPlacement({
+        text: city.name,
+        x: city.x,
+        y: city.y,
+        fontSize: 12,
+        blocked: boxes,
+      });
+      boxes.push(placement.box);
+    }
+
+    // Bölge etiketleri + 81 il etiketi: hiçbir çift üst üste binmemeli
+    const overlaps: string[] = [];
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        if (labelsOverlap(boxes[i]!, boxes[j]!)) overlaps.push(`${i}-${j}`);
+      }
+    }
+    expect(overlaps).toEqual([]);
+  });
+
+  it('şehir isimlerini OpenDyslexic, ince ve gölgesiz yazar', () => {
+    const markup = renderToStaticMarkup(
+      <MapDetectiveSheet
+        data={{
+          title: 'Harita Dedektifi',
+          instruction: 'Haritayı incele.',
+          instructions: ['Birinci yönerge'],
+          cities: [{ id: 'ist', name: 'İstanbul', x: 155, y: 110, region: 'Marmara' } as never],
+          emphasizedRegion: 'all',
+          settings: {
+            showCityNames: true,
+            markerStyle: 'circle',
+            difficulty: 'Orta',
+            mapType: 'turkey',
+            showRegionLabels: true,
+          },
+        }}
+      />
+    );
+
+    expect(markup).toContain('İstanbul');
+    expect(markup).toContain('OpenDyslexic');
+    expect(markup).toContain('font-weight="400"');
+    expect(markup).not.toContain('paint-order');
   });
 });

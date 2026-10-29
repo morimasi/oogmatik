@@ -1,12 +1,22 @@
 // @ts-ignore
-import React, { useRef, useLayoutEffect, useState, useCallback } from 'react';
+import React, { useRef, useLayoutEffect, useMemo, useState, useCallback } from 'react';
 // @ts-ignore
 import { MapInstructionData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableText } from '../../Editable';
-import { TurkeyMapSVG } from './TurkeyMapSVG';
+import {
+    TurkeyMapSVG,
+    getRegionLabelBoxes,
+    resolveMapLabelPlacement,
+    MAP_LABEL_FONT_FAMILY,
+    type MapLabelBox,
+} from './TurkeyMapSVG';
 import { WorldMapSVG } from './WorldMapSVG';
 import { TreasureMapSVG } from './TreasureMapSVG';
+
+// Şehir etiketi — ince, disleksi dostu ve halosuz
+const CITY_LABEL_FONT_SIZE = 12;
+const CITY_LABEL_COLOR = '#52525b';
 
 const CompassRose = () => (
     <div className="flex flex-col items-center opacity-70 scale-110">
@@ -88,6 +98,28 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
     const isCustomMap = !!data.imageBase64;
     const mapType = data.settings?.mapType || 'turkey';
     const isTurkey = mapType === 'turkey' && !isCustomMap;
+    const showRegionLabels = data.settings?.showRegionLabels !== false;
+    const showCityNames = data.settings?.showCityNames !== false;
+
+    // Şehir etiketlerini bölge etiketleriyle ve birbirleriyle çakışmayacak şekilde yerleştir
+    const cityLabelPlacements = useMemo(() => {
+        const blocked: MapLabelBox[] = isTurkey
+            ? [...getRegionLabelBoxes(data.emphasizedRegion, showRegionLabels)]
+            : [];
+
+        return (data.cities || []).map((city) => {
+            if (!showCityNames) return { city, placement: null };
+            const placement = resolveMapLabelPlacement({
+                text: city.name,
+                x: city.x,
+                y: city.y,
+                fontSize: CITY_LABEL_FONT_SIZE,
+                blocked,
+            });
+            blocked.push(placement.box);
+            return { city, placement };
+        });
+    }, [data.cities, data.emphasizedRegion, showCityNames, showRegionLabels, isTurkey]);
 
     return (
         <div className="flex flex-col bg-white font-sans text-black print:p-0"
@@ -107,7 +139,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                 <PedagogicalHeader title={data.title} instruction={data.instruction} />
 
                 {/* HARİTA KANVASI */}
-                <div className="relative w-full aspect-[1000/500] bg-white border-[4px] border-zinc-900 rounded-[2rem] overflow-hidden shadow-lg mb-4 print:mb-2 group print:border-[3px] print:rounded-xl" style={{ minHeight: '180px' }}>
+                <div className="relative w-full aspect-[1000/500] bg-white border-[4px] border-zinc-900 rounded-[2rem] overflow-hidden mb-4 print:mb-2 group print:border-[3px] print:rounded-xl" style={{ minHeight: '180px' }}>
 
                     {/* Zemin Harita Katmanı */}
                     <div className="absolute inset-0 w-full h-full bg-slate-50 z-10 flex items-center justify-center">
@@ -133,7 +165,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                         ) : (
                             <TurkeyMapSVG
                                 emphasizedRegion={data.emphasizedRegion || 'all'}
-                                showRegionLabels={data.settings?.showRegionLabels !== false}
+                                showRegionLabels={showRegionLabels}
                                 mapColorMode={data.settings?.mapColorMode || 'renkli'}
                                 width="100%"
                                 height="100%"
@@ -180,22 +212,21 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                                 return gridLines;
                             })()}
 
-                            {(data.cities || []).map((city) => (
-                                <g key={city.id} transform={`translate(${city.x}, ${city.y})`}>
-                                    <MapMarker type={data.settings?.markerStyle || 'circle'} />
-                                    {data.settings?.showCityNames !== false && (
+                            {(cityLabelPlacements || []).map(({ city, placement }) => (
+                                <g key={city.id}>
+                                    <g transform={`translate(${city.x}, ${city.y})`}>
+                                        <MapMarker type={data.settings?.markerStyle || 'circle'} />
+                                    </g>
+                                    {placement && (
                                         <text
-                                            y="-14"
-                                            textAnchor="middle"
-                                            fontSize="11"
-                                            fontWeight="900"
-                                            className="fill-zinc-900 font-sans tracking-tight"
-                                            style={{
-                                                paintOrder: 'stroke',
-                                                stroke: 'white',
-                                                strokeWidth: '4px',
-                                                strokeLinejoin: 'round'
-                                            }}
+                                            x={placement.x}
+                                            y={placement.y}
+                                            textAnchor={placement.textAnchor}
+                                            fontSize={CITY_LABEL_FONT_SIZE}
+                                            fontWeight="400"
+                                            fill={CITY_LABEL_COLOR}
+                                            className="pointer-events-none"
+                                            style={{ fontFamily: MAP_LABEL_FONT_FAMILY, letterSpacing: '0.01em' }}
                                         >
                                             {city.name}
                                         </text>

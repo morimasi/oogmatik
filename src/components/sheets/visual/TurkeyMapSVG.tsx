@@ -77,6 +77,12 @@ const PASTEL_REGION_COLORS: Record<string, { fill: string; stroke: string }> = {
 
 const MONOCHROME_LABEL_BACKGROUND = 'rgba(255,255,255,0.98)';
 
+// Harita etiketleri için disleksi dostu yazı tipi (OpenDyslexic projede yerel font olarak yüklenir)
+export const MAP_LABEL_FONT_FAMILY = '"OpenDyslexic", "Lexend", sans-serif';
+
+export const REGION_LABEL_FONT_SIZE = 18;
+export const REGION_LABEL_HEIGHT = 26;
+
 // Güncellenmiş bölge etiket konumları — bölge merkezlerine taşındı
 const REGION_LABEL_POSITIONS: Record<string, { x: number; y: number }> = {
     'Marmara': { x: 155, y: 110 },
@@ -86,6 +92,106 @@ const REGION_LABEL_POSITIONS: Record<string, { x: number; y: number }> = {
     'Karadeniz': { x: 600, y: 100 },
     'Doğu Anadolu': { x: 810, y: 210 },
     'Güneydoğu': { x: 760, y: 330 },
+};
+
+export interface MapLabelBox {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+
+export interface MapLabelPlacement {
+    x: number;
+    y: number;
+    textAnchor: 'middle' | 'start' | 'end';
+    box: MapLabelBox;
+}
+
+const getRegionLabelWidth = (region: string) => {
+    const label = REGION_COLORS[region]?.label ?? '';
+    // OpenDyslexic geniş bir yazı tipidir — pill, metni rahatça kavrayacak kadar geniş tutulur
+    return Math.max(64, Math.ceil([...label].length * REGION_LABEL_FONT_SIZE * 0.68) + 24);
+};
+
+/**
+ * Bölge etiketlerinin harita üzerinde kapladığı alanlar.
+ * Şehir etiketleri bu alanlara girmeyecek şekilde yerleştirilir.
+ */
+export const getRegionLabelBoxes = (emphasizedRegion?: string, showRegionLabels = true): MapLabelBox[] => {
+    if (!showRegionLabels) return [];
+    return Object.entries(REGION_LABEL_POSITIONS).flatMap(([region, pos]) => {
+        if (!REGION_COLORS[region]) return [];
+        if (emphasizedRegion && emphasizedRegion !== 'all' && emphasizedRegion !== region) return [];
+        const width = getRegionLabelWidth(region);
+        return [{ x: pos.x - width / 2, y: pos.y - 20, width, height: REGION_LABEL_HEIGHT }];
+    });
+};
+
+/**
+ * Verilen metnin yaklaşık kutu ölçüsü (OpenDyslexic geniş bir yazı tipidir).
+ */
+export const estimateLabelBox = (
+    text: string,
+    x: number,
+    y: number,
+    fontSize: number,
+    textAnchor: 'middle' | 'start' | 'end' = 'middle'
+): MapLabelBox => {
+    const width = [...text].length * fontSize * 0.66 + 8;
+    const height = fontSize * 1.25;
+    const left = textAnchor === 'start' ? x : textAnchor === 'end' ? x - width : x - width / 2;
+    return { x: left, y: y - height * 0.8, width, height };
+};
+
+export const labelsOverlap = (a: MapLabelBox, b: MapLabelBox): boolean =>
+    a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y;
+
+const LABEL_CANDIDATES: { dx: number; dy: number; textAnchor: 'middle' | 'start' | 'end' }[] = [
+    { dx: 0, dy: -16, textAnchor: 'middle' },
+    { dx: 0, dy: 28, textAnchor: 'middle' },
+    { dx: 14, dy: 5, textAnchor: 'start' },
+    { dx: -14, dy: 5, textAnchor: 'end' },
+    { dx: 0, dy: -36, textAnchor: 'middle' },
+    { dx: 0, dy: 48, textAnchor: 'middle' },
+];
+
+/**
+ * Şehir etiketini engellenen alanlarla (bölge etiketleri, diğer şehir etiketleri)
+ * çakışmayacak ilk konuma yerleştirir. Hiçbiri uygun değilse en az çakışan adayı döner.
+ */
+export const resolveMapLabelPlacement = ({
+    text,
+    x,
+    y,
+    fontSize = 13,
+    blocked = [],
+}: {
+    text: string;
+    x: number;
+    y: number;
+    fontSize?: number;
+    blocked?: MapLabelBox[];
+}): MapLabelPlacement => {
+    let best: MapLabelPlacement | null = null;
+    let bestOverlaps = Number.POSITIVE_INFINITY;
+
+    for (const candidate of LABEL_CANDIDATES) {
+        const px = x + candidate.dx;
+        const py = y + candidate.dy;
+        const box = estimateLabelBox(text, px, py, fontSize, candidate.textAnchor);
+        const overlaps = blocked.filter(area => labelsOverlap(box, area)).length;
+        if (overlaps === 0) return { x: px, y: py, textAnchor: candidate.textAnchor, box };
+        if (overlaps < bestOverlaps) {
+            bestOverlaps = overlaps;
+            best = { x: px, y: py, textAnchor: candidate.textAnchor, box };
+        }
+    }
+
+    return best ?? { x, y: y - 16, textAnchor: 'middle', box: estimateLabelBox(text, x, y - 16, fontSize) };
 };
 
 export const TurkeyMapSVG = ({
@@ -186,7 +292,7 @@ export const TurkeyMapSVG = ({
                             onMouseLeave={handleMouseLeave}
                             onClick={() => handleClick(region)}
                         >
-                            <title>{cityData.city} ({colors.label})</title>
+                            <title>{`${cityData.city} (${colors.label})`}</title>
                         </path>
                     );
                 })}
@@ -197,7 +303,7 @@ export const TurkeyMapSVG = ({
                 const colors = REGION_COLORS[region];
                 const active = isEmphasized(region);
                 if (!active || !colors) return null;
-                const labelWidth = Math.max(64, colors.label.length * 10 + 20);
+                const labelWidth = getRegionLabelWidth(region);
                 const labelTextColor = mapColorMode === 'siyahbeyaz' ? '#0f172a' : LABEL_COLORS[region] || '#333';
                 const labelBackground = mapColorMode === 'siyahbeyaz'
                     ? MONOCHROME_LABEL_BACKGROUND
@@ -208,7 +314,7 @@ export const TurkeyMapSVG = ({
                             x={pos.x - labelWidth / 2}
                             y={pos.y - 20}
                             width={labelWidth}
-                            height={26}
+                            height={REGION_LABEL_HEIGHT}
                             rx="4"
                             fill={labelBackground}
                             stroke={labelTextColor}
@@ -220,17 +326,14 @@ export const TurkeyMapSVG = ({
                             x={pos.x}
                             y={pos.y}
                             textAnchor="middle"
-                            fontSize="18"
-                            fontWeight="900"
+                            fontSize={REGION_LABEL_FONT_SIZE}
+                            fontWeight="700"
                             fill={labelTextColor}
                             opacity={1}
-                            className="font-sans uppercase pointer-events-none"
+                            className="uppercase pointer-events-none"
                             style={{
-                                letterSpacing: '0.05em',
-                                paintOrder: 'stroke',
-                                stroke: 'white',
-                                strokeWidth: '5px',
-                                strokeLinejoin: 'round'
+                                fontFamily: MAP_LABEL_FONT_FAMILY,
+                                letterSpacing: '0.02em'
                             }}
                         >
                             {colors.label}
