@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ReadingPassage } from './sampleStories';
+import { ReadingMode } from './CoachSettingsDrawer';
 
 interface ReadingRulerStageProps {
   passage: ReadingPassage;
@@ -9,6 +10,7 @@ interface ReadingRulerStageProps {
   fontSize: number;
   isRulerActive: boolean;
   isSyllableColoringActive: boolean;
+  readingMode?: ReadingMode;
   onWordClick?: (index: number) => void;
 }
 
@@ -19,12 +21,13 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
   fontSize,
   isRulerActive,
   isSyllableColoringActive,
+  readingMode = 'flow',
   onWordClick,
 }) => {
   const words = passage.words;
   const activeWordRef = useRef<HTMLSpanElement | null>(null);
 
-  // Aktif kelime değiştiğinde odağı yumuşakça kaydır (Özellikle uzun metinlerde ve tabletlerde)
+  // Aktif kelime değiştikçe odağı yumuşakça kaydır
   useEffect(() => {
     if (activeWordRef.current) {
       activeWordRef.current.scrollIntoView({
@@ -35,14 +38,28 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
     }
   }, [currentWordIndex]);
 
+  const effectiveFontSize = readingMode === 'karaoke' ? Math.round(fontSize * 1.15) : fontSize;
+
   return (
     <div className="relative w-full max-w-4xl mx-auto rounded-[2.5rem] bg-zinc-950/70 border border-white/10 p-6 sm:p-12 shadow-2xl backdrop-blur-2xl transition-all duration-300">
       {/* Başlık ve Metin Bilgisi */}
       <div className="flex items-center justify-between pb-6 mb-6 border-b border-white/10">
         <div>
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-2">
-            {passage.targetSkill}
-          </span>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              {passage.targetSkill}
+            </span>
+            {readingMode === 'window' && (
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                Sarı Kitap Pencere Modu
+              </span>
+            )}
+            {readingMode === 'karaoke' && (
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                Karaoke Modu
+              </span>
+            )}
+          </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-lexend">
             {passage.title}
           </h2>
@@ -65,15 +82,30 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
 
       {/* Metin Alanı (Okuma Sahnesi) */}
       <div
-        className="flex flex-wrap items-center gap-x-3 gap-y-4 font-lexend leading-relaxed select-none transition-all duration-200 max-h-[50vh] overflow-y-auto pr-2 py-2"
-        style={{ fontSize: `${fontSize}px` }}
+        className={`flex flex-wrap items-center leading-relaxed select-none transition-all duration-200 max-h-[50vh] overflow-y-auto pr-2 py-2 font-lexend ${
+          readingMode === 'karaoke' ? 'gap-x-4 gap-y-6 justify-center' : 'gap-x-3 gap-y-4'
+        }`}
+        style={{ fontSize: `${effectiveFontSize}px` }}
       >
         {words.map((word, index) => {
           const isRead = index < currentWordIndex;
           const isActive = index === currentWordIndex;
+          const distance = Math.abs(index - currentWordIndex);
 
-          // Okuma cetveli aktifken aktif kelimeden çok uzaktaki kelimeleri yarı saydam karart
-          const isFarFromActive = isRulerActive && Math.abs(index - currentWordIndex) > 8;
+          // Sarı Kitap Pencere Modu: Yalnızca aktif kelime ve hemen bitişiğindeki kelimeler görünür
+          if (readingMode === 'window' && distance > 1) {
+            return (
+              <span
+                key={`${word}-${index}`}
+                className="opacity-5 blur-sm pointer-events-none transition-all duration-300 px-2 select-none"
+              >
+                {word}
+              </span>
+            );
+          }
+
+          // Standart Odak Cetveli aktifken uzaktaki kelimeleri yarı saydam yap
+          const isFarFromActive = isRulerActive && distance > 7;
 
           // Heceli kelime parçaları
           const syllables = passage.syllabifiedWords[index] || [word];
@@ -83,9 +115,11 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
               key={`${word}-${index}`}
               ref={isActive ? activeWordRef : null}
               onClick={() => onWordClick?.(index)}
-              className={`relative cursor-pointer rounded-2xl px-2.5 py-1.5 transition-all duration-200 ${
+              className={`relative cursor-pointer rounded-2xl px-3 py-1.5 transition-all duration-200 ${
                 isActive
-                  ? 'bg-amber-400/20 border-2 border-amber-400 text-amber-200 shadow-lg shadow-amber-500/20 scale-105 font-bold z-10'
+                  ? readingMode === 'karaoke'
+                    ? 'bg-gradient-to-r from-amber-500/30 to-teal-500/30 border-2 border-amber-300 text-amber-100 shadow-2xl shadow-amber-500/30 scale-110 font-black z-20 ring-4 ring-amber-400/20'
+                    : 'bg-amber-400/20 border-2 border-amber-400 text-amber-200 shadow-lg shadow-amber-500/20 scale-105 font-bold z-10'
                   : isRead
                   ? 'text-emerald-400 font-medium'
                   : isFarFromActive
@@ -97,7 +131,7 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
             >
               {/* Aktif Kelime İpuçlu Hece Vurgusu */}
               {isActive && highlightedSyllable && (
-                <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-rose-500 text-white text-xs font-bold shadow-md animate-bounce whitespace-nowrap z-20">
+                <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-rose-500 text-white text-xs font-bold shadow-md animate-bounce whitespace-nowrap z-30">
                   İpucu: {highlightedSyllable}-...
                 </span>
               )}

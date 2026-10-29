@@ -1,6 +1,6 @@
 /**
  * BDMIND - LiveReadingCoachService
- * Canlı Sesli Okuma Koçu Orkestratörü (EduMind Dual-Engine v2.1)
+ * Canlı Sesli Okuma Koçu Orkestratörü (EduMind Dual-Engine v2.2)
  * 
  * Liderler: Selin Arslan (AI Mimarisi) & Bora Demir (Sistem Mimarı) & Elif Yıldız (Pedagoji) & Dr. Canan Kaya (Psikometri)
  */
@@ -21,7 +21,7 @@ export interface CoachCallbacks {
 }
 
 /** Türkçe metin normalizasyonu */
-function normalizeTr(s: string): string {
+export function normalizeTr(s: string): string {
   return s
     .trim()
     .toLocaleLowerCase('tr-TR')
@@ -29,7 +29,7 @@ function normalizeTr(s: string): string {
 }
 
 /** İki Türkçe kelime arasındaki Levenshtein düzenleme mesafesi */
-function getLevenshteinDistance(a: string, b: string): number {
+export function getLevenshteinDistance(a: string, b: string): number {
   const m = a.length;
   const n = b.length;
   const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
@@ -64,16 +64,28 @@ export class LiveReadingCoachService {
   private selfCorrections = 0;
   private errors: PhonologicalErrorItem[] = [];
 
-  private patienceThresholdMs = 3000; // Varsayılan 3.0 saniye grace window
+  // Dinamik ve Gerçek Zamanlı Ayarlar
+  private patienceThresholdMs = 3000;
+  private voiceSpeed = 0.88; // 0.75 - 1.15
+  private voicePitch = 1.12; // 0.9 - 1.3
+  private phonologicalTolerance: 'strict' | 'balanced' | 'lenient' = 'balanced';
+  private scaffoldingLevel: 'hece' | 'kelime' | 'cumle' = 'hece';
+  private autoAdvanceOnSilence = false;
+  private celebrationFrequency: 'frequent' | 'normal' | 'minimal' = 'normal';
+  private isVoiceActive = true;
+
+  // Aynı kelimede ardışık duraksama sayısı (auto-advance için)
+  private currentWordHesitationStreak = 0;
+
   private graceTimer: ReturnType<typeof setTimeout> | null = null;
   private speechSynth: SpeechSynthesis | null = null;
   private cachedTurkishVoice: SpeechSynthesisVoice | null = null;
 
-  // Koçun kendi sesi konuşurken mikrofondan duyulup kelime atlamasını önleyen eko kilidi
+  // Eko engelleme kilidi
   private isCoachSpeaking = false;
   private coachSpeakingReleaseTimer: ReturnType<typeof setTimeout> | null = null;
 
-  // Web Speech API tanıma nesnesi (Motor A)
+  // Web Speech API nesnesi
   private recognition: any = null;
   private isRecognitionRunning = false;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -124,8 +136,41 @@ export class LiveReadingCoachService {
     this.callbacks = { ...this.callbacks, ...callbacks };
   }
 
+  // --- ANINDA ETKİ EDEN AYAR SETTERLARI ---
   public setPatienceThreshold(seconds: number): void {
     this.patienceThresholdMs = Math.max(1000, seconds * 1000);
+  }
+
+  public setVoiceSpeed(speed: number): void {
+    this.voiceSpeed = Math.max(0.6, Math.min(1.4, speed));
+  }
+
+  public setVoicePitch(pitch: number): void {
+    this.voicePitch = Math.max(0.7, Math.min(1.5, pitch));
+  }
+
+  public setPhonologicalTolerance(tol: 'strict' | 'balanced' | 'lenient'): void {
+    this.phonologicalTolerance = tol;
+  }
+
+  public setScaffoldingLevel(level: 'hece' | 'kelime' | 'cumle'): void {
+    this.scaffoldingLevel = level;
+  }
+
+  public setAutoAdvanceOnSilence(enable: boolean): void {
+    this.autoAdvanceOnSilence = enable;
+  }
+
+  public setCelebrationFrequency(freq: 'frequent' | 'normal' | 'minimal'): void {
+    this.celebrationFrequency = freq;
+  }
+
+  public setIsVoiceActive(active: boolean): void {
+    this.isVoiceActive = active;
+    if (!active && this.speechSynth) {
+      this.speechSynth.cancel();
+      this.isCoachSpeaking = false;
+    }
   }
 
   private initSpeechRecognition(): void {
@@ -144,14 +189,12 @@ export class LiveReadingCoachService {
       };
 
       this.recognition.onresult = (event: any) => {
-        // Koç kendi sesini konuşurken veya oturum kapalıyken mikrofon dinleme girdisini yoksay
         if (!this.isSessionActive || !this.currentPassage || this.isCoachSpeaking) return;
 
         const results = event.results;
         const lastResult = results[results.length - 1];
         if (!lastResult) return;
 
-        // En yüksek güvenilirlikli transkript
         const transcript = lastResult[0]?.transcript?.trim().toLocaleLowerCase('tr-TR') || '';
         if (transcript) {
           this.processSpokenTranscript(transcript);
@@ -161,10 +204,9 @@ export class LiveReadingCoachService {
       this.recognition.onerror = (event: any) => {
         const errorType = event?.error;
         if (errorType === 'not-allowed') {
-          this.callbacks.onError?.(new Error('Mikrofon erişim izni verilmedi. Lütfen tarayıcı ayarlarından mikrofona izin verin.'));
+          this.callbacks.onError?.(new Error('Mikrofon izni verilmedi. Lütfen tarayıcınızdan mikrofona izin verin.'));
           return;
         }
-        // no-speech, network, aborted gibi geçici durumlarda yeniden başlat
         if (this.isSessionActive) {
           this.restartRecognitionWithDebounce();
         }
@@ -172,7 +214,6 @@ export class LiveReadingCoachService {
 
       this.recognition.onend = () => {
         this.isRecognitionRunning = false;
-        // Chromium seans sırasında sessizlikte durduğunda otomatik yeniden bağlan
         if (this.isSessionActive) {
           this.restartRecognitionWithDebounce();
         }
@@ -187,14 +228,39 @@ export class LiveReadingCoachService {
       try {
         this.recognition.start();
       } catch {
-        // Zaten çalışıyorsa veya başlatılamadıysa zararsızca devam et
+        // Zaten çalışıyorsa geç
       }
     }, 250);
   }
 
   /**
+   * Çocuğun söylediği kelimeyi tolerans ayarına göre hedef kelimeyle eşleştirir
+   */
+  private checkWordMatch(target: string, spoken: string): boolean {
+    if (target === spoken) return true;
+
+    if (this.phonologicalTolerance === 'strict') {
+      return false;
+    }
+
+    const dist = getLevenshteinDistance(target, spoken);
+
+    if (this.phonologicalTolerance === 'balanced') {
+      // 4 harften uzun kelimelerde 1 harf toleransı
+      return target.length >= 4 && spoken.length >= 4 && dist <= 1;
+    }
+
+    if (this.phonologicalTolerance === 'lenient') {
+      // Çekingen veya ağır disleksili öğrenciler için yüksek hoşgörü
+      if (target.length >= 3 && dist <= 1) return true;
+      if (target.length >= 6 && dist <= 2) return true;
+    }
+
+    return false;
+  }
+
+  /**
    * Çocuğun mikrofondan söylediği kelimeleri ekrandaki hedef kelimeyle akıllıca eşleştirir.
-   * Teker teker veya akıcı çoklu kelimeleri destekler.
    */
   public processSpokenTranscript(transcript: string): void {
     if (!this.currentPassage || !this.isSessionActive || this.isCoachSpeaking) return;
@@ -212,45 +278,40 @@ export class LiveReadingCoachService {
 
     if (spokenTokens.length === 0) return;
 
-    // 1. Token içinde tam hedef kelime veya fonetik toleranslı eşleşme ara
+    // 1. Eşleşme Kontrolü
     let matchedIndex = -1;
     for (let i = 0; i < spokenTokens.length; i++) {
-      const token = spokenTokens[i];
-      if (token === cleanTarget) {
-        matchedIndex = i;
-        break;
-      }
-      // 4 harften uzun kelimelerde Levenshtein mesafesi <= 1 toleransı
-      if (cleanTarget.length >= 4 && token.length >= 4 && getLevenshteinDistance(cleanTarget, token) <= 1) {
+      if (this.checkWordMatch(cleanTarget, spokenTokens[i])) {
         matchedIndex = i;
         break;
       }
     }
 
     if (matchedIndex !== -1) {
-      // Doğru Okundu! İlerlet
+      // Doğru Okundu!
+      this.currentWordHesitationStreak = 0;
       this.advanceWord();
 
-      // Akıcı okuyucularda sonraki kelime de aynı nefeste söylenmiş mi kontrol et
+      // Akıcı okuyucularda ardışık kelime kontrolü
       if (matchedIndex + 1 < spokenTokens.length && this.currentWordIndex < words.length) {
         const nextTarget = normalizeTr(words[this.currentWordIndex]);
         const nextToken = spokenTokens[matchedIndex + 1];
-        if (nextToken === nextTarget || (nextTarget.length >= 4 && getLevenshteinDistance(nextTarget, nextToken) <= 1)) {
+        if (this.checkWordMatch(nextTarget, nextToken)) {
           this.advanceWord();
         }
       }
       return;
     }
 
-    // 2. Eşleşme yoksa fonolojik hata analizi yap (çocuğun son söylediği kelime baz alınır)
+    // 2. Eşleşme yoksa fonolojik hata analizi yap
     const lastSpoken = spokenTokens[spokenTokens.length - 1];
     if (lastSpoken && lastSpoken.length >= 2) {
       const errorAnalysis = PhonologicalScoringEngine.classifyReadingError(cleanTarget, lastSpoken);
       if (errorAnalysis.code === 'SUCCESS_SELF') {
         this.selfCorrections++;
+        this.currentWordHesitationStreak = 0;
         this.advanceWord();
       } else {
-        // Hata kaydı ekle (aynı kelimeye çok sık hata yazmamak için debounce/filtre)
         const alreadyRecorded = this.errors.some(
           (e) => e.wordIndex === this.currentWordIndex && e.spokenWord === lastSpoken
         );
@@ -276,12 +337,25 @@ export class LiveReadingCoachService {
     if (!this.currentPassage) return;
 
     this.clearGraceTimer();
+    this.currentWordHesitationStreak = 0;
     this.currentWordIndex++;
     this.callbacks.onWordAdvanced?.(this.currentWordIndex);
     this.callbacks.onSyllableHighlighted?.(null);
 
-    // Her 5-6 kelimede bir çocuğu bunaltmadan hafif pozitif pekiştireç
-    if (this.currentWordIndex % 6 === 0 && this.currentWordIndex < this.currentPassage.words.length) {
+    // Kutlama Sıklığı Ayarı
+    let shouldCelebrate = false;
+    if (this.currentWordIndex < this.currentPassage.words.length) {
+      if (this.celebrationFrequency === 'frequent' && this.currentWordIndex % 3 === 0) {
+        shouldCelebrate = true;
+      } else if (this.celebrationFrequency === 'normal' && this.currentWordIndex % 6 === 0) {
+        shouldCelebrate = true;
+      } else if (this.celebrationFrequency === 'minimal') {
+        const prevWord = this.currentPassage.words[this.currentWordIndex - 1] || '';
+        shouldCelebrate = /[.!?]$/.test(prevWord);
+      }
+    }
+
+    if (shouldCelebrate) {
       this.callbacks.onMascotStateChange?.('celebrating');
       this.callbacks.onCoachMessage?.('Harika bir birleştirme! Böyle devam et.');
       setTimeout(() => {
@@ -302,7 +376,7 @@ export class LiveReadingCoachService {
   }
 
   /**
-   * Çocuk duraksadığında devreye giren 3 Kademeli İskele (Scaffolding)
+   * Çocuk duraksadığında seçilen iskele seviyesine göre devreye girer
    */
   private triggerScaffoldingHint(): void {
     if (!this.currentPassage || !this.isSessionActive || this.isCoachSpeaking) return;
@@ -310,26 +384,54 @@ export class LiveReadingCoachService {
 
     this.hesitationCount++;
     this.totalHesitationMs += this.patienceThresholdMs;
+    this.currentWordHesitationStreak++;
 
     const currentWord = this.currentPassage.words[this.currentWordIndex];
+    const cleanWord = normalizeTr(currentWord);
     const syllables = this.currentPassage.syllabifiedWords[this.currentWordIndex] || [currentWord];
-    const firstSyllable = syllables[0] || currentWord.slice(0, 2);
+    const firstSyllable = syllables[0] || cleanWord.slice(0, 2);
 
-    // 1. Kademe: Ekranda ilk heceyi yumuşakça parlat
-    this.callbacks.onSyllableHighlighted?.(firstSyllable);
-    this.callbacks.onMascotStateChange?.('hinting');
-    this.callbacks.onCoachMessage?.(`Hadi birlikte bakalım: "${firstSyllable}-..."`);
+    // Otomatik İlerleme (Auto-Advance) Modu: Öğrenci 2 kez ardışık takıldıysa koç kelimeyi okur ve ilerler
+    if (this.autoAdvanceOnSilence && this.currentWordHesitationStreak >= 2) {
+      this.callbacks.onMascotStateChange?.('speaking');
+      this.callbacks.onCoachMessage?.(`Bu kelimeyi ben okuyayım: "${currentWord}". Şimdi sıradakine geçelim!`);
+      this.speakVoiceHint(`Bu kelime: ${currentWord}. Şimdi sıradakine geçelim.`);
+      setTimeout(() => {
+        if (this.isSessionActive) {
+          this.advanceWord();
+        }
+      }, 1600);
+      return;
+    }
 
-    // Sesli fısıldama
-    this.speakVoiceHint(`Hadi birlikte bakalım: ${firstSyllable}`);
+    // İskele Seviyesine Göre Destek
+    if (this.scaffoldingLevel === 'hece') {
+      // 1. Kademe: İlk hece vurgusu
+      this.callbacks.onSyllableHighlighted?.(firstSyllable);
+      this.callbacks.onMascotStateChange?.('hinting');
+      this.callbacks.onCoachMessage?.(`Hadi birlikte bakalım: "${firstSyllable}-..."`);
+      this.speakVoiceHint(`Hadi birlikte bakalım: ${firstSyllable}`);
+    } else if (this.scaffoldingLevel === 'kelime') {
+      // 2. Kademe: Tüm kelimeyi hecelere ayırarak okuma
+      const syllabledStr = syllables.join(' - ');
+      this.callbacks.onSyllableHighlighted?.(syllables.join(''));
+      this.callbacks.onMascotStateChange?.('speaking');
+      this.callbacks.onCoachMessage?.(`Kelimeyi heceleyelim: ${syllabledStr}`);
+      this.speakVoiceHint(`Heceleri birleştirelim: ${syllables.join(', ')}`);
+    } else {
+      // 3. Kademe: Cümle akışı modelleme
+      this.callbacks.onSyllableHighlighted?.(firstSyllable);
+      this.callbacks.onMascotStateChange?.('speaking');
+      this.callbacks.onCoachMessage?.(`Şimdi bu kelimeye odaklan: "${cleanWord}"`);
+      this.speakVoiceHint(`Sıradaki kelimemiz: ${cleanWord}`);
+    }
   }
 
   /**
-   * Tarayıcı Türkçe TTS ile şefkatli sesli koç fısıldaması / model olma.
-   * Eko kilidi uygulayarak koçun kendi sesini duymasını engeller.
+   * Tarayıcı Türkçe TTS ile sesli koç fısıldaması / model olma.
    */
   public speakVoiceHint(text: string): void {
-    if (!this.speechSynth) return;
+    if (!this.speechSynth || !this.isVoiceActive) return;
 
     try {
       this.speechSynth.cancel();
@@ -338,8 +440,8 @@ export class LiveReadingCoachService {
       this.isCoachSpeaking = true;
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'tr-TR';
-      utterance.rate = 0.88; // Disleksik çocuk için tane tane ve sakin tempo
-      utterance.pitch = 1.12; // Sıcak, dostça ve sevecen ton
+      utterance.rate = this.voiceSpeed;
+      utterance.pitch = this.voicePitch;
 
       if (this.cachedTurkishVoice) {
         utterance.voice = this.cachedTurkishVoice;
@@ -348,7 +450,6 @@ export class LiveReadingCoachService {
       this.callbacks.onMascotStateChange?.('speaking');
 
       const releaseCoachSpeaking = () => {
-        // Yankı kesici gecikme tamponu (350ms)
         this.coachSpeakingReleaseTimer = setTimeout(() => {
           this.isCoachSpeaking = false;
           if (this.isSessionActive) {
@@ -389,6 +490,7 @@ export class LiveReadingCoachService {
     this.hesitationCount = 0;
     this.totalHesitationMs = 0;
     this.selfCorrections = 0;
+    this.currentWordHesitationStreak = 0;
     this.errors = [];
     this.sessionStartTime = Date.now();
     this.isSessionActive = true;
@@ -479,6 +581,7 @@ export class LiveReadingCoachService {
   public setWordIndex(index: number): void {
     if (!this.currentPassage) return;
     this.currentWordIndex = Math.max(0, Math.min(index, this.currentPassage.words.length - 1));
+    this.currentWordHesitationStreak = 0;
     this.callbacks.onWordAdvanced?.(this.currentWordIndex);
     this.callbacks.onSyllableHighlighted?.(null);
     this.startGraceTimer();

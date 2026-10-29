@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { PhonologicalScoringEngine } from '../src/services/phonological/phonologicalScoringEngine';
 import { SAMPLE_READING_PASSAGES, parseCustomTextToPassage, syllabifyTurkishWord } from '../src/components/LiveReadingStudio/sampleStories';
+import { AIReadingStoryService } from '../src/services/aiReadingStoryService';
+import { LiveReadingCoachService, getLevenshteinDistance, normalizeTr } from '../src/services/liveReadingCoachService';
 
 describe('LiveReadingCoach - Fonolojik Ölçme ve Değerlendirme Testleri', () => {
   it('Ayna harf karışıklığını (b/d) doğru tespit etmeli', () => {
@@ -44,7 +46,6 @@ describe('LiveReadingCoach - Fonolojik Ölçme ve Değerlendirme Testleri', () =
   });
 
   it('WCPM ve seans metriklerini doğru matematiksel formülle hesaplamalı', () => {
-    // 60 saniyede 40 kelime okunmuş, 2 hata, 2 kendini düzeltme
     const metrics = PhonologicalScoringEngine.calculateSessionMetrics({
       durationSeconds: 60,
       totalWordsTarget: 50,
@@ -57,7 +58,7 @@ describe('LiveReadingCoach - Fonolojik Ölçme ve Değerlendirme Testleri', () =
           spokenWord: 'dalık',
           errorCode: 'ERR_MIRROR',
           explanation: 'b/d',
-          timestampMs: 12000
+          timestampMs: 12000,
         },
         {
           id: '2',
@@ -66,19 +67,17 @@ describe('LiveReadingCoach - Fonolojik Ölçme ve Değerlendirme Testleri', () =
           spokenWord: 'arba',
           errorCode: 'ERR_OMISSION',
           explanation: 'atlama',
-          timestampMs: 25000
-        }
+          timestampMs: 25000,
+        },
       ],
       selfCorrections: 2,
       hesitationCount: 3,
       totalHesitationMs: 7500,
-      gradeLevel: 2
+      gradeLevel: 2,
     });
 
-    // Doğru kelime: 40 - 2 = 38
-    // 60 saniyede 38 kelime => WCPM = 38
     expect(metrics.wcpm).toBe(38);
-    expect(metrics.accuracyPercentage).toBe(95); // (38 / 40) * 100 = 95
+    expect(metrics.accuracyPercentage).toBe(95);
     expect(metrics.selfCorrectionCount).toBe(2);
     expect(metrics.errorBreakdown.ERR_MIRROR).toBe(1);
     expect(metrics.errorBreakdown.ERR_OMISSION).toBe(1);
@@ -102,5 +101,44 @@ describe('LiveReadingCoach - Fonolojik Ölçme ve Değerlendirme Testleri', () =
     expect(custom.words.length).toBe(6);
     expect(custom.words[0]).toBe('Güneş');
     expect(custom.syllabifiedWords[0].join('-')).toBe('Gü-neş');
+  });
+
+  it('AI Reading Story servisi kişiselleştirilmiş hikaye ve anlama soruları üretmeli', async () => {
+    const aiStory = await AIReadingStoryService.generateCustomStory({
+      ageGroup: '7-9',
+      gradeLevel: '2',
+      phonologicalFocus: 'mirror_letters',
+      length: 'kisa',
+      theme: 'Uzay ve Yıldızlar',
+      customTopic: 'Ay yolculuğu',
+      mascotTone: 'baykus',
+    });
+
+    expect(aiStory).toBeDefined();
+    expect(aiStory.title).toBeDefined();
+    expect(aiStory.words.length).toBeGreaterThan(5);
+    expect(aiStory.syllabifiedWords.length).toBe(aiStory.words.length);
+    expect(aiStory.comprehensionQuestions).toBeDefined();
+  });
+
+  it('Levenshtein mesafesi ve Türkçe normalizasyonu fonolojik toleransı doğru hesaplamalı', () => {
+    expect(normalizeTr('Kitap,')).toBe('kitap');
+    expect(normalizeTr('İNCİ!')).toBe('inci');
+    expect(getLevenshteinDistance('balık', 'dalık')).toBe(1);
+    expect(getLevenshteinDistance('kitap', 'kitap')).toBe(0);
+    expect(getLevenshteinDistance('koştu', 'koşdu')).toBe(1);
+    expect(getLevenshteinDistance('ev', 'orman')).toBe(5);
+  });
+
+  it('LiveReadingCoachService tüm anlık ayar metodlarına sahip olmalı', () => {
+    const coach = new LiveReadingCoachService();
+    expect(() => coach.setPatienceThreshold(4.0)).not.toThrow();
+    expect(() => coach.setVoiceSpeed(0.95)).not.toThrow();
+    expect(() => coach.setVoicePitch(1.2)).not.toThrow();
+    expect(() => coach.setPhonologicalTolerance('lenient')).not.toThrow();
+    expect(() => coach.setScaffoldingLevel('kelime')).not.toThrow();
+    expect(() => coach.setAutoAdvanceOnSilence(true)).not.toThrow();
+    expect(() => coach.setCelebrationFrequency('frequent')).not.toThrow();
+    expect(() => coach.setIsVoiceActive(false)).not.toThrow();
   });
 });

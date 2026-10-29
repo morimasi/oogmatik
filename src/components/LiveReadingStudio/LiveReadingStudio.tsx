@@ -13,12 +13,13 @@ import {
   BookOpen,
   CheckCircle2,
   XCircle,
-  Volume2
+  Wand2
 } from 'lucide-react';
 import { EduMascot, MascotState } from './EduMascot';
 import { AudioWaveform } from './AudioWaveform';
 import { ReadingRulerStage } from './ReadingRulerStage';
 import { CoachSettingsDrawer, CoachSettings } from './CoachSettingsDrawer';
+import { AiStoryGeneratorModal } from './AiStoryGeneratorModal';
 import { SAMPLE_READING_PASSAGES, ReadingPassage, parseCustomTextToPassage } from './sampleStories';
 import { LiveReadingCoachService } from '../../services/liveReadingCoachService';
 import { ReadingSessionMetrics } from '../../services/phonological/phonologicalScoringEngine';
@@ -55,6 +56,7 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
   const [sessionDuration, setSessionDuration] = useState<number>(0);
   const [sessionMetrics, setSessionMetrics] = useState<ReadingSessionMetrics | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [showAiModal, setShowAiModal] = useState<boolean>(false);
   const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
   const [customTitle, setCustomTitle] = useState<string>('');
   const [customText, setCustomText] = useState<string>('');
@@ -72,6 +74,12 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
     isRulerActive: true,
     isSyllableColoringActive: false,
     isVoiceActive: true,
+    voiceSpeed: 0.88,
+    voicePitch: 1.12,
+    phonologicalTolerance: 'balanced',
+    readingMode: 'flow',
+    autoAdvanceOnSilence: false,
+    celebrationFrequency: 'normal',
   });
 
   // Koç Servisi Referansı
@@ -144,6 +152,14 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
       setSessionMetrics(null);
       setUserAnswers({});
       coachRef.current.setPatienceThreshold(settings.patienceThresholdSeconds);
+      coachRef.current.setVoiceSpeed(settings.voiceSpeed);
+      coachRef.current.setVoicePitch(settings.voicePitch);
+      coachRef.current.setPhonologicalTolerance(settings.phonologicalTolerance);
+      coachRef.current.setScaffoldingLevel(settings.scaffoldingLevel);
+      coachRef.current.setAutoAdvanceOnSilence(settings.autoAdvanceOnSilence);
+      coachRef.current.setCelebrationFrequency(settings.celebrationFrequency);
+      coachRef.current.setIsVoiceActive(settings.isVoiceActive);
+
       await coachRef.current.startSession(selectedPassage);
       setIsSessionActive(true);
       setCurrentWordIndex(0);
@@ -183,6 +199,12 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
     setUserAnswers({});
     setMascotState('idle');
     setCoachMessage(`"${passage.title}" seçildi. Hazırsan mikrofonu açıp okuyabilirsin.`);
+  };
+
+  // AI ile Üretilen Hikayeyi Sahneye Yükle
+  const handleStoryGenerated = (passage: ReadingPassage) => {
+    handleSelectPassage(passage);
+    toast.success(`"${passage.title}" AI tarafından üretildi ve sahneye yüklendi!`);
   };
 
   // Özel Metin Ekle
@@ -275,7 +297,7 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
                 CANLI AI OKUMA KOÇU
               </h1>
               <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                v2.1 Ultra
+                v2.2 Pro
               </span>
             </div>
             {activeStudent && (
@@ -307,8 +329,17 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
           </div>
         </div>
 
-        {/* Sağ: Metin Seçici, Ayarlar ve PDF İndir */}
+        {/* Sağ: AI Hikaye Üret, Metin Seçici, Ayarlar ve PDF İndir */}
         <div className="flex items-center gap-2">
+          {/* ✨ AI HİKAYE ÜRET BUTONU (Öne Çıkan) */}
+          <button
+            onClick={() => setShowAiModal(true)}
+            className="px-3.5 py-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:opacity-95 text-white text-xs font-bold shadow-lg shadow-indigo-500/25 transition-all flex items-center gap-1.5 ring-2 ring-indigo-400/30"
+          >
+            <Wand2 className="w-4 h-4 text-amber-300 animate-pulse" />
+            <span className="hidden sm:inline">AI Hikaye Üret</span>
+          </button>
+
           {/* Metin Değiştirici */}
           <select
             value={selectedPassage.id}
@@ -316,11 +347,11 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
               const found = SAMPLE_READING_PASSAGES.find((p) => p.id === e.target.value);
               if (found) handleSelectPassage(found);
             }}
-            className="hidden sm:block text-xs bg-zinc-900 border border-white/10 rounded-2xl px-3 py-2 text-zinc-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
+            className="hidden lg:block text-xs bg-zinc-900 border border-white/10 rounded-2xl px-3 py-2 text-zinc-300 focus:outline-none focus:border-indigo-500 cursor-pointer max-w-[170px] truncate"
           >
             {SAMPLE_READING_PASSAGES.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.title} ({p.ageGroup})
+                {p.title}
               </option>
             ))}
           </select>
@@ -332,7 +363,7 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
             className="p-2 sm:px-3 sm:py-2 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-zinc-300 hover:text-white flex items-center gap-1.5 transition-all"
           >
             <BookOpen className="w-4 h-4 text-amber-400" />
-            <span className="hidden md:inline">Metin Ekle</span>
+            <span className="hidden xl:inline">Metin Ekle</span>
           </button>
 
           {/* Ayarlar */}
@@ -399,6 +430,7 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
           fontSize={settings.fontSize}
           isRulerActive={settings.isRulerActive}
           isSyllableColoringActive={settings.isSyllableColoringActive}
+          readingMode={settings.readingMode}
           onWordClick={(index) => {
             coachRef.current?.setWordIndex(index);
           }}
@@ -613,6 +645,14 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
         )}
       </AnimatePresence>
 
+      {/* AI İLE KİŞİSELLEŞTİRİLMİŞ HİKAYE ÜRETİCİ MODALI */}
+      <AiStoryGeneratorModal
+        isOpen={showAiModal}
+        currentMascot={settings.mascot}
+        onClose={() => setShowAiModal(false)}
+        onStoryGenerated={handleStoryGenerated}
+      />
+
       {/* ÖZEL METİN GİRİŞİ MODALI */}
       <AnimatePresence>
         {showCustomModal && (
@@ -682,10 +722,36 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
         settings={settings}
         onClose={() => setIsSettingsOpen(false)}
         onUpdateSettings={(newSettings) => {
-          setSettings((prev) => ({ ...prev, ...newSettings }));
-          if (newSettings.patienceThresholdSeconds && coachRef.current) {
-            coachRef.current.setPatienceThreshold(newSettings.patienceThresholdSeconds);
-          }
+          setSettings((prev) => {
+            const updated = { ...prev, ...newSettings };
+            if (coachRef.current) {
+              if (newSettings.patienceThresholdSeconds !== undefined) {
+                coachRef.current.setPatienceThreshold(newSettings.patienceThresholdSeconds);
+              }
+              if (newSettings.voiceSpeed !== undefined) {
+                coachRef.current.setVoiceSpeed(newSettings.voiceSpeed);
+              }
+              if (newSettings.voicePitch !== undefined) {
+                coachRef.current.setVoicePitch(newSettings.voicePitch);
+              }
+              if (newSettings.phonologicalTolerance !== undefined) {
+                coachRef.current.setPhonologicalTolerance(newSettings.phonologicalTolerance);
+              }
+              if (newSettings.scaffoldingLevel !== undefined) {
+                coachRef.current.setScaffoldingLevel(newSettings.scaffoldingLevel);
+              }
+              if (newSettings.autoAdvanceOnSilence !== undefined) {
+                coachRef.current.setAutoAdvanceOnSilence(newSettings.autoAdvanceOnSilence);
+              }
+              if (newSettings.celebrationFrequency !== undefined) {
+                coachRef.current.setCelebrationFrequency(newSettings.celebrationFrequency);
+              }
+              if (newSettings.isVoiceActive !== undefined) {
+                coachRef.current.setIsVoiceActive(newSettings.isVoiceActive);
+              }
+            }
+            return updated;
+          });
         }}
       />
     </div>
