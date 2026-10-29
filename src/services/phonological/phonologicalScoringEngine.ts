@@ -39,6 +39,18 @@ export interface ReadingSessionMetrics {
   errorBreakdown: Record<PhonemeErrorCode, number>;
   pedagogicalSummary: string;
   recommendations: string[];
+  /**
+   * Results of comprehension questions (question => correct/incorrect)
+   */
+  comprehensionResults?: Record<string, boolean>;
+  /**
+   * AI story evaluation summary (e.g., coherence, creativity scores)
+   */
+  aiStoryEvaluation?: {
+    coherenceScore: number;
+    creativityScore: number;
+    overallRating: string;
+  };
 }
 
 // MEB 1-4. Sınıf Türkçe Akıcı Okuma Normları (WCPM)

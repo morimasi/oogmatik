@@ -198,6 +198,43 @@ export class ReadingAssessmentPdfGenerator {
       y += 6;
     });
 
+    // 7. Anlama Sorusu Sonuçları (Comprehension Question Results)
+    if (metrics.comprehensionResults && Object.keys(metrics.comprehensionResults).length > 0) {
+      doc.setTextColor(17, 24, 39);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text(tr('Anlama Sorusu Sonuclari'), MARGIN, y);
+      y += 5;
+      Object.entries(metrics.comprehensionResults).forEach(([question, correct]) => {
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(55, 65, 81);
+        const status = correct ? 'Dogru' : 'Yanlis';
+        doc.text(tr(`${question}: ${status}`), MARGIN + 2, y + 4);
+        y += 6;
+      });
+      y += 4;
+    }
+
+    // 8. AI Hikaye Değerlendirme (AI Story Evaluation)
+    if (metrics.aiStoryEvaluation) {
+      doc.setTextColor(17, 24, 39);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text(tr('AI Hikaye Degerlendirme'), MARGIN, y);
+      y += 5;
+      const evalData = metrics.aiStoryEvaluation;
+      doc.setFontSize(8.5);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(55, 65, 81);
+      doc.text(tr(`Coherence Score: ${evalData.coherenceScore}`), MARGIN + 2, y + 4);
+      y += 6;
+      doc.text(tr(`Creativity Score: ${evalData.creativityScore}`), MARGIN + 2, y + 4);
+      y += 6;
+      doc.text(tr(`Overall Rating: ${evalData.overallRating}`), MARGIN + 2, y + 4);
+      y += 6;
+    }
+
     y += 8;
 
     // 7. Alt Bilgi & İmza Alanı
