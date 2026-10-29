@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Curriculum, CurriculumDay, CurriculumActivityStatus } from '../../../types';
+import { Curriculum, CurriculumDay, CurriculumActivityStatus, Difficulty } from '../../../types';
 import { EnrichedCurriculum, PlanRevision } from './studentDashboardData';
 import { curriculumService } from '../../../services/curriculumService';
 import { useToastStore } from '../../../store/useToastStore';
@@ -11,7 +11,7 @@ interface AcademicPlanModuleProps {
   studentId: string;
   curriculums: Curriculum[];
   onRefresh?: () => void;
-  onStartCurriculumActivity?: (...args: unknown[]) => void;
+  onStartCurriculumActivity?: (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, difficulty: Difficulty, goal: string, studentId?: string, originTab?: string, originPlanTab?: string) => void;
 }
 
 export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
@@ -768,3 +768,4 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
     </div>
   );
 };
+

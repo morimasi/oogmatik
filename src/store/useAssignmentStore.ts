@@ -7,7 +7,6 @@ import {
   onSnapshot,
   QuerySnapshot,
   DocumentData,
-  // @ts-ignore
 } from 'firebase/firestore';
 import { 
   ActivityAssignment, 
@@ -135,3 +134,4 @@ export const useAssignmentStore = create<AssignmentState>()((set) => ({
     }
   },
 }));
+

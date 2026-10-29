@@ -18,7 +18,7 @@ interface A4EditorState {
   setExcalidrawElements: (elements: readonly unknown[]) => void;
 }
 
-export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
+export const useA4EditorStore = create<A4EditorState>()((set) => ({
   isEditorOpen: false,
   setEditorOpen: (isOpen: boolean) => set({ isEditorOpen: isOpen }),
   selectedBlockId: null,

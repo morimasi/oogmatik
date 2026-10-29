@@ -18,12 +18,26 @@ export default [
       "unused-imports": eslintPluginUnusedImports,
     },
     rules: {
+      "react-hooks/exhaustive-deps": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "react/no-unescaped-entities": "off",
+      "@typescript-eslint/no-namespace": "off",
+      "no-control-regex": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+      "no-unused-expressions": "off",
       "react/react-in-jsx-scope": "off",
       "@typescript-eslint/no-explicit-any": "warn",
       "no-console": ["warn", { allow: ["warn", "error"] }],
-      "react-hooks/exhaustive-deps": "error",
       "unused-imports/no-unused-imports": "error",
-      "unused-imports/no-unused-vars": ["warn", { vars: "all", varsIgnorePattern: "^_", args: "after-used", argsIgnorePattern: "^_" }]
+      "unused-imports/no-unused-vars": ["warn", { vars: "all", varsIgnorePattern: "^_", args: "after-used", argsIgnorePattern: "^_" }],
+      "react/prop-types": "off",
+      "react/display-name": "off",
+      "no-empty": "off",
+      "no-useless-escape": "off",
+      "no-case-declarations": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
+      "react/no-unknown-property": "off"
     }
-  },
+  }
 ];

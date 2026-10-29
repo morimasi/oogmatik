@@ -3,7 +3,7 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../services/firebaseClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
-import { Student, SavedWorksheet, SavedAssessment, Curriculum, AdvancedStudent } from '../../types';
+import { Student, SavedWorksheet, SavedAssessment, Curriculum, AdvancedStudent, Difficulty } from '../../types';
 import { useAssignmentStore } from '../../store/useAssignmentStore';
 import { useToastStore } from '../../store/useToastStore';
 
@@ -51,7 +51,7 @@ type FormTab = 'identity' | 'academic' | 'parent';
 interface StudentDashboardProps {
   onBack: () => void;
   onLoadMaterial?: (ws: SavedWorksheet) => void;
-  onStartCurriculumActivity?: (...args: any[]) => void;
+  onStartCurriculumActivity?: (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, difficulty: Difficulty, goal: string, studentId?: string, originTab?: string, originPlanTab?: string) => void;
 }
 
 export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActivity }: StudentDashboardProps) {
@@ -1024,3 +1024,4 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
     </div>
   );
 };
+

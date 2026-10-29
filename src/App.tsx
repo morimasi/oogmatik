@@ -177,9 +177,9 @@ const AppContent = () => {
 
   const {
     currentView,
-    setCurrentView,
-    addHistoryView,
-    popHistoryView,
+    // setCurrentView, // unused
+    // addHistoryView, // unused
+    // popHistoryView, // unused
     selectedActivity,
     setSelectedActivity,
     worksheetData,
