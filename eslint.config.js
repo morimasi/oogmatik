@@ -2,20 +2,28 @@ import globals from "globals";
 import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
 import pluginReactConfig from "eslint-plugin-react/configs/recommended.js";
+import eslintPluginReactHooks from "eslint-plugin-react-hooks";
+import eslintPluginUnusedImports from "eslint-plugin-unused-imports";
 import { fixupConfigRules } from "@eslint/compat";
 
 export default [
-    { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
-    { languageOptions: { globals: globals.browser } },
-    pluginJs.configs.recommended,
-    ...tseslint.configs.recommended,
-    ...fixupConfigRules(pluginReactConfig),
-    {
-        rules: {
-            "react/react-in-jsx-scope": "off",
-            "@typescript-eslint/no-explicit-any": "warn",
-            "no-console": ["warn", { allow: ["warn", "error"] }]
-        }
+  { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
+  { languageOptions: { globals: globals.browser } },
+  pluginJs.configs.recommended,
+  ...tseslint.configs.recommended,
+  ...fixupConfigRules(pluginReactConfig),
+  {
+    plugins: {
+      "react-hooks": eslintPluginReactHooks,
+      "unused-imports": eslintPluginUnusedImports,
+    },
+    rules: {
+      "react/react-in-jsx-scope": "off",
+      "@typescript-eslint/no-explicit-any": "warn",
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "react-hooks/exhaustive-deps": "error",
+      "unused-imports/no-unused-imports": "error",
+      "unused-imports/no-unused-vars": ["warn", { vars: "all", varsIgnorePattern: "^_", args: "after-used", argsIgnorePattern: "^_" }]
     }
+  },
 ];
-

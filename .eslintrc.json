@@ -20,12 +20,29 @@
   },
   "plugins": ["react", "react-hooks", "@typescript-eslint", "prettier", "unused-imports"],
   "rules": {
+    "unused-imports/no-unused-imports": "off",
+    "unused-imports/no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "react/no-unescaped-entities": "off",
+    "no-control-regex": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-empty-object-type": "off",
+    "no-unused-expressions": "off"
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": "error",
+    "@typescript-eslint/no-unused-vars": "off",
+    "react/no-unescaped-entities": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "no-control-regex": "off",
+    "react-hooks/exhaustive-deps": "error",
     "prettier/prettier": "error",
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
     "unused-imports/no-unused-imports": "error",
     "unused-imports/no-unused-vars": [
-      "warn",
+      "error",
       {
         "vars": "all",
         "varsIgnorePattern": "^_",
@@ -37,6 +54,9 @@
     "@typescript-eslint/no-unused-vars": "off"
   },
   "settings": {
+    "react": {
+      "version": "detect"
+    },
     "react": {
       "version": "detect"
     }
