@@ -1,291 +1,136 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { db } from '../../services/firebaseClient';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
-import { Student, SavedWorksheet, SavedAssessment, Curriculum, AdvancedStudent, Difficulty } from '../../types';
 import { useAssignmentStore } from '../../store/useAssignmentStore';
 import { useToastStore } from '../../store/useToastStore';
+import { Student, SavedWorksheet, AdvancedStudent, Difficulty } from '../../types';
 
-import { logInfo, logError } from '../../utils/logger.js';
-import { toAppError } from '../../utils/AppError.js';
+// Custom Hooks & Sub-components
+import { useStudentRealtimeData } from './hooks/useStudentRealtimeData';
+import {
+  StudentDashboardSidebar,
+  GroupingMode,
+} from './dashboard/StudentDashboardSidebar';
+import { StudentDetailHeader } from './dashboard/StudentDetailHeader';
+import {
+  StudentTabNavigation,
+  StudentDashboardTab,
+} from './dashboard/StudentTabNavigation';
+import { StudentAddEditModal } from './dashboard/StudentAddEditModal';
 
-// Module imports
+// Module views
 import { DashboardModule } from './modules/DashboardModule';
-import { StudentEffectCard } from './StudentEffectCard';
 import { AssignmentsModule } from './modules/AssignmentsModule';
 import { MaterialsModule } from './modules/MaterialsModule';
 import { AnalyticsModule } from './modules/AnalyticsModule';
 import { AcademicPlanModule } from './modules/AcademicPlanModule';
-import { ClinicalNotesModule } from './modules/ClinicalNotesModule';
 import { IEPModule } from './modules/IEPModule';
-// Define constants used in the component
-const grades = [
-  'Okul Öncesi',
-  '1. Sınıf',
-  '2. Sınıf',
-  '3. Sınıf',
-  '4. Sınıf',
-  '5. Sınıf',
-  '6. Sınıf',
-  '7. Sınıf',
-  '8. Sınıf',
-  'Lise Hazırlık',
-  '9. Sınıf',
-];
-const diagnosisOptions = [
-  'Disleksi (Okuma Güçlüğü)',
-  'Diskalkuli (Matematik Güçlüğü)',
-  'DEHB (Dikkat Eksikliği)',
-  'Disgrafi (Yazma Güçlüğü)',
-  'Genel Öğrenme Güçlüğü',
-  'Otizm Spektrum Bozukluğu',
-  'Üstün Yetenekli',
-  'Dil ve Konuşma Güçlüğü',
-];
+import { ClinicalNotesModule } from './modules/ClinicalNotesModule';
 
-type TabType = 'overview' | 'assignments' | 'materials' | 'analytics' | 'plans' | 'iep' | 'notes' | 'settings';
-type GroupingMode = 'all' | 'grade' | 'age';
-type FormTab = 'identity' | 'academic' | 'parent';
-
-interface StudentDashboardProps {
+export interface StudentDashboardProps {
   onBack: () => void;
   onLoadMaterial?: (ws: SavedWorksheet) => void;
-  onStartCurriculumActivity?: (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, difficulty: Difficulty, goal: string, studentId?: string, originTab?: string, originPlanTab?: string) => void;
+  onStartCurriculumActivity?: (
+    planId: string,
+    day: number,
+    activityId: string,
+    activityType: string,
+    studentName: string,
+    title: string,
+    difficulty: Difficulty,
+    goal: string,
+    studentId?: string,
+    originTab?: string,
+    originPlanTab?: string
+  ) => void;
 }
 
-export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActivity }: StudentDashboardProps) {
+export function StudentDashboard({
+  onBack: _onBack,
+  onLoadMaterial,
+  onStartCurriculumActivity,
+}: StudentDashboardProps) {
   const { user } = useAuthStore();
-  const { students, activeStudent, setActiveStudent, addStudent, deleteStudent, updateStudent, isLoading: _contextLoading } = useStudentStore();
+  const {
+    students,
+    activeStudent,
+    setActiveStudent,
+    addStudent,
+    deleteStudent,
+    updateStudent,
+  } = useStudentStore();
+
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>(() => {
-    const defaultTab = (window as any).studentDashboardDefaultTab;
+
+  // Active Tab with LocalStorage & legacy window bridge
+  const [activeTab, setActiveTab] = useState<StudentDashboardTab>(() => {
+    const defaultTab = (window as unknown as { studentDashboardDefaultTab?: StudentDashboardTab })
+      .studentDashboardDefaultTab;
     if (defaultTab) {
-      delete (window as any).studentDashboardDefaultTab;
+      delete (window as unknown as { studentDashboardDefaultTab?: StudentDashboardTab })
+        .studentDashboardDefaultTab;
       return defaultTab;
     }
     const saved = localStorage.getItem('student_dashboard_active_tab');
-    const validTabs: TabType[] = ['overview', 'assignments', 'materials', 'analytics', 'plans', 'iep', 'notes', 'settings'];
-    return saved && validTabs.includes(saved as TabType) ? (saved as TabType) : 'overview';
+    const validTabs: StudentDashboardTab[] = [
+      'overview',
+      'assignments',
+      'materials',
+      'analytics',
+      'plans',
+      'iep',
+      'notes',
+      'settings',
+    ];
+    return saved && validTabs.includes(saved as StudentDashboardTab)
+      ? (saved as StudentDashboardTab)
+      : 'overview';
   });
 
   useEffect(() => {
     localStorage.setItem('student_dashboard_active_tab', activeTab);
   }, [activeTab]);
 
-  // UI State
+  // Sidebar Grouping & Search
   const [groupingMode, setGroupingMode] = useState<GroupingMode>('all');
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Add Form State
+  // Modal State
   const [showAddForm, setShowAddForm] = useState(false);
-  const [formTab, setFormTab] = useState<FormTab>('identity');
-  const [formData, setFormData] = useState<Partial<Student>>({
-    name: '',
-    age: 8,
-    grade: '2. Sınıf',
-    diagnosis: [],
-    interests: [],
-    notes: '',
-    learningStyle: 'Görsel',
-    parentName: '',
-    contactPhone: '',
-    contactEmail: '',
-    strengths: [],
-    weaknesses: [],
-  });
-
-  // Helper inputs for tags
-  const [tempInterest, setTempInterest] = useState('');
-  const [tempStrength, setTempStrength] = useState('');
-  const [tempWeakness, setTempWeakness] = useState('');
-
-  // Student Data State
-  const [studentWorksheets, setStudentWorksheets] = useState<SavedWorksheet[]>([]);
-  const [studentAssessments, setStudentAssessments] = useState<SavedAssessment[]>([]);
-  const [studentCurriculums, setStudentCurriculums] = useState<Curriculum[]>([]);
-  const [loadingDetails, setLoadingDetails] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Partial<Student> | undefined>(undefined);
 
   // Assignment Store
   const { assignments, fetchStudentAssignments, updateAssignment } = useAssignmentStore();
 
-  // Filters
-  const [searchQuery, setSearchQuery] = useState('');
+  // Real-time Firestore Listeners via Custom Hook
+  const {
+    studentWorksheets,
+    studentAssessments,
+    studentCurriculums,
+    loadingDetails,
+  } = useStudentRealtimeData(selectedStudentId, fetchStudentAssignments);
 
   const selectedStudent = useMemo(
     () => students.find((s: Student) => s.id === selectedStudentId),
     [students, selectedStudentId]
   );
 
-  // Real-time listener unsubscriptions
-  const realtimeUnsubs = useRef<Array<() => void>>([]);
-
   // Bidirectional sync: activeStudent <-> selectedStudentId
   useEffect(() => {
     if (activeStudent?.id && !selectedStudentId) {
       setSelectedStudentId(activeStudent.id);
     }
-  }, [activeStudent?.id]);
+  }, [activeStudent?.id, selectedStudentId]);
 
   useEffect(() => {
     if (selectedStudentId && selectedStudentId !== activeStudent?.id) {
-      const s = students.find((x: Student) => x.id === selectedStudentId);
-      if (s) setActiveStudent(s);
+      const found = students.find((x: Student) => x.id === selectedStudentId);
+      if (found) setActiveStudent(found);
     }
-  }, [selectedStudentId, activeStudent?.id, students]);
+  }, [selectedStudentId, activeStudent?.id, students, setActiveStudent]);
 
-  // Load Student Specific Data when selected in REAL-TIME
-  useEffect(() => {
-    if (selectedStudentId) {
-      setLoadingDetails(true);
-
-      // Cleanup previous listeners
-      realtimeUnsubs.current.forEach((unsub: any) => {
-        try { unsub(); } catch (e) { logError(toAppError(e), { context: 'unsub cleanup' }); }
-      });
-      realtimeUnsubs.current = [];
-
-      try {
-        // 1. Real-time Assignments Listener
-        const unsubAssignments = fetchStudentAssignments(selectedStudentId);
-        realtimeUnsubs.current.push(unsubAssignments);
-
-        // 2. Real-time Worksheets Listener
-        const qWorksheets = query(collection(db, "saved_worksheets"), where("studentId", "==", selectedStudentId));
-        const unsubWorksheets = onSnapshot(qWorksheets, {
-          next: (snapshot: any) => {
-            logInfo(`[StudentDashboard] saved_worksheets için ${selectedStudentId} id'li öğrenciye ait ${snapshot.docs.length} belge bulundu`);
-            const ws = snapshot.docs.map((doc: any) => {
-              const raw = doc.data() as any;
-              logInfo(`[StudentDashboard] saved_worksheet belge (${doc.id}) tam verisi:`, { data: raw });
-              if (typeof raw.worksheetData === 'string') { try { raw.worksheetData = JSON.parse(raw.worksheetData); } catch { raw.worksheetData = []; } }
-              return { id: doc.id, ...raw } as SavedWorksheet;
-            });
-            logInfo(`[StudentDashboard] İşlenmiş worksheets dizisi:`, { worksheets: ws });
-            setStudentWorksheets(ws);
-            setLoadingDetails(false);
-          },
-          error: (err: any) => {
-            logError(toAppError(err), { context: 'Worksheets listener error' });
-            setLoadingDetails(false);
-          }
-        });
-        realtimeUnsubs.current.push(unsubWorksheets);
-
-        // 3. Real-time Assessments (Reports) Listener
-        const qAssessments = query(collection(db, "saved_assessments"), where("studentId", "==", selectedStudentId));
-        const unsubAssessments = onSnapshot(qAssessments, {
-          next: (snapshot: any) => {
-            logInfo(`[StudentDashboard] saved_assessments için ${selectedStudentId} id'li öğrenciye ait ${snapshot.docs.length} belge bulundu`);
-            const as = snapshot.docs.map((doc: any) => {
-              const raw = doc.data() as any;
-              logInfo(`[StudentDashboard] saved_assessment belge verisi:`, { id: doc.id, ...raw });
-              return { id: doc.id, ...raw } as SavedAssessment;
-            });
-            setStudentAssessments(as);
-          },
-          error: (err: any) => logError(toAppError(err), { context: 'Assessments listener error' })
-        });
-        realtimeUnsubs.current.push(unsubAssessments);
-
-        // 4. Real-time Curriculums (Plans) Listener
-        const qCurriculums = query(collection(db, "saved_curriculums"), where("studentId", "==", selectedStudentId));
-        const unsubCurriculums = onSnapshot(qCurriculums, {
-          next: (snapshot: any) => {
-            const cr = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as any));
-            setStudentCurriculums(cr);
-          },
-          error: (err: any) => logError(toAppError(err), { context: 'Curriculums listener error' })
-        });
-        realtimeUnsubs.current.push(unsubCurriculums);
-
-      } catch (err) {
-        logError(toAppError(err), { context: 'Error setting up real-time listeners' });
-        setLoadingDetails(false);
-      }
-    }
-
-    return () => {
-      realtimeUnsubs.current.forEach((unsub: () => void) => {
-        try { unsub(); } catch (e) { logError(toAppError(e), { context: 'unsub return cleanup' }); }
-      });
-      realtimeUnsubs.current = [];
-    };
-  }, [selectedStudentId, fetchStudentAssignments]);
-
-  const loadStudentData = async (id: string) => {
-    // With real-time listeners fully active, manual polling is no longer required.
-    // We keep this as a dummy/legacy reference for full compatibility.
-  };
-
-  const handleSaveStudent = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name) {
-      alert('Lütfen öğrenci adını giriniz.');
-      return;
-    }
-
-    try {
-      if (formData.id) {
-        // Update
-        await updateStudent(formData.id, formData);
-      } else {
-        // Create
-        if (!user?.id) throw new Error('Kullanıcı oturumu bulunamadı.');
-        await addStudent(user.id, {
-          ...(formData as any),
-          avatar: formData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.name}-${Math.random()}`,
-        });
-      }
-      setShowAddForm(false);
-      setFormData({
-        name: '',
-        age: 8,
-        grade: '2. Sınıf',
-        diagnosis: [],
-        interests: [],
-        notes: '',
-        learningStyle: 'Görsel',
-        strengths: [],
-        weaknesses: [],
-        parentName: '',
-        contactPhone: '',
-        contactEmail: '',
-      });
-    } catch (e: unknown) {
-      alert(`Kayıt hatası: ${e instanceof Error ? e.message : String(e)}`);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!id) return;
-    if (confirm('Bu öğrenciyi ve tüm verilerini silmek istediğinize emin misiniz?')) {
-      await deleteStudent(id);
-      if (selectedStudentId === id) setSelectedStudentId(null);
-    }
-  };
-
-  const handleAddTag = (
-    field: 'interests' | 'strengths' | 'weaknesses',
-    value: string,
-    setter: (s: string) => void
-  ) => {
-    if (!value.trim()) return;
-    setFormData((prev: any) => ({
-      ...prev,
-      [field]: [...(prev[field] || []), value.trim()],
-    }));
-    setter('');
-  };
-
-  const handleRemoveTag = (field: 'interests' | 'strengths' | 'weaknesses', index: number) => {
-    setFormData((prev: any) => ({
-      ...prev,
-      [field]: (prev[field] || []).filter((_: any, i: number) => i !== index),
-    }));
-  };
-
-  // --- Grouping Logic ---
+  // Grouping logic for Sidebar
   const groupedStudents = useMemo(() => {
     const filtered = students.filter((s: Student) =>
       (s.name || '').toLowerCase().includes(searchQuery.toLowerCase())
@@ -309,719 +154,217 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
   }, [groupedStudents]);
 
   const toggleGroup = (key: string) => {
-    setOpenGroups((prev: Record<string, boolean>) => ({ ...prev, [key]: !prev[key] }));
+    setOpenGroups((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Initialize groups as open
   useEffect(() => {
     const initialGroups: Record<string, boolean> = {};
-    sortedGroupKeys.forEach((k: string) => (initialGroups[k] = true));
+    sortedGroupKeys.forEach((k) => (initialGroups[k] = true));
     setOpenGroups(initialGroups);
-  }, [sortedGroupKeys.length]); // Re-run when grouping changes
+  }, [sortedGroupKeys]);
 
-  // Render Components
-  const renderSidebar = () => (
-    <div className="w-64 bg-[var(--bg-paper)] border-r border-[var(--border-color)] flex flex-col h-full shrink-0 shadow-2xl z-30 overflow-hidden">
-      <div className="p-3 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/50 backdrop-blur-sm">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="font-black text-lg text-[var(--text-primary)] flex items-center gap-2.5 tracking-tighter uppercase">
-            <div className="w-8 h-8 rounded-lg bg-[var(--accent-color)] flex items-center justify-center text-white shadow-lg shadow-[var(--accent-color)]/20">
-              <i className="fa-solid fa-users text-sm"></i>
-            </div>
-            Öğrencilerim
-          </h2>
-          <button
-            onClick={() => {
-              setFormData({
-                name: '',
-                age: 8,
-                grade: '2. Sınıf',
-                diagnosis: [],
-                interests: [],
-                notes: '',
-                learningStyle: 'Görsel',
-                strengths: [],
-                weaknesses: [],
-                parentName: '',
-                contactPhone: '',
-                contactEmail: '',
-              });
-              setFormTab('identity');
-              setShowAddForm(true);
-            }}
-            className="w-8 h-8 rounded-lg text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-            style={{ backgroundColor: 'var(--accent-color)' }}
-            title="Yeni Öğrenci Ekle"
-          >
-            <i className="fa-solid fa-plus text-xs"></i>
-          </button>
-        </div>
-        <div className="relative mb-3">
-          <i className="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-xs"></i>
-          <input
-            type="text"
-            placeholder="İsim veya sınıf ile ara..."
-            value={searchQuery}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-[var(--bg-paper)]/50 border border-[var(--border-color)] rounded-xl text-xs outline-none focus:ring-2 focus:ring-[var(--accent-color)]/50 transition-all shadow-sm text-[var(--text-primary)]"
-          />
-        </div>
+  // Student Actions
+  const handleSaveStudent = async (data: Partial<Student>) => {
+    if (!data.name?.trim()) {
+      alert('Lütfen öğrenci adını giriniz.');
+      return;
+    }
 
-        {/* Grouping Toggles - Ultra Compact */}
-        <div className="flex bg-[var(--bg-secondary)] p-0.5 rounded-lg">
-          {['all', 'grade', 'age'].map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setGroupingMode(mode as any)}
-              className={`flex-1 py-1 text-[8px] font-black uppercase tracking-widest rounded-md transition-all ${groupingMode === mode ? 'bg-[var(--bg-paper)] shadow-sm text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
-            >
-              {mode === 'all' ? 'Tümü' : mode === 'grade' ? 'Sınıf' : 'Yaş'}
-            </button>
-          ))}
-        </div>
-      </div>
+    if (data.id) {
+      await updateStudent(data.id, data);
+      useToastStore.getState().success('Öğrenci başarıyla güncellendi.');
+    } else {
+      if (!user?.id) throw new Error('Kullanıcı oturumu bulunamadı.');
+      await addStudent(user.id, {
+        ...data,
+        avatar:
+          data.avatar ||
+          `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.name}-${Math.random()}`,
+      } as unknown as Omit<Student, 'id'>);
+      useToastStore.getState().success('Yeni öğrenci başarıyla eklendi.');
+    }
+  };
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3">
-        {sortedGroupKeys.map((groupKey: string) => (
-          <div key={groupKey} className="space-y-1.5">
-            {groupingMode !== 'all' && (
-              <button
-                onClick={() => toggleGroup(groupKey)}
-                className="w-full flex items-center justify-between px-2 py-1 text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] hover:text-[var(--text-secondary)] transition-colors"
-              >
-                <span>
-                  {groupKey} ({groupedStudents[groupKey].length})
-                </span>
-                <i
-                  className={`fa-solid fa-chevron-down text-[8px] transition-transform ${openGroups[groupKey] ? 'rotate-180' : ''}`}
-                ></i>
-              </button>
-            )}
+  const handleDelete = async (id: string) => {
+    if (!id) return;
+    if (confirm('Bu öğrenciyi ve tüm verilerini silmek istediğinize emin misiniz?')) {
+      await deleteStudent(id);
+      if (selectedStudentId === id) setSelectedStudentId(null);
+      useToastStore.getState().success('Öğrenci silindi.');
+    }
+  };
 
-            {(groupingMode === 'all' || openGroups[groupKey]) && (
-              <div className="space-y-1.5">
-                {groupedStudents[groupKey].map((s: Student) => {
-                  if (!s || !s.id) return null;
-                  return (
-                    <StudentEffectCard
-                      key={s.id}
-                      student={s}
-                      onClick={() => setSelectedStudentId(s.id)}
-                    />
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        ))}
+  return (
+    <div className="h-full w-full bg-[var(--bg-primary)] flex flex-col md:flex-row font-['Lexend'] overflow-hidden">
+      {/* 1. Modüler Sol Kenar Çubuğu */}
+      <StudentDashboardSidebar
+        students={students}
+        selectedStudentId={selectedStudentId}
+        onSelectStudent={setSelectedStudentId}
+        onOpenAddModal={() => {
+          setEditingStudent(undefined);
+          setShowAddForm(true);
+        }}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        groupingMode={groupingMode}
+        onGroupingModeChange={setGroupingMode}
+        openGroups={openGroups}
+        onToggleGroup={toggleGroup}
+        groupedStudents={groupedStudents}
+        sortedGroupKeys={sortedGroupKeys}
+      />
 
-        {students.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 text-center px-4">
-            <div className="w-12 h-12 bg-[var(--bg-secondary)] rounded-2xl flex items-center justify-center mb-3 border border-[var(--border-color)]">
-              <i className="fa-solid fa-user-plus text-[var(--text-muted)] text-xl"></i>
-            </div>
-            <p className="text-[var(--text-muted)] font-black text-[10px] uppercase tracking-wider">Henüz Kayıt Yok</p>
-            <button
-              onClick={() => {
-                setFormData({
-                  name: '',
-                  age: 8,
-                  grade: '2. Sınıf',
-                  diagnosis: [],
-                  interests: [],
-                  notes: '',
-                  learningStyle: 'Görsel',
-                  strengths: [],
-                  weaknesses: [],
-                  parentName: '',
-                  contactPhone: '',
-                  contactEmail: '',
-                });
-                setFormTab('identity');
-                setShowAddForm(true);
-              }}
-              className="mt-3 text-[var(--accent-color)] font-black text-[9px] uppercase tracking-widest hover:underline"
-            >
-              Hemen Ekle
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const renderDetailContent = () => {
-    if (!selectedStudent) {
-      return (
+      {/* 2. Ana Detay Alanı */}
+      {!selectedStudent ? (
         <div className="flex-1 flex flex-col items-center justify-center bg-[var(--bg-secondary)]/30 backdrop-blur-sm text-[var(--text-muted)]">
           <div className="w-16 h-16 bg-[var(--bg-secondary)] rounded-2xl flex items-center justify-center mb-4 border border-[var(--border-color)]">
             <i className="fa-solid fa-user-graduate text-2xl opacity-30"></i>
           </div>
-          <h3 className="text-lg font-black text-[var(--text-secondary)] uppercase tracking-tight">Öğrenci Seçiniz</h3>
-          <p className="text-[10px] mt-2 font-bold uppercase tracking-widest opacity-60">Detaylar için sol menüyü kullanın</p>
+          <h3 className="text-lg font-black text-[var(--text-secondary)] uppercase tracking-tight">
+            Öğrenci Seçiniz
+          </h3>
+          <p className="text-[10px] mt-2 font-bold uppercase tracking-widest opacity-60">
+            Detaylar için sol menüyü kullanın
+          </p>
         </div>
-      );
-    }
+      ) : (
+        <div className="flex-1 flex flex-col bg-[var(--bg-primary)] overflow-hidden relative">
+          {/* Öğrenci Başlık Bilgi & Aksiyon Bandı */}
+          <StudentDetailHeader
+            student={selectedStudent}
+            isActive={activeStudent?.id === selectedStudent.id}
+            onActivate={() => setActiveStudent(selectedStudent)}
+            onEdit={() => {
+              setEditingStudent(selectedStudent);
+              setShowAddForm(true);
+            }}
+            onDelete={() => handleDelete(selectedStudent.id)}
+          />
 
-    return (
-      <div className="flex-1 flex flex-col bg-[var(--bg-primary)] overflow-hidden relative">
-        {/* Student Header - Ultra Compact Premium */}
-        <div className="bg-[var(--bg-paper)]/40 backdrop-blur-2xl border-b border-[var(--border-color)]/30 px-6 py-3 flex flex-col md:flex-row justify-between items-center gap-4 shrink-0 z-10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-[var(--accent-color)]/5 rounded-full -mr-12 -mt-12 blur-2xl"></div>
+          {/* Sekme Navigasyonu */}
+          <StudentTabNavigation
+            activeTab={activeTab}
+            onSelectTab={setActiveTab}
+          />
 
-          <div className="flex items-center gap-4 relative z-10 w-full md:w-auto text-left">
-            <div className="relative shrink-0">
-              <img
-                src={selectedStudent.avatar}
-                className="w-12 h-12 rounded-xl border border-[var(--border-color)] shadow-lg bg-[var(--bg-secondary)]"
-                alt={selectedStudent.name}
-              />
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[var(--accent-color)] rounded-lg flex items-center justify-center text-white border border-[var(--bg-paper)] shadow-lg">
-                <i className="fa-solid fa-graduation-cap text-[8px]"></i>
+          {/* Sekme İçerik Alanı */}
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            {loadingDetails ? (
+              <div className="flex flex-col items-center justify-center h-full opacity-40">
+                <i className="fa-solid fa-loader fa-spin text-4xl mb-4 text-[var(--accent-color)]"></i>
+                <p className="font-black text-[10px] uppercase tracking-widest text-[var(--text-muted)]">
+                  Veriler Senkronize Ediliyor...
+                </p>
               </div>
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-lg font-black text-[var(--text-primary)] tracking-tighter uppercase truncate leading-none mb-1">
-                {selectedStudent.name}
-              </h1>
-              <div className="flex flex-wrap items-center gap-1.5 opacity-80">
-                <span className="text-[7px] font-black uppercase text-[var(--text-muted)] bg-[var(--bg-secondary)]/80 px-2 py-0.5 rounded border border-[var(--border-color)]">
-                  {selectedStudent.grade}
-                </span>
-                {selectedStudent.diagnosis[0] && (
-                  <span className="text-[7px] font-black uppercase text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/10">
-                    {selectedStudent.diagnosis[0]}
-                  </span>
+            ) : (
+              <div className="max-w-7xl mx-auto space-y-6 pb-20">
+                {activeTab === 'overview' && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <DashboardModule
+                      student={selectedStudent as AdvancedStudent}
+                      assignments={assignments}
+                      worksheets={studentWorksheets}
+                      assessments={studentAssessments}
+                      curriculums={studentCurriculums}
+                      onNavigateToTab={setActiveTab}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'assignments' && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <AssignmentsModule
+                      studentId={selectedStudent.id}
+                      studentName={selectedStudent.name}
+                      assignments={assignments}
+                      onUpdateAssignment={updateAssignment}
+                      onLoadMaterial={onLoadMaterial}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'materials' && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <MaterialsModule
+                      studentId={selectedStudent.id}
+                      worksheets={studentWorksheets}
+                      assessments={studentAssessments}
+                      onLoadMaterial={onLoadMaterial}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'analytics' && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <AnalyticsModule
+                      studentId={selectedStudent.id}
+                      assessments={studentAssessments}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'plans' && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <AcademicPlanModule
+                      studentId={selectedStudent.id}
+                      curriculums={studentCurriculums}
+                      onRefresh={() => {}}
+                      onStartCurriculumActivity={onStartCurriculumActivity}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'iep' && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <IEPModule
+                      student={
+                        {
+                          ...selectedStudent,
+                          iep:
+                            (selectedStudent as unknown as { iep?: unknown }).iep || {
+                              goals: [],
+                              status: 'draft',
+                            },
+                        } as AdvancedStudent
+                      }
+                      onUpdate={(updatedIEP) => {
+                        updateStudent(selectedStudent.id, {
+                          iep: updatedIEP,
+                        } as unknown as Partial<Student>);
+                        useToastStore.getState().success('BEP planı başarıyla güncellendi.');
+                      }}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'notes' && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <ClinicalNotesModule
+                      studentId={selectedStudent.id}
+                      studentName={selectedStudent.name}
+                    />
+                  </div>
                 )}
               </div>
-            </div>
-          </div>
-
-          <div className="flex gap-2 relative z-10 w-full md:w-auto">
-            <button
-              onClick={() => {
-                setActiveStudent?.(selectedStudent);
-                useToastStore.getState().success(`${selectedStudent.name} başarıyla aktif edildi.`, 2000);
-              }}
-              className={`flex-1 md:flex-none px-4 py-2 rounded-xl font-black text-[9px] tracking-widest transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 uppercase ${activeStudent?.id === selectedStudent.id
-                  ? 'bg-emerald-500 text-white shadow-emerald-500/20'
-                  : 'bg-[var(--accent-color)] text-white shadow-indigo-500/20 hover:scale-105'
-                }`}
-            >
-              <i className={`fa-solid ${activeStudent?.id === selectedStudent.id ? 'fa-check' : 'fa-play'} text-[8px]`}></i>
-              {activeStudent?.id === selectedStudent.id ? 'AKTİF' : 'AKTİFLEŞTİR'}
-            </button>
-            <button
-              onClick={() => {
-                setFormData(selectedStudent);
-                setShowAddForm(true);
-              }}
-              className="w-8 h-8 bg-[var(--surface-elevated)] border border-[var(--border-color)] hover:bg-[var(--accent-muted)] text-[var(--text-secondary)] rounded-lg transition-all flex items-center justify-center"
-            >
-              <i className="fa-solid fa-pen text-[10px]"></i>
-            </button>
-            <button
-              onClick={() => handleDelete(selectedStudent.id)}
-              className="w-8 h-8 bg-rose-500/5 text-rose-500 hover:bg-rose-500/10 rounded-lg flex items-center justify-center transition-all border border-rose-500/10"
-            >
-              <i className="fa-solid fa-trash-can text-[10px]"></i>
-            </button>
-          </div>
-        </div>
-
-        {/* Tabs - Glassmorphic Compact */}
-        <div className="flex border-b border-[var(--border-color)] bg-[var(--bg-paper)]/50 backdrop-blur-md px-6 gap-6 overflow-x-auto shrink-0 sticky top-0 z-20 no-scrollbar">
-          {[
-            { id: 'overview', label: 'Dashboard', icon: 'fa-grid-2' },
-            { id: 'assignments', label: 'Atamalar', icon: 'fa-tasks' },
-            { id: 'materials', label: 'Materyaller', icon: 'fa-scroll' },
-            { id: 'analytics', label: 'Analiz', icon: 'fa-brain-circuit' },
-            { id: 'plans', label: 'Akademik Plan', icon: 'fa-calendar-lines-pen' },
-            { id: 'iep', label: 'BEP / IEP', icon: 'fa-hands-holding-child' },
-            { id: 'notes', label: 'Klinik Notlar', icon: 'fa-notes-medical' },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as TabType)}
-              className={`py-3 text-[9px] font-black uppercase tracking-[0.1em] border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === tab.id ? 'border-[var(--accent-color)] text-[var(--accent-color)]' : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
-            >
-              <i className={`fa-solid ${tab.icon} text-[10px]`}></i> {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-          {loadingDetails ? (
-            <div className="flex flex-col items-center justify-center h-full opacity-40">
-              <i className="fa-solid fa-loader fa-spin text-4xl mb-4 text-[var(--accent-color)]"></i>
-              <p className="font-black text-[10px] uppercase tracking-widest text-[var(--text-muted)]"> Veriler Senkronize Ediliyor... </p>
-            </div>
-          ) : (
-            <div className="max-w-7xl mx-auto space-y-6 pb-20">
-              {activeTab === 'overview' && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <DashboardModule
-                    student={selectedStudent as AdvancedStudent}
-                    assignments={assignments}
-                    worksheets={studentWorksheets}
-                    assessments={studentAssessments}
-                    curriculums={studentCurriculums}
-                    onNavigateToTab={setActiveTab}
-                  />
-                </div>
-              )}
-
-              {activeTab === 'assignments' && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <AssignmentsModule
-                    studentId={selectedStudent.id}
-                    studentName={selectedStudent.name}
-                    assignments={assignments}
-                    onUpdateAssignment={updateAssignment}
-                    onLoadMaterial={onLoadMaterial}
-                  />
-                </div>
-              )}
-
-              {activeTab === 'materials' && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <MaterialsModule
-                    studentId={selectedStudent.id}
-                    worksheets={studentWorksheets}
-                    assessments={studentAssessments}
-                    onLoadMaterial={onLoadMaterial}
-                  />
-                </div>
-              )}
-
-              {activeTab === 'analytics' && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <AnalyticsModule
-                    studentId={selectedStudent.id}
-                    assessments={studentAssessments}
-                  />
-                </div>
-              )}
-
-              {activeTab === 'plans' && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <AcademicPlanModule
-                    studentId={selectedStudent.id}
-                    curriculums={studentCurriculums}
-                    onRefresh={() => loadStudentData(selectedStudent.id)}
-                    onStartCurriculumActivity={onStartCurriculumActivity}
-                  />
-                </div>
-              )}
-
-              {activeTab === 'iep' && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <IEPModule
-                    student={{
-                      ...selectedStudent,
-                      iep: (selectedStudent as any).iep || { goals: [], status: 'draft' },
-                    } as AdvancedStudent}
-                    onUpdate={(updatedIEP) => {
-                      updateStudent(selectedStudent.id, { iep: updatedIEP } as any);
-                      useToastStore.getState().success('BEP planı başarıyla güncellendi.');
-                    }}
-                  />
-                </div>
-              )}
-
-              {activeTab === 'notes' && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <ClinicalNotesModule
-                    studentId={selectedStudent.id}
-                    studentName={selectedStudent.name}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  // NEW: Render the Professional Add/Edit Modal
-  const renderAddEditModal = () => (
-    <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-[var(--bg-paper)] w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        {/* Header */}
-        <div className="p-5 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-secondary)]">
-          <h3 className="text-xl font-black text-[var(--text-primary)] flex items-center gap-2">
-            {formData.id ? 'Öğrenci Düzenle' : 'Yeni Öğrenci Kaydı'}
-          </h3>
-          <button
-            onClick={() => setShowAddForm(false)}
-            className="w-8 h-8 rounded-full hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] transition-colors"
-          >
-            <i className="fa-solid fa-times"></i>
-          </button>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex border-b border-[var(--border-color)] bg-[var(--bg-paper)]">
-          <button
-            onClick={() => setFormTab('identity')}
-            className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${formTab === 'identity' ? 'border-[var(--accent-color)] text-[var(--accent-color)] bg-[var(--accent-muted)]' : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
-          >
-            <i className="fa-solid fa-id-card"></i> Temel Bilgiler
-          </button>
-          <button
-            onClick={() => setFormTab('academic')}
-            className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${formTab === 'academic' ? 'border-[var(--accent-color)] text-[var(--accent-color)] bg-[var(--accent-muted)]' : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
-          >
-            <i className="fa-solid fa-brain"></i> Akademik Profil
-          </button>
-          <button
-            onClick={() => setFormTab('parent')}
-            className={`flex-1 py-4 text-sm font-bold border-b-2 transition-colors flex items-center justify-center gap-2 ${formTab === 'parent' ? 'border-[var(--accent-color)] text-[var(--accent-color)] bg-[var(--accent-muted)]' : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
-          >
-            <i className="fa-solid fa-users"></i> Veli & İletişim
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-          <form id="student-form" onSubmit={handleSaveStudent} className="space-y-6">
-            {/* TAB 1: IDENTITY */}
-            {formTab === 'identity' && (
-              <div className="space-y-4 animate-in slide-in-from-left-4 duration-300">
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
-                    Ad Soyad <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    value={formData.name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:ring-2 focus:ring-[var(--accent-color)] outline-none font-bold text-[var(--text-primary)]"
-                    placeholder="Örn: Ayşe Yılmaz"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
-                      Yaş
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.age}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, age: Number(e.target.value) })}
-                      className="w-full p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl outline-none text-[var(--text-primary)]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
-                      Sınıf
-                    </label>
-                    <select
-                      value={formData.grade}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, grade: e.target.value })}
-                      className="w-full p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl outline-none cursor-pointer text-[var(--text-primary)]"
-                    >
-                      {grades.map((g) => (
-                        <option key={g} value={g}>
-                          {g}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
-                    Öğrenme Stili
-                  </label>
-                  <div className="grid grid-cols-4 gap-3">
-                    {['Görsel', 'İşitsel', 'Kinestetik', 'Karma'].map((style) => (
-                      <button
-                        key={style}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, learningStyle: style as any })}
-                        className={`p-3 rounded-xl border-2 text-[10px] font-bold transition-all ${formData.learningStyle === style ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--accent-color)]' : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--accent-color)]'}`}
-                      >
-                        {style}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
             )}
-
-            {/* TAB 2: ACADEMIC */}
-            {formTab === 'academic' && (
-              <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
-                    Tanı / Özel Durum
-                  </label>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {formData.diagnosis?.map((d: string, i: number) => (
-                      <span
-                        key={i}
-                        className="px-3 py-1 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-full text-xs font-bold flex items-center gap-2"
-                      >
-                        {d}
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setFormData({
-                              ...formData,
-                              diagnosis: formData.diagnosis?.filter((_: string, idx: number) => idx !== i),
-                            })
-                          }
-                          className="hover:opacity-70"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                  <select
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                      if (e.target.value && !formData.diagnosis?.includes(e.target.value)) {
-                        setFormData({
-                          ...formData,
-                          diagnosis: [...(formData.diagnosis || []), e.target.value],
-                        });
-                      }
-                    }}
-                    className="w-full p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl outline-none text-[var(--text-primary)]"
-                    value=""
-                  >
-                    <option value="">Tanı Seçin...</option>
-                    {diagnosisOptions.map((o) => (
-                      <option key={o} value={o}>
-                        {o}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
-                      İlgi Alanları
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={tempInterest}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempInterest(e.target.value)}
-                        className="flex-1 p-2 border border-[var(--border-color)] rounded-lg text-sm bg-[var(--bg-secondary)] text-[var(--text-primary)]"
-                        placeholder="Örn: Uzay"
-                        onKeyDown={(e: React.KeyboardEvent) =>
-                          e.key === 'Enter' &&
-                          (e.preventDefault(),
-                            handleAddTag('interests', tempInterest, setTempInterest))
-                        }
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleAddTag('interests', tempInterest, setTempInterest)}
-                        className="px-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)]"
-                      >
-                        +
-                      </button>
-                    </div>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {formData.interests?.map((tag: string, i: number) => (
-                        <span
-                          key={i}
-                          className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded text-xs flex items-center gap-1"
-                        >
-                          {tag}{' '}
-                          <button type="button" onClick={() => handleRemoveTag('interests', i)}>
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
-                      Güçlü Yönler
-                    </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={tempStrength}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempStrength(e.target.value)}
-                        className="flex-1 p-2 border border-[var(--border-color)] rounded-lg text-sm bg-[var(--bg-secondary)] text-[var(--text-primary)]"
-                        placeholder="Örn: Görsel hafıza"
-                        onKeyDown={(e: React.KeyboardEvent) =>
-                          e.key === 'Enter' &&
-                          (e.preventDefault(),
-                            handleAddTag('strengths', tempStrength, setTempStrength))
-                        }
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleAddTag('strengths', tempStrength, setTempStrength)}
-                        className="px-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)]"
-                      >
-                        +
-                      </button>
-                    </div>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {formData.strengths?.map((tag: string, i: number) => (
-                        <span
-                          key={i}
-                          className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs flex items-center gap-1"
-                        >
-                          {tag}{' '}
-                          <button type="button" onClick={() => handleRemoveTag('strengths', i)}>
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
-                    Destek İhtiyaçları (Zayıf Yönler)
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={tempWeakness}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempWeakness(e.target.value)}
-                      className="flex-1 p-2 border border-[var(--border-color)] rounded-lg text-sm bg-[var(--bg-secondary)] text-[var(--text-primary)]"
-                      placeholder="Örn: b/d harfleri"
-                      onKeyDown={(e: React.KeyboardEvent) =>
-                        e.key === 'Enter' &&
-                        (e.preventDefault(),
-                          handleAddTag('weaknesses', tempWeakness, setTempWeakness))
-                      }
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleAddTag('weaknesses', tempWeakness, setTempWeakness)}
-                      className="px-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-primary)]"
-                    >
-                      +
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {formData.weaknesses?.map((tag: string, i: number) => (
-                      <span
-                        key={i}
-                        className="px-2 py-1 bg-rose-100 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 rounded text-xs flex items-center gap-1"
-                      >
-                        {tag}{' '}
-                        <button type="button" onClick={() => handleRemoveTag('weaknesses', i)}>
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 3: PARENT */}
-            {formTab === 'parent' && (
-              <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
-                    Veli Adı Soyadı
-                  </label>
-                  <div className="relative">
-                    <i className="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"></i>
-                    <input
-                      type="text"
-                      value={formData.parentName}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, parentName: e.target.value })}
-                      className="w-full pl-9 p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl outline-none text-[var(--text-primary)]"
-                      placeholder="Veli Adı"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
-                    İletişim Telefonu
-                  </label>
-                  <div className="relative">
-                    <i className="fa-solid fa-phone absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"></i>
-                    <input
-                      type="tel"
-                      value={formData.contactPhone}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, contactPhone: e.target.value })}
-                      className="w-full pl-9 p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl outline-none text-[var(--text-primary)]"
-                      placeholder="05XX XXX XX XX"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
-                    E-posta Adresi
-                  </label>
-                  <div className="relative">
-                    <i className="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"></i>
-                    <input
-                      type="email"
-                      value={formData.contactEmail}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, contactEmail: e.target.value })}
-                      className="w-full pl-9 p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl outline-none text-[var(--text-primary)]"
-                      placeholder="veli@email.com"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
-                    Özel Notlar
-                  </label>
-                  <textarea
-                    value={formData.notes}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, notes: e.target.value })}
-                    className="w-full p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl outline-none h-24 resize-none text-[var(--text-primary)]"
-                    placeholder="Eklemek istedikleriniz..."
-                  />
-                </div>
-              </div>
-            )}
-          </form>
-        </div>
-
-        {/* Footer Actions */}
-        <div className="p-5 border-t border-[var(--border-color)] bg-[var(--bg-secondary)] flex justify-between items-center">
-          <div className="text-xs text-[var(--text-muted)] font-medium">
-            {formTab === 'identity' ? '1/3' : formTab === 'academic' ? '2/3' : '3/3'} Adım
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setShowAddForm(false)}
-              className="px-6 py-2.5 text-[var(--text-muted)] font-bold hover:bg-[var(--bg-secondary)] rounded-xl transition-colors"
-            >
-              Vazgeç
-            </button>
-            <button
-              type="submit"
-              form="student-form"
-              className="px-8 py-2.5 bg-[var(--accent-color)] hover:opacity-90 text-white font-bold rounded-xl shadow-lg transition-all transform active:scale-95 flex items-center gap-2"
-            >
-              <i className="fa-solid fa-save"></i> Kaydet
-            </button>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* 3. Modüler Öğrenci Ekle / Düzenle Modalı */}
+      {showAddForm && (
+        <StudentAddEditModal
+          initialData={editingStudent}
+          onClose={() => {
+            setShowAddForm(false);
+            setEditingStudent(undefined);
+          }}
+          onSave={handleSaveStudent}
+        />
+      )}
     </div>
   );
+}
 
-  return (
-    <div className="h-full w-full bg-[var(--bg-primary)] flex flex-col md:flex-row font-['Lexend'] overflow-hidden">
-      {renderSidebar()}
-      {renderDetailContent()}
-
-      {/* Modal for Add Student */}
-      {showAddForm && renderAddEditModal()}
-    </div>
-  );
-};
-
+export default StudentDashboard;
