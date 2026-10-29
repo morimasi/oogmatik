@@ -5,6 +5,17 @@ import { TurkeyMapSVG } from '../sheets/visual/TurkeyMapSVG';
 export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }> = ({ options, onChange }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const _regions = [
+        { value: 'all', label: 'TÜRKİYE', icon: 'fa-globe' },
+        { value: 'Marmara', label: 'MARMARA', icon: 'fa-water' },
+        { value: 'Ege', label: 'EGE', icon: 'fa-sun' },
+        { value: 'Akdeniz', label: 'AKDENİZ', icon: 'fa-umbrella-beach' },
+        { value: 'İç Anadolu', label: 'İÇ ANADOLU', icon: 'fa-wheat-awn' },
+        { value: 'Karadeniz', label: 'KARADENİZ', icon: 'fa-cloud-rain' },
+        { value: 'Doğu Anadolu', label: 'DOĞU ANADOLU', icon: 'fa-mountain-sun' },
+        { value: 'Güneydoğu', label: 'GÜNEYDOĞU', icon: 'fa-sun-plant-wilt' }
+    ];
+
     const questionTypes = [
         { value: 'spatial_logic', label: 'Uzamsal Mantık', icon: 'fa-compass', desc: 'Yön + konum' },
         { value: 'linguistic_geo', label: 'Dilsel Coğrafya', icon: 'fa-spell-check', desc: 'Harf + bölge' },
@@ -98,12 +109,12 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                         emphasizedRegion={options.emphasizedRegion || 'all'}
                         interactive={!options.customInput}
                         onRegionClick={(r) => onChange('emphasizedRegion', r)}
-                        showRegionLabels={true}
+                        showRegionLabels={false}
                     />
 
                     {!options.customInput && (!options.emphasizedRegion || options.emphasizedRegion === 'all') && (
                         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                            <span className="text-[10px] font-bold text-white/70 tracking-widest bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm shadow">
+                            <span className="text-[10px] font-bold text-white/50 tracking-widest bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm">
                                 SEÇMEK İÇİN BÖLGEYE TIKLAYIN
                             </span>
                         </div>
@@ -140,7 +151,7 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 </div>
             </div>
 
-            {/* Zorluk Kademesi & Detay Ayarları */}
+            {/* Zorluk Kademesi */}
             <div className="p-5 bg-[var(--bg-paper)]/50 rounded-[2.5rem] border border-[var(--border-color)] space-y-4">
                 <label className="text-[10px] font-black text-[var(--text-muted)] uppercase block text-center tracking-widest">
                     <i className="fa-solid fa-gauge-high mr-2"></i>Klinik Zorluk Kademesi
@@ -164,34 +175,12 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                     ))}
                 </div>
 
-                {/* Yönerge Sayısı */}
-                <div className="flex items-center justify-between px-2 pt-3 border-t border-[var(--border-color)]">
-                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase">
-                        <i className="fa-solid fa-list-ol mr-2"></i>Yönerge Sayısı
-                    </span>
-                    <div className="flex gap-1.5">
-                        {[4, 6, 8, 10, 12].map((num) => (
-                            <button
-                                key={num}
-                                onClick={() => onChange('itemCount', num)}
-                                className={`w-8 h-8 rounded-lg text-[10px] font-black transition-all ${
-                                    (options.itemCount || 8) === num
-                                        ? 'bg-[var(--accent-color)] text-[var(--text-primary)] shadow-sm'
-                                        : 'bg-[var(--surface-elevated)] text-[var(--text-muted)] hover:bg-[var(--border-color)]'
-                                }`}
-                            >
-                                {num}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
                 {/* Şehir İsimleri Toggle */}
                 <div className="flex items-center justify-between px-2 pt-3 border-t border-[var(--border-color)]">
                     <span className="text-[10px] font-black text-[var(--text-muted)] uppercase">Şehir İsimleri</span>
                     <div
                         className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.showCityNames !== false ? 'bg-[var(--accent-color)]' : 'bg-[var(--surface-elevated)]'}`}
-                        onClick={() => onChange('showCityNames', options.showCityNames === false ? true : false)}
+                        onClick={() => onChange('showCityNames', options.showCityNames === false)}
                     >
                         <div className={`absolute top-0.5 w-4 h-4 bg-[var(--bg-paper)] rounded-full transition-all shadow ${options.showCityNames !== false ? 'left-5' : 'left-0.5'}`}></div>
                     </div>
@@ -237,10 +226,10 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 <div className="mt-4 pt-4 border-t border-[var(--border-color)] flex justify-between items-center">
                     <span className="text-[10px] font-black text-[var(--text-muted)] uppercase"><i className="fa-solid fa-compass text-sky-500 mr-2"></i> Pusula Eklensin mi?</span>
                     <div
-                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.includeCompass !== false ? 'bg-[var(--accent-color)]' : 'bg-[var(--surface-elevated)]'}`}
-                        onClick={() => onChange('includeCompass', options.includeCompass === false ? true : false)}
+                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.includeCompass ? 'bg-[var(--accent-color)]' : 'bg-[var(--surface-elevated)]'}`}
+                        onClick={() => onChange('includeCompass', !options.includeCompass)}
                     >
-                        <div className={`absolute top-0.5 w-4 h-4 bg-[var(--bg-paper)] rounded-full transition-all shadow ${options.includeCompass !== false ? 'left-5' : 'left-0.5'}`}></div>
+                        <div className={`absolute top-0.5 w-4 h-4 bg-[var(--bg-paper)] rounded-full transition-all shadow ${options.includeCompass ? 'left-5' : 'left-0.5'}`}></div>
                     </div>
                 </div>
 
