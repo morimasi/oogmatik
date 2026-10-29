@@ -14,7 +14,6 @@ import { AppError, NotFoundError, AuthorizationError, InternalServerError, toApp
 import { logError as reportError, retryWithBackoff } from '../utils/errorHandler.js';
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
-import { useStudentStore } from '../store/useStudentStore.js';
 // @ts-ignore - Vercel TS build might not resolve firebase types correctly with node resolution
 const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit } = firestore;
 
@@ -127,7 +126,7 @@ export const worksheetService = {
     ): Promise<SavedWorksheet> => {
         try {
             // Global activeStudent'ı al (hangi bileşenden çağrılırsa çağrılsın tutarlılık sağla)
-            const { activeStudent } = useStudentStore.getState();
+            let activeStudent: { id?: string; name?: string } | null = null; if (typeof window !== 'undefined') { try { const { useStudentStore } = await import('../store/useStudentStore.js'); activeStudent = useStudentStore.getState().activeStudent; } catch { /* safe in headless/serverless */ } }
             const finalStudentId = studentId || activeStudent?.id || null;
             const finalStudentName = studentName || activeStudent?.name || null;
 
@@ -480,3 +479,5 @@ export const worksheetService = {
         }
     }
 };
+
+

@@ -5,7 +5,7 @@ import { ActivityAssignment } from '../../../types/assignment';
 import { ActivityType } from '../../../types/activity';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useAssignmentStore } from '../../../store/useAssignmentStore';
-import { useGetUserWorksheets } from '../../../hooks/useWorksheets';
+import { SavedWorksheet } from '../../../types';
 import { useToastStore } from '../../../store/useToastStore';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../../../constants';
 import { STUDIO_GROUPS } from '../../../constants/studios';
@@ -517,11 +517,31 @@ function getCategoryForActivity(type: ActivityType | string) {
 const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; studentId: string; studentName?: string }> = ({ isOpen, onClose, studentId, studentName }) => {
   const { user } = useAuthStore();
   const { createAssignment, isLoading: isCreating } = useAssignmentStore();
-  const worksheetsData = useGetUserWorksheets({
-    userId: user?.id || '',
-    userRole: (user?.role || 'teacher') as "admin" | "teacher" | "student" | "parent",
-    pageSize: 50
-  });
+  const [archiveItems, setArchiveItems] = useState<SavedWorksheet[]>([]);
+  const [loadingArchive, setLoadingArchive] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen || !user?.id) return;
+    let isMounted = true;
+    setLoadingArchive(true);
+    worksheetService
+      .getUserWorksheets(user.id, 0, 50)
+      .then((res) => {
+        if (isMounted) {
+          setArchiveItems(res.items || []);
+          setLoadingArchive(false);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setArchiveItems([]);
+          setLoadingArchive(false);
+        }
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, user?.id]);
 
   type SourceTab = 'catalog' | 'archive';
   const [activeTab, setActiveTab] = useState<SourceTab>('catalog');
@@ -560,14 +580,13 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
 
   // ── Archive: saved worksheets ──────────────────────────────────────────────
   const filteredArchive = useMemo(() => {
-    const items = worksheetsData.data?.items || [];
     const q = searchQuery.toLowerCase().trim();
-    if (!q) return items;
-    return items.filter(w =>
+    if (!q) return archiveItems;
+    return archiveItems.filter((w: SavedWorksheet) =>
       (w.name || '').toLowerCase().includes(q) ||
       (w.activityType || '').toLowerCase().includes(q)
     );
-  }, [worksheetsData.data, searchQuery]);
+  }, [archiveItems, searchQuery]);
 
   if (!isOpen) return null;
 
@@ -835,7 +854,7 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
           {/* ── ARCHIVE TAB ── */}
           {activeTab === 'archive' && (
             <div>
-              {worksheetsData.loading ? (
+              {loadingArchive ? (
                 <div className="p-6 flex flex-col items-center justify-center gap-2">
                   <i className="fa-solid fa-spinner fa-spin text-xl text-[var(--accent-color)]"></i>
                   <span className="text-[9px] font-bold text-[var(--text-muted)]">İçerikleriniz Yükleniyor...</span>
@@ -845,7 +864,7 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
                   <p className="text-[7px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">
                     {filteredArchive.length} kayıtlı içerik
                   </p>
-                  {filteredArchive.map(w => {
+                  {filteredArchive.map((w: SavedWorksheet) => {
                     const meta = getActivityMeta(w.activityType as ActivityType);
                     return (
                       <div key={w.id}
@@ -923,3 +942,8 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
     </div>
   );
 };
+
+
+
+
+
