@@ -15,6 +15,17 @@ const MAP_TYPE_DESCRIPTIONS: Record<string, string> = {
     treasure: 'Hayali bir hazine adasında geçen bir etkinlik. Koylar, mağaralar, tepeler, nehirler, batık gemiler gibi hayali yer adları kullan. Sorular hazine avı, yön bulma ve harita okuma içersin.'
 };
 
+const MAP_INSTRUCTION_LABELS: Record<string, string> = {
+    spatial_logic: 'Uzamsal Mantık',
+    linguistic_geo: 'Dilsel Coğrafya',
+    attribute_search: 'Özellik Arama',
+    neighbor_path: 'Komşu Yolu',
+    route_planning: 'Rota Planı',
+};
+
+const isMapInstructionType = (value: string): value is keyof typeof MAP_INSTRUCTION_LABELS =>
+    Object.prototype.hasOwnProperty.call(MAP_INSTRUCTION_LABELS, value);
+
 const WORLD_COUNTRIES = [
     { name: 'Brezilya', region: 'Güney Amerika', neighbors: ['Arjantin', 'Kolombiya', 'Peru', 'Venezuela'] },
     { name: 'Kanada', region: 'Kuzey Amerika', neighbors: ['ABD'] },
@@ -117,6 +128,11 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
     const useGridSystem = options.useGridSystem || false;
     const markerStyle = options.markerStyle || 'circle';
     const mapColorMode = options.mapColorMode || 'renkli';
+    const selectedInstructionTypes = (options.mapInstructionTypes || [])
+        .filter(isMapInstructionType);
+    const instructionTypeContext = selectedInstructionTypes.length > 0
+        ? `- Seçili Soru Tipleri: ${selectedInstructionTypes.map(type => `${MAP_INSTRUCTION_LABELS[type]} (${type})`).join(', ')}. Yalnızca bu türlerde yönerge üret.`
+        : '- Seçili Soru Tipleri: tüm soru türleri.';
 
     const geoContext = getCityDataForMapType(mapType, emphasizedRegion);
 
@@ -159,8 +175,11 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
     - Harita Tipi: ${mapTypeLabel}
     - Şehir İsimleri Göster: ${options.showCityNames !== false ? 'Evet' : 'Hayır'}
     - Bölge Etiketleri: ${showRegionLabels ? 'Evet' : 'Hayır'}
+    - Harita Renk Modu: ${mapColorMode}
+    - Pusula: ${includeCompass ? 'Evet' : 'Hayır'}
     - İşaretçi Stili: ${markerStyle}
     - Koordinat Izgarası: ${useGridSystem ? 'Evet - Grid sistemi kullanılıyor' : 'Hayır'}
+    ${instructionTypeContext}
 
     ${profile === 'dyslexia' ? 'DİSLEKSİ: Yönergeler çok kısa ve net olsun, max 15 kelime/yönerge.' : ''}
     ${profile === 'adhd' ? 'DEHB: Her yönerge tek adımlı ve hızlı tamamlanabilir olsun.' : ''}
@@ -205,16 +224,26 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
         const existingSettings = (itemObj['settings'] as Record<string, unknown>) || {};
         return {
             ...itemObj,
+            imageBase64: options.customInput || itemObj['imageBase64'],
+            emphasizedRegion: mapType === 'turkey'
+                ? emphasizedRegion
+                : mapType,
+            instructions: Array.isArray(itemObj['instructions'])
+                ? itemObj['instructions'].filter((instruction): instruction is string => typeof instruction === 'string').slice(0, itemCount)
+                : [],
             cities: cityPool,
             settings: {
                 ...existingSettings,
                 mapType,
-                showCityNames: existingSettings['showCityNames'] ?? (options.showCityNames !== false),
-                markerStyle: existingSettings['markerStyle'] || markerStyle,
+                showCityNames: options.showCityNames !== false,
+                markerStyle,
                 includeCompass,
                 useGridSystem,
                 showRegionLabels,
                 mapColorMode,
+                ageGroup,
+                profile,
+                mapInstructionTypes: selectedInstructionTypes,
             },
             pedagogicalNote: `${difficulty} seviye — ${mapTypeLabel} Harita Dedektifi. Öğrenci profili: ${profile}, Yaş: ${ageGroup}.`,
             gridConfig: useGridSystem ? { rows: 5, cols: 10 } : undefined,

@@ -90,14 +90,13 @@ export interface GeneratorOptions {
   showNumbers?: boolean;
   showImage?: boolean;
   targetPair?: string;
-  mapInstructionTypes?: string[];
+  mapInstructionTypes?: ('spatial_logic' | 'linguistic_geo' | 'attribute_search' | 'neighbor_path' | 'route_planning')[];
   showRegionLabels?: boolean;
   mapColorMode?: 'renkli' | 'siyahbeyaz' | 'pastel';
-  ageGroup?: string;
-  profile?: string;
   showCityNames?: boolean;
-  markerStyle?: string;
+  markerStyle?: 'circle' | 'star' | 'target' | 'dot' | 'none';
   emphasizedRegion?: string;
+  includeCompass?: boolean;
   customInput?: string;
   operationType?: string;
   distractionLevel?: 'low' | 'medium' | 'high' | 'extreme';
@@ -152,7 +151,6 @@ export interface GeneratorOptions {
   useGridSystem?: boolean;
   targetShape?: string;
   mapType?: 'turkey' | 'world' | 'treasure';
-  includeCompass?: boolean;
   cognitiveLoad?: number;
   includeClinicalNotes?: boolean;
   generateImage?: boolean;

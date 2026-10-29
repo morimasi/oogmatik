@@ -247,6 +247,9 @@ export interface MapInstructionData extends BaseActivityData {
         useGridSystem?: boolean;
         showRegionLabels?: boolean;
         mapColorMode?: 'renkli' | 'siyahbeyaz' | 'pastel';
+        ageGroup?: string;
+        profile?: string;
+        mapInstructionTypes?: ('spatial_logic' | 'linguistic_geo' | 'attribute_search' | 'neighbor_path' | 'route_planning')[];
     };
     gridConfig?: { rows: number; cols: number };
     pedagogicalNote?: string;

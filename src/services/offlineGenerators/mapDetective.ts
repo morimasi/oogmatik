@@ -14,6 +14,17 @@ import { CALIBRATED_CITIES } from '../generators/geoData';
 
 type InstructionType = 'spatial_logic' | 'linguistic_geo' | 'attribute_search' | 'neighbor_path' | 'route_planning';
 
+const INSTRUCTION_TYPES: readonly InstructionType[] = [
+    'spatial_logic',
+    'linguistic_geo',
+    'attribute_search',
+    'neighbor_path',
+    'route_planning',
+];
+
+const isInstructionType = (type: string): type is InstructionType =>
+    INSTRUCTION_TYPES.includes(type as InstructionType);
+
 const DIFFICULTY_MAP: Record<string, number> = {
     'Başlangıç': 1, 'Orta': 2, 'Zor': 3, 'Uzman': 4, 'Klinik': 5
 };
@@ -78,13 +89,14 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
     const safeCityPool = cityPool.length > 0 ? cityPool : CALIBRATED_CITIES;
 
     // 2. Aktif Yönerge Tiplerini Belirle
-    const activeTypes: InstructionType[] = (mapInstructionTypes && mapInstructionTypes.length > 0)
-        ? mapInstructionTypes as InstructionType[]
-        : ['spatial_logic', 'linguistic_geo', 'attribute_search', 'neighbor_path', 'route_planning'];
+    const selectedTypes = (mapInstructionTypes || []).filter(isInstructionType);
+    const activeTypes: InstructionType[] = selectedTypes.length > 0
+        ? selectedTypes
+        : [...INSTRUCTION_TYPES];
 
     // 3. Yönerge Üretici
     const generateInstruction = (): string => {
-        const type = getRandomItems(activeTypes, 1)[0];
+        const type = getRandomItems(activeTypes, 1)[0] || 'spatial_logic';
         const locationLabel = mapType === 'world' ? 'ülke' : mapType === 'treasure' ? 'nokta' : 'il';
         const randomCity = safeCityPool[getRandomInt(0, safeCityPool.length - 1)];
 
@@ -168,7 +180,7 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
         }
 
         if (type === 'neighbor_path') {
-            const potentialDest = CALIBRATED_CITIES.filter(c => c.id !== randomCity.id);
+            const potentialDest = safeCityPool.filter(c => c.id !== randomCity.id);
             const dest = potentialDest[getRandomInt(0, potentialDest.length - 1)];
 
             if (levelCapped >= 4) {
@@ -185,7 +197,8 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
         }
 
         if (type === 'route_planning') {
-            const dest = CALIBRATED_CITIES.filter(c => c.region !== randomCity.region)[getRandomInt(0, 10)];
+            const routeDestinations = safeCityPool.filter(c => c.region !== randomCity.region);
+            const dest = routeDestinations[getRandomInt(0, routeDestinations.length - 1)];
             if (levelCapped >= 4) {
                 return `${randomCity.name} ilinden ${dest?.name || 'Ankara'} iline en kısa rotayı çiz. Geçtiğin illerin sayısını ve hangi bölgelerden geçtiğini yaz.`;
             }
@@ -237,6 +250,9 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
                 useGridSystem: useGridSystem || false,
                 showRegionLabels: showRegionLabels !== false,
                 mapColorMode: (mapColorMode as 'renkli' | 'siyahbeyaz' | 'pastel') || 'renkli',
+                ageGroup: ageGroup || '8-10',
+                profile: profile || 'dyslexia',
+                mapInstructionTypes: selectedTypes,
             },
             gridConfig: useGridSystem ? { rows: 5, cols: 10 } : undefined,
             pedagogicalNote: `${diffLabel} seviye Harita Dedektifi etkinliği${ageGroup ? ` — Yaş grubu: ${ageGroup}` : ''}${profile ? ` — Profil: ${profile}` : ''}. ${regionLabel} haritası kullanılarak öğrencinin yönelim, uzamsal akıl yürütme ve coğrafi belleği güçlendirilir.`,

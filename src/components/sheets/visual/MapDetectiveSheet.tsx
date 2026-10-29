@@ -119,7 +119,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                             />
                         ) : mapType === 'world' ? (
                             <WorldMapSVG
-                                showRegionLabels={true}
+                                showRegionLabels={data.settings?.showRegionLabels !== false}
                                 width="100%"
                                 height="100%"
                                 className="w-full h-full absolute inset-0"
@@ -134,6 +134,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                             <TurkeyMapSVG
                                 emphasizedRegion={data.emphasizedRegion || 'all'}
                                 showRegionLabels={data.settings?.showRegionLabels !== false}
+                                mapColorMode={data.settings?.mapColorMode || 'renkli'}
                                 width="100%"
                                 height="100%"
                                 className="w-full h-full absolute inset-0"

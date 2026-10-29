@@ -2,6 +2,8 @@ import React, { useRef } from 'react';
 import { GeneratorOptions } from '../../types';
 import { TurkeyMapSVG } from '../sheets/visual/TurkeyMapSVG';
 
+type MapInstructionType = NonNullable<GeneratorOptions['mapInstructionTypes']>[number];
+
 export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }> = ({ options, onChange }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -16,7 +18,7 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
         { value: 'Güneydoğu', label: 'GÜNEYDOĞU', icon: 'fa-sun-plant-wilt' }
     ];
 
-    const questionTypes = [
+    const questionTypes: { value: MapInstructionType; label: string; icon: string; desc: string }[] = [
         { value: 'spatial_logic', label: 'Uzamsal Mantık', icon: 'fa-compass', desc: 'Yön + konum' },
         { value: 'linguistic_geo', label: 'Dilsel Coğrafya', icon: 'fa-spell-check', desc: 'Harf + bölge' },
         { value: 'attribute_search', label: 'Özellik Arama', icon: 'fa-filter', desc: 'Kıyı + nitelik' },
@@ -44,10 +46,11 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
     };
 
     const toggleQuestionType = (type: string) => {
-        const current: string[] = options.mapInstructionTypes || [];
-        const updated = current.includes(type)
-            ? current.filter(t => t !== type)
-            : [...current, type];
+        const current: MapInstructionType[] = options.mapInstructionTypes || [];
+        const selectedType = type as MapInstructionType;
+        const updated = current.includes(selectedType)
+            ? current.filter(t => t !== selectedType)
+            : [...current, selectedType];
         onChange('mapInstructionTypes', updated.length > 0 ? updated : ['spatial_logic']);
     };
 

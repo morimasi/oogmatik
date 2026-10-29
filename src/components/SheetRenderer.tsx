@@ -504,7 +504,7 @@ export const SheetRenderer = React.memo(
     }
 
     if (activityType === ActivityType.MAP_INSTRUCTION && resolvedData) {
-      return withWrapper(<MapDetectiveSheet data={resolvedData as unknown as any} settings={settings} />);
+      return withWrapper(<MapDetectiveSheet data={resolvedData as unknown as any} />);
     }
 
     if (activityType === ActivityType.FIND_THE_DIFFERENCE && resolvedData) {
