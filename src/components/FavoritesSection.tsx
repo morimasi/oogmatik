@@ -5,7 +5,7 @@ import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import { useAuthStore } from '../store/useAuthStore';
 import { authService } from '../services/authService';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 interface FavoritesSectionProps {
     onSelectActivity: (id: ActivityType) => void;
     onBack?: () => void;

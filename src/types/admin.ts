@@ -1,4 +1,3 @@
-import { ActivityType } from './activity';
 import { UserRole, UserStatus, UserRoleType } from './user';
 
 export type { UserRoleType };

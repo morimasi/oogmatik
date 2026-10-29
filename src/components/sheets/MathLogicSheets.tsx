@@ -2,12 +2,10 @@
 import React from 'react';
 import {
     MathPuzzleData, NumberPatternData, OddOneOutData, FutoshikiData, NumberPyramidData,
-    NumberCapsuleData, OddEvenSudokuData, RomanNumeralStarHuntData, RoundingConnectData, ArithmeticConnectData, RomanNumeralMultiplicationData,
-    KendokuData, OperationSquareFillInData, MultiplicationWheelData, TargetNumberData, ShapeSudokuData, VisualNumberPatternData,
-    LogicGridPuzzleData, ShapeNumberPatternData, ShapeCountingData, ThematicOddOneOutData, ThematicOddOneOutSentenceData, ColumnOddOneOutSentenceData, PunctuationMazeData, PunctuationPhoneNumberData,
+    LogicGridPuzzleData,
     RealLifeProblemData
 } from '../../types';
-import { CagedGridSvg, GridComponent, ImageDisplay, PedagogicalHeader } from './common';
+import { ImageDisplay, PedagogicalHeader } from './common';
 import { EditableElement, EditableText } from '../Editable';
 
 // Fix: Typed as React.FC to resolve the 'key' property error when used in map loops

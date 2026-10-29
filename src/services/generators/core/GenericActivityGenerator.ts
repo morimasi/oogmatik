@@ -3,7 +3,7 @@ import { BaseGenerator } from './BaseGenerator';
 import { GeneratorOptions } from '../../../types';
 import { GeneratorMode } from './types';
 
-import { logInfo, logError, logWarn } from '../../../utils/logger.js';
+import { logWarn } from '../../../utils/logger.js';
 /**
  * Genel Aktivite Jeneratörü
  * Her aktivite için ayrı bir sınıf oluşturmak yerine, bu sınıfı kullanarak

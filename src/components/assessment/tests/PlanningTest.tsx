@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { SubTestResult } from '../../../types';
 import type { DomainAdaptiveParameters } from '../services/cognitiveAdaptiveService';
 import { calculateAdaptiveScaling } from '../services/adaptiveTestContent';

@@ -4,7 +4,7 @@ import { RadarChart } from '../../RadarChart';
 import { aiStudentService } from '../../../services/aiStudentService';
 import { BrandedLoadingAnimation } from '../../shared/BrandedLoadingAnimation';
 
-import { logInfo, logError, logWarn } from '../../../utils/logger.js';
+import { logError } from '../../../utils/logger.js';
 export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ student }) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);

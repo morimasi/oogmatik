@@ -1,12 +1,10 @@
 import {
   FindTheDifferenceData,
   VisualOddOneOutData,
-  VisualOddOneOutItem,
   GridDrawingData,
   SymmetryDrawingData,
   ShapeCountingData,
   DirectionalTrackingData,
-  DirectionalCodeReadingData,
 } from '../../types';
 import { GeneratorOptions } from '../../types/core';
 import {

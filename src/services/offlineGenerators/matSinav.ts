@@ -1,5 +1,4 @@
 import { GeneratorOptions, WorksheetData } from '../../types';
-import { getRandomInt } from './helpers';
 
 interface MatSinavQuestion {
   id: string;

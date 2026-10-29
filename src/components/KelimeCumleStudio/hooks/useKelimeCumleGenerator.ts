@@ -3,7 +3,7 @@ import { KelimeCumleConfig, KelimeCumleGeneratedContent, KelimeCumleActivityType
 import { KELIME_CUMLE_SOURCES } from '../../../kaynak/kelimeCumle';
 import { generateWithGemini } from '../../../services/geminiClient';
 
-import { logInfo, logError, logWarn } from '../../../utils/logger.js';
+import { logError, logWarn } from '../../../utils/logger.js';
 export const useKelimeCumleGenerator = () => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState<string | null>(null);

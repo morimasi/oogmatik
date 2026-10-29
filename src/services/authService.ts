@@ -11,7 +11,7 @@ import {
 } from "firebase/auth";
 import type { UserCredential } from "firebase/auth";
 import * as firestore from "firebase/firestore";
-import { User, UserRole, UserStatus, ActivityType } from '../types.js';
+import { User, UserRole, UserStatus } from '../types.js';
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 import { activityLogService } from './activityLogService';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Filter, ArrowUpDown, RotateCcw } from 'lucide-react';
+import { Search, RotateCcw } from 'lucide-react';
 import type { ScreeningFilterStatus, ScreeningFilterRiskLevel, ScreeningSortBy } from '../../types';
 
 interface ScreeningFiltersProps {

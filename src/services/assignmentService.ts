@@ -2,22 +2,20 @@ import {
   db, 
   collection, 
   doc, 
-  setDoc, 
   getDocs, 
   getDoc,
   query, 
   where, 
   updateDoc, 
   deleteDoc,
-  writeBatch,
-  Timestamp 
+  writeBatch 
 } from './firebaseClient';
 import { 
   ActivityAssignment, 
   CreateAssignmentPayload, 
   AssignmentUpdatePayload 
 } from '../types/assignment';
-import { AppError, DatabaseError, ValidationError, isAppError, toAppError } from '../utils/AppError';
+import { DatabaseError, ValidationError } from '../utils/AppError';
 import { wrapAsync } from '../utils/errorHandler';
 
 const COLLECTION_NAME = 'assignments';

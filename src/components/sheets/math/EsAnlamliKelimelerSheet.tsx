@@ -1,7 +1,6 @@
 import React from 'react';
 import { ActivityType } from '../../../types/activity';
 import { PedagogicalHeader } from '../common';
-import { EditableElement, EditableText } from '../../Editable';
 
 interface EsAnlamliKelimelerData {
   id: string;

@@ -1,0 +1,17 @@
+C:\Users\Administrator\Desktop\oogmatik\node_modules\ts-prune\lib\analyzer.js:205
+    var skipper = skipPattern ? new RegExp(skipPattern) : undefined;
+                                ^
+
+SyntaxError: Invalid regular expression: /src/kaynak/**/: Nothing to repeat
+    at new RegExp (<anonymous>)
+    at Object.analyze (C:\Users\Administrator\Desktop\oogmatik\node_modules\ts-prune\lib\analyzer.js:205:33)
+    at Object.run (C:\Users\Administrator\Desktop\oogmatik\node_modules\ts-prune\lib\runner.js:22:16)
+    at Object.<anonymous> (C:\Users\Administrator\Desktop\oogmatik\node_modules\ts-prune\lib\index.js:10:28)
+    at Module._compile (node:internal/modules/cjs/loader:1760:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1480:32)
+    at Module._load (node:internal/modules/cjs/loader:1299:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:244:24)
+
+Node.js v24.11.0

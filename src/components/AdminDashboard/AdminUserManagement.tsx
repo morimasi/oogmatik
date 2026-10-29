@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Users, 
   Search, 
   Filter, 
-  Shield, 
   Shield as ShieldCheck, 
   UserMinus as UserX, 
   UserPlus as UserCheck, 
@@ -22,7 +20,7 @@ import {
   Archive as ArchiveIconUI,
   Pencil
 } from 'lucide-react';
-import { UserStatus, UserRole } from '../../types';
+import { UserRole } from '../../types';
 import { authService } from '../../services/authService';
 import { adminService } from '../../services/adminService';
 import { emailService } from '../../services/emailService';

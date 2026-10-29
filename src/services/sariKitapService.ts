@@ -1,4 +1,4 @@
-import type { SariKitapConfig, SariKitapDocument, SariKitapGeneratedContent } from '../types/sariKitap';
+import type { SariKitapConfig, SariKitapGeneratedContent } from '../types/sariKitap';
 import { cacheService } from './cacheService';
 
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 dakika

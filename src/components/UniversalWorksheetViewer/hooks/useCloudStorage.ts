@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import type { CloudProvider, CloudStorageConfig, CloudFile, CloudSyncStatus } from '../types/worksheet';
 
-import { logInfo, logError, logWarn } from '../../../utils/logger.js';
+import { logError } from '../../../utils/logger.js';
 const STORAGE_KEY_PREFIX = 'uwv_cloud_';
 
 // Generate a cryptographically secure random base-36 string of the given length.

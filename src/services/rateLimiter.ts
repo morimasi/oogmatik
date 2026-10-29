@@ -5,8 +5,7 @@
  * syncing persistent quotas to Firestore.
  */
 
-import { RateLimitError, toAppError } from '../utils/AppError.js';
-import { logError } from '../utils/logger.js';
+import { RateLimitError } from '../utils/AppError.js';
 import { db, doc, runTransaction } from './firebaseClient.js';
 
 interface TokenBucket {

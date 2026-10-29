@@ -5,7 +5,7 @@
  */
 
 import type { PaperSize } from './types';
-import { PAPER_DIMENSIONS, PAGE_SELECTORS, PRINTABLE_A4_WIDTH_PX } from './constants';
+import { PAPER_DIMENSIONS, PAGE_SELECTORS } from './constants';
 import { ensurePrintStyle, injectPrintLockCSS, forceRenderAllPages, clearRenderAllPagesFlag } from './CSSInjector';
 import {
   preloadFontsForCapture,
@@ -18,7 +18,7 @@ import {
 } from './CaptureEngine';
 import { generateRealPdf } from './PDFGenerator';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError } from '../../utils/logger.js';
 // ─── Overlay Oluşturma Yardımcıları ────────────────────────────────────────
 
 /**

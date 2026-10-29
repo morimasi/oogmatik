@@ -7,9 +7,7 @@ import {
   SingleWorksheetData,
   StyleSettings,
   View,
-  CollectionItem,
   StudentProfile,
-  AssessmentReport,
   Curriculum,
   WorksheetBlock,
 } from '../types';
@@ -18,14 +16,12 @@ import { SavedWorksheetsView } from './SavedWorksheetsView';
 import { SharedWorksheetsView } from './SharedWorksheetsView';
 import { useAuthStore } from '../store/useAuthStore';
 import { ACTIVITIES } from '../constants';
-import { SkeletonLoader } from './SkeletonLoader';
 import { BrandedLoadingAnimation } from './shared/BrandedLoadingAnimation';
 import { FavoritesSection } from './FavoritesSection';
 import { ShareModal } from './ShareModal';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAppStore } from '../store/useAppStore';
 import { useWorksheetStore } from '../store/useWorksheetStore';
-import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { useAssignmentStore } from '../store/useAssignmentStore';
 import { paginationService } from '../services/paginationService';
 import { worksheetService } from '../services/worksheetService';

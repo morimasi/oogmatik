@@ -2,7 +2,6 @@ import type {
   ContentBlock,
   BlockType,
   OrchestratorResult,
-  SanitizedPromptInput,
 } from '@/types/activityStudio';
 
 // ─── Prompt Injection Koruma (Selin Arslan standardı) ───────────────

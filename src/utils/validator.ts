@@ -1,4 +1,4 @@
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError, logWarn } from '../utils/logger.js';
 
 
 /**

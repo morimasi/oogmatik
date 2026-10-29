@@ -6,8 +6,6 @@
  * Monitors engagement and regression
  */
 
-import { AppError } from '../utils/AppError.js';
-import { logInfo, logWarn } from '../utils/logger.js';
 import { BehavioralMetrics, PlateauAlert, EarlyWarning } from '../types/neuroProfile.js';
 
 /**

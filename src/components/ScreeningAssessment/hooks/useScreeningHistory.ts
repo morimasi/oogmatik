@@ -1,7 +1,6 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo } from 'react';
 import { useScreeningStore } from '../store/useScreeningStore';
 import type { ScreeningResult } from '../../../types/screening';
-import type { ScreeningFilterStatus } from '../types';
 
 export function useScreeningHistory() {
   const { screeningData, searchQuery, filterStatus, setSearchQuery, setFilterStatus } =

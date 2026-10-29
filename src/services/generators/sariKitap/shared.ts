@@ -1,8 +1,7 @@
 import { SARI_KITAP_SOURCES } from '../../../kaynak/sari/sariKitapData.js';
 import { 
   SariKitapActivityType, 
-  SariKitapConfig,
-  SariKitapSourceEntry 
+  SariKitapConfig 
 } from '../../../types/sariKitap.js';
 
 // ─── Paylaşımlı System Instruction ──────────────────────────────

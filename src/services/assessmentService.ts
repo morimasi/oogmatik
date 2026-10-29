@@ -1,12 +1,9 @@
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
-import { AssessmentReport, SavedAssessment, AdaptiveQuestion, TestCategory, AssessmentConfig } from '../types';
+import { AssessmentReport, SavedAssessment } from '../types';
 import { AuthorizationError } from '../utils/AppError.js';
-import { generateAdaptiveQuestionsFromAI } from './generators/assessment';
-import { generateOfflineAdaptiveQuestions } from './offlineGenerators/assessment';
-import { shuffle } from './offlineGenerators/helpers';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 import { useStudentStore } from '../store/useStudentStore.js';
 const { collection, addDoc, query, where, getDocs, doc, getDoc, deleteDoc, updateDoc } = firestore;
 

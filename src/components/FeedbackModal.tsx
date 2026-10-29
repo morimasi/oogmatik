@@ -5,7 +5,7 @@ import { feedbackService } from '../services/feedbackService';
 import { useAuthStore } from '../store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 
 interface FeedbackModalProps {
   isOpen: boolean;

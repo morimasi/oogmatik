@@ -1,6 +1,6 @@
 import { GeneratorOptions, SingleWorksheetData, ActivityType } from '../../types';
 import { WorksheetBuilder } from '../generators/core/WorksheetBuilder';
-import { getRandomItems, shuffle, getRandomInt, getWordsForDifficulty, syllabifyWord, turkishAlphabet, EMOJI_MAP } from './helpers';
+import { getRandomItems, shuffle, getRandomInt, getWordsForDifficulty, syllabifyWord, turkishAlphabet } from './helpers';
 
 /**
  * premiumReading.ts — Premium Okuma & Dil Offline Motorları

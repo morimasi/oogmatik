@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, RotateCcw, Search, RefreshCw, AlertTriangle, ShieldCheck, UserCheck, GraduationCap, Calendar, UserX, CheckCircle, Info } from 'lucide-react';
+import { Trash2, RotateCcw, Search, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
 import { recycleBinService } from '../../services/recycleBinService';
 import { RecycleBinItem } from '../../types/admin';
 import { useToastStore } from '../../store/useToastStore';

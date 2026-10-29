@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useMemo } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, Modifier } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import {
@@ -292,7 +292,7 @@ export const UnifiedContentRenderer = ({
     const HEADER_RESERVE = 150;
     const FOOTER_RESERVE = 60;
 
-    let allBlocks: WorksheetBlock[] = [];
+    const allBlocks: WorksheetBlock[] = [];
     rawBlocks.forEach((block) => {
       const weight = getBlockWeight(block);
       if (weight > PAGE_MAX_WEIGHT - HEADER_RESERVE) {

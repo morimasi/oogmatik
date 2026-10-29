@@ -1,5 +1,4 @@
-import { ActivityType, GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, MissingPartsData, StorySequencingPanel, StoryQuestion, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData } from '../../types';
-import { WorksheetBuilder } from '../generators/core/WorksheetBuilder';
+import { ActivityType, GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, StorySequencingPanel, StoryQuestion, ReadingStroopData, ReadingSudokuData } from '../../types';
 import { shuffle, getRandomItems, generateSudokuGrid, getRandomInt } from './helpers';
 import { COHERENT_STORY_TEMPLATES } from '../../data/sentences';
 import { TR_VOCAB } from './helpers';
@@ -378,7 +377,7 @@ export const generateOfflineStoryCloze = async (options: GeneratorOptions): Prom
         const { title, story, chosenValues } = buildBaseStory(difficulty);
         const words = Object.values(chosenValues).filter(v => typeof v === 'string');
         
-        let maskedParts: { text: string; isBlank: boolean; answer?: string }[] = [];
+        const maskedParts: { text: string; isBlank: boolean; answer?: string }[] = [];
         const storyWords = story.split(' ');
         
         storyWords.forEach(w => {

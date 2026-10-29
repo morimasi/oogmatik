@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, AlertTriangle, CheckCircle, XCircle, Calendar, Mail, Star, Box, ChevronRight, Settings, UserCheck, RefreshCw, Trash2, Clock, Lock, Unlock, Eye, EyeOff } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, XCircle, Calendar, Settings, UserCheck, RefreshCw, Trash2, Lock } from 'lucide-react';
 import { TeacherDetail } from '../../../types/teacher';
 import { adminService } from '../../../services/adminService';
 import { recycleBinService } from '../../../services/recycleBinService';

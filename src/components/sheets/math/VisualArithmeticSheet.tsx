@@ -2,7 +2,6 @@
 import React from 'react';
 import { VisualArithmeticData } from '../../../types';
 import { PedagogicalHeader, TenFrame, Domino, Base10Visualizer, NumberBond } from '../common';
-import { EditableText } from '../../Editable';
 
 export const VisualArithmeticSheet = ({ data }: { data: VisualArithmeticData }) => {
     const rawData = data as any;

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Users, ArrowRight, TrendingUp, TrendingDown, Minus, Filter, Award, BookOpen, BarChart3, Eye } from 'lucide-react';
-import { TeacherDetail, TeacherStudentSummary } from '../../../types/teacher';
+import { Search, ArrowRight, TrendingUp, TrendingDown, Minus, Award, Eye } from 'lucide-react';
+import { TeacherDetail } from '../../../types/teacher';
 import { teacherService } from '../../../services/teacherService';
 import { useToastStore } from '../../../store/useToastStore';
 import { AssignTeacherModal } from './AssignTeacherModal';

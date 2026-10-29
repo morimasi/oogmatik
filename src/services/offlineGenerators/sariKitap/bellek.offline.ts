@@ -1,5 +1,4 @@
 import type { BellekConfig, SariKitapGeneratedContent, MemoryPhaseData } from '../../../types/sariKitap';
-import { getMetinByAgeAndDifficulty } from './metinHavuzu';
 import { buildGeneratedContent } from './heceMotoru';
 import { metniHecele } from '../../../utils/heceAyirici';
 

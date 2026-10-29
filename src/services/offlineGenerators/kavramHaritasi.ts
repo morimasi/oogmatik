@@ -1,6 +1,6 @@
 import { ActivityType } from '../../types/activity';
 import { GeneratorOptions } from '../../types/core';
-import { shuffle, getRandomInt } from './helpers';
+import { shuffle } from './helpers';
 
 export const generateOfflineKavramHaritasi = async (
   options: GeneratorOptions

@@ -1,7 +1,6 @@
 import React from 'react';
 import { getModule } from '../SariKitapStudio/registry';
 import { ErrorBoundary } from '../ErrorBoundary';
-import { ActivityType } from '../../types/activity';
 import { TeacherNoteCard } from '../sheets/common';
 
 interface SariKitapRendererProps {

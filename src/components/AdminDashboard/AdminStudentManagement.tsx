@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Award, RefreshCw, MoreHorizontal, Trash2, Pencil, Gauge, CircleX } from 'lucide-react';
 import { Student } from '../../types';
 import { teacherService } from '../../services/teacherService';
-import { adminService } from '../../services/adminService';
 import { useToastStore } from '../../store/useToastStore';
 import { useStudentStore } from '../../store/useStudentStore';
 import { useWorksheetStore } from '../../store/useWorksheetStore';

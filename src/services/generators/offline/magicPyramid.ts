@@ -134,7 +134,7 @@ export const generateOfflineMagicPyramid = async (options: GeneratorOptions): Pr
             } else if (mode === 'prime' || mode === 'even_odd') {
                 // Asal Sayı veya Çift/Tek Labirenti
                 let currentPathIndex = 0;
-                let baseNum = mode === 'prime' ? 2 : (mode === 'even_odd' ? 2 : 1);
+                const baseNum = mode === 'prime' ? 2 : (mode === 'even_odd' ? 2 : 1);
 
                 for (let row = 0; row < layers; row++) {
                     const rowArr: number[] = [];

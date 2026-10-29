@@ -13,10 +13,9 @@ import {
   useShareWorksheet,
 } from '../hooks/useWorksheets';
 import { ErrorDisplay } from './ErrorDisplay';
-import { AppError } from '../utils/AppError';
 import { staggerContainer, staggerChild, buttonHover } from '../utils/motionPresets';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 interface WorksheetsListProps {
   userId: string;
   userRole: 'admin' | 'teacher' | 'parent' | 'student';

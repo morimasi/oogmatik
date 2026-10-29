@@ -7,7 +7,7 @@
 import { AppError } from '../utils/AppError';
 import { captureAllPages } from './print/CaptureEngine';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 export type SnapshotAction = 'download' | 'clipboard' | 'share';
 
 /** Canvas → Blob dönüşümü */

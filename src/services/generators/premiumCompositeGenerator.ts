@@ -1,10 +1,9 @@
 import { GeneratorOptions } from '../../types';
 import { generateCreativeMultimodal } from '../geminiClient';
-import { CompositeWorksheet, WidgetType } from '../../types/worksheet';
+import { CompositeWorksheet } from '../../types/worksheet';
 import { AppError } from '../../utils/AppError';
-import { ActivityType } from '../../types/activity';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError } from '../../utils/logger.js';
 export interface CompositeGeneratorOptions extends GeneratorOptions {
     widgets: { id: string; activityId: string }[];
 }
@@ -101,7 +100,7 @@ ${widgetListStr}
         // Eğer AI yanıtı doğrudan bir metin stringi içine (Markdown json bloğu) gömdüyse onu ayıkla
         if (rawResponse && typeof rawResponse.text === 'string') {
             try {
-                let cleanedText = rawResponse.text.replace(/```json\n?/i, '').replace(/```\n?/g, '').trim();
+                const cleanedText = rawResponse.text.replace(/```json\n?/i, '').replace(/```\n?/g, '').trim();
                 response = JSON.parse(cleanedText);
             } catch (e) {
                 logError('Markdown JSON parse hatası:', typeof e === 'object' && e !== null && !Array.isArray(e) ? e as unknown as Record<string, unknown> : undefined);

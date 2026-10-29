@@ -5,8 +5,7 @@ import {
   MultipleChoiceVerbalData, 
   WordCompletionData, 
   MixedSentenceData, 
-  AntonymData,
-  KelimeCumleBaseData
+  AntonymData
 } from '../../types/verbal.js';
 import type { GeneratorOptions } from '../../types/core.js';
 

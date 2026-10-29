@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, TrendingUp, TrendingDown, PieChart, Calendar, Activity, Target, Download } from 'lucide-react';
+import { BarChart3, TrendingUp, TrendingDown, Calendar, Target, Download } from 'lucide-react';
 import { TeacherDetail, TeacherActivityType } from '../../../types/teacher';
 import { ACTIVITY_LABELS, ACTIVITY_ICONS, ACTIVITY_COLORS, MONTH_NAMES } from './constants';
 

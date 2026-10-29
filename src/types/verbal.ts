@@ -1,5 +1,5 @@
 import { BaseActivityData } from './common';
-import { ActivityType, Student, SingleWorksheetData } from './core';
+import { SingleWorksheetData } from './core';
 
 export interface StoryQuestion {
   type:

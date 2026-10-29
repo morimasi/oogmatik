@@ -20,7 +20,7 @@ import { useFascicleStore } from '../../store/useFascicleStore';
 import { ActivityType } from '../../types';
 import type { Student } from '../../types/student';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError } from '../../utils/logger.js';
 type TabType = 'onizleme' | 'cevap-anahtari';
 
 const SectionHeader: React.FC<{ icon: string; title: string; badge?: string; isOpen: boolean; onToggle: () => void; }> = ({ icon, title, badge, isOpen, onToggle }) => (

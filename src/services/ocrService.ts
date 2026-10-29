@@ -1,6 +1,6 @@
 import { MODEL_AGENTIC_FLASH } from './geminiClient.js';
 import { AppError, toAppError } from '../utils/AppError.js';
-import { logError, logInfo, logWarn } from '../utils/logger.js';
+import { logError, logInfo } from '../utils/logger.js';
 import { InternalServerError } from '../utils/AppError.js';
 import { OCRResult, OCRBlueprint, OCRDetectedType } from '../types.js';
 import { tryRepairJson } from '../utils/jsonRepair.js';

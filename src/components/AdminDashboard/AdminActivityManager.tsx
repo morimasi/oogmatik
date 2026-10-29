@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { adminService } from '../../services/adminService';
 import { DynamicActivity } from '../../types/admin';
 import { ACTIVITY_CATEGORIES } from '../../constants';

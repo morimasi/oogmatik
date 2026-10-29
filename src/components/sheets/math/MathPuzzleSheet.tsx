@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { MathPuzzleData } from '../../../types';
-import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
 interface Props {

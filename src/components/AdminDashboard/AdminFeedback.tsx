@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { FeedbackItem, FeedbackStatus, FeedbackCategory } from '../../types';
 import { feedbackService } from '../../services/feedbackService';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { logError } from '../../utils/logger';
 
 export const AdminFeedback = () => {

@@ -5,7 +5,7 @@ import { assessmentService } from '../../../services/assessmentService';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useToastStore } from '../../../store/useToastStore';
 import { printService } from '../../../utils/printService';
-import type { ScreeningResult, EvaluationCategory } from '../../../types/screening';
+import type { ScreeningResult } from '../../../types/screening';
 import type { ClinicalObservation } from '../../../types';
 import type { SharePermission } from '../../../services/profileShareService';
 

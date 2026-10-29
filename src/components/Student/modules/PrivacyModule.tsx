@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AdvancedStudent, StudentPrivacySettings, createDefaultPrivacySettings } from '../../../types/student-advanced';
-import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../services/firebaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useToastStore } from '../../../store/useToastStore';

@@ -1,6 +1,5 @@
 import React from 'react';
 import { SinavOnizleme } from '../SinavStudyosu/SinavOnizleme';
-import { CollectionItem } from '../../types';
 
 interface SinavRendererProps {
     data: any;

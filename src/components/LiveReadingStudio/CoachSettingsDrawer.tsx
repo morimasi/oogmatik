@@ -10,7 +10,6 @@ import {
   Eye,
   VolumeX,
   ShieldCheck,
-  FastForward,
   HeartHandshake
 } from 'lucide-react';
 import { MascotType } from './EduMascot';

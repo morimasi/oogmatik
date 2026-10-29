@@ -19,7 +19,7 @@ import type {
 import { getMatKazanimByCode } from '../../data/meb-matematik-kazanim';
 import { AppError } from '../../utils/AppError';
 import { getVisualPromptsForKazanimlar } from './mathVisualPromptLibrary';
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logWarn } from '../../utils/logger.js';
 import {
   validateQuestionVisualConsistency,
   generateExamValidationReport,

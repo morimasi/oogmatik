@@ -1,5 +1,5 @@
 import React from 'react';
-import { SavedAssessment, ClinicalObservation } from '../../types';
+import { SavedAssessment } from '../../types';
 
 interface AssessmentReportSheetProps {
     data: SavedAssessment;

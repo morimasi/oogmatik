@@ -2,7 +2,7 @@ import { AppError } from '../utils/AppError';
 import { generateWithSchema } from './geminiClient';
 import { AnimationPayloadType, NeuroProfileParamsType } from '../utils/schemas';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 // bdmind Animasyon Stüdyosu v2.0 AI Core Yönergesi
 const ANIMATION_SYSTEM_INSTRUCTION = `
 Sen "bdmind Ultra Premium Animasyon Stüdyosu v2.0" uygulamasının Nöro-Mimari AI motorusun. [DEPLOY: 2025_07_v6]

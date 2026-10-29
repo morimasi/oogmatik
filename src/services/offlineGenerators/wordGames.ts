@@ -1,6 +1,6 @@
 
 import { GeneratorOptions, HiddenPasswordGridData, WordSearchData } from '../../types';
-import { getWordsForDifficulty, getRandomItems, turkishAlphabet, getRandomInt, shuffle } from './helpers';
+import { getWordsForDifficulty, getRandomItems, turkishAlphabet, getRandomInt } from './helpers';
 import { getOfflineMetadata } from './metadataHelper';
 import { ActivityType } from '../../types';
 

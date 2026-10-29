@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Student, StudentProfile } from '../types/student';
+import type { Student } from '../types/student';
 import { db } from '../services/firebaseClient';
 import {
   collection,
@@ -8,16 +8,14 @@ import {
   onSnapshot,
   addDoc,
   updateDoc,
-  deleteDoc,
   doc,
   QuerySnapshot,
   DocumentData,
   // @ts-ignore
 } from 'firebase/firestore';
-import type { StudentAIProfile } from '../types/student-advanced';
 import { logError } from '../utils/logger';
 import { toAppError } from '../utils/AppError';
-import { createAdvancedStudent, AdvancedStudent } from '../types/student-advanced';
+import { createAdvancedStudent } from '../types/student-advanced';
 import { activityLogService } from '../services/activityLogService';
 
 interface StudentState {

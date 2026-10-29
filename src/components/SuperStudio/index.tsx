@@ -8,7 +8,7 @@ import { useToastStore } from '../../store/useToastStore';
 import { generateSuperStudioContent } from '../../services/generators/superStudioGenerator';
 import { AppError } from '../../utils/AppError';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError } from '../../utils/logger.js';
 
 interface SuperStudioProps {
 }

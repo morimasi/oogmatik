@@ -1,5 +1,4 @@
 import { useState, Suspense, lazy } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, ArrowLeft, ArrowRight, CircleCheck as CheckCircle2, Loader2 } from 'lucide-react';
 import type { CognitiveDomain, SubTestResult } from '../../../../types';
 

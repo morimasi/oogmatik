@@ -3,12 +3,10 @@ import { useStudentStore } from '../store/useStudentStore';
 import { useWorksheetStore } from '../store/useWorksheetStore';
 import { useMatProblemStore } from '../store/useMatProblemStore';
 import { useToastStore } from '../store/useToastStore';
-import { useUIStore } from '../store/useUIStore';
 import { useFascicleStore } from '../store/useFascicleStore';
 import { worksheetService } from '../services/worksheetService';
 import { ActivityType, SingleWorksheetData, SavedWorksheet, Curriculum, SavedAssessment, StyleSettings, StudentProfile, WorksheetData, View } from '../types';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
-import { useNavigationLogic } from './useNavigationLogic';
 
 export const useWorksheetManager = (
     styleSettings: StyleSettings,

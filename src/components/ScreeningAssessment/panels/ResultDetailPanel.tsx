@@ -9,7 +9,7 @@ import { assessmentEngineService } from '../services/assessmentEngineService';
 import { screeningDataService } from '../services/screeningDataService';
 import { generateWithSchema, MODEL_PRO_REASONING } from '../../../services/geminiClient';
 import type { AIAnalysisResult } from '../services/assessmentEngineService';
-import type { EvaluationCategory, ScreeningResult } from '../../../types/screening';
+import type { EvaluationCategory } from '../../../types/screening';
 import { ShareModal } from '../../ShareModal';
 import { BrandedLoadingAnimation } from '../../shared/BrandedLoadingAnimation';
 import {
@@ -17,7 +17,6 @@ import {
   buildProfessionalAssessmentReport,
   buildStudentProfileContext,
 } from '../services/professionalAssessmentService';
-import { PrintableScreeningReport } from '../components/shared/PrintableScreeningReport';
 import { logError } from '../../../utils/logger';
 
 interface ResultDetailPanelProps {

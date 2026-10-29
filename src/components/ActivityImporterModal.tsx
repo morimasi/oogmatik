@@ -4,7 +4,7 @@ import { SavedWorksheet, CollectionItem, ActivityType, StyleSettings } from '../
 import { worksheetService } from '../services/worksheetService';
 import { useAuthStore } from '../store/useAuthStore';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 interface ActivityImporterModalProps {
     isOpen: boolean;
     onClose: () => void;

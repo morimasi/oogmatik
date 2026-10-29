@@ -1,7 +1,7 @@
 
 import { generateWithSchema } from '../geminiClient.js';
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, LetterVisualMatchingData, SyllableMasterLabData, Student } from '../../types.js';
-import { getAttentionPrompt, getDyslexiaPrompt } from './prompts.js';
+import { GeneratorOptions, LetterVisualMatchingData, SyllableMasterLabData, Student } from '../../types.js';
+import { getDyslexiaPrompt } from './prompts.js';
 
 // Comprehensive Syllable Master Lab - UPDATED FOR COMPACT MODE (NO IMAGES)
 export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions): Promise<SyllableMasterLabData[]> => {

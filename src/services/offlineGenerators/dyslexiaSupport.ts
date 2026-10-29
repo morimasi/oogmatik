@@ -1,6 +1,6 @@
 
-import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, HandwritingPracticeData, RealLifeProblemData, LetterVisualMatchingData, SyllableMasterLabData, MorphologyMatrixData, ReadingPyramidData } from '../../types';
-import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, syllabifyWord, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
+import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, HandwritingPracticeData, LetterVisualMatchingData, SyllableMasterLabData, MorphologyMatrixData, ReadingPyramidData } from '../../types';
+import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, syllabifyWord, getWordsForDifficulty } from './helpers';
 
 // COMPREHENSIVE SYLLABLE MASTER LAB (OFFLINE) - PREMIUM COMPACT MODE
 export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions): Promise<SyllableMasterLabData[]> => {

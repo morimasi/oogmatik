@@ -6,12 +6,12 @@
  * Visual role management interface
  */
 
-import React, { useState, useEffect } from 'react';
-import { buildDefaultRBAC, RBACSettings, CategoryPermission, ActivityPermission, MODULE_LABELS } from '../../types/rbac-advanced';
+import React, { useState } from 'react';
+import { buildDefaultRBAC, RBACSettings, MODULE_LABELS } from '../../types/rbac-advanced';
 import { rbacService } from '../../services/rbacService';
 import { UserRole } from '../../types/user';
 import { ActivityType } from '../../types/activity';
-import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../../constants';
+import { ACTIVITY_CATEGORIES } from '../../constants';
 import { getActivityTurkishName, getActivityTurkishCode } from '../../utils/activityTurkishNames';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useToastStore } from '../../store/useToastStore';

@@ -15,7 +15,7 @@ import {
 import { forceRenderAllPages, clearRenderAllPagesFlag } from './CSSInjector';
 import { useStudentStore } from '../../store/useStudentStore.js';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError, logWarn } from '../../utils/logger.js';
 export interface RealPdfOptions {
   paperSize?: PaperSize;
   quality?: PdfQuality;

@@ -1,7 +1,7 @@
 import { AppError, ValidationError } from '@/utils/AppError';
 import { getLibraryActivityById } from './activityStudioLibraryService';
 import { generateActivityStudio } from './activityStudioService';
-import type { AgentOutput, OrchestratorResult, StudioGoalConfig } from '@/types/activityStudio';
+import type { OrchestratorResult, StudioGoalConfig } from '@/types/activityStudio';
 
 export interface EnhancementRequest {
   activityId: string;

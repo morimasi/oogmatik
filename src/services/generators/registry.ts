@@ -2,12 +2,10 @@ import { ActivityType } from '../../types/activity';
 import { GeneratorOptions } from '../../types/core';
 import * as aiGenerators from './index';
 import * as offlineGenerators from '../offlineGenerators/index';
-import { generateMatProblemFromAI } from './mathProblemGenerator';
 import { generateMatProblemSeti } from '../matProblemService';
 import type { MatProblemSeti } from '../../types/matProblem';
 
 
-import * as sariKitapGenerators from './sariKitap/index';
 import { generateSemanticLinkerAI, generateSemanticLinkerOffline } from '../../modules/activities/semantic-linker/generators';
 import { generateLETTER_CONNECTFromAI } from '../../modules/activities/letter-connect/generators';
 import { generateOfflineLETTER_CONNECT } from '../../modules/activities/letter-connect/offlineGenerators';

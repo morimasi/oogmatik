@@ -4,9 +4,8 @@ import type { User } from '../types/user';
 import { authService } from '../services/authService';
 import { auth } from '../services/firebaseClient';
 // @ts-ignore
-import { onAuthStateChanged, getRedirectResult, User as FirebaseUser } from "firebase/auth";
+import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
-import { AppError, toAppError } from '../utils/AppError.js';
 import { logError } from '../utils/logger.js';
 
 interface AuthState {

@@ -7,12 +7,12 @@ import { MODEL_PRO_REASONING } from '../geminiClient.js';
  * Gemini REST API doğrudan çağrılır.
  */
 
-import type { SinavAyarlari, Soru, Sinav, CevapAnahtari } from '../../types/sinav.js';
+import type { SinavAyarlari, Sinav, CevapAnahtari } from '../../types/sinav.js';
 import { getKazanimByCode } from '../../data/meb-turkce-kazanim.js';
 import { AppError } from '../../utils/AppError.js';
 import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError } from '../../utils/logger.js';
 const MASTER_MODEL = MODEL_PRO_REASONING; // gemini-2.5-pro Sınav zekası
 
 // ─── Doğrudan Gemini REST API çağrısı (Vercel serverless uyumlu) ────────────

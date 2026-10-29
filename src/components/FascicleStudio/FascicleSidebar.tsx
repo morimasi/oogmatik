@@ -9,15 +9,13 @@ import {
   DragEndEvent
 } from '@dnd-kit/core';
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { SortableItem } from './SortableItem';
-import { Layers, Plus, FileText, Image as ImageIcon, Sparkles, Loader2 } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid';
+import { Layers, FileText, Image as ImageIcon, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { FascicleCoverSettingsModal } from './FascicleCoverSettingsModal';
 import { FascicleActivityPicker } from './FascicleActivityPicker';

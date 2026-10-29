@@ -1,6 +1,6 @@
 
 import { GeneratorOptions, NumberPathLogicData, MathPuzzleData } from '../../types';
-import { shuffle, getRandomInt, getRandomItems } from './helpers';
+import { getRandomInt, getRandomItems } from './helpers';
 
 /**
  * Matematik Bulmacaları (Meyve Denklemleri) Yerel Üretici

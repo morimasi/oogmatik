@@ -56,7 +56,7 @@ export const generateOfflineMoneyCounting = async (options: GeneratorOptions): P
             const formattedTotal = total.toFixed(2);
             
             // Advanced Distractors
-            let distractors = new Set<string>();
+            const distractors = new Set<string>();
             const possibleModifiers = useCoins 
                 ? [0.5, 1, 0.25, 5, 10, -0.5, -1, -5] 
                 : [5, 10, 20, 50, -5, -10, -20];

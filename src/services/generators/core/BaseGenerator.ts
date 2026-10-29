@@ -2,7 +2,7 @@ import { logger } from '../../../utils/logger';
 import { GeneratorOptions } from '../../../types';
 import { IActivityGenerator } from './types';
 
-import { logInfo, logError, logWarn } from '../../../utils/logger.js';
+import { logError } from '../../../utils/logger.js';
 /**
  * Soyut Temel Jeneratör Sınıfı
  * Tüm jeneratörler bu sınıftan türetilmelidir.

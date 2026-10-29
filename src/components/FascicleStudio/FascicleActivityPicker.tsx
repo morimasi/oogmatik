@@ -2,10 +2,10 @@ import React, { useState, useCallback } from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../../constants';
 import { ActivityType } from '../../types/activity';
-import { ActivityCategory, GeneratorOptions } from '../../types/core';
+import { GeneratorOptions } from '../../types/core';
 import { logError, logInfo } from '../../utils/logger';
 import { v4 as uuidv4 } from 'uuid';
-import { X, Loader2, Sparkles, Plus } from 'lucide-react';
+import { X, Loader2, Sparkles } from 'lucide-react';
 
 interface FascicleActivityPickerProps {
   isOpen: boolean;

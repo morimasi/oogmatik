@@ -1,5 +1,4 @@
 import type { ScreeningResult, EvaluationCategory } from '../../../types/screening';
-import { CATEGORY_LABELS, CATEGORY_COLORS } from '../../../data/screeningQuestions';
 import { useToastStore } from '../../../store/useToastStore';
 import { db } from '../../../services/firebaseClient';
 import { collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc } from "firebase/firestore";

@@ -15,8 +15,6 @@ import { db, collection, doc, getDoc, getDocs, setDoc, updateDoc, query, where, 
 import type { ActivityDraft, DynamicActivity } from '../types/admin';
 import type {
     ActivityTemplate,
-    ApprovalStatus,
-    ProductionMode,
     ApprovalQueueFilter,
     AutoSettings,
 } from '../types/ocr-activity';

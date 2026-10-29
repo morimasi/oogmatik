@@ -7,38 +7,30 @@ import { ToastContainer } from './components/ToastContainer';
 import {
   ActivityType,
   WorksheetData,
-  SavedWorksheet,
-  SingleWorksheetData,
   AppTheme,
-  HistoryItem,
   StyleSettings,
   View,
   UiSettings,
-  CollectionItem,
   StudentProfile,
-  AssessmentReport,
-  GeneratorOptions,
   SavedAssessment,
-  ScreeningResult,
   Curriculum,
   Difficulty,
 } from './types';
 import { Clock, UserMinus as UserX } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 const ContentArea = lazy(() => import('./components/ContentArea').then(m => ({ default: m.default })));
-import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
+import { ACTIVITIES } from './constants';
 import DyslexiaLogo from './components/DyslexiaLogo';
 import { FeedbackModal } from './components/FeedbackModal';
 import { AuthModal } from './components/AuthModal';
 import { curriculumService } from './services/curriculumService';
 import { SettingsModal } from './components/SettingsModal';
-import { TourGuide, TourStep } from './components/TourGuide';
+import { TourGuide } from './components/TourGuide';
 import { StudentInfoModal } from './components/StudentInfoModal';
 import { HistoryView } from './components/HistoryView';
 import { PaperSizeInitializer } from './components/PaperSizeInitializer';
 import { useAuthStore } from './store/useAuthStore';
 import { AssessmentReportViewer } from './components/AssessmentReportViewer';
-import { useAppStore } from './store/useAppStore';
 import { useWorksheetStore } from './store/useWorksheetStore';
 import { useUIStore } from './store/useUIStore';
 import { useProfileData } from './components/Profile/hooks/useProfileData';
@@ -51,7 +43,6 @@ const ScreeningAssessment = lazy(() => import('./components/ScreeningAssessment'
 import LoginPage from './pages/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { rbacService } from './services/rbacService';
-import * as offlineGenerators from './services/offlineGenerators';
 
 import { useNavigationLogic } from './hooks/useNavigationLogic';
 import { useHistoryManager } from './hooks/useHistoryManager';
@@ -145,7 +136,7 @@ import { DeveloperModal } from './components/DeveloperModal';
 
 import { useStudentStore } from './store/useStudentStore';
 
-import { logInfo, logError, logWarn } from './utils/logger.js';
+import { logInfo, logError } from './utils/logger.js';
 import { ConnectPanel } from './components/Student/modules/ConnectPanel';
 import { LoadingSpinner as LoadingPlaceholder } from './components/shared/LoadingSpinner';
 

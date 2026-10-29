@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Edit, Trash2, CheckCircle, GraduationCap, User, Tag, FileText } from 'lucide-react';
+import { Edit, Trash2, CheckCircle, User, Tag, FileText } from 'lucide-react';
 import { Student } from '../../types';
 import { useStudentStore } from '../../store/useStudentStore';
 import { useToastStore } from '../../store/useToastStore';

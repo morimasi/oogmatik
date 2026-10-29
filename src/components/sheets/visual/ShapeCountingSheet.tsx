@@ -1,6 +1,5 @@
 import React from 'react';
 import { ShapeCountingData } from '../../../types';
-import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
 const SHAPE_PATHS: Record<string, string> = {

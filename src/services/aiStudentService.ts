@@ -5,11 +5,10 @@ import {
     AdvancedStudent, 
     createAdvancedStudent
 } from '../types/student-advanced';
-import { 
-    ActivityType
-} from '../types';
+
+
 import { ApiResponse } from '../utils/errorHandler';
-import { logError, logInfo } from '../utils/logger';
+import { logError } from '../utils/logger';
 
 // --- TYPES FOR AI RESULTS ---
 export interface CognitiveProfileResult {

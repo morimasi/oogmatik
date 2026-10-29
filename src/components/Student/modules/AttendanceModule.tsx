@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AdvancedStudent, AttendanceRecord } from '../../../types/student-advanced';
+import { AdvancedStudent } from '../../../types/student-advanced';
 
 interface AttendanceModuleProps {
     student: AdvancedStudent;

@@ -8,7 +8,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { ActivityTemplate, ProductionMode, ApprovalStatus } from '../types/ocr-activity';
+import type { ActivityTemplate, ProductionMode } from '../types/ocr-activity';
 import type { OCRResult } from '../types/core';
 import type { ActivityDraft } from '../types/admin';
 

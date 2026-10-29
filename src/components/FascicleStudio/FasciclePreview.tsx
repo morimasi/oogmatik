@@ -1,11 +1,9 @@
-import React, { Suspense, useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { useFascicleTemplateStore, SavedFascicleTemplate } from '../../store/useFascicleTemplateStore';
-import { Eye, Smartphone, Monitor, Info, LayoutTemplate, BookTemplate, Save, Trash2, Check, Loader2, X, Droplets, Sparkles } from 'lucide-react';
+import { Eye, Smartphone, Monitor, LayoutTemplate, BookTemplate, Save, Trash2, Droplets, Sparkles } from 'lucide-react';
 import { fascicleAIEngine } from '../../services/fascicleAIEngine';
 import toast from 'react-hot-toast';
-import { SheetRenderer } from '../SheetRenderer';
-import { ActivityType, SingleWorksheetData, StyleSettings } from '../../types';
 import { WatermarkSettings } from '../../types/fascicle';
 import { FascicleCoverPage } from './FascicleCoverPage';
 import { FascicleTableOfContentsPage } from './FascicleTableOfContentsPage';
@@ -15,7 +13,6 @@ import { FascicleMultiPageRenderer } from './FascicleMultiPageRenderer';
 import { FascicleWatermarkSettingsModal } from './FascicleWatermarkSettingsModal';
 import { useStudentStore } from '../../store/useStudentStore';
 import { v4 as uuidv4 } from 'uuid';
-import { normalizeFascicleContent, getFasciclePageCount } from '../../utils/fascicleContentNormalizer';
 
 const renderWatermark = (ws: WatermarkSettings) => {
   const opacityVal = Math.max(0.01, (ws.opacity || 5) / 100);
@@ -102,8 +99,8 @@ export const FasciclePreview: React.FC = () => {
   const isTocActive = isCoverActive && coverSettings.showTableOfContents !== false;
   const isSummaryActive = isCoverActive && coverSettings.showSummaryPage !== false;
 
-  let totalContentPages = items.reduce((sum, item) => sum + (item.pageCount || 1), 0);
-  let grandTotalPages = (isCoverActive ? 1 : 0) + (isTocActive ? 1 : 0) + totalContentPages + (isSummaryActive ? 1 : 0);
+  const totalContentPages = items.reduce((sum, item) => sum + (item.pageCount || 1), 0);
+  const grandTotalPages = (isCoverActive ? 1 : 0) + (isTocActive ? 1 : 0) + totalContentPages + (isSummaryActive ? 1 : 0);
 
   // Akıllı Başlangıç Numarası Hesabı
   let runningPageCounter = (isCoverActive ? 1 : 0) + (isTocActive ? 1 : 0);

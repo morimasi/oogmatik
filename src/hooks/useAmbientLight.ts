@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import { AppTheme } from '../types';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logWarn } from '../utils/logger.js';
 interface AmbientLightData {
   lux: number;
   recommendedTheme: AppTheme;

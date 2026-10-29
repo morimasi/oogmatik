@@ -8,7 +8,7 @@ import { AssessmentReportViewer } from './AssessmentReportViewer';
 import { assessmentService } from '../services/assessmentService';
 import { generateAssessmentReport } from '../services/assessmentGenerator';
 import { ACTIVITIES } from '../constants';
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError, logWarn } from '../utils/logger.js';
 import { useToastStore } from '../store/useToastStore';
 import { BrandedLoadingAnimation } from './shared/BrandedLoadingAnimation';
 

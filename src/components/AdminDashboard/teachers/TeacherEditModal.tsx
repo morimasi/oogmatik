@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Save, RefreshCw, User, Mail, Shield, Award, Building, Briefcase, Phone, AlertCircle } from 'lucide-react';
+import { X, Save, RefreshCw, User, Mail, Building, Briefcase, Phone } from 'lucide-react';
 import { TeacherDetail, TeacherListItem } from '../../../types/teacher';
 import { adminService } from '../../../services/adminService';
 import { authService } from '../../../services/authService';

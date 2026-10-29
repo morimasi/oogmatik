@@ -7,7 +7,7 @@ import { Student, SavedWorksheet, SavedAssessment, Curriculum, AdvancedStudent }
 import { useAssignmentStore } from '../../store/useAssignmentStore';
 import { useToastStore } from '../../store/useToastStore';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logInfo, logError } from '../../utils/logger.js';
 import { toAppError } from '../../utils/AppError.js';
 
 // Module imports

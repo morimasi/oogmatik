@@ -2,7 +2,6 @@
 import React from 'react';
 import { NumberSenseData } from '../../../types';
 import { PedagogicalHeader, NumberLine, TenFrame, Base10Visualizer } from '../common';
-import { EditableText } from '../../Editable';
 
 export const NumberSenseSheet = ({ data }: { data: NumberSenseData }) => {
     const rawData = data as any;

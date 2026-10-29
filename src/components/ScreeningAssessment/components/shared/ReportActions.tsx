@@ -1,4 +1,4 @@
-import { Save, Download, Printer, Share2, BookOpen, X, ChevronRight } from 'lucide-react';
+import { Save, Download, Printer, Share2, X, ChevronRight } from 'lucide-react';
 
 interface ReportActionsProps {
   onSave?: () => void;

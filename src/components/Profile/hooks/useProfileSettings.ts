@@ -13,9 +13,6 @@ import type {
     AISettingsData,
     NotificationSettingsData,
     CustomUISettings,
-    DEFAULT_PEDAGOGY_SETTINGS,
-    DEFAULT_AI_SETTINGS,
-    DEFAULT_NOTIFICATION_SETTINGS,
 } from '../types';
 import {
     DEFAULT_PEDAGOGY_SETTINGS as PEDAGOGY_DEFAULTS,

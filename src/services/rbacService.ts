@@ -4,7 +4,7 @@ import { RBACSettings, buildDefaultRBAC, PermissionModule, PermissionAction, ALL
 import { UserRole } from '../types/user';
 import { ActivityType } from '../types/activity';
 import { ACTIVITY_CATEGORIES } from '../constants';
-import { logError, logInfo, logWarn } from '../utils/logger.js';
+import { logError, logInfo } from '../utils/logger.js';
 
 const DEFAULT_RBAC_SETTINGS = buildDefaultRBAC();
 
@@ -36,7 +36,7 @@ const migrateRBACSettings = (settings: RBACSettings): RBACSettings => {
 
     // [Migration] Öğretmenler için Öğrenciler modülü yetkilerini güncelle/kontrol et
     if (rolePerm.role === 'teacher') {
-      let studentModule = rolePerm.modules.find(m => m.module === 'students');
+      const studentModule = rolePerm.modules.find(m => m.module === 'students');
       if (!studentModule) {
         rolePerm.modules.push({
           module: 'students',

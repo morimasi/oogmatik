@@ -6,12 +6,12 @@
 import { db } from './firebaseClient.js';
 import * as firestore from "firebase/firestore";
 import { ActivityType } from '../types/activity.js';
-import type { SavedWorksheet, SingleWorksheetData, CollectionItem } from '../types/core.js';
+import type { SavedWorksheet, SingleWorksheetData } from '../types/core.js';
 import type { StyleSettings } from '../types/common.js';
 import type { StudentProfile } from '../types/student.js';
 import { ACTIVITY_CATEGORIES } from '../constants.js';
-import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError.js';
-import { logError as reportError, retryWithBackoff, withTimeout } from '../utils/errorHandler.js';
+import { AppError, NotFoundError, AuthorizationError, InternalServerError, toAppError } from '../utils/AppError.js';
+import { logError as reportError, retryWithBackoff } from '../utils/errorHandler.js';
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 import { useStudentStore } from '../store/useStudentStore.js';

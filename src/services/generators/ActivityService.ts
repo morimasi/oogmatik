@@ -8,7 +8,7 @@ import * as offlineGenerators from '../offlineGenerators/index';
 import mapDynamicIdToActivityType from '../../utils/dynamicIdMappings';
 
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logInfo, logWarn } from '../../utils/logger.js';
 
 // Stub functions for dynamic infographic generators
 const generateInfographic = async (_type: ActivityType, _options: GeneratorOptions) => ({ title: 'İnfografik', instruction: 'Etkinliği tamamla' });

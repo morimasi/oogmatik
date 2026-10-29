@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { FasciclePageSettings } from '../../types/fascicle';
-import { FilePlus, Maximize2, Palette, Type, Sliders, RefreshCw } from 'lucide-react';
+import { FilePlus, Palette, Type } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const FasciclePageStyleToolbar: React.FC = () => {

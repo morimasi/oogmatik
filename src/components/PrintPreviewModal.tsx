@@ -7,7 +7,7 @@ import type { PaperSize } from '../utils/print/types';
 import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { ExportProgressModal } from './ExportProgressModal';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError, logWarn } from '../utils/logger.js';
 interface PrintPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;

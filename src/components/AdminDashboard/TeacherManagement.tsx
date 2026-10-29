@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Award, ArrowLeft, RefreshCw, Mail, Calendar, Edit3, Trash2, PauseCircle, PlayCircle, ShieldCheck, Box } from 'lucide-react';
+import { Search, Award, ArrowLeft, RefreshCw, Mail, Calendar, Edit3, PauseCircle, PlayCircle, Box } from 'lucide-react';
 import { teacherService } from '../../services/teacherService';
 import { adminService } from '../../services/adminService';
 import { recycleBinService } from '../../services/recycleBinService';

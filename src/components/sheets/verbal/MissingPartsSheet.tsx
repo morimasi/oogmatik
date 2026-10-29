@@ -1,6 +1,6 @@
 import React from 'react';
 import { MissingPartsData } from '../../../types';
-import { PedagogicalHeader, ReadingRuler } from '../common';
+import { PedagogicalHeader } from '../common';
 
 export const MissingPartsSheet: React.FC<{ data: MissingPartsData }> = ({ data }) => {
     const { content } = data;

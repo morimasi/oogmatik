@@ -6,7 +6,7 @@ import { ACTIVITIES } from '../constants.js';
 import { authService } from './authService.js';
 import { auth } from './firebaseClient.js';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError, logWarn } from '../utils/logger.js';
 const { collection, doc, setDoc, getDocs, updateDoc, increment, getDoc } = firestore;
 
 export const statsService = {

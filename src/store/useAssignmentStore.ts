@@ -17,7 +17,7 @@ import {
 import { assignmentService } from '../services/assignmentService';
 import { useToastStore } from './useToastStore';
 
-import { AppError, toAppError } from '../utils/AppError.js';
+import { toAppError } from '../utils/AppError.js';
 import { logError } from '../utils/logger.js';
 interface AssignmentState {
   assignments: ActivityAssignment[];

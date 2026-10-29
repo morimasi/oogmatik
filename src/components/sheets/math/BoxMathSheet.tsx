@@ -2,7 +2,7 @@ import React from 'react';
 import { BoxMathData } from '../../../types';
 import type { BoxMathProblem } from '../../../types/math';
 import { PedagogicalHeader } from '../common';
-import { EditableText, EditableElement } from '../../Editable';
+import { EditableElement } from '../../Editable';
 
 export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
   const pref = data.fontSizePreference ?? 'medium';

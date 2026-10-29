@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LAYOUT_PRESETS, A4_SIZES } from '../services/compactA4LayoutService';
+import { A4_SIZES } from '../services/compactA4LayoutService';
 
 export interface CompactA4LayoutPanelProps {
   onLayoutChange?: (itemsPerPage: 4 | 6 | 8) => void;

@@ -1,6 +1,6 @@
 import { GeneratorOptions, SingleWorksheetData, ActivityType } from '../../types';
 import { WorksheetBuilder } from '../generators/core/WorksheetBuilder';
-import { getRandomItems, shuffle, getRandomInt, getWordsForDifficulty, COLORS } from './helpers';
+import { getRandomItems, shuffle, getRandomInt, COLORS } from './helpers';
 
 /**
  * premiumVisual.ts — Premium Görsel & Mekansal Offshore Motorları

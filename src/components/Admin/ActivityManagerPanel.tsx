@@ -2,22 +2,18 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { adminService } from '../../services/adminService';
 import { DynamicActivity } from '../../types/admin';
 import { ACTIVITY_CATEGORIES } from '../../constants';
-import { ActivityType } from '../../types/activity';
 import { useToastStore } from '../../store/useToastStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, 
-  Filter, 
   Settings, 
   ZapOff as Zap, 
   Shield, 
   Eye, 
   EyeOff, 
   Activity as ActivityIcon, 
-  Box, 
   Sparkles,
   ChevronRight,
-  MoreVertical,
   Layers,
   Target,
   BrainCircuit,

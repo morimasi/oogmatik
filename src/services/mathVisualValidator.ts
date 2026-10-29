@@ -10,7 +10,6 @@
  */
 
 import type { MatSoru, GrafikVerisi, GrafikVeriTipi } from '../types/matSinav';
-import { AppError } from '../utils/AppError';
 
 // ─── Doğrulama Sonucu Tipi ───────────────────────────────────────
 

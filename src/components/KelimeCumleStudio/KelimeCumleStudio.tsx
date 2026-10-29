@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     KelimeCumleConfig,
     KelimeCumleGeneratedContent,
@@ -15,7 +15,7 @@ import { worksheetService } from '../../services/worksheetService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
 import { useFascicleStore } from '../../store/useFascicleStore';
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError } from '../../utils/logger.js';
 import { ActivityType } from '../../types';
 import './KelimeCumleStudio.css';
 

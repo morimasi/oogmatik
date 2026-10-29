@@ -1,6 +1,6 @@
 
 import { generateWithSchema } from '../geminiClient.js';
-import { InteractiveStoryData, ReadingStudioConfig, StudentProfile } from '../../types.js';
+import { InteractiveStoryData, ReadingStudioConfig } from '../../types.js';
 
 /**
  * Generate UNIQUE, non-repetitive reading content with AI

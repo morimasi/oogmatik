@@ -15,7 +15,7 @@
 
 import { ValidationError } from './AppError.js';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logWarn } from '../utils/logger.js';
 // ============================================================
 // TYPES
 // ============================================================

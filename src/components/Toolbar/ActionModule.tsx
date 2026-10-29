@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSettings, WorksheetData } from '../../types';
 import { IconButton } from './ToolbarShared';
 import { usePaperSizeStore } from '../../store/usePaperSizeStore';
-import { printService, PaperSize } from '../../utils/printService';
+import { printService } from '../../utils/printService';
 import { ExportProgressModal } from '../ExportProgressModal';
 import { useToastStore } from '../../store/useToastStore';
 import { useFascicleStore } from '../../store/useFascicleStore';

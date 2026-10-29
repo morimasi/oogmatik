@@ -2,31 +2,9 @@ import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions } from '../../types.js';
 import {
   FindTheDifferenceData,
-  WordComparisonData,
-  ShapeMatchingData,
-  FindIdenticalWordData,
-  GridDrawingData,
-  SymbolCipherData,
-  BlockPaintingData,
   VisualOddOneOutData,
-  SymmetryDrawingData,
-  FindDifferentStringData,
-  DotPaintingData,
-  AbcConnectData,
-  CoordinateCipherData,
-  WordConnectData,
-  ProfessionConnectData,
-  MatchstickSymmetryData,
-  VisualOddOneOutThemedData,
-  PunctuationColoringData,
-  SynonymAntonymColoringData,
-  StarHuntData,
-  ShapeType,
-  ShapeCountingData,
-  MapInstructionData,
 } from '../../types';
-import { ocrService } from '../ocrService.js';
-import { MAP_DETECTIVE_PROMPT, PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
+import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
 
 export const generateVisualOddOneOutFromAI = async (
   options: GeneratorOptions

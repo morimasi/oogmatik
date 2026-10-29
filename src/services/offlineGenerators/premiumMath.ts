@@ -1,6 +1,6 @@
 import { GeneratorOptions, SingleWorksheetData, ActivityType } from '../../types';
 import { WorksheetBuilder } from '../generators/core/WorksheetBuilder';
-import { getRandomItems, shuffle, getRandomInt, getWordsForDifficulty } from './helpers';
+import { getRandomItems, getRandomInt } from './helpers';
 
 /**
  * premiumMath.ts — Premium Matematik & Mantık Offline Motorları

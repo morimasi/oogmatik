@@ -9,7 +9,7 @@ import { notificationService } from '../../../services/messaging/notificationSer
 import { authService } from '../../../services/authService';
 import { useGlobalStore } from '../../../shared/store/useGlobalStore';
 import { User } from '../../../types';
-import { ChevronLeft, Settings, X, Bell, BellOff, Volume2, Monitor, Shield, Eye, Download, Trash2, Archive, Sun, Moon } from 'lucide-react';
+import { ChevronLeft, Settings, X, Bell, BellOff, Volume2, Monitor, Shield, Eye, Download, Trash2, Sun } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const ChatWindow: React.FC = () => {

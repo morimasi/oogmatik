@@ -10,7 +10,6 @@ import { useToastStore } from '../../../store/useToastStore';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../../../constants';
 import { STUDIO_GROUPS } from '../../../constants/studios';
 import { worksheetService } from '../../../services/worksheetService';
-import { SavedWorksheet } from '../../../types';
 import { useStudentStore } from '../../../store/useStudentStore';
 
 interface AssignmentsModuleProps {

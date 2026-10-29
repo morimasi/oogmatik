@@ -1,6 +1,6 @@
 
 import { generateWithSchema } from '../geminiClient.js';
-import { GeneratorOptions, MathMemoryCardsData, MathMemoryCard } from '../../types.js';
+import { GeneratorOptions, MathMemoryCardsData } from '../../types.js';
 import { getMathPrompt } from './prompts.js';
 
 export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): Promise<MathMemoryCardsData[]> => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FamilyRelationsData } from '../../../types';
-import { PedagogicalHeader, ImageDisplay } from '../common';
+import { PedagogicalHeader } from '../common';
 import { EditableText } from '../../Editable';
 
 export const FamilyRelationsSheet = ({ data }: { data: FamilyRelationsData }) => {

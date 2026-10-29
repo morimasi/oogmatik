@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AdvancedStudent } from '../../../types/student-advanced';
 import { dlpService } from '../../../services/privacyService';
 
-import { logInfo, logError, logWarn } from '../../../utils/logger.js';
+import { logError } from '../../../utils/logger.js';
 interface AdvancedStudentFormProps {
   onSave: (student: Partial<AdvancedStudent>) => void;
   onCancel: () => void;

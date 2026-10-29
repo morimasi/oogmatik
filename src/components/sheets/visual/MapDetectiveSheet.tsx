@@ -1,7 +1,6 @@
 // @ts-ignore
 import React, { useRef, useLayoutEffect, useState, useCallback } from 'react';
 // @ts-ignore
-import * as _React from 'react';
 import { MapInstructionData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableText } from '../../Editable';

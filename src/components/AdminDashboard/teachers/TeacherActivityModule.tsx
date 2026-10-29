@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Filter, Calendar, ArrowRight, Download, Search, RefreshCw } from 'lucide-react';
+import { Clock, ArrowRight, Download, Search } from 'lucide-react';
 import { TeacherDetail, TeacherActivity, TeacherActivityType } from '../../../types/teacher';
-import { ACTIVITY_LABELS, ACTIVITY_ICONS, ACTIVITY_COLORS, ACTIVITY_BORDER_COLORS, ACTIVITY_BG_COLORS } from './constants';
+import { ACTIVITY_LABELS, ACTIVITY_ICONS, ACTIVITY_COLORS, ACTIVITY_BORDER_COLORS } from './constants';
 import { teacherService } from '../../../services/teacherService';
 import { ActivityPreviewModal } from './ActivityPreviewModal';
 

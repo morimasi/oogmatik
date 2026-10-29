@@ -1,6 +1,5 @@
 import React from 'react';
 import { SectionHeader } from '../../components/shared/SectionHeader';
-import { ToggleSwitch } from '../../components/shared/ToggleSwitch';
 import type { AppearanceSettingsProps } from '../../types';
 import type { AppTheme, UiSettings } from '../../../../types';
 

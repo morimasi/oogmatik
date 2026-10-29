@@ -9,7 +9,7 @@
  * - Frontend: useAuthGate() hook for page protection
  */
 
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+import type { VercelRequest } from '@vercel/node';
 import { JWTService } from '../services/jwtService.js';
 import { AppError, AuthenticationError } from './AppError.js';
 import { logError, logInfo } from './logger.js';

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { FascicleItem, FascicleMetadata, FascicleDocument, WatermarkSettings } from '../types/fascicle';
+import { FascicleItem, FascicleMetadata, FascicleDocument } from '../types/fascicle';
 import { persist } from 'zustand/middleware';
 
 interface FascicleState {

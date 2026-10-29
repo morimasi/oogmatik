@@ -1,6 +1,5 @@
 import React from 'react';
 import { MatSinavOnizleme } from '../MatSinavStudyosu/MatSinavOnizleme';
-import { CollectionItem } from '../../types';
 
 interface MatSinavRendererProps {
     data: any;

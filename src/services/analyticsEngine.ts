@@ -8,7 +8,7 @@
 
 import { AppError } from '../utils/AppError.js';
 import { logInfo, logError } from '../utils/logger.js';
-import { collection, query, where, getDocs, orderBy, limit, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from './firebaseClient.js';
 
 /**
@@ -440,7 +440,7 @@ export class AnalyticsEngine {
       let totalActivities = 0;
       let thisMonthActivities = 0;
       let lastMonthActivities = 0;
-      let daysActive = new Set<string>();
+      const daysActive = new Set<string>();
 
       logsSnap.forEach(doc => {
         const data = doc.data();

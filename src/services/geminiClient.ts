@@ -1,4 +1,3 @@
-import { AppError } from '../utils/AppError.js';
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 import { safeFetch } from '../utils/apiClient.js';
 import { useStudentStore } from '../store/useStudentStore';

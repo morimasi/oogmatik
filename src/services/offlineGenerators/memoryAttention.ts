@@ -1,6 +1,6 @@
 
-import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData, WordMemoryItem } from '../../types';
-import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, COLORS, TR_VOCAB, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
+import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, TargetSearchData, ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData } from '../../types';
+import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, COLORS, EMOJI_MAP } from './helpers';
 
 export const generateOfflineWordMemory = async (options: GeneratorOptions): Promise<WordMemoryData[]> => {
     const { topic, itemCount, difficulty, worksheetCount } = options;

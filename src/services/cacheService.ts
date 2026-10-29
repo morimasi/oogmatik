@@ -1,6 +1,6 @@
 import { WorksheetData, ActivityType } from '../types';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError, logWarn } from '../utils/logger.js';
 
 const DB_NAME = 'DyslexiaAICache';
 const STORE_NAME = 'generations';

@@ -2,7 +2,7 @@
 import React from 'react';
 import { SymmetryDrawingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
-import { EditableElement, EditableText } from '../../Editable';
+import { EditableElement } from '../../Editable';
 
 export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) => {
     const settings = data?.settings;
@@ -68,7 +68,7 @@ export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) =>
 
                             {/* Ghost Points */}
                             {showGhostPoints && (dots || []).map((dot, i) => {
-                                let coords = [{ x: dot.x, y: dot.y }];
+                                const coords = [{ x: dot.x, y: dot.y }];
                                 if (axis === 'vertical' || axis === 'both') coords.push({ x: gridDim - dot.x, y: dot.y });
                                 if (axis === 'horizontal' || axis === 'both') coords.push({ x: dot.x, y: gridDim - dot.y });
                                 if (axis === 'diagonal') coords.push({ x: dot.y, y: dot.x });

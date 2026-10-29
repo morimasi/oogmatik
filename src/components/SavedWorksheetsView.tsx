@@ -1,9 +1,9 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, ArrowLeft, Layers, Trash2, Eye, ChevronDown, Filter, FileText,
-  Share2, Printer, Download, AlertTriangle, CheckCircle, XCircle, ArrowUpDown,
-  Calendar, Type, Sparkles, ExternalLink, Loader2, Grid3X3
+  Share2, AlertTriangle, ArrowUpDown,
+  Calendar, Type, ExternalLink, Grid3X3
 } from 'lucide-react';
 import { SavedWorksheet, SavedAssessment, Curriculum } from '../types';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';

@@ -1,6 +1,6 @@
 
 import { generateWithSchema } from '../geminiClient.js';
-import { GeneratorOptions, StoryData, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData, StoryAnalysisData, StorySequencingData, MissingPartsData } from '../../types.js';
+import { GeneratorOptions, StoryData, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData } from '../../types.js';
 
 const PEDAGOGICAL_PROMPT = `
 [ROL: KIDEMLİ ÖZEL EĞİTİM UZMANI & PSİKOMETRİST]

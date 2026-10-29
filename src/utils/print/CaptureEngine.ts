@@ -6,7 +6,7 @@
 
 import { PAGE_SELECTORS, UI_HIDE_SELECTORS } from './constants';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logWarn } from '../../utils/logger.js';
 // ─── Font Yönetimi ──────────────────────────────────────────────────────────
 
 /**

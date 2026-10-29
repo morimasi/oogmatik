@@ -12,7 +12,7 @@
  */
 
 import type { LearningDisabilityProfile, AgeGroup } from './creativeStudio';
-import type { OCRResult, OCRDetectedType } from './core';
+import type { OCRDetectedType } from './core';
 import type { Difficulty } from './common';
 
 export type { Difficulty };

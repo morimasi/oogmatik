@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, FileText, Award, ExternalLink } from 'lucide-react';
+import { X, FileText } from 'lucide-react';
 import { ACTIVITY_LABELS, ACTIVITY_ICONS, ACTIVITY_COLORS } from './constants';
 import { TeacherActivityType } from '../../../types/teacher';
 

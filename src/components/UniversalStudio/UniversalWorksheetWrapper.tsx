@@ -6,7 +6,6 @@ import { UniversalCanvas } from './UniversalCanvas';
 import { UniversalPropertiesPanel } from './UniversalPropertiesPanel';
 import { SingleWorksheetData, ActivityType } from '../../types';
 import { SheetRenderer } from '../SheetRenderer';
-import { useAppStore } from '../../store/useAppStore';
 
 interface UniversalWorksheetWrapperProps {
   worksheetData: SingleWorksheetData[];

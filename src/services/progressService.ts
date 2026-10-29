@@ -2,21 +2,12 @@ import {
   collection, 
   doc, 
   getDoc, 
-  getDocs, 
-  setDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
-  Timestamp,
-  writeBatch,
-  increment,
+  setDoc,
   db
 } from './firebaseClient.js';
 import { 
   ActivityCompletion, 
-  StudentProgressSnapshot, 
-  SkillScore 
+  StudentProgressSnapshot 
 } from '../types/progress.js';
 import { AppError } from '../utils/AppError.js';
 import { logError } from '../utils/errorHandler.js';

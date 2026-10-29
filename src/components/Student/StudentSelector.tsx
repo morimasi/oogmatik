@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { SimplifiedStudentForm } from './SimplifiedStudentForm';
 import type { Student } from '../../types';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError } from '../../utils/logger.js';
 export const StudentSelector = () => {
   const { user } = useAuthStore();
   const { students, activeStudent, setActiveStudent, addStudent } = useStudentStore();

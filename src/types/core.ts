@@ -35,8 +35,6 @@ import type {
   StyleSettings,
   BaseActivityData,
   CognitiveDomain,
-  ShapeType,
-  VisualMathType,
   Difficulty
 } from './common';
 

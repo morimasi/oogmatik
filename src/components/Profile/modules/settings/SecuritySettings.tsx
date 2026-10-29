@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useState } from 'react';
 import { SectionHeader } from '../../components/shared/SectionHeader';
-import { ToggleSwitch } from '../../components/shared/ToggleSwitch';
 import { useProfileSettings } from '../../hooks/useProfileSettings';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import { useToastStore } from '../../../../store/useToastStore';

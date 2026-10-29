@@ -1,5 +1,5 @@
-import { FC, useEffect, useState, useRef } from 'react';
-import { ScreeningResult, EvaluationCategory } from '../../types/screening';
+import { FC, useEffect, useState } from 'react';
+import { ScreeningResult } from '../../types/screening';
 import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
 import { SavedAssessment, AssessmentReport } from '../../types';
 import { CATEGORY_LABELS } from '../../data/screeningQuestions';
@@ -12,7 +12,7 @@ import { screeningDataService } from '../ScreeningAssessment/services/screeningD
 import { ShareModal } from '../ShareModal';
 import { useStudentStore } from '../../store/useStudentStore';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError } from '../../utils/logger.js';
 interface Props {
   result: ScreeningResult;
   onRestart: () => void;

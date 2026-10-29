@@ -6,7 +6,7 @@ import { ShareModal } from './ShareModal';
 import { assessmentService } from '../services/assessmentService';
 import { printService } from '../utils/printService';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 interface AssessmentReportViewerProps {
     assessment: SavedAssessment | null;
     onClose: () => void;

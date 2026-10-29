@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AdCampaign, AdAudience } from '../../../types/adStudio';
+import { AdCampaign } from '../../../types/adStudio';
 import { useAdHistory } from '../../../hooks/useAdHistory';
 
 const STORAGE_KEY = 'bdmind_ad_campaigns';

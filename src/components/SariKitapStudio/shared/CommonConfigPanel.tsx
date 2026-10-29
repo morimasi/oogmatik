@@ -1,7 +1,7 @@
 import React from 'react';
 import type { SariKitapConfig, SariKitapDifficulty } from '../../../types/sariKitap';
-import type { AgeGroup, LearningDisabilityProfile } from '../../../types/creativeStudio';
-import { AGE_GROUPS, DIFFICULTIES, PROFILES, TOPICS } from '../constants';
+import type { AgeGroup } from '../../../types/creativeStudio';
+import { AGE_GROUPS, DIFFICULTIES, TOPICS } from '../constants';
 
 interface CommonConfigPanelProps {
     config: SariKitapConfig;

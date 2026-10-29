@@ -3,11 +3,10 @@ import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { generateSuperStudioContent } from '../../../services/generators/superStudioGenerator';
 import { getTemplateById } from '../templates';
 import { assessContentQuality } from '../../../utils/contentQuality';
-import { optimizePrompt } from '../../../utils/promptOptimizer';
 import { useToastStore } from '../../../store/useToastStore';
 import type { GeneratedContentPayload } from '../../../types/superStudio';
 
-import { logInfo, logError, logWarn } from '../../../utils/logger.js';
+import { logError } from '../../../utils/logger.js';
 
 export const ConfiguratorCascade: React.FC = () => {
     const {

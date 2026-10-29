@@ -3,7 +3,6 @@ import {
   AdStudioSettings,
   AdOutput,
   AdTone,
-  AdFormat,
   DEFAULT_SETTINGS,
 } from '../types/adStudio';
 import { generateAd as generateAdService } from '../services/adGeneratorService';

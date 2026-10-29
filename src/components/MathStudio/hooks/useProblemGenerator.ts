@@ -6,7 +6,7 @@ import { generateMathProblemsAI } from '../../../services/generators/mathStudio'
 import { DEFAULT_PROBLEM_CONFIG } from '../constants';
 import { calculateItemsPerPage } from '../utils';
 
-import { logInfo, logError, logWarn } from '../../../utils/logger.js';
+import { logError } from '../../../utils/logger.js';
 export const useProblemGenerator = (initialStudentName: string, pageMargin: number = 38) => {
     const [problemConfig, setProblemConfig] = useState<MathProblemConfig>({
         ...DEFAULT_PROBLEM_CONFIG,

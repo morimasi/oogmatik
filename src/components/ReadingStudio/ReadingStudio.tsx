@@ -13,7 +13,7 @@ import { ArchivePanel } from './Editor/ArchivePanel';
 import { LayoutItem } from '../../types';
 import { StylePanel } from './Editor/StylePanel';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError } from '../../utils/logger.js';
 import { worksheetService } from '../../services/worksheetService';
 import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../../store/useAuthStore';

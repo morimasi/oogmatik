@@ -30,8 +30,7 @@ import {
   PermissionModule,
   PermissionAction,
   MODULE_LABELS,
-  MODULE_CATEGORIES,
-  ALL_MODULES
+  MODULE_CATEGORIES
 } from '../../types/rbac-advanced';
 import { UserRole } from '../../types/user';
 import { useToastStore } from '../../store/useToastStore';
@@ -175,7 +174,7 @@ export const AdminPermissionsIDE: React.FC = () => {
       if (!module) return perms;
       if (!module.categoryPermissions) module.categoryPermissions = [];
 
-      let cat = module.categoryPermissions.find(c => c.categoryId === catId);
+      const cat = module.categoryPermissions.find(c => c.categoryId === catId);
       const catInfo = ACTIVITY_CATEGORIES.find(c => c.id === catId);
 
       if (cat) {
@@ -226,7 +225,7 @@ export const AdminPermissionsIDE: React.FC = () => {
         module.categoryPermissions.push(cat);
       } else {
         if (!cat.activityOverrides) cat.activityOverrides = [];
-        let act = cat.activityOverrides.find(a => a.activityType === actType);
+        const act = cat.activityOverrides.find(a => a.activityType === actType);
         if (act) {
           act.enabled = !act.enabled;
           if (act.enabled && !act.allowedRoles.includes(activeRole)) act.allowedRoles.push(activeRole);

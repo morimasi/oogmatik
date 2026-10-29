@@ -1,5 +1,4 @@
 import { 
-  Achievement, 
   ACHIEVEMENT_DEFINITIONS, 
   StudentBadge 
 } from '../types/gamification.js';

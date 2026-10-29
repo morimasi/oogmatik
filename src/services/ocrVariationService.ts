@@ -15,7 +15,6 @@ import { tryRepairJson } from '../utils/jsonRepair.js';
 import type {
   OCRResult,
   SingleWorksheetData,
-  WorksheetData,
   ActivityType,
   LearningDisabilityProfile,
   AgeGroup,

@@ -1,4 +1,4 @@
-import { logInfo, logError as internalLogError, logWarn } from '../utils/logger.js';
+import { logWarn } from '../utils/logger.js';
 
 /**
  * BDMIND - Error Handler Utilities
@@ -8,9 +8,7 @@ import { logInfo, logError as internalLogError, logWarn } from '../utils/logger.
 import {
   AppError,
   toAppError,
-  NetworkError,
   TimeoutError,
-  RateLimitError,
   InternalServerError,
   isAppError,
 } from './AppError.js';

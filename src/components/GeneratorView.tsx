@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { useEffect } from 'react';
 import {
   Activity,
   GeneratorOptions,

@@ -1,4 +1,4 @@
-import { View, ActivityType } from '../types';
+import { View } from '../types';
 import { useWorksheetStore } from '../store/useWorksheetStore';
 import { useUIStore } from '../store/useUIStore';
 

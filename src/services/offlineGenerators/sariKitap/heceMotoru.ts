@@ -7,10 +7,8 @@ import type {
     SariKitapConfig,
     SariKitapGeneratedContent,
     HeceRow,
-    HeceData,
 } from '../../../types/sariKitap';
 import { metniHecele, metniKelimele } from '../../../utils/heceAyirici';
-import { getMetinByAgeAndDifficulty, getCiftMetinCifti } from './metinHavuzu';
 import type { MemoryPhaseData } from '../../../types/sariKitap';
 
 // ─── Pencere: belirli heceleri vurgula, diğerlerini maskele ─────

@@ -1,5 +1,5 @@
 import type { SubTestResult } from '../../../types';
-import type { EvaluationCategory, ScreeningResult } from '../../../types/screening';
+import type { ScreeningResult } from '../../../types/screening';
 
 interface ProfessionalAssessmentContext {
   studentName: string;

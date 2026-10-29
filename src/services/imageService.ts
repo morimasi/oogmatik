@@ -1,5 +1,5 @@
 import { AppError } from '../utils/AppError';
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 export interface ImageGenerationOptions {
     prompt: string;
     provider?: 'pollinations' | 'imagen' | 'stability';

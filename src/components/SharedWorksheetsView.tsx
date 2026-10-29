@@ -6,7 +6,7 @@ import { worksheetService } from '../services/worksheetService';
 import { assessmentService } from '../services/assessmentService';
 import { printService } from '../utils/printService';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 interface SharedWorksheetsViewProps {
     onLoad: (worksheet: SavedWorksheet) => void;
     onBack: () => void;

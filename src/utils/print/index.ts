@@ -13,7 +13,7 @@ import { PAPER_DIMENSIONS } from './constants';
 import { print, captureAndPrint } from './OverlayPrinter';
 import { generateRealPdf } from './PDFGenerator';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError } from '../../utils/logger.js';
 import { activityLogService } from '../../services/activityLogService';
 import { auth } from '../../services/firebaseClient';
 /**

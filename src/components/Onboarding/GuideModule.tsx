@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, ChevronRight, BookOpen, Target, Sparkles, ArrowRight, Pointer, Layers, Wand } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, BookOpen, Target, Sparkles, ArrowRight, Pointer, Layers, Wand } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store/useAuthStore';
 

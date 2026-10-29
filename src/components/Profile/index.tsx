@@ -17,7 +17,6 @@ import { PermissionModule } from '../../types/rbac-advanced';
 import { useProfileShare } from './hooks/useProfileShare';
 import { ShareModal } from '../ShareModal';
 import { SharedModuleType } from '../../services/profileShareService';
-import { useSharedWorksheets } from './hooks/useSharedWorksheets';
 import { useSharedContentHub } from './hooks/useSharedContentHub';
 
 interface ProfileProps {

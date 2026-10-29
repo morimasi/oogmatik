@@ -1,7 +1,7 @@
 import React from 'react';
 import { MorphologyMatrixData } from '../../../types';
 import { PedagogicalHeader } from '../common';
-import { EditableElement, EditableText } from '../../Editable';
+import { EditableText } from '../../Editable';
 
 export const MorphologyMatrixSheet = ({ data }: { data: MorphologyMatrixData }) => {
   const settings = data?.settings || {};

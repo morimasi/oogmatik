@@ -2,7 +2,7 @@ import { generateWithSchema, resolveOptimalModel } from './geminiClient.js';
 import { ActivityType, SingleWorksheetData } from '../types.js';
 import { AppError } from '../utils/AppError.js';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError, logWarn } from '../utils/logger.js';
 /**
  * AI-Powered Content Generation Service
  * Automatically generates worksheet content (questions, exercises, etc.) using AI

@@ -29,7 +29,6 @@ import { SentenceFiveWOneHConfig } from './SentenceFiveWOneHConfig';
 import { StoryAnalysisConfig } from './StoryAnalysisConfig';
 import { StorySequencingConfig } from './StorySequencingConfig';
 import { MissingPartsConfig } from './MissingPartsConfig';
-import { AdvancedMissingPartsConfig } from './AdvancedMissingPartsConfig';
 import { QueueOrderingConfig } from './QueueOrderingConfig';
 import { SymmetryDrawingConfig } from './SymmetryDrawingConfig';
 import { LetterConnectConfig } from '../../modules/activities/letter-connect/ui/ConfigPanel';

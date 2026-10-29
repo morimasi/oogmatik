@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { curriculumService } from '../../services/curriculumService';
-import { Curriculum, CurriculumDay, Student, CurriculumActivityStatus } from '../../types';
+import { Curriculum, Student, CurriculumActivityStatus } from '../../types';
 import { printService } from '../../utils/printService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';

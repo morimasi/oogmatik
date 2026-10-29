@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityType, WorksheetData, StyleSettings } from '../../types';
+import { ActivityType, WorksheetData } from '../../types';
 import Worksheet from '../Worksheet';
 import { PREVIEW_SETTINGS } from './useOCRScanner';
 

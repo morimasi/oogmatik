@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Attachment } from '../../../types/messaging';
 import { Download, LockKeyhole as Lock, FileText, Shield } from 'lucide-react';
 import { fileSharingService } from '../../../services/messaging/fileSharingService';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface SafeDocViewerProps {
   attachment: Attachment;

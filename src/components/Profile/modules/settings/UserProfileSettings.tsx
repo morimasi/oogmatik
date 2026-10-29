@@ -1,6 +1,4 @@
 import React, { ChangeEvent, useState } from 'react';
-import { BentoCard } from '../../components/shared/BentoCard';
-import { SectionHeader } from '../../components/shared/SectionHeader';
 import { useProfileSettings } from '../../hooks/useProfileSettings';
 import type { UserProfileSettingsProps } from '../../types';
 

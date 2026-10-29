@@ -15,7 +15,7 @@ import { useStudentStore } from '../../store/useStudentStore';
 import { useToastStore } from '../../store/useToastStore';
 import { worksheetService } from '../../services/worksheetService';
 import { ActivityType } from '../../types/activity';
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError } from '../../utils/logger.js';
 import { ShareModal } from '../ShareModal';
 import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
 

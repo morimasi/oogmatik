@@ -6,7 +6,7 @@ import { AppError } from '../utils/AppError.js';
 
 import jwt from 'jsonwebtoken';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError, logWarn } from '../utils/logger.js';
 import { db, collection, query, where, getDocs } from './firebaseClient.js';
 export interface TokenPayload {
     userId: string;

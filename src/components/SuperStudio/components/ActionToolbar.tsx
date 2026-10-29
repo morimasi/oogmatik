@@ -9,7 +9,7 @@ import { ActivityType } from '../../../types/activity';
 import type { SingleWorksheetData } from '../../../types/core';
 import { getTemplateById } from '../templates/registry';
 
-import { logInfo, logError, logWarn } from '../../../utils/logger.js';
+import { logError } from '../../../utils/logger.js';
 import { useFascicleStore } from '../../../store/useFascicleStore';
 
 interface ActionToolbarProps {
