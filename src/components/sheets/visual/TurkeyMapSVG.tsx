@@ -20,26 +20,90 @@ interface TurkeyMapSVGProps {
     interactive?: boolean;
 }
 
-// Bölge renk paleti
-const REGION_COLORS: Record<string, { fill: string; stroke: string; label: string }> = {
-    'Marmara': { fill: '#e0e7ff', stroke: '#818cf8', label: 'MARMARA' },
-    'Ege': { fill: '#dcfce7', stroke: '#4ade80', label: 'EGE' },
-    'Akdeniz': { fill: '#fef3c7', stroke: '#fbbf24', label: 'AKDENİZ' },
-    'İç Anadolu': { fill: '#fce7f3', stroke: '#f472b6', label: 'İÇ ANADOLU' },
-    'Karadeniz': { fill: '#d1fae5', stroke: '#34d399', label: 'KARADENİZ' },
-    'Doğu Anadolu': { fill: '#e0e7ff', stroke: '#a78bfa', label: 'DOĞU ANADOLU' },
-    'Güneydoğu': { fill: '#fee2e2', stroke: '#f87171', label: 'GÜNEYDOĞU' },
+// 7 Coğrafi Bölge — Yüksek Kontrastlı, Disleksi Uyumlu, Ayrışan Renk Paleti
+const REGION_COLORS: Record<string, {
+    fill: string;
+    stroke: string;
+    badgeBg: string;
+    badgeBorder: string;
+    badgeText: string;
+    label: string;
+    badgeWidth: number;
+}> = {
+    'Marmara': {
+        fill: '#e0e7ff',        // İndigo-100
+        stroke: '#6366f1',      // İndigo-500
+        badgeBg: '#ffffff',
+        badgeBorder: '#4f46e5',
+        badgeText: '#312e81',   // İndigo-900 (Ultra yüksek kontrast)
+        label: 'MARMARA',
+        badgeWidth: 98
+    },
+    'Ege': {
+        fill: '#dcfce7',        // Emerald-100
+        stroke: '#10b981',      // Emerald-500
+        badgeBg: '#ffffff',
+        badgeBorder: '#059669',
+        badgeText: '#064e3b',   // Emerald-900
+        label: 'EGE',
+        badgeWidth: 68
+    },
+    'Akdeniz': {
+        fill: '#fef3c7',        // Amber-100
+        stroke: '#f59e0b',      // Amber-500
+        badgeBg: '#ffffff',
+        badgeBorder: '#d97706',
+        badgeText: '#78350f',   // Amber-900
+        label: 'AKDENİZ',
+        badgeWidth: 98
+    },
+    'İç Anadolu': {
+        fill: '#fed7aa',        // Orange-200 (Sıcak bozkır / turuncu)
+        stroke: '#f97316',      // Orange-500
+        badgeBg: '#ffffff',
+        badgeBorder: '#ea580c',
+        badgeText: '#7c2d12',   // Orange-950
+        label: 'İÇ ANADOLU',
+        badgeWidth: 122
+    },
+    'Karadeniz': {
+        fill: '#cffafe',        // Cyan-100 (Deniz turkuazı / camgöbeği)
+        stroke: '#06b6d4',      // Cyan-500
+        badgeBg: '#ffffff',
+        badgeBorder: '#0891b2',
+        badgeText: '#164e63',   // Cyan-950
+        label: 'KARADENİZ',
+        badgeWidth: 114
+    },
+    'Doğu Anadolu': {
+        fill: '#f3e8ff',        // Purple-100 (Mor dağlar / asil leylak)
+        stroke: '#a855f7',      // Purple-500
+        badgeBg: '#ffffff',
+        badgeBorder: '#9333ea',
+        badgeText: '#581c87',   // Purple-950
+        label: 'DOĞU ANADOLU',
+        badgeWidth: 138
+    },
+    'Güneydoğu': {
+        fill: '#ffe4e6',        // Rose-100 (Gül kırmızısı / terakota)
+        stroke: '#f43f5e',      // Rose-500
+        badgeBg: '#ffffff',
+        badgeBorder: '#e11d48',
+        badgeText: '#881337',   // Rose-950
+        label: 'GÜNEYDOĞU',
+        badgeWidth: 120
+    },
 };
 
-// Bölge etiket konumları
+// Bölge Rozet Konumları (Bölgelerin tam merkezine kalibre edilmiştir)
 const REGION_LABEL_POSITIONS: Record<string, { x: number; y: number }> = {
-    'Marmara': { x: 149, y: 99 },
-    'Ege': { x: 154, y: 263 },
-    'Akdeniz': { x: 419, y: 344 },
-    'İç Anadolu': { x: 429, y: 227 },
-    'Karadeniz': { x: 539, y: 97 },
-    'Doğu Anadolu': { x: 834, y: 199 },
-    'Güneydoğu': { x: 745, y: 319 },
+    'Marmara': { x: 155, y: 92 },
+    'Ege': { x: 142, y: 275 },
+    'Akdeniz': { x: 415, y: 360 },
+    'İç Anadolu': { x: 435, y: 220 },
+    'Karadeniz': { x: 550, y: 105 },
+    'Doğu Anadolu': { x: 815, y: 200 },
+    'Güneydoğu': { x: 745, y: 325 },
 };
 
 export const TurkeyMapSVG = ({
@@ -87,8 +151,16 @@ export const TurkeyMapSVG = ({
                 @media print {
                     .harita-grup { filter: none !important; }
                     .sehir-path {
-                        stroke-width: 1.5 !important;
-                        stroke-opacity: 1 !important;
+                        stroke-width: 1.0 !important;
+                        stroke-opacity: 0.8 !important;
+                    }
+                    .region-badge-rect {
+                        fill: #ffffff !important;
+                        stroke-width: 2.5px !important;
+                        filter: none !important;
+                    }
+                    .region-badge-text {
+                        font-weight: 900 !important;
                     }
                     svg {
                         print-color-adjust: exact;
@@ -99,47 +171,47 @@ export const TurkeyMapSVG = ({
             <defs>
                 {/* Deniz gradient */}
                 <radialGradient id="seaGradient" cx="50%" cy="50%" r="60%">
-                    <stop offset="0%" stopColor="#e0f2fe" />
-                    <stop offset="100%" stopColor="#bae6fd" />
+                    <stop offset="0%" stopColor="#f0f9ff" />
+                    <stop offset="100%" stopColor="#e0f2fe" />
                 </radialGradient>
-                {/* Gölge filtresi */}
-                <filter id="mapShadow" x="-5%" y="-5%" width="110%" height="110%">
-                    <feDropShadow dx="2" dy="5" stdDeviation="4" floodOpacity="0.25" />
+                {/* Harita gölge filtresi */}
+                <filter id="mapShadow" x="-3%" y="-3%" width="106%" height="106%">
+                    <feDropShadow dx="1" dy="3" stdDeviation="3" floodOpacity="0.18" />
                 </filter>
                 <filter id="hoverShadow" x="-5%" y="-5%" width="110%" height="110%">
-                    <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#3b82f6" floodOpacity="0.6" />
+                    <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor="#3b82f6" floodOpacity="0.5" />
+                </filter>
+                {/* Bölge Rozeti Gölge Filtresi */}
+                <filter id="badgeShadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="#000000" floodOpacity="0.22" />
                 </filter>
             </defs>
 
-            {/* Deniz zemin */}
+            {/* Deniz zemin (Sade, dingin ve dikkati dağıtmayan) */}
             <rect x="0" y="0" width="1000" height="500" fill="url(#seaGradient)" rx="20" className="print:fill-slate-50" />
 
-            {/* İllerin çizimi */}
+            {/* İllerin çizimi — Sadeleştirilmiş detaylar, net bölge blokları */}
             <g className="harita-grup">
                 {turkeyMapPaths.map((cityData) => {
                     const region = TURKEY_REGIONS[cityData.plate];
                     const active = isEmphasized(region);
-                    // Print için daha belirgin stroke renkleri (daha koyu)
-                    const enhancedColor = {
-                        'Marmara': { fill: '#e0e7ff', stroke: '#6366f1' },       // indigo-500
-                        'Ege': { fill: '#dcfce7', stroke: '#22c55e' },           // green-500
-                        'Akdeniz': { fill: '#fef3c7', stroke: '#eab308' },       // yellow-500
-                        'İç Anadolu': { fill: '#fce7f3', stroke: '#ec4899' },    // pink-500
-                        'Karadeniz': { fill: '#d1fae5', stroke: '#10b981' },     // emerald-500
-                        'Doğu Anadolu': { fill: '#e0e7ff', stroke: '#8b5cf6' },  // violet-500
-                        'Güneydoğu': { fill: '#fee2e2', stroke: '#ef4444' }      // red-500
+                    const colors = REGION_COLORS[region] || {
+                        fill: '#f1f5f9',
+                        stroke: '#94a3b8',
+                        badgeBg: '#ffffff',
+                        badgeBorder: '#64748b',
+                        badgeText: '#0f172a',
+                        label: '',
+                        badgeWidth: 80
                     };
-                    const colors = REGION_COLORS[region] || { fill: '#f4f4f5', stroke: '#d4d4d8', label: '' };
-                    const printColors = enhancedColor[region as keyof typeof enhancedColor] || colors;
 
                     const isHovered = hoveredRegion === region;
-
-                    // Önemli: printte soluk çıkmaması için opaklıklar artırıldı
-                    const fillOpq = active ? (isHovered ? 1 : 0.9) : 0.6;
-
-                    const fillColor = active ? colors.fill : '#e4e4e7';
-                    const strokeColor = active ? printColors.stroke : '#a1a1aa'; // aktif değilse bile belirgin (zinc-400)
-                    const strokeWidth = isHovered ? 2 : 1.2;
+                    const fillColor = active ? colors.fill : '#f1f5f9';
+                    // Görsel karmaşayı azaltmak için il içi sınır çizgileri sade, zarif ve ince tutuldu
+                    const strokeColor = active ? colors.stroke : '#cbd5e1';
+                    const strokeWidth = isHovered ? 1.8 : 0.8;
+                    const fillOpq = active ? (isHovered ? 1 : 0.95) : 0.35;
+                    const strokeOpq = active ? (isHovered ? 1 : 0.55) : 0.25;
 
                     return (
                         <path
@@ -150,7 +222,7 @@ export const TurkeyMapSVG = ({
                             stroke={strokeColor}
                             strokeWidth={strokeWidth}
                             fillOpacity={fillOpq}
-                            strokeOpacity={1}
+                            strokeOpacity={strokeOpq}
                             filter={isHovered ? 'url(#hoverShadow)' : undefined}
                             className="transition-all duration-300 ease-in-out sehir-path"
                             style={{
@@ -167,46 +239,54 @@ export const TurkeyMapSVG = ({
                 })}
             </g>
 
-            {/* Bölge etiketleri */}
+            {/* Bölge Rozetleri (Pill Badges) — Yüksek Kontrast, Disleksi Uyumlu, Ultra-Okunaklı */}
             {showRegionLabels && Object.entries(REGION_LABEL_POSITIONS).map(([region, pos]) => {
                 const colors = REGION_COLORS[region];
                 const active = isEmphasized(region);
-                if (!active) return null;
+                if (!active || !colors) return null;
+                const badgeW = colors.badgeWidth;
+                const badgeH = 26;
+                const isHovered = hoveredRegion === region;
+
                 return (
-                    <text
-                        key={`label-${region}`}
-                        x={pos.x}
-                        y={pos.y}
-                        textAnchor="middle"
-                        fontSize="11"
-                        fontWeight="900"
-                        fill={colors.stroke}
-                        opacity={0.8}
-                        className="font-sans uppercase pointer-events-none"
-                        style={{
-                            letterSpacing: '0.15em',
-                            paintOrder: 'stroke',
-                            stroke: 'white',
-                            strokeWidth: '4px',
-                            strokeLinejoin: 'round'
-                        }}
+                    <g
+                        key={`badge-${region}`}
+                        transform={`translate(${pos.x}, ${pos.y}) scale(${isHovered ? 1.06 : 1})`}
+                        className="pointer-events-none transition-transform duration-200"
                     >
-                        {colors.label}
-                    </text>
+                        {/* Rozet Beyaz Zemin & Kalın Belirgin Kenarlık */}
+                        <rect
+                            x={-badgeW / 2}
+                            y={-badgeH / 2}
+                            width={badgeW}
+                            height={badgeH}
+                            rx="13"
+                            ry="13"
+                            fill="#ffffff"
+                            stroke={colors.badgeBorder}
+                            strokeWidth="2.5"
+                            className="region-badge-rect print:stroke-zinc-800"
+                            filter="url(#badgeShadow)"
+                        />
+                        {/* Bölge İsmi — Büyük, Kalın, Kristal Netliğinde */}
+                        <text
+                            x="0"
+                            y="4.5"
+                            textAnchor="middle"
+                            fontSize="12.5"
+                            fontWeight="900"
+                            fill={colors.badgeText}
+                            className="region-badge-text uppercase print:fill-zinc-900"
+                            style={{
+                                letterSpacing: '0.08em',
+                                fontFamily: 'Lexend, sans-serif'
+                            }}
+                        >
+                            {colors.label}
+                        </text>
+                    </g>
                 );
             })}
-
-            {/* Deniz kenarı etiketi */}
-            <text x="40" y="460" fontSize="9" fill="#93c5fd" fontWeight="700" opacity="0.5" className="uppercase pointer-events-none" style={{ letterSpacing: '0.3em' }}>
-                AKDENİZ
-            </text>
-            <text x="40" y="175" fontSize="9" fill="#93c5fd" fontWeight="700" opacity="0.5" className="uppercase pointer-events-none" style={{ letterSpacing: '0.3em' }}>
-                EGE DENİZİ
-            </text>
-            <text x="550" y="50" fontSize="9" fill="#93c5fd" fontWeight="700" opacity="0.5" className="uppercase pointer-events-none" style={{ letterSpacing: '0.3em' }}>
-                KARADENİZ
-            </text>
         </svg>
     );
 };
-

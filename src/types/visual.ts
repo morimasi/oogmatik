@@ -247,6 +247,7 @@ export interface MapInstructionData extends BaseActivityData {
         useGridSystem?: boolean;
     };
     gridConfig?: { rows: number; cols: number };
+    pedagogicalNote?: string;
 }
 
 export interface SymbolCipherData extends BaseActivityData {

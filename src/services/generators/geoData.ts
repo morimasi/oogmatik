@@ -100,3 +100,47 @@ export const CALIBRATED_CITIES = [
     { id: "tr-73", name: "Şırnak", x: 888, y: 319, region: "Güneydoğu", isCoastal: false, neighbors: ["Mardin", "Siirt", "Hakkari"] },
     { id: "tr-79", name: "Kilis", x: 595, y: 374, region: "Güneydoğu", isCoastal: false, neighbors: ["Gaziantep"] },
 ];
+
+
+/**
+ * Haritada görsel karmaşayı (bilişsel yükü) azaltırken şehir isimlerini ve yönergeleri korur:
+ * - Bölge odaklı ise o bölgenin tüm illerini döner.
+ * - Tüm Türkiye ise yönergelerde adı geçen tüm illeri + 7 bölgeden dengeli nirengi illerini döner.
+ */
+export const getCleanCityPool = (
+    emphasizedRegion: string | undefined,
+    instructions: string[] = []
+) => {
+    if (emphasizedRegion && emphasizedRegion !== 'all') {
+        const regional = CALIBRATED_CITIES.filter(c => c.region === emphasizedRegion);
+        return regional.length > 0 ? regional : CALIBRATED_CITIES;
+    }
+
+    const CORE_ANCHOR_CITY_IDS = new Set([
+        'tr-34', 'tr-16', 'tr-22', 'tr-17', 'tr-10',
+        'tr-35', 'tr-48', 'tr-09', 'tr-20', 'tr-03',
+        'tr-07', 'tr-33', 'tr-01', 'tr-31', 'tr-46',
+        'tr-06', 'tr-42', 'tr-26', 'tr-38', 'tr-58',
+        'tr-67', 'tr-57', 'tr-55', 'tr-61', 'tr-53', 'tr-14',
+        'tr-25', 'tr-65', 'tr-44', 'tr-36', 'tr-30',
+        'tr-27', 'tr-63', 'tr-21', 'tr-47'
+    ]);
+
+    const instructionText = instructions.join(' ').toLowerCase();
+    const resultCities: typeof CALIBRATED_CITIES = [];
+    const addedIds = new Set<string>();
+
+    for (const city of CALIBRATED_CITIES) {
+        const isMentioned = instructionText.includes(city.name.toLowerCase());
+        const isCoreAnchor = CORE_ANCHOR_CITY_IDS.has(city.id);
+
+        if (isMentioned || isCoreAnchor) {
+            if (!addedIds.has(city.id)) {
+                resultCities.push(city);
+                addedIds.add(city.id);
+            }
+        }
+    }
+
+    return resultCities;
+};

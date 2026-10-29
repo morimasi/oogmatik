@@ -1,21 +1,15 @@
-
 import { GeneratorOptions, MapInstructionData } from '../../types';
 import { getRandomInt, getRandomItems } from './helpers';
-import { CALIBRATED_CITIES } from '../generators/geoData';
-
-/**
- * TÜRKİYE İDARİ HARİTA KOORDİNAT SİSTEMİ 
- * Artık ../generators/geoData.ts adresinden merkezi olarak yönetiliyor.
- */
-
-// ============================================================
-// YÖNERGE ÜRETIM MOTORU — 5 KADEMELİ ZORLUK
-// ============================================================
+import { CALIBRATED_CITIES, getCleanCityPool } from '../generators/geoData';
 
 type InstructionType = 'spatial_logic' | 'linguistic_geo' | 'attribute_search' | 'neighbor_path' | 'route_planning';
 
-const DIFFICULTY_MAP: Record<string, number> = {
-    'Başlangıç': 1, 'Orta': 2, 'Zor': 3, 'Uzman': 4, 'Klinik': 5
+const DIFFICULTY_MAP: Record<string, 1 | 2 | 3 | 4 | 5> = {
+    'Başlangıç': 1,
+    'Orta': 2,
+    'Zor': 3,
+    'Uzman': 4,
+    'Klinik': 5
 };
 
 const MAP_TYPE_LABELS: Record<string, string> = {
@@ -39,29 +33,45 @@ function generateFallbackCoords(count: number) {
 }
 
 export const generateOfflineMapInstruction = async (options: GeneratorOptions): Promise<MapInstructionData[]> => {
-    const { worksheetCount, difficulty, itemCount, mapInstructionTypes, showCityNames, markerStyle, emphasizedRegion, customInput } = options;
-    const mapType = options.mapType || 'turkey';
-    const results: MapInstructionData[] = [];
-    const level = DIFFICULTY_MAP[difficulty || 'Orta'] || 2;
+    const {
+        worksheetCount,
+        difficulty,
+        itemCount,
+        mapInstructionTypes,
+        showCityNames,
+        markerStyle,
+        emphasizedRegion,
+        customInput,
+        includeCompass,
+        useGridSystem
+    } = options;
 
-    // 1. Harita tipine göre içerik havuzu
+    const mapType = (options.mapType as 'turkey' | 'world' | 'treasure') || 'turkey';
+    const level: 1 | 2 | 3 | 4 | 5 = DIFFICULTY_MAP[difficulty || 'Orta'] || 2;
+    const isGridActive = !!useGridSystem;
+
+    // 1. Harita tipine göre şehir havuzu
     const isRegionFocused = emphasizedRegion && emphasizedRegion !== 'all';
-    const cityPool = mapType === 'turkey'
+    const regionalPool = mapType === 'turkey'
         ? (isRegionFocused ? CALIBRATED_CITIES.filter(c => c.region === emphasizedRegion) : CALIBRATED_CITIES)
         : [];
-    const safeCityPool = cityPool.length > 0 ? cityPool : CALIBRATED_CITIES;
+    const safeCityPool = regionalPool.length > 0 ? regionalPool : CALIBRATED_CITIES;
 
     // 2. Aktif Yönerge Tiplerini Belirle
     const activeTypes: InstructionType[] = (mapInstructionTypes && mapInstructionTypes.length > 0)
         ? mapInstructionTypes as InstructionType[]
         : ['spatial_logic', 'linguistic_geo', 'attribute_search', 'neighbor_path', 'route_planning'];
 
-    // 3. Yönerge Üretici
+    // 3. Yönerge Üretici Fonksiyon
     const generateInstruction = (): string => {
         const type = getRandomItems(activeTypes, 1)[0];
         const locationLabel = mapType === 'world' ? 'ülke' : mapType === 'treasure' ? 'nokta' : 'il';
         const randomCity = safeCityPool[getRandomInt(0, safeCityPool.length - 1)];
-        const regionLabel = mapType === 'world' ? 'kıta' : mapType === 'treasure' ? 'bölge' : 'bölge';
+
+        // Grid referansı (Izgara açık ise opsiyonel olarak yönlendir)
+        const gridCol = String.fromCharCode(65 + Math.floor(randomCity.x / 100)); // A-J
+        const gridRow = Math.min(5, Math.max(1, Math.floor(randomCity.y / 100) + 1)); // 1-5
+        const gridPrefix = isGridActive && Math.random() > 0.6 ? `[${gridCol}-${gridRow} koordinatında] ` : '';
 
         if (mapType !== 'turkey') {
             const worldLocations = [
@@ -75,9 +85,7 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
                 'Kum Fırtınası Vahası', 'Mercan Adası', 'Kara Uçurum', 'Define Mağarası'
             ];
 
-            const pool = mapType === 'treasure'
-                ? treasureLocations
-                : worldLocations;
+            const pool = mapType === 'treasure' ? treasureLocations : worldLocations;
             const loc = pool[getRandomInt(0, pool.length - 1)];
             const loc2 = pool[getRandomInt(0, pool.length - 1)];
 
@@ -92,22 +100,23 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
             if (type === 'route_planning') {
                 return `${loc} noktasından ${loc2} noktasına en kısa rotayı çiz.`;
             }
-            return `${loc} noktasını haritada bul ve üzerine bir ${['YILDIZ', 'DAİRE', 'ÇARPİ', 'OK'][getRandomInt(0, 3)]} çiz.`;
+            return `${loc} noktasını haritada bul ve üzerine bir ${['YILDIZ', 'DAİRE', 'ÇARPI', 'OK'][getRandomInt(0, 3)]} çiz.`;
         }
 
+        // Türkiye Haritası Yönergeleri
         if (type === 'spatial_logic') {
             const directions = ['KUZEYİNDEKİ', 'GÜNEYİNDEKİ', 'DOĞUSUNDAKİ', 'BATISINDAKİ'];
             const dir = directions[getRandomInt(0, 3)];
             if (level >= 4) {
-                return `${randomCity.name} ilinin ${dir} komşu ili bul, bu ilin ismindeki tüm ünlü harfleri say ve haritanın altına not et. Sonra bu ilden güneye doğru bir ok çiz.`;
+                return `${gridPrefix}${randomCity.name} ilinin ${dir} komşu ili bul, bu ilin ismindeki tüm ünlü harfleri say ve haritanın altına not et.`;
             }
             if (level >= 3) {
-                return `${randomCity.name} ilinin ${dir} komşu ili bul, ismini yaz ve hangi bölgede olduğunu belirt.`;
+                return `${gridPrefix}${randomCity.name} ilinin ${dir} komşu ili bul, adını yaz ve hangi bölgede olduğunu belirt.`;
             }
             if (level >= 2) {
-                return `${randomCity.name} ilinin hemen ${dir} komşu ili bul ve üzerine bir YILDIZ çiz.`;
+                return `${gridPrefix}${randomCity.name} ilinin hemen ${dir} komşu ili bul ve üzerine bir YILDIZ çiz.`;
             }
-            return `Haritada ${randomCity.name} ilini BUL ve üzerine bir DAİRE çiz.`;
+            return `${gridPrefix}Haritada ${randomCity.name} ilini BUL ve üzerine bir DAİRE çiz.`;
         }
 
         if (type === 'linguistic_geo') {
@@ -117,29 +126,29 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
             const color = colors[getRandomInt(0, colors.length - 1)];
 
             if (level >= 4) {
-                return `İsminde "${char}" harfi ile başlayan ve ${randomCity.region} bölgesinde yer alan tüm illeri bulup ${color} boya. Kaç tane olduğunu haritanın altına yaz.`;
+                return `İsminde "${char}" harfi ile başlayan ve ${randomCity.region} bölgesinde yer alan tüm illeri bulup ${color} boya.`;
             }
             if (level >= 3) {
-                return `İsminde "${char}" harfi ile başlayan ve ${randomCity.region} bölgesinde yer alan bir ili bul ve ${color} boya. Eğer birden fazla varsa en büyüğünü seç.`;
+                return `İsminde "${char}" harfi ile başlayan ve ${randomCity.region} bölgesinde yer alan bir ili bul ve ${color} boya.`;
             }
             if (level >= 2) {
-                return `İsminde "${char}" harfi geçen ve ${randomCity.region} bölgesinde olan bir ili bul ve ${color} boya.`;
+                return `İsminde "${char}" harfi geçen ve ${randomCity.region} bölgesinde olan bir ili bul ve göster.`;
             }
-            return `İsminde "${char}" harfi geçen bir ili haritada bul ve göster.`;
+            return `İsminde "${char}" harfi geçen bir ili haritada bul ve daire içine al.`;
         }
 
         if (type === 'attribute_search') {
             const isCoastal = Math.random() > 0.5;
             if (level >= 4) {
-                return `${randomCity.region} bölgesinde yer alan, denize kıyısı ${isCoastal ? 'OLAN' : 'OLMAYAN'} ve isminde çift sayıda hece bulunan bir şehri bul. Adını ve hece sayısını yaz.`;
+                return `${randomCity.region} bölgesinde yer alan, denize kıyısı ${isCoastal ? 'OLAN' : 'OLMAYAN'} bir şehri bul, hece sayısını hesapla.`;
             }
             if (level >= 3) {
-                return `${randomCity.region} bölgesinde yer alan ve denize kıyısı ${isCoastal ? 'OLAN' : 'OLMAYAN'} bir ili bul ve daire içine al.`;
+                return `${randomCity.region} bölgesinde yer alan ve denize kıyısı ${isCoastal ? 'OLAN' : 'OLMAYAN'} bir ili bul ve işaretle.`;
             }
             if (level >= 2) {
                 return `${randomCity.region} bölgesinde denize kıyısı ${isCoastal ? 'olan' : 'olmayan'} bir il göster.`;
             }
-            return `Denize kıyısı olan bir ili haritada bul ve göster.`;
+            return `Denize kıyısı olan bir ili haritada bul ve adını söyle.`;
         }
 
         if (type === 'neighbor_path') {
@@ -148,67 +157,73 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
 
             if (level >= 4) {
                 const n1 = randomCity.neighbors?.[0] || 'komşu il';
-                return `${randomCity.name} → ${n1} → ? → ${dest.name} rotasındaki eksik ili bul ve haritaya yaz. Bu rotanın kaç şehirden geçtiğini hesapla.`;
+                return `${randomCity.name} → ${n1} → ? → ${dest.name} rotasındaki eksik ili haritadan bul ve yaz.`;
             }
             if (level >= 3) {
-                return `${randomCity.name} ilinden ${dest.name} iline giderken geçmen gereken komşu illerden birini bul ve isminin üzerini çiz.`;
+                return `${randomCity.name} ilinden ${dest.name} iline giderken geçmen gereken komşu illerden birini bul.`;
             }
             if (level >= 2) {
-                return `${randomCity.name} ilinden ${dest.name} iline doğru giderken geçtiğin bir şehri bul ve göster.`;
+                return `${randomCity.name} ilinin komşu illerinden birini bul ve üzerine işaret koy.`;
             }
-            return `${randomCity.name} ilinin komşu illerinden birini bul ve göster.`;
+            return `${randomCity.name} ilinin en yakın komşu ilini göster.`;
         }
 
         if (type === 'route_planning') {
-            const dest = CALIBRATED_CITIES.filter(c => c.region !== randomCity.region)[getRandomInt(0, 10)];
+            const dest = CALIBRATED_CITIES.filter(c => c.region !== randomCity.region)[getRandomInt(0, 10)] || { name: 'Ankara' };
             if (level >= 4) {
-                return `${randomCity.name} ilinden ${dest?.name || 'Ankara'} iline en kısa rotayı çiz. Geçtiğin illerin sayısını ve hangi bölgelerden geçtiğini yaz.`;
+                return `${randomCity.name} ilinden ${dest.name} iline en kısa rotayı çiz. Geçtiğin illerin sayısını not et.`;
             }
             if (level >= 3) {
-                return `${randomCity.name} ilinden ${dest?.name || 'İstanbul'} iline giden bir rota çiz. En az 3 şehirden geçmelisin.`;
+                return `${randomCity.name} ilinden ${dest.name} iline giden bir rota çiz. En az 3 şehirden geçmelisin.`;
             }
-            return `${randomCity.name} ilinden başlayarak 3 komşu ili ziyaret eden bir yol çiz.`;
+            return `${randomCity.name} ilinden başlayarak 2 komşu ili birbirine bağlayan bir çizgi çiz.`;
         }
 
-        return `Haritadaki en büyük şehri bul ve üzerine bir çarpı (X) koy.`;
+        return `Haritadaki ${randomCity.name} ilini bul ve üzerine bir çarpı (X) koy.`;
     };
 
-    // 4. Sayfalar
-    for (let p = 0; p < (worksheetCount || 0); p++) {
-        const instructions: string[] = [];
-        const count = itemCount || (level <= 1 ? 5 : level <= 2 ? 8 : level <= 3 ? 10 : 12);
+    // 4. Sayfa Döngüsü (En az 1 sayfa üretilir)
+    const pages = Math.max(1, worksheetCount || 1);
+    const count = (itemCount && itemCount > 0) ? itemCount : (level <= 1 ? 6 : level <= 2 ? 8 : 10);
+    const diffLabel = difficulty || 'Orta';
+    const titleLabel = MAP_TYPE_LABELS[mapType] || 'Türkiye Haritası';
+    const results: MapInstructionData[] = [];
 
+    for (let p = 0; p < pages; p++) {
+        const instructions: string[] = [];
         for (let i = 0; i < count; i++) {
             instructions.push(generateInstruction());
         }
 
-        const regionLabel = mapType === 'turkey'
-            ? (emphasizedRegion === 'all' || !emphasizedRegion ? 'Türkiye' : emphasizedRegion + ' Bölgesi')
-            : mapType === 'world' ? 'Dünya' : 'Hazine Adası';
-        const diffLabel = difficulty || 'Orta';
-        const titleLabel = MAP_TYPE_LABELS[mapType] || 'Türkiye';
         const instructionBase = mapType === 'world'
             ? 'Haritadaki ülkeleri ve kıtaları inceleyerek yönergeleri hatasız uygula.'
             : mapType === 'treasure'
-                ? 'Hazine adasındaki noktaları ve gizemli yerleri keşfederek yönergeleri uygula.'
+                ? 'Hazine adasındaki noktaları keşfederek yönergeleri sırayla takip et.'
                 : `${diffLabel} Seviyesi — Haritadaki illeri ve bölgeleri inceleyerek yönergeleri hatasız uygula.`;
+
+        // Şehir havuzu: Görsel karmaşayı azaltmak için yönergelerdeki iller + nirengi noktaları
+        const finalCities = mapType === 'turkey'
+            ? getCleanCityPool(emphasizedRegion, instructions)
+            : generateFallbackCoords(15);
 
         results.push({
             title: `Harita Dedektifi: ${titleLabel}`,
             instruction: instructionBase,
             imageBase64: customInput,
             emphasizedRegion: mapType === 'turkey' ? (emphasizedRegion || 'all') : mapType,
-            difficultyLevel: level as 1 | 2 | 3 | 4 | 5,
-            cities: mapType === 'turkey'
-                ? (isRegionFocused ? safeCityPool.map(c => ({ ...c })) : CALIBRATED_CITIES.map(c => ({ ...c })))
-                : generateFallbackCoords(15),
+            difficultyLevel: level,
+            cities: finalCities,
             instructions,
+            pedagogicalNote: 'Öğrencinin uzamsal yön algısı, zihinsel rotalama ve komşuluk ilişkilerini görsel ipuçlarıyla keşfetmesini sağlar.',
             settings: {
-                showCityNames: showCityNames !== undefined ? showCityNames : true,
-                markerStyle: (markerStyle as any) || 'circle',
+                showCityNames: showCityNames !== false,
+                markerStyle: (markerStyle as 'circle' | 'star' | 'target' | 'dot' | 'none') || 'circle',
                 difficulty: diffLabel,
-                mapType
-            }
+                mapType,
+                includeCompass: includeCompass !== false,
+                useGridSystem: isGridActive
+            },
+            gridConfig: isGridActive ? { rows: 5, cols: 10 } : undefined
         });
     }
 
