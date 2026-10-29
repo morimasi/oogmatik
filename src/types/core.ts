@@ -91,6 +91,10 @@ export interface GeneratorOptions {
   showImage?: boolean;
   targetPair?: string;
   mapInstructionTypes?: string[];
+  showRegionLabels?: boolean;
+  mapColorMode?: 'renkli' | 'siyahbeyaz' | 'pastel';
+  ageGroup?: string;
+  profile?: string;
   showCityNames?: boolean;
   markerStyle?: string;
   emphasizedRegion?: string;

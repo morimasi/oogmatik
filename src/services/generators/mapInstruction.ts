@@ -108,6 +108,16 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
     const mapTypeLabel = MAP_TYPE_LABELS[mapType] || 'Türkiye Haritası';
     const mapTypeDesc = MAP_TYPE_DESCRIPTIONS[mapType] || MAP_TYPE_DESCRIPTIONS['turkey'];
 
+    // Yeni seçenekler
+    const itemCount = options.itemCount || 8;
+    const ageGroup = options.ageGroup || '8-10';
+    const profile = options.profile || 'dyslexia';
+    const showRegionLabels = options.showRegionLabels !== false;
+    const includeCompass = options.includeCompass !== false;
+    const useGridSystem = options.useGridSystem || false;
+    const markerStyle = options.markerStyle || 'circle';
+    const mapColorMode = options.mapColorMode || 'renkli';
+
     const geoContext = getCityDataForMapType(mapType, emphasizedRegion);
 
     const regionContext = mapType === 'turkey'
@@ -115,15 +125,15 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
         : '';
 
     const cityInstructions = mapType === 'turkey'
-        ? `Yukarıdaki gerçek coğrafi bilgileri kullanarak 10 adet yönerge üret.
+        ? `Yukarıdaki gerçek coğrafi bilgileri kullanarak ${itemCount} adet yönerge üret.
     3. Yönergeler "X ilini bul, onun yanındaki Y iline git" gibi mantıklı olmalı.
     4. Koordinatlar 0-1000 (x) ve 0-500 (y) aralığında olmalı.`
         : mapType === 'world'
-            ? `Yukarıdaki ülke listesini kullanarak 10 adet dünya coğrafyası sorusu üret.
+            ? `Yukarıdaki ülke listesini kullanarak ${itemCount} adet dünya coğrafyası sorusu üret.
     3. Yönergeler ülkeler, kıtalar ve okyanuslar arasında coğrafi keşif, yön bulma ve mantıksal çıkarım içermeli.
     4. "Brezilya'nın kuzeybatısındaki ülkeyi bul" gibi yön talimatları kullan.
     5. Koordinatlar 0-1000 (x) ve 0-500 (y) aralığında olmalı.`
-            : `Yukarıdaki hazine adası lokasyonlarını kullanarak 10 adet macera sorusu üret.
+            : `Yukarıdaki hazine adası lokasyonlarını kullanarak ${itemCount} adet macera sorusu üret.
     3. Yönergeler gizemli yerler arasında yön bulma, harita okuma ve mantıksal çıkarım içermeli.
     4. "Yılan Koyu'ndan başla, kuzeye doğru ilerle ve Kafatası Mağarası'nı bul" gibi talimatlar kullan.
     5. Koordinatlar 0-1000 (x) ve 0-500 (y) aralığında olmalı.`;
@@ -142,7 +152,19 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
 
     PARAMETRELER:
     - Zorluk: ${difficulty}
+    - Yaş Grubu: ${ageGroup}
+    - Öğrenci Profili: ${profile}
+    - Soru Sayısı: ${itemCount} adet yönerge üret (bu sayıya kesinlikle uy)
     ${regionContext}
+    - Harita Tipi: ${mapTypeLabel}
+    - Şehir İsimleri Göster: ${options.showCityNames !== false ? 'Evet' : 'Hayır'}
+    - Bölge Etiketleri: ${showRegionLabels ? 'Evet' : 'Hayır'}
+    - İşaretçi Stili: ${markerStyle}
+    - Koordinat Izgarası: ${useGridSystem ? 'Evet - Grid sistemi kullanılıyor' : 'Hayır'}
+
+    ${profile === 'dyslexia' ? 'DİSLEKSİ: Yönergeler çok kısa ve net olsun, max 15 kelime/yönerge.' : ''}
+    ${profile === 'adhd' ? 'DEHB: Her yönerge tek adımlı ve hızlı tamamlanabilir olsun.' : ''}
+    ${ageGroup === '5-7' ? 'KÜÇÜK YAŞ GRUBU: Çok basit yönergeler, sadece 1-2 adımlı.' : ''}
 
     KURALLAR:
     1. ${cityInstructions}
@@ -157,10 +179,14 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
         "difficultyLevel": 3,
         "emphasizedRegion": "${mapType === 'turkey' ? emphasizedRegion : mapTypeLabel}",
         "settings": {
-            "showCityNames": true,
-            "markerStyle": "circle",
+            "showCityNames": ${options.showCityNames !== false},
+            "markerStyle": "${markerStyle}",
             "difficulty": "${difficulty}",
-            "mapType": "${mapType}"
+            "mapType": "${mapType}",
+            "includeCompass": ${includeCompass},
+            "useGridSystem": ${useGridSystem},
+            "showRegionLabels": ${showRegionLabels},
+            "mapColorMode": "${mapColorMode}"
         }
     }
     `;
@@ -176,15 +202,22 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
 
     const processedData = items.map(item => {
         const itemObj = (typeof item === 'object' && item !== null) ? item as Record<string, unknown> : {};
+        const existingSettings = (itemObj['settings'] as Record<string, unknown>) || {};
         return {
             ...itemObj,
             cities: cityPool,
             settings: {
-                ...(itemObj as any).settings,
+                ...existingSettings,
                 mapType,
-                showCityNames: (itemObj as any).settings?.showCityNames ?? true,
-                markerStyle: (itemObj as any).settings?.markerStyle || 'circle',
-            }
+                showCityNames: existingSettings['showCityNames'] ?? (options.showCityNames !== false),
+                markerStyle: existingSettings['markerStyle'] || markerStyle,
+                includeCompass,
+                useGridSystem,
+                showRegionLabels,
+                mapColorMode,
+            },
+            pedagogicalNote: `${difficulty} seviye — ${mapTypeLabel} Harita Dedektifi. Öğrenci profili: ${profile}, Yaş: ${ageGroup}.`,
+            gridConfig: useGridSystem ? { rows: 5, cols: 10 } : undefined,
         };
     }) as unknown as MapInstructionData[];
 

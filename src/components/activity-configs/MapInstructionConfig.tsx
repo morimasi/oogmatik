@@ -90,6 +90,54 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 )}
             </div>
 
+            {/* Yaş Grubu */}
+            <div className="p-4 bg-emerald-900/10 rounded-[2rem] border border-emerald-800/30">
+                <label className="text-[10px] font-black text-emerald-400 uppercase mb-3 block text-center tracking-widest">
+                    <i className="fa-solid fa-user-graduate mr-2"></i>Yaş Grubu
+                </label>
+                <div className="grid grid-cols-4 gap-1.5">
+                    {(['5-7', '8-10', '11-13', '14+'] as const).map(ag => (
+                        <button
+                            key={ag}
+                            onClick={() => onChange('ageGroup', ag)}
+                            className={`py-2 rounded-xl text-[10px] font-black transition-all border ${
+                                options.ageGroup === ag
+                                    ? 'bg-emerald-600/20 border-emerald-500/50 text-emerald-300'
+                                    : 'bg-[var(--bg-inset)]/50 border-[var(--border-color)] text-[var(--text-muted)]'
+                            }`}
+                        >{ag}</button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Öğrenci Profili */}
+            <div className="p-4 bg-rose-900/10 rounded-[2rem] border border-rose-800/30">
+                <label className="text-[10px] font-black text-rose-400 uppercase mb-3 block text-center tracking-widest">
+                    <i className="fa-solid fa-brain mr-2"></i>Öğrenci Profili
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                    {([
+                        { value: 'dyslexia', label: 'Disleksi', icon: 'fa-font' },
+                        { value: 'dyscalculia', label: 'Diskalkuli', icon: 'fa-calculator' },
+                        { value: 'adhd', label: 'DEHB', icon: 'fa-bolt' },
+                        { value: 'mixed', label: 'Karma', icon: 'fa-shuffle' },
+                    ] as const).map(p => (
+                        <button
+                            key={p.value}
+                            onClick={() => onChange('profile', p.value)}
+                            className={`py-2 px-3 rounded-xl text-[10px] font-black flex items-center gap-2 transition-all border ${
+                                options.profile === p.value
+                                    ? 'bg-rose-600/20 border-rose-500/50 text-rose-300'
+                                    : 'bg-[var(--bg-inset)]/50 border-[var(--border-color)] text-[var(--text-muted)]'
+                            }`}
+                        >
+                            <i className={`fa-solid ${p.icon} text-[9px]`}></i>
+                            {p.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             {/* Bölgesel Odak — İnteraktif Harita Seçimi */}
             <div className="p-4 bg-blue-900/10 rounded-[2rem] border border-blue-800/30">
                 <label className="text-[10px] font-black text-blue-400 uppercase mb-3 flex items-center justify-between tracking-widest">
@@ -156,6 +204,20 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 <label className="text-[10px] font-black text-[var(--text-muted)] uppercase block text-center tracking-widest">
                     <i className="fa-solid fa-gauge-high mr-2"></i>Klinik Zorluk Kademesi
                 </label>
+
+                {/* Soru Sayısı Slider */}
+                <div className="flex items-center justify-between px-2 py-2 border-b border-[var(--border-color)]">
+                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase">
+                        Soru Sayısı <span className="text-[var(--accent-color)] ml-1">{options.itemCount || 8}</span>
+                    </span>
+                    <input
+                        type="range" min={3} max={15} step={1}
+                        value={options.itemCount || 8}
+                        onChange={e => onChange('itemCount', Number(e.target.value))}
+                        className="w-28 accent-[var(--accent-color)]"
+                    />
+                </div>
+
                 <div className="space-y-2">
                     {difficulties.map(d => (
                         <button
@@ -183,6 +245,37 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                         onClick={() => onChange('showCityNames', options.showCityNames === false)}
                     >
                         <div className={`absolute top-0.5 w-4 h-4 bg-[var(--bg-paper)] rounded-full transition-all shadow ${options.showCityNames !== false ? 'left-5' : 'left-0.5'}`}></div>
+                    </div>
+                </div>
+
+                {/* Bölge Etiketleri Toggle */}
+                <div className="flex items-center justify-between px-2 pt-3 border-t border-[var(--border-color)]">
+                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase">Bölge Etiketleri</span>
+                    <div
+                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.showRegionLabels !== false ? 'bg-[var(--accent-color)]' : 'bg-[var(--surface-elevated)]'}`}
+                        onClick={() => onChange('showRegionLabels', options.showRegionLabels === false)}
+                    >
+                        <div className={`absolute top-0.5 w-4 h-4 bg-[var(--bg-paper)] rounded-full transition-all shadow ${options.showRegionLabels !== false ? 'left-5' : 'left-0.5'}`}></div>
+                    </div>
+                </div>
+
+                {/* Renk Modu */}
+                <div className="flex items-center justify-between px-2 pt-3 border-t border-[var(--border-color)]">
+                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase">Renk Modu</span>
+                    <div className="flex bg-[var(--surface-elevated)] p-1 rounded-lg gap-1">
+                        {([
+                            { value: 'renkli', icon: 'fa-palette', label: 'Renkli' },
+                            { value: 'pastel', icon: 'fa-droplet', label: 'Pastel' },
+                            { value: 'siyahbeyaz', icon: 'fa-circle-half-stroke', label: 'S/B' },
+                        ] as const).map(cm => (
+                            <button key={cm.value} onClick={() => onChange('mapColorMode', cm.value)}
+                                className={`px-2 py-1 text-[9px] font-bold rounded-md flex items-center gap-1 ${
+                                    (options.mapColorMode || 'renkli') === cm.value ? 'bg-[var(--bg-paper)] shadow-sm text-sky-600' : 'text-[var(--text-muted)]'
+                                }`}>
+                                <i className={`fa-solid ${cm.icon} text-[8px]`}></i>
+                                {cm.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
@@ -214,9 +307,14 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 <div className="flex items-center justify-between px-2 pt-3 border-t border-[var(--border-color)]">
                     <span className="text-[10px] font-black text-[var(--text-muted)] uppercase">Harita Tipi</span>
                     <div className="flex bg-[var(--surface-elevated)] dark:bg-[var(--surface-elevated)] p-1 rounded-lg">
-                        {(['turkey', 'world', 'treasure'] as const).map(type => (
-                            <button key={type} onClick={() => onChange('mapType', type)} className={`flex-1 py-1 text-[10px] font-bold rounded-md ${options.mapType === type ? 'bg-[var(--bg-paper)] shadow-sm text-sky-600' : 'text-[var(--text-muted)]'}`}>
-                                {type === 'turkey' ? 'Türkiye' : type === 'world' ? 'Dünya' : 'Hazine'}
+                        {([
+                            { value: 'turkey', label: 'Türkiye', icon: 'fa-map' },
+                            { value: 'world', label: 'Dünya', icon: 'fa-globe' },
+                            { value: 'treasure', label: 'Hazine', icon: 'fa-gem' },
+                        ] as const).map(type => (
+                            <button key={type.value} onClick={() => onChange('mapType', type.value)} className={`flex-1 py-1 px-2 text-[10px] font-bold rounded-md flex items-center gap-1 ${options.mapType === type.value ? 'bg-[var(--bg-paper)] shadow-sm text-sky-600' : 'text-[var(--text-muted)]'}`}>
+                                <i className={`fa-solid ${type.icon} text-[9px]`}></i>
+                                {type.label}
                             </button>
                         ))}
                     </div>

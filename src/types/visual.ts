@@ -245,6 +245,8 @@ export interface MapInstructionData extends BaseActivityData {
         mapType?: 'turkey' | 'world' | 'treasure';
         includeCompass?: boolean;
         useGridSystem?: boolean;
+        showRegionLabels?: boolean;
+        mapColorMode?: 'renkli' | 'siyahbeyaz' | 'pastel';
     };
     gridConfig?: { rows: number; cols: number };
     pedagogicalNote?: string;

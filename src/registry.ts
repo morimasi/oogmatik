@@ -189,7 +189,7 @@ export const getDefaultOptionsForActivity = (
     case ActivityType.MISSING_PARTS:
       return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', textLength: 'kısa', blankType: 'word' };
     case ActivityType.MAP_INSTRUCTION:
-      return { ...base, mode: 'ai', itemCount: 8, difficulty: 'Orta', mapType: 'turkey', emphasizedRegion: 'all', mapInstructionTypes: ['spatial_logic', 'linguistic_geo', 'attribute_search', 'neighbor_path', 'route_planning'], showCityNames: true, markerStyle: 'circle', includeCompass: true, useGridSystem: false };
+      return { ...base, mode: 'ai', itemCount: 8, difficulty: 'Orta', mapType: 'turkey', emphasizedRegion: 'all', mapInstructionTypes: ['spatial_logic', 'linguistic_geo', 'attribute_search', 'neighbor_path', 'route_planning'], showCityNames: true, showRegionLabels: true, markerStyle: 'circle', includeCompass: true, useGridSystem: false, mapColorMode: 'renkli', ageGroup: '8-10', profile: 'dyslexia' };
     case ActivityType.DIRECTIONAL_TRACKING:
       return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 6 };
     case ActivityType.FIND_THE_DIFFERENCE:

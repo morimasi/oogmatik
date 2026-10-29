@@ -133,7 +133,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                         ) : (
                             <TurkeyMapSVG
                                 emphasizedRegion={data.emphasizedRegion || 'all'}
-                                showRegionLabels={true}
+                                showRegionLabels={data.settings?.showRegionLabels !== false}
                                 width="100%"
                                 height="100%"
                                 className="w-full h-full absolute inset-0"
