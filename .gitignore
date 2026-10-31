@@ -139,3 +139,6 @@ tmp/
 
 .freebuff/
 
+# İçe aktarılan konuşma ekleri (sürüm kontrolüne alınmaz)
+.cloud-attachments/
+
