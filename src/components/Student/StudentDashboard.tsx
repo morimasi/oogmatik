@@ -4,6 +4,7 @@ import { useStudentStore } from '../../store/useStudentStore';
 import { useAssignmentStore } from '../../store/useAssignmentStore';
 import { useToastStore } from '../../store/useToastStore';
 import { Student, SavedWorksheet, AdvancedStudent, Difficulty } from '../../types';
+import { createAdvancedStudent } from '../../types/student-advanced';
 
 // Custom Hooks & Sub-components
 import { useStudentRealtimeData } from './hooks/useStudentRealtimeData';
@@ -25,6 +26,7 @@ import { MaterialsModule } from './modules/MaterialsModule';
 import { AnalyticsModule } from './modules/AnalyticsModule';
 import { AcademicPlanModule } from './modules/AcademicPlanModule';
 import { IEPModule } from './modules/IEPModule';
+import { BEPModule } from './modules/BEPModule';
 import { ClinicalNotesModule } from './modules/ClinicalNotesModule';
 
 export interface StudentDashboardProps {
@@ -79,6 +81,7 @@ export function StudentDashboard({
       'analytics',
       'plans',
       'iep',
+      'bep',
       'notes',
       'settings',
     ];
@@ -319,20 +322,33 @@ export function StudentDashboard({
                   <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <IEPModule
                       student={
-                        {
-                          ...selectedStudent,
-                          iep:
-                            (selectedStudent as unknown as { iep?: unknown }).iep || {
-                              goals: [],
-                              status: 'draft',
-                            },
-                        } as AdvancedStudent
+                        (selectedStudent as unknown as { iep?: unknown }).iep
+                          ? (selectedStudent as AdvancedStudent)
+                          : createAdvancedStudent(selectedStudent)
                       }
                       onUpdate={(updatedIEP) => {
                         updateStudent(selectedStudent.id, {
                           iep: updatedIEP,
                         } as unknown as Partial<Student>);
                         useToastStore.getState().success('BEP planı başarıyla güncellendi.');
+                      }}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'bep' && (
+                  <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <BEPModule
+                      student={
+                        (selectedStudent as unknown as { iep?: unknown }).iep
+                          ? (selectedStudent as AdvancedStudent)
+                          : createAdvancedStudent(selectedStudent)
+                      }
+                      onUpdate={(updatedIEP) => {
+                        updateStudent(selectedStudent.id, {
+                          iep: updatedIEP,
+                        } as unknown as Partial<Student>);
+                        useToastStore.getState().success('BEP hedefleri güncellendi.');
                       }}
                     />
                   </div>

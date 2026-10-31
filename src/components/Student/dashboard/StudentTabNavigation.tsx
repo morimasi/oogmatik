@@ -7,6 +7,7 @@ export type StudentDashboardTab =
   | 'analytics'
   | 'plans'
   | 'iep'
+  | 'bep'
   | 'notes'
   | 'settings';
 
@@ -23,6 +24,7 @@ export const STUDENT_TABS: TabItem[] = [
   { id: 'analytics', label: 'Analiz', icon: 'fa-brain-circuit' },
   { id: 'plans', label: 'Akademik Plan', icon: 'fa-calendar-lines-pen' },
   { id: 'iep', label: 'BEP / IEP', icon: 'fa-hands-holding-child' },
+  { id: 'bep', label: 'BEP Raporu', icon: 'fa-file-lines' },
   { id: 'notes', label: 'Klinik Notlar', icon: 'fa-notes-medical' },
 ];
 

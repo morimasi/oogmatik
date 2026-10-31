@@ -349,6 +349,37 @@
 
 ---
 
+### 3.3 BEPModule — BEP Hedef, Gösterge ve Rapor Paneli
+
+**Dosya Konumu**: `components/Student/modules/BEPModule.tsx`
+
+**Amaç**: Öğrencinin gerçek okul verilerinden SMART hedef yönetimi, bilişsel gözlem
+göstergeleri, akademik rapor ve KVKK uyumlu dışa aktarma sunar.
+
+**Sekmeler**:
+1. **SMART Hedefler** — hedef ekleme, ilerleme güncelleme, eksik SMART alanlarını tamamlama
+2. **Bilişsel Göstergeler** — not/devamsızlık/ödev/davranış verisinden türetilen gözlemsel göstergeler
+3. **Akademik Rapor** — ders ortalamaları, eğilim, BEP ilerlemesi, öneriler
+4. **Uyum & Dışa Aktar** — mevzuat/dil denetimi, JSON/HTML indirme, yazdırma
+
+**Bağlı Servisler**:
+- `services/smartGoalGenerator.ts` — `evaluateSmartGoal`, `createSmartGoal`,
+  `completeSmartGoal`, `withGoalProgress`, `validateBEPCompliance`, `scorePlanSmartness`
+- `services/cognitiveProfileService.ts` — `buildCognitiveProfile`, `summarizeCognitiveProfile`
+- `services/academicReportService.ts` — `generateAcademicReport`, `exportReportToHtml`,
+  `exportReportToJson`, `downloadReport`, `createStudentRef`
+
+**Erişim**: `StudentDashboard` → `BEP Raporu` sekmesi (`StudentTabNavigation`, `bep`).
+
+**Klinik/KVKK Notu**: `cognitiveProfileService` çıktısı klinik değerlendirme değildir;
+tanı amacı taşımaz. `academicReportService` öğrenci adı yerine deterministik anonim
+referans (`Öğrenci #XXXXXX`) üretir; ad, iletişim, aile, sağlık ve tanı alanları dışa aktarılmaz.
+BEP metinleri tanı koyucu dil açısından taranır (MEB 573 KHK, KVKK Madde 6).
+
+**Test**: `tests/bepServices.smoke.test.ts`
+
+---
+
 ## 4. Değerlendirme ve Analiz Modülleri {#değerlendirme-modülleri}
 
 
