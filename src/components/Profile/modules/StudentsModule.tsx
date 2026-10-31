@@ -3,6 +3,7 @@ import { ProfileData } from '../../../types/profile';
 import { Student, SavedWorksheet } from '../../../types';
 import { BentoCard } from '../components/shared/BentoCard';
 import { StatCard } from '../components/shared/StatCard';
+import { filterStudents } from '../utils/profileUtils';
 import { useStudentStore } from '../../../store/useStudentStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useToastStore } from '../../../store/useToastStore';
@@ -59,22 +60,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
     }
   }, [user?.id, fetchStudents, user?.role]);
 
-  const filteredStudents = students.filter((student: Student) => {
-    const diag: string[] = Array.isArray(student.diagnosis) ? student.diagnosis : [];
-    const profile: string = ((student as unknown) as Record<string, unknown>)['learningProfile'] as string ?? '';
-    // Metin arama
-    const matchesSearch = (
-      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.grade.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      diag.some((d: string) => d.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-    // Rozet filtresi
-    const matchesDiag = diagFilter === 'all' || (
-      diag.some((d: string) => d.toLowerCase().includes(diagFilter)) ||
-      profile.toLowerCase().includes(diagFilter)
-    );
-    return matchesSearch && matchesDiag;
-  });
+  const filteredStudents = filterStudents(students, searchQuery, diagFilter);
 
 
   const handleSaveStudent = async (studentData: Partial<Student>) => {
@@ -97,6 +83,9 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
   };
 
   const handleDeleteStudent = async (studentId: string) => {
+    const target = students.find((item: Student) => item.id === studentId);
+    const label = target?.name ? `${target.name} ve tüm verileri` : 'Bu öğrenci ve tüm verileri';
+    if (!window.confirm(`${label} kalıcı olarak silinecek. Emin misiniz?`)) return;
     try {
       setIsDeleting(studentId);
       await deleteStudent(studentId);
@@ -206,11 +195,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
                 <span className={`ml-0.5 px-1.5 py-0.5 rounded-md text-[8px] font-black ${
                   diagFilter === f.id ? 'bg-white/20' : 'bg-[var(--bg-paper)]'
                 }`}>
-                  {students.filter((s: Student) => {
-                    const d = Array.isArray(s.diagnosis) ? s.diagnosis : [];
-                    const p = ((s as unknown) as Record<string, unknown>)['learningProfile'] as string ?? '';
-                    return d.some((x: string) => x.toLowerCase().includes(f.id)) || p.toLowerCase().includes(f.id);
-                  }).length}
+                  {filterStudents(students, '', f.id).length}
                 </span>
               )}
             </button>
@@ -253,7 +238,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
               >
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/20">
-                    {student.name[0]?.toUpperCase() || '?'}
+                    {student.name?.[0]?.toUpperCase() || '?'}
                   </div>
                   <div>
                     <h4 className="text-sm font-black" style={{ color: 'var(--text-primary)' }}>{student.name}</h4>

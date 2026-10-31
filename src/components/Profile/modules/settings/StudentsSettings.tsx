@@ -7,6 +7,7 @@ import { SimplifiedStudentForm } from '../../../Student/SimplifiedStudentForm';
 import { BaseSettingsProps } from '../../types';
 import { logError } from '../../../../utils/logger';
 import { toAppError } from '../../../../utils/AppError';
+import { filterStudents } from '../../utils/profileUtils';
 
 export const StudentsSettings: React.FC<BaseSettingsProps> = ({ data }) => {
   const { students, isLoading, fetchStudents, addStudent, updateStudent, deleteStudent } = useStudentStore();
@@ -25,14 +26,7 @@ export const StudentsSettings: React.FC<BaseSettingsProps> = ({ data }) => {
     }
   }, [user?.id, fetchStudents, user?.role]);
 
-  const filteredStudents = students.filter((student: Student) => {
-    const diag: string[] = Array.isArray(student.diagnosis) ? student.diagnosis : [];
-    return (
-      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.grade.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      diag.some((d: string) => d.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-  });
+  const filteredStudents = filterStudents(students, searchQuery, 'all');
 
   const handleSaveStudent = async (studentData: Partial<Student>) => {
     try {
@@ -54,6 +48,9 @@ export const StudentsSettings: React.FC<BaseSettingsProps> = ({ data }) => {
   };
 
   const handleDeleteStudent = async (studentId: string) => {
+    const target = students.find((item: Student) => item.id === studentId);
+    const label = target?.name ? `${target.name} ve tüm verileri` : 'Bu öğrenci ve tüm verileri';
+    if (!window.confirm(`${label} kalıcı olarak silinecek. Emin misiniz?`)) return;
     try {
       setIsDeleting(studentId);
       await deleteStudent(studentId);
@@ -121,7 +118,7 @@ export const StudentsSettings: React.FC<BaseSettingsProps> = ({ data }) => {
             >
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/20">
-                  {student.name[0]?.toUpperCase() || '?'}
+                  {student.name?.[0]?.toUpperCase() || '?'}
                 </div>
                 <div>
                   <h4 className="text-sm font-black" style={{ color: 'var(--text-primary)' }}>{student.name}</h4>

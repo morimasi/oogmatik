@@ -36,7 +36,7 @@ export const AIControlSettings: React.FC<AIControlSettingsProps> = () => {
 
     const update = (field: keyof AISettingsData, value: unknown) => {
         setAiSettings((prev: AISettingsData) => ({ ...prev, [field]: value }));
-        debouncedSave();
+        debouncedSave('ai');
     };
 
     return (

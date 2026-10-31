@@ -8,6 +8,14 @@ import { BentoCard } from '../components/shared/BentoCard';
 import { useFirestoreNotes } from '../hooks/useFirestoreNotes';
 import { AssessmentHistoryPanel } from '../components/AssessmentHistoryPanel';
 
+import {
+  SavedAnalysisView,
+  parseSavedViews,
+  serializeSavedViews,
+} from '../utils/profileUtils';
+
+const ANALYSIS_VIEWS_KEY = 'analysis_saved_views';
+
 type SortKey = 'date' | 'score' | 'student';
 
 const SCORE_KEYS = ['attention', 'memory', 'visual', 'phonological'] as const;
@@ -74,15 +82,16 @@ export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare, t
     setEditingNoteText('');
   }, [editingNoteIdx, editingNoteText, fsEditNote]);
 
-  const [savedViews, setSavedViews] = useState<Array<{ name: string; sortBy: SortKey; filterStudent: string }>>(() => {
-    try { return JSON.parse(localStorage.getItem('analysis_saved_views') || '[]'); }
-    catch { return []; }
-  });
+  const [savedViews, setSavedViews] = useState<SavedAnalysisView[]>(() =>
+    parseSavedViews(localStorage.getItem(ANALYSIS_VIEWS_KEY))
+  );
   const [viewName, setViewName] = useState('');
   const [showSaveView, setShowSaveView] = useState(false);
 
-  // savedViews localStorage'da kalmaya devam ediyor (oturum tercihi)
-
+  // Kaydedilen görünümler cihazda kalıcı olmalı; sekme değişiminde kaybolmaz.
+  React.useEffect(() => {
+    localStorage.setItem(ANALYSIS_VIEWS_KEY, serializeSavedViews(savedViews));
+  }, [savedViews]);
 
   const saveCurrentView = useCallback(() => {
     if (!viewName.trim()) return;
@@ -91,7 +100,7 @@ export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare, t
     setShowSaveView(false);
   }, [viewName, sortBy, filterStudent]);
 
-  const loadView = useCallback((view: { sortBy: SortKey; filterStudent: string }) => {
+  const loadView = useCallback((view: SavedAnalysisView) => {
     setSortBy(view.sortBy);
     setFilterStudent(view.filterStudent);
   }, []);

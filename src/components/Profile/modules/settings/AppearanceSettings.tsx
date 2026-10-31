@@ -78,7 +78,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                     {DENSITIES.map(d => (
                         <button
                             key={d.id}
-                            onClick={() => onUpdateUiSettings?.({ ...(uiSettings || {} as any), compactMode: d.id === 'compact' })}
+                            onClick={() => onUpdateUiSettings?.({ ...(uiSettings ?? ({} as UiSettings)), compactMode: d.id === 'compact' })}
                             className={`flex-1 p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${(uiSettings?.compactMode ? 'compact' : 'comfortable') === d.id
                                 ? 'border-indigo-500 bg-indigo-600 text-white shadow-xl shadow-indigo-500/20'
                                 : 'border-transparent bg-[var(--bg-paper)] text-[var(--text-muted)] hover:border-indigo-200'
@@ -163,7 +163,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                             max="200"
                             step="10"
                             value={(uiSettings?.lineHeight ?? 1.6) * 100}
-                            onChange={(e) => onUpdateUiSettings?.({ ...(uiSettings || {} as any), lineHeight: Number(e.target.value) / 100 })}
+                            onChange={(e) => onUpdateUiSettings?.({ ...(uiSettings ?? ({} as UiSettings)), lineHeight: Number(e.target.value) / 100 })}
                             className="w-full h-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                         />
                         <div className="flex justify-between mt-1 px-1">
@@ -181,7 +181,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                         {FONT_WEIGHTS.map((w) => (
                             <button
                                 key={w.id}
-                                onClick={() => onUpdateUiSettings?.({ ...(uiSettings || {} as any), fontWeight: w.id as any })}
+                                onClick={() => onUpdateUiSettings?.({ ...(uiSettings ?? ({} as UiSettings)), fontWeight: w.id as UiSettings['fontWeight'] })}
                                 className={`flex-1 py-3 rounded-xl text-[10px] uppercase tracking-widest transition-all border ${
                                     (uiSettings?.fontWeight ?? 'normal') === w.id
                                         ? 'border-indigo-500 bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'

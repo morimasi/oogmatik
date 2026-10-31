@@ -15,7 +15,7 @@ export const PedagogySettings: React.FC<PedagogySettingsProps> = () => {
 
     const update = (field: keyof PedagogySettingsData, value: unknown) => {
         setPedagogySettings((prev: PedagogySettingsData) => ({ ...prev, [field]: value }));
-        debouncedSave();
+        debouncedSave('pedagogy');
     };
 
     return (

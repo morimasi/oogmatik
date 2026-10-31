@@ -103,7 +103,7 @@ export const UserProfileSettings: React.FC<UserProfileSettingsProps> = ({ data }
             {/* Kaydet */}
             <div className="flex justify-end">
                 <button
-                    onClick={saveProfile}
+                    onClick={() => saveProfile('profile')}
                     disabled={isSaving}
                     className="group relative px-8 py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98] shadow-2xl shadow-indigo-600/30 disabled:opacity-50"
                 >

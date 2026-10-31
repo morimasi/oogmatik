@@ -23,15 +23,19 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({ data, onShare }) =
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [anonymize, setAnonymize] = useState(true);
   const [exporting, setExporting] = useState(false);
-  // Rapor notları artık Firestore'da senkronize
-  const { notes: reportNotesArr } = useFirestoreNotes('reports');
+  // Tek hook örneği kullanılmalı: notu yazan ve gösteren aynı state olmazsa
+  // eklenen not kaydedilene kadar görünmez, silme+ekleme sırası da bozulur.
+  const {
+    notes: reportNotesArr,
+    addNote: fsAddReportNote,
+    deleteNote: fsDeleteReportNote,
+  } = useFirestoreNotes('reports');
   // key→value yapısı için: "assessmentId::not metni" formatı
   const reportNotes: Record<string, string> = Object.fromEntries(
     reportNotesArr
       .filter(n => n.includes('::'))
       .map(n => { const [id, ...rest] = n.split('::'); return [id, rest.join('::')]; })
   );
-  const { addNote: fsAddReportNote, deleteNote: fsDeleteReportNote } = useFirestoreNotes('reports');
   const [expandedNote, setExpandedNote] = useState<string | null>(null);
   const [noteText, setNoteText] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);

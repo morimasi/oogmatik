@@ -20,6 +20,13 @@ import {
     DEFAULT_NOTIFICATION_SETTINGS as NOTIFICATION_DEFAULTS,
 } from '../types';
 
+/**
+ * Hangi ayar grubunun kaydedileceğini belirtir. Her ayar modülü kendi
+ * dilimini yazar; böylece bir sekmedeki değişiklik diğer sekmelerin
+ * (özellikle profil alanları ve pedagoji/AI ayarlarının) üzerine yazmaz.
+ */
+export type SettingsSaveScope = 'profile' | 'pedagogy' | 'ai' | 'all';
+
 export const useProfileSettings = () => {
     const { user, updateUser } = useAuthStore();
     const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -81,21 +88,31 @@ export const useProfileSettings = () => {
     // ─── Kaydetme İşlemleri ──────────────────────────────────────
     const [isSaving, setIsSaving] = useState(false);
 
-    const saveProfile = useCallback(async () => {
+    const saveProfile = useCallback(async (scope: SettingsSaveScope = 'all') => {
         if (!user) return;
         setIsSaving(true);
         try {
-            await updateUser({
-                name: profileFields.name,
-                profession: profileFields.profession,
-                institution: profileFields.institution,
-                phone: profileFields.phone,
-                bio: profileFields.bio,
-                avatar: profileFields.avatar,
-                pedagogySettings,
-                aiAssistantSettings: aiSettings,
-            });
-            useToastStore.getState().success('Profil ve ayarlar başarıyla güncellendi.');
+            const updates: Parameters<typeof updateUser>[0] = {};
+            if (scope === 'profile' || scope === 'all') {
+                updates.name = profileFields.name;
+                updates.profession = profileFields.profession;
+                updates.institution = profileFields.institution;
+                updates.phone = profileFields.phone;
+                updates.bio = profileFields.bio;
+                updates.avatar = profileFields.avatar;
+            }
+            if (scope === 'pedagogy' || scope === 'all') {
+                updates.pedagogySettings = pedagogySettings;
+            }
+            if (scope === 'ai' || scope === 'all') {
+                updates.aiAssistantSettings = aiSettings;
+            }
+            await updateUser(updates);
+            useToastStore.getState().success(
+                scope === 'pedagogy' || scope === 'ai'
+                    ? 'Ayarlar kaydedildi.'
+                    : 'Profil bilgileri güncellendi.'
+            );
         } catch (e: unknown) {
             const err = e instanceof AppError ? e : new AppError(String(e), 'PROFILE_UPDATE_ERROR', 500);
             logError(err, { context: 'useProfileSettings.saveProfile' });
@@ -111,10 +128,10 @@ export const useProfileSettings = () => {
     }, []);
 
     // Debounced auto-save (2 saniye)
-    const debouncedSave = useCallback(() => {
+    const debouncedSave = useCallback((scope: SettingsSaveScope = 'pedagogy') => {
         if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
         saveTimerRef.current = setTimeout(() => {
-            saveProfile();
+            saveProfile(scope);
         }, 2000);
     }, [saveProfile]);
 

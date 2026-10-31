@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useStudentStore } from '../../../store/useStudentStore';
-import { SavedAssessment, SavedWorksheet, User, Curriculum } from '../../../types';
+import { SavedAssessment, SavedWorksheet, Student, User, Curriculum } from '../../../types';
 import { assessmentService } from '../../../services/assessmentService';
 import { worksheetService } from '../../../services/worksheetService';
 import { curriculumService } from '../../../services/curriculumService';
@@ -91,7 +91,7 @@ export const useProfileData = (targetUser?: User): ProfileData => {
 
   const monthlyNewStudents = useMemo(() => {
     const now = new Date();
-    return students.filter((s: any) => {
+    return students.filter((s: Student) => {
       if (!s.createdAt) return false;
       const created = new Date(s.createdAt);
       return created.getFullYear() === now.getFullYear() && created.getMonth() === now.getMonth();

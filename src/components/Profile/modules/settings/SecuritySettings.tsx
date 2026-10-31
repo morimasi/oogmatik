@@ -7,6 +7,10 @@ import { authService } from '../../../../services/authService';
 import { AppError } from '../../../../utils/AppError';
 import { logError } from '../../../../utils/errorHandler';
 import type { SecuritySettingsProps } from '../../types';
+import { assessmentService } from '../../../../services/assessmentService';
+import { worksheetService } from '../../../../services/worksheetService';
+import { curriculumService } from '../../../../services/curriculumService';
+import { buildProfileExport, downloadJsonFile } from '../../utils/profileUtils';
 
 export const SecuritySettings: React.FC<SecuritySettingsProps> = () => {
     const { user } = useProfileSettings();
@@ -18,6 +22,7 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = () => {
     const [delStep, setDelStep] = useState<0 | 1>(0);
     const [delText, setDelText] = useState('');
     const [deleting, setDeleting] = useState(false);
+    const [exportingData, setExportingData] = useState(false);
 
     const pwStrength = (() => {
         const p = pwForm.next;
@@ -57,6 +62,36 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = () => {
             logError(err, { context: 'SecuritySettings.handleDelete' });
             useToastStore.getState().error('Hesap silinirken hata oluştu.');
         } finally { setDeleting(false); }
+    };
+
+    const handleExportData = async () => {
+        if (!user) return;
+        setExportingData(true);
+        try {
+            const [assessments, worksheetsResult, curriculums] = await Promise.all([
+                assessmentService.getUserAssessments(user.id),
+                worksheetService.getUserWorksheets(user.id, 0, 1000),
+                curriculumService.getUserCurriculums(user.id),
+            ]);
+            const payload = buildProfileExport({
+                user: user as unknown as Record<string, unknown>,
+                assessments,
+                worksheets: worksheetsResult.items,
+                curriculums,
+            });
+            const ok = downloadJsonFile(
+                `bdmind_verilerim_${new Date().toISOString().slice(0, 10)}.json`,
+                payload
+            );
+            if (ok) useToastStore.getState().success('Verileriniz JSON olarak indirildi.');
+            else useToastStore.getState().error('İndirme bu ortamda desteklenmiyor.');
+        } catch (e: unknown) {
+            const err = e instanceof AppError ? e : new AppError(String(e), 'DATA_EXPORT_ERROR', 500);
+            logError(err, { context: 'SecuritySettings.handleExportData' });
+            useToastStore.getState().error('Veriler indirilirken hata oluştu.');
+        } finally {
+            setExportingData(false);
+        }
     };
 
     return (
@@ -106,8 +141,15 @@ export const SecuritySettings: React.FC<SecuritySettingsProps> = () => {
             {/* Veri Dışa Aktarma */}
             <div className="p-5 bg-[var(--bg-secondary)]/50 rounded-2xl border border-[var(--border-color)]">
                 <SectionHeader title="Veri Yönetimi (KVKK)" icon="fa-database" description="Tüm verilerinizi dışa aktarabilirsiniz" />
-                <button className="px-5 py-3 bg-[var(--bg-paper)] text-[var(--text-primary)] rounded-xl font-black text-[10px] uppercase tracking-widest border border-[var(--border-color)] hover:border-indigo-500 transition-all shadow-sm">
-                    <i className="fa-solid fa-download mr-2" /> Verilerimi İndir (JSON)
+                <button
+                    onClick={handleExportData}
+                    disabled={exportingData || !user}
+                    className="px-5 py-3 bg-[var(--bg-paper)] text-[var(--text-primary)] rounded-xl font-black text-[10px] uppercase tracking-widest border border-[var(--border-color)] hover:border-indigo-500 transition-all shadow-sm disabled:opacity-50"
+                >
+                    {exportingData
+                        ? <i className="fa-solid fa-circle-notch fa-spin mr-2" />
+                        : <i className="fa-solid fa-download mr-2" />}
+                    {exportingData ? 'Hazırlanıyor...' : 'Verilerimi İndir (JSON)'}
                 </button>
             </div>
 
