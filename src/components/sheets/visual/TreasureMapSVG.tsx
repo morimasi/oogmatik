@@ -13,7 +13,7 @@ export const TreasureMapSVG = ({
   className = '',
 }: TreasureMapSVGProps) => {
   return (
-    <svg viewBox="0 0 1000 500" width={width} height={height} className={className}>
+    <svg viewBox="0 0 1000 500" width={width} height={height} className={className} xmlns="http://www.w3.org/2000/svg">
       <defs>
         <filter id="roughpaper">
           <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise" />
@@ -77,61 +77,112 @@ export const TreasureMapSVG = ({
         <circle cx="340" cy="290" r="4" />
       </g>
       <path d="M 450,190 C 460,210 450,230 440,250 C 430,270 425,290 430,310 L 435,330" fill="none" stroke="#7eb8d6" strokeWidth="3" strokeLinecap="round" opacity="0.5" />
-      <path d="M 170,400 C 220,350 250,300 300,280 C 350,260 380,290 400,270 C 420,250 440,240 460,230 C 480,220 520,200 540,190 C 560,180 580,170 600,175 C 620,180 630,190 640,200" fill="none" stroke="#8b4513" strokeWidth="2.5" strokeDasharray="6,6" strokeLinecap="round" />
-      <text x="170" y="415" fontSize="10" fontWeight="bold" fill="#8b4513" textAnchor="middle">BAŞLANGIÇ</text>
+      <text x="170" y="415" fontSize="10" fontWeight="bold" fill="#8b4513" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">BAŞLANGIÇ</text>
       <circle cx="170" cy="400" r="5" fill="#8b4513" />
       {[
+
         { x: 250, y: 310 },
+
         { x: 380, y: 280 },
+
         { x: 520, y: 200 },
+
         { x: 580, y: 175 },
+
       ].map((p, i) => (
+
         <g key={i} transform={`translate(${p.x}, ${p.y})`}>
+
           <line x1="-4" y1="-4" x2="4" y2="4" stroke="#8b4513" strokeWidth="2" />
+
           <line x1="-4" y1="4" x2="4" y2="-4" stroke="#8b4513" strokeWidth="2" />
+
         </g>
+
       ))}
-      <text x="490" y="155" fontSize="18" fontWeight="900" fill="#6b4226" textAnchor="middle" fontFamily="serif" transform="rotate(-5, 490, 155)">Gizemli Ada</text>
+
+      <text x="490" y="155" fontSize="18" fontWeight="900" fill="#6b4226" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif" transform="rotate(-5, 490, 155)">Gizemli Ada</text>
+
       <g transform="translate(850, 110)">
+
         <circle r="35" fill="none" stroke="#8b5e3c" strokeWidth="1.5" />
+
         <circle r="32" fill="none" stroke="#8b5e3c" strokeWidth="0.5" opacity="0.5" />
+
         <polygon points="0,-30 4,-8 0,0 -4,-8" fill="#8b4513" />
+
         <polygon points="0,30 4,8 0,0 -4,8" fill="#a0764a" />
+
         <polygon points="-30,0 -8,4 0,0 -8,-4" fill="#a0764a" />
+
         <polygon points="30,0 8,4 0,0 8,-4" fill="#a0764a" />
+
         <polygon points="0,-30 8,-12 0,0 -8,-12" fill="none" stroke="#8b5e3c" strokeWidth="0.5" />
+
         <circle r="2" fill="#8b4513" />
-        <text x="0" y="-38" fontSize="11" fontWeight="900" fill="#8b4513" textAnchor="middle" fontFamily="serif">K</text>
-        <text x="0" y="44" fontSize="9" fontWeight="700" fill="#8b4513" textAnchor="middle" fontFamily="serif">G</text>
-        <text x="-42" y="4" fontSize="9" fontWeight="700" fill="#8b4513" textAnchor="middle" fontFamily="serif">B</text>
-        <text x="42" y="4" fontSize="9" fontWeight="700" fill="#8b4513" textAnchor="middle" fontFamily="serif">D</text>
+
+        <text x="0" y="-38" fontSize="11" fontWeight="900" fill="#8b4513" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">K</text>
+
+        <text x="0" y="44" fontSize="9" fontWeight="700" fill="#8b4513" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">G</text>
+
+        <text x="-42" y="4" fontSize="9" fontWeight="700" fill="#8b4513" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">B</text>
+
+        <text x="42" y="4" fontSize="9" fontWeight="700" fill="#8b4513" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">D</text>
+
       </g>
+
       <g transform="translate(640, 200)">
+
         <line x1="-14" y1="-14" x2="14" y2="14" stroke="#d32f2f" strokeWidth="4" strokeLinecap="round" />
+
         <line x1="-14" y1="14" x2="14" y2="-14" stroke="#d32f2f" strokeWidth="4" strokeLinecap="round" />
+
         <circle r="20" fill="none" stroke="#d32f2f" strokeWidth="2" strokeDasharray="4,3" />
-        <text y="30" fontSize="10" fontWeight="900" fill="#d32f2f" textAnchor="middle" fontFamily="serif">HAZİNE BURADA</text>
+
+        <text y="30" fontSize="10" fontWeight="900" fill="#d32f2f" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">HAZİNE BURADA</text>
+
       </g>
+
       <g opacity="0.2" fill="#5c8a8a">
+
         <path d="M 120,250 C 130,240 140,255 135,265 C 130,275 125,260 120,250 Z" />
+
         <path d="M 140,240 C 150,235 155,245 150,250 C 145,255 140,245 140,240 Z" />
+
         <path d="M 780,380 C 785,370 790,365 795,370" fill="none" stroke="#5c8a8a" strokeWidth="2" />
+
         <circle cx="790" cy="362" r="3" fill="#5c8a8a" />
+
         <circle cx="787" cy="358" r="2" fill="#5c8a8a" />
+
         <circle cx="793" cy="358" r="2" fill="#5c8a8a" />
+
       </g>
+
       <g transform="translate(780, 380)">
+
         <rect x="0" y="0" width="180" height="80" fill="#f5e6c8" fillOpacity="0.9" stroke="#8b5e3c" strokeWidth="1" rx="4" />
-        <text x="90" y="16" fontSize="9" fontWeight="900" fill="#6b4226" textAnchor="middle" fontFamily="serif">LEJANT</text>
+
+        <text x="90" y="16" fontSize="9" fontWeight="900" fill="#6b4226" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">LEJANT</text>
+
         <line x1="10" y1="28" x2="10" y2="34" stroke="#8b4513" strokeWidth="2.5" strokeDasharray="4,4" />
-        <text x="22" y="33" fontSize="8" fill="#6b4226" fontFamily="serif">Gizli Yol</text>
-        <text x="10" y="47" fontSize="12" fontWeight="900" fill="#d32f2f" fontFamily="serif">X</text>
-        <text x="22" y="48" fontSize="8" fill="#6b4226" fontFamily="serif">Hazine Noktası</text>
+
+        <text x="22" y="33" fontSize="8" fill="#6b4226" fontFamily="OpenDyslexic, Lexend, sans-serif">Gizli Yol</text>
+
+        <text x="10" y="47" fontSize="12" fontWeight="900" fill="#d32f2f" fontFamily="OpenDyslexic, Lexend, sans-serif">X</text>
+
+        <text x="22" y="48" fontSize="8" fill="#6b4226" fontFamily="OpenDyslexic, Lexend, sans-serif">Hazine Noktası</text>
+
         <polygon points="10,58 13,68 7,68" fill="#7a6b4a" />
-        <text x="22" y="65" fontSize="8" fill="#6b4226" fontFamily="serif">Dağ</text>
+
+        <text x="22" y="65" fontSize="8" fill="#6b4226" fontFamily="OpenDyslexic, Lexend, sans-serif">Dağ</text>
+
         <circle cx="10" cy="74" r="2.5" fill="#5a7a3a" />
-        <text x="22" y="76" fontSize="8" fill="#6b4226" fontFamily="serif">Orman</text>
+
+        <text x="22" y="76" fontSize="8" fill="#6b4226" fontFamily="OpenDyslexic, Lexend, sans-serif">Orman</text>
+
       </g>
+
     </svg>
   );
 };
