@@ -166,7 +166,21 @@ export const generateAcademicReport = (student: AdvancedStudent): AcademicReport
   if (goals.length === 0) {
     recommendations.push('BEP sekmesinden en az bir SMART hedef tanımlayın.');
   }
-  recommendations.push(...cognitive.recommendedInterventions.slice(0, 3));
+
+  const subjectsNeedingSupport = subjects.filter((subject) => subject.average < 70);
+  subjectsNeedingSupport.slice(0, 3).forEach((subject) => {
+    recommendations.push(
+      subject.average < 60
+        ? `${subject.subject} dersinde ortalama ${subject.average}; kısa tekrar, görsel destek ve küçük adımlı çalışma planlanmalı.`
+        : `${subject.subject} dersinde ortalama ${subject.average}; haftalık kısa tekrar planı ile hedefe yaklaşılabilir.`
+    );
+  });
+
+  // Zayıf ders varken "tüm göstergeler dengeli" ifadesi çelişki yaratır; bu durumda eklenmez.
+  const cognitiveInterventions = cognitive.recommendedInterventions.filter(
+    (item) => subjectsNeedingSupport.length === 0 || !item.includes('Tüm göstergeler dengeli')
+  );
+  recommendations.push(...cognitiveInterventions.slice(0, 3));
 
   return {
     reportId: `report-${student.id}-${Date.now()}`,

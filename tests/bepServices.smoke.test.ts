@@ -190,4 +190,10 @@ describe('academicReportService', () => {
     expect(createStudentRef('abc')).toBe(createStudentRef('abc'));
     expect(createStudentRef('abc')).not.toBe(createStudentRef('abd'));
   });
+
+  it('destek gerektiren dersleri öneri olarak listeler', () => {
+    const report = generateAcademicReport(buildStudent());
+    expect(report.recommendations.some((item) => item.includes('Matematik'))).toBe(true);
+    expect(report.recommendations.some((item) => item.includes('Tüm göstergeler dengeli'))).toBe(false);
+  });
 });
