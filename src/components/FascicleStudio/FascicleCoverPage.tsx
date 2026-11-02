@@ -526,7 +526,11 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
                   boxShadow: `0 4px 12px ${palette.glow}`,
                 }}
               >
-                <i className="fa-solid fa-qrcode text-2xl" style={{ color: palette.dark, opacity: 0.7 }} />
+                <img
+                  src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https%3A%2F%2Fbdmind.com"
+                  alt="QR Kod"
+                  className="w-12 h-12 object-contain opacity-85"
+                />
               </div>
               <div className="text-[8px] font-bold tracking-[0.18em]" style={{ color: palette.text, opacity: 0.4 }}>
                 Düzenlenme Tarihi

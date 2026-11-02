@@ -241,8 +241,8 @@ export const useFascicleStore = create<FascicleState>()(
       name: 'bdmind-fascicle-draft-storage',
       partialize: (state) => ({
         currentFascicleId: state.currentFascicleId,
-        metadata: state.metadata
-        // items localStorage'a yazılmıyor — fascicleService.autoSave'e bırakıldı
+        metadata: state.metadata,
+        items: state.items
       }),
     }
   )

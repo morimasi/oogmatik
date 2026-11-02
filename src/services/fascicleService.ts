@@ -71,8 +71,7 @@ class FascicleService {
   public async getAssignedFascicles(studentId: string): Promise<FascicleDocument[]> {
     const q = query(
       collection(db, 'fascicles'),
-      where('assignedStudentIds', 'array-contains', studentId),
-      where('activityType', '==', 'FASCICLE')
+      where('assignedStudentIds', 'array-contains', studentId)
     );
     const snap = await getDocs(q);
     return snap.docs.map(d => ({ id: d.id, ...d.data() } as unknown as FascicleDocument));

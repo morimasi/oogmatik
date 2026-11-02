@@ -31,7 +31,7 @@ export const FascicleExecutiveSummaryPage: React.FC<FascicleExecutiveSummaryPage
         <div className="flex justify-between items-center pb-4 border-b-2 border-purple-500/40 mb-6">
           <div>
             <span className="text-[10px] font-black uppercase tracking-[0.25em] text-purple-600">
-              NÖRO-PEDAGOJİK EVALUATION & GEİLŞİM
+              NÖRO-PEDAGOJİK DEĞERLENDİRME & GELİŞİM
             </span>
             <h2 className="text-2xl font-black text-zinc-900 tracking-tight mt-0.5">
               Fasikül Sonu Değerlendirme Raporu
