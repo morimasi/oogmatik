@@ -1,89 +1,112 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { AdminStats, AdminStatTrend, WorksheetAnalyticEntry, ExportAnalyticEntry } from '../types/admin';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../services/firebaseClient';
+import type { AdminStats, AdminStatTrend, WorksheetAnalyticEntry } from '../types/admin';
 import { adminService } from '../services/adminService';
+import { ACTIVITIES } from '../constants';
+import { logError } from '../utils/logger';
+
+const TREND_DAYS = 14;
+
+interface WorksheetRow {
+  createdAt?: string;
+  activityType?: string;
+  category?: { id?: string; title?: string };
+}
+
+export interface CategorySlice {
+  title: string;
+  count: number;
+}
 
 interface UseAdminStatsReturn {
   stats: AdminStats | null;
   loading: boolean;
   error: string | null;
-  userTrend: AdminStatTrend[];
-  exportTrend: AdminStatTrend[];
+  productionTrend: AdminStatTrend[];
   worksheetAnalytics: WorksheetAnalyticEntry[];
-  exportAnalytics: ExportAnalyticEntry[];
+  categoryBreakdown: CategorySlice[];
   refresh: () => void;
   lastUpdatedAt: string | null;
 }
 
-// Mock data generators
-function generateMockStats(): AdminStats {
-  return {
-    totalUsers: 1240 + Math.floor(Math.random() * 10),
-    activeUsers: 87 + Math.floor(Math.random() * 5),
-    totalWorksheets: 5832 + Math.floor(Math.random() * 20),
-    exportsToday: 124 + Math.floor(Math.random() * 10),
-    exportsThisWeek: 892 + Math.floor(Math.random() * 30),
-    storageUsedMb: 2340 + Math.floor(Math.random() * 50),
-    systemUptime: 99.8,
-    errorRatePercent: 0.12,
-    avgResponseMs: 142 + Math.floor(Math.random() * 20),
-    activeSessionsCount: 23 + Math.floor(Math.random() * 5),
-  };
+function dayKey(iso: string): string | null {
+  const parsed = Date.parse(iso);
+  if (Number.isNaN(parsed)) return null;
+  return new Date(parsed).toISOString().slice(0, 10);
 }
 
-function generateTrend(days: number, baseValue: number): AdminStatTrend[] {
-  const result: AdminStatTrend[] = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(Date.now() - i * 86400000);
-    result.push({
-      date: date.toISOString().slice(0, 10),
-      value: Math.max(0, baseValue + Math.floor(Math.random() * 20 - 10)),
-    });
+function activityTitle(activityType?: string): string {
+  if (!activityType) return 'Türü belirtilmemiş';
+  const match = ACTIVITIES.find((a) => a.id === activityType);
+  return match ? match.title : activityType;
+}
+
+/**
+ * Gerçek arşiv koleksiyonunu okur. `saved_worksheets` her üretilen çalışma
+ * kağıdı için bir doküman içerir (userId, category, activityType, createdAt).
+ */
+async function loadWorksheetRows(): Promise<WorksheetRow[]> {
+  const snapshot = await getDocs(collection(db, 'saved_worksheets'));
+  return snapshot.docs.map((docSnapshot) => {
+    const data = docSnapshot.data();
+    const category = data.category as { id?: string; title?: string } | undefined;
+    return {
+      createdAt: typeof data.createdAt === 'string' ? data.createdAt : undefined,
+      activityType: typeof data.activityType === 'string' ? data.activityType : undefined,
+      category,
+    };
+  });
+}
+
+function buildTrend(rows: WorksheetRow[]): AdminStatTrend[] {
+  const counts = new Map<string, number>();
+  rows.forEach((row) => {
+    if (!row.createdAt) return;
+    const key = dayKey(row.createdAt);
+    if (!key) return;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  });
+
+  const trend: AdminStatTrend[] = [];
+  for (let i = TREND_DAYS - 1; i >= 0; i -= 1) {
+    const key = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+    trend.push({ date: key, value: counts.get(key) ?? 0, label: key.slice(5) });
   }
-  return result;
+  return trend;
 }
 
-function generateWorksheetAnalytics(): WorksheetAnalyticEntry[] {
-  const templates = [
-    'Matematik Bulmacaları',
-    'Okuma Anlama',
-    'Hafıza Egzersizleri',
-    'Dil Bilgisi',
-    'Görsel Mantık',
-    'Dikkat Geliştirme',
-  ];
-  return templates.map((name, i) => ({
-    id: `wa-${i}`,
-    date: new Date().toISOString().slice(0, 10),
-    count: Math.floor(100 + Math.random() * 50),
-    templateId: `tpl-${i + 1}`,
-    templateName: name,
-    useCount: Math.floor(200 - i * 25 + Math.random() * 20),
-    exportCount: Math.floor(100 - i * 12 + Math.random() * 10),
-    avgSessionMinutes: 8 + Math.floor(Math.random() * 5),
-    popularityRank: i + 1,
-  }));
-}
+function buildAnalytics(rows: WorksheetRow[]): WorksheetAnalyticEntry[] {
+  const groups = new Map<string, { title: string; count: number; lastAt: string }>();
 
-function generateExportAnalytics(): ExportAnalyticEntry[] {
-  const formats = ['pdf', 'png', 'docx', 'json'];
-  const entries: ExportAnalyticEntry[] = [];
-  for (let d = 6; d >= 0; d--) {
-    const date = new Date(Date.now() - d * 86400000).toISOString().slice(0, 10);
-    formats.forEach((fmt) => {
-      entries.push({ id: `exp-${Math.random().toString(36).substring(7)}`, date, format: fmt, count: Math.floor(10 + Math.random() * 40) });
-    });
-  }
-  return entries;
+  rows.forEach((row) => {
+    const title = row.category?.title?.trim() || activityTitle(row.activityType);
+    const entry = groups.get(title) ?? { title, count: 0, lastAt: '' };
+    entry.count += 1;
+    if (row.createdAt && row.createdAt > entry.lastAt) entry.lastAt = row.createdAt;
+    groups.set(title, entry);
+  });
+
+  return [...groups.values()]
+    .sort((a, b) => b.count - a.count)
+    .map((group, index) => ({
+      id: `worksheet-group-${index}`,
+      date: group.lastAt ? group.lastAt.slice(0, 10) : '',
+      count: group.count,
+      templateId: `group-${index}`,
+      templateName: group.title,
+      useCount: group.count,
+      popularityRank: index + 1,
+    }));
 }
 
 export function useAdminStats(): UseAdminStatsReturn {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userTrend, setUserTrend] = useState<AdminStatTrend[]>([]);
-  const [exportTrend, setExportTrend] = useState<AdminStatTrend[]>([]);
+  const [productionTrend, setProductionTrend] = useState<AdminStatTrend[]>([]);
   const [worksheetAnalytics, setWorksheetAnalytics] = useState<WorksheetAnalyticEntry[]>([]);
-  const [exportAnalytics, setExportAnalytics] = useState<ExportAnalyticEntry[]>([]);
+  const [categoryBreakdown, setCategoryBreakdown] = useState<CategorySlice[]>([]);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -92,50 +115,68 @@ export function useAdminStats(): UseAdminStatsReturn {
     setLoading(true);
     setError(null);
 
-    const loadRealData = async () => {
+    const load = async () => {
       try {
-        const metrics = await adminService.getAdminMetrics();
+        const [rows, metrics] = await Promise.all([
+          loadWorksheetRows(),
+          adminService.getAdminMetrics(),
+        ]);
         if (cancelled) return;
 
-        if (metrics) {
-          setStats(metrics as AdminStats);
-        } else {
-          setStats(generateMockStats()); // fallback to mock on error
-        }
+        const todayKey = new Date().toISOString().slice(0, 10);
+        const weekStart = Date.now() - 6 * 86400000;
 
-        // Keep trends as generated mocks for visual UX flavor since TS analytics are complex
-        setUserTrend(generateTrend(30, Number(metrics?.totalUsers) || 1200));
-        setExportTrend(generateTrend(30, 120));
-        setWorksheetAnalytics(generateWorksheetAnalytics());
-        setExportAnalytics(generateExportAnalytics());
+        const todayCount = rows.filter((row) => row.createdAt && dayKey(row.createdAt) === todayKey).length;
+        const weekCount = rows.filter((row) => {
+          const parsed = row.createdAt ? Date.parse(row.createdAt) : Number.NaN;
+          return !Number.isNaN(parsed) && parsed >= weekStart;
+        }).length;
+
+        setStats({
+          totalUsers: metrics?.totalUsers ?? 0,
+          activeUsers: metrics?.activeUsers ?? 0,
+          totalWorksheets: rows.length,
+          // "Bugün üretilen" — arşive bugün eklenen çalışma sayısı (gerçek kayıt sayısı)
+          exportsToday: todayCount,
+          exportsThisWeek: weekCount,
+        });
+
+        const analytics = buildAnalytics(rows);
+        setProductionTrend(buildTrend(rows));
+        setWorksheetAnalytics(analytics);
+        setCategoryBreakdown(
+          analytics.map((entry) => ({
+            title: entry.templateName ?? 'Adsız',
+            count: entry.count,
+          })),
+        );
         setLastUpdatedAt(new Date().toISOString());
-        setError(null);
       } catch (err: unknown) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : String(err));
-        }
+        if (cancelled) return;
+        const message = err instanceof Error ? err.message : String(err);
+        setError(message);
+        logError('Yönetici analitikleri yüklenemedi', { error: message });
       } finally {
         if (!cancelled) setLoading(false);
       }
     };
 
-    loadRealData();
+    void load();
 
     return () => {
       cancelled = true;
     };
   }, [refreshKey]);
 
-  const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
+  const refresh = useCallback(() => setRefreshKey((key) => key + 1), []);
 
   return {
     stats,
     loading,
     error,
-    userTrend,
-    exportTrend,
+    productionTrend,
     worksheetAnalytics,
-    exportAnalytics,
+    categoryBreakdown,
     refresh,
     lastUpdatedAt,
   };

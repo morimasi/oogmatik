@@ -1,222 +1,353 @@
-import React, { useState, useCallback } from 'react';
-import type { ManagedUser, UserRoleType } from '../../types/admin';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type { User, UserRole } from '../../types/user';
+import { adminService } from '../../services/adminService';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useToastStore } from '../../store/useToastStore';
+import { logError } from '../../utils/logger';
 
-interface UserManagementProps {
-  users?: ManagedUser[];
-  onRoleChange?: (userId: string, role: UserRoleType) => void;
-  onStatusChange?: (userId: string, status: ManagedUser['status']) => void;
-  onDeleteUser?: (userId: string) => void;
-}
-
-const ROLE_LABELS: Record<UserRoleType, string> = {
+const ROLE_LABELS: Record<UserRole, string> = {
+  superadmin: '🌟 Süper Admin',
   admin: '👑 Yönetici',
   teacher: '👩‍🏫 Öğretmen',
+  editor: '📝 Editör',
   student: '🎒 Öğrenci',
   parent: '👨‍👩‍👦 Veli',
   guest: '👤 Misafir',
-  editor: '📝 Editör',
-  superadmin: '🌟 Süper Admin',
   user: '👤 Kullanıcı',
 };
 
-const STATUS_LABELS: Record<ManagedUser['status'], string> = {
+const STATUS_LABELS: Record<User['status'], string> = {
   active: '🟢 Aktif',
   pending: '🟡 Beklemede',
   suspended: '🔴 Askıya Alındı',
-  deleted: '⚫ Silindi',
-  archived: '⚪ Arşivlendi',
 };
 
-// Seed data
-function generateMockUsers(): ManagedUser[] {
-  return [
-    { id: 'u1', name: 'Ahmet Yılmaz', email: 'ahmet@example.com', role: 'admin', status: 'active', createdAt: '2024-01-10T10:00:00Z', lastLogin: new Date().toISOString(), worksheetCount: 42, exportCount: 128, avatar: '' },
-    { id: 'u2', name: 'Ayşe Demir', email: 'ayse@example.com', role: 'teacher', status: 'active', createdAt: '2024-02-15T08:30:00Z', lastLogin: new Date(Date.now() - 3600000).toISOString(), worksheetCount: 87, exportCount: 243, avatar: '' },
-    { id: 'u3', name: 'Mehmet Kaya', email: 'mehmet@example.com', role: 'teacher', status: 'active', createdAt: '2024-03-01T09:00:00Z', lastLogin: new Date(Date.now() - 86400000).toISOString(), worksheetCount: 12, exportCount: 34, avatar: '' },
-    { id: 'u4', name: 'Fatma Şahin', email: 'fatma@example.com', role: 'teacher', status: 'pending', createdAt: '2024-01-20T11:00:00Z', worksheetCount: 31, exportCount: 89, avatar: '' },
-    { id: 'u5', name: 'Ali Çelik', email: 'ali@example.com', role: 'teacher', status: 'suspended', createdAt: '2024-04-05T14:00:00Z', worksheetCount: 5, exportCount: 8, avatar: '' },
-  ];
-}
+type StatusFilter = 'all' | User['status'];
 
-export const UserManagement: React.FC<UserManagementProps> = ({
-  users: externalUsers,
-  onRoleChange,
-  onStatusChange,
-  onDeleteUser,
-}) => {
-  const [users, setUsers] = useState<ManagedUser[]>(externalUsers ?? generateMockUsers());
+/**
+ * Toplu Kullanıcı İşlemleri — gerçek Firestore kullanıcı koleksiyonu üzerinde
+ * rol değiştirme, askıya alma, silme ve CSV dışa aktarma.
+ */
+export const UserManagement: React.FC = () => {
+  const { user: currentUser } = useAuthStore();
+  const toast = useToastStore();
+
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState<UserRoleType | 'all'>('all');
-  const [statusFilter, setStatusFilter] = useState<ManagedUser['status'] | 'all'>('all');
+  const [roleFilter, setRoleFilter] = useState<UserRole | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
+
+  const loadUsers = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const fetched = await adminService.getAllUsers();
+      setUsers(fetched);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      setLoadError(message);
+      logError('Kullanıcı listesi yüklenemedi', { error: message });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadUsers();
+  }, [loadUsers]);
+
+  const filteredUsers = useMemo(() => {
+    const term = search.trim().toLocaleLowerCase('tr-TR');
+    return users.filter((user) => {
+      if (term && !`${user.name} ${user.email}`.toLocaleLowerCase('tr-TR').includes(term)) return false;
+      if (roleFilter !== 'all' && user.role !== roleFilter) return false;
+      if (statusFilter !== 'all' && user.status !== statusFilter) return false;
+      return true;
+    });
+  }, [users, search, roleFilter, statusFilter]);
 
   const handleRoleChange = useCallback(
-    (userId: string, role: UserRoleType) => {
-      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: role as ManagedUser['role'] } : u)));
-      onRoleChange?.(userId, role);
+    async (target: User, nextRole: UserRole) => {
+      if (target.id === currentUser?.id) {
+        toast.error('Kendi rolünüzü bu panelden değiştiremezsiniz.');
+        return;
+      }
+      setBusyId(target.id);
+      try {
+        await adminService.updateUserRole(target.id, nextRole);
+        setUsers((prev) => prev.map((u) => (u.id === target.id ? { ...u, role: nextRole } : u)));
+        toast.success(`${target.name} artık ${ROLE_LABELS[nextRole]} olarak yetkilendirildi.`);
+      } catch (error: unknown) {
+        logError('Kullanıcı rolü güncellenemedi', { error: error instanceof Error ? error.message : String(error) });
+        toast.error('Rol güncellenemedi. Lütfen tekrar deneyin.');
+      } finally {
+        setBusyId(null);
+      }
     },
-    [onRoleChange],
+    [currentUser?.id, toast],
   );
 
   const handleStatusChange = useCallback(
-    (userId: string, status: ManagedUser['status']) => {
-      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, status } : u)));
-      onStatusChange?.(userId, status);
+    async (target: User, nextStatus: User['status']) => {
+      setBusyId(target.id);
+      try {
+        await adminService.updateUserStatus(target.id, nextStatus);
+        setUsers((prev) => prev.map((u) => (u.id === target.id ? { ...u, status: nextStatus } : u)));
+        toast.success(`${target.name} → ${STATUS_LABELS[nextStatus]}`);
+      } catch (error: unknown) {
+        logError('Kullanıcı durumu güncellenemedi', { error: error instanceof Error ? error.message : String(error) });
+        toast.error('Durum güncellenemedi. Lütfen tekrar deneyin.');
+      } finally {
+        setBusyId(null);
+      }
     },
-    [onStatusChange],
+    [toast],
   );
 
-  const handleDeleteUser = useCallback(
-    (userId: string) => {
-      if (!confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?')) return;
-      setUsers((prev) => prev.filter((u) => u.id !== userId));
-      onDeleteUser?.(userId);
+  const handleDelete = useCallback(
+    async (target: User) => {
+      if (target.id === currentUser?.id) {
+        toast.error('Kendi hesabınızı silemezsiniz.');
+        return;
+      }
+      const confirmation = window.confirm(
+        `${target.name} kullanıcısı ve bağlı öğrencileri kalıcı olarak silinecek. Onaylıyor musunuz?`,
+      );
+      if (!confirmation) return;
+
+      setBusyId(target.id);
+      try {
+        await adminService.deleteUser(target.id);
+        setUsers((prev) => prev.filter((u) => u.id !== target.id));
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(target.id);
+          return next;
+        });
+        toast.success(`${target.name} silindi.`);
+      } catch (error: unknown) {
+        logError('Kullanıcı silinemedi', { error: error instanceof Error ? error.message : String(error) });
+        toast.error('Kullanıcı silinemedi. Lütfen tekrar deneyin.');
+      } finally {
+        setBusyId(null);
+      }
     },
-    [onDeleteUser],
+    [currentUser?.id, toast],
   );
 
-  const filteredUsers = users.filter((u) => {
-    if (search && !u.name.toLowerCase().includes(search.toLowerCase()) && !u.email.toLowerCase().includes(search.toLowerCase())) return false;
-    if (roleFilter !== 'all' && u.role !== roleFilter) return false;
-    if (statusFilter !== 'all' && u.status !== statusFilter) return false;
-    return true;
-  });
+  const handleBulkSuspend = useCallback(async () => {
+    const targets = users.filter((u) => selectedIds.has(u.id) && u.id !== currentUser?.id && u.status !== 'suspended');
+    if (targets.length === 0) {
+      toast.error('Askıya alınacak uygun kullanıcı seçilmedi.');
+      return;
+    }
 
-  const handleBulkDeactivate = useCallback(() => {
-    setUsers((prev) =>
-      prev.map((u) => (selectedIds.has(u.id) ? { ...u, status: 'suspended' as const } : u)),
+    setBulkBusy(true);
+    const results = await Promise.allSettled(
+      targets.map((target) => adminService.updateUserStatus(target.id, 'suspended')),
     );
-    setSelectedIds(new Set());
-  }, [selectedIds]);
+    setBulkBusy(false);
 
-  const exportUsers = useCallback(() => {
-    const csv = ['ID,Ad,Email,Rol,Durum,Oluşturulma', ...filteredUsers.map((u) =>
-      `"${u.id}","${u.name}","${u.email}","${u.role}","${u.status}","${u.createdAt}"`
-    )].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const succeeded = targets.filter((_, index) => results[index]?.status === 'fulfilled').map((t) => t.id);
+    const failedCount = results.filter((result) => result.status === 'rejected').length;
+
+    if (succeeded.length > 0) {
+      const succeededSet = new Set(succeeded);
+      setUsers((prev) => prev.map((u) => (succeededSet.has(u.id) ? { ...u, status: 'suspended' } : u)));
+    }
+    setSelectedIds(new Set());
+
+    if (failedCount > 0) {
+      logError('Toplu askıya alma kısmen başarısız', { failedCount, total: targets.length });
+      toast.error(`${succeeded.length} kullanıcı askıya alındı, ${failedCount} işlem başarısız oldu.`);
+    } else {
+      toast.success(`${succeeded.length} kullanıcı askıya alındı.`);
+    }
+  }, [users, selectedIds, currentUser?.id, toast]);
+
+  const exportCsv = useCallback(() => {
+    const header = 'ID,Ad,E-posta,Rol,Durum,Çalışma Sayısı,Kayıt Tarihi';
+    const rows = filteredUsers.map((user) =>
+      `"${user.id}","${user.name.replace(/"/g, '""')}","${user.email}","${user.role}","${user.status}",${user.worksheetCount ?? 0},"${user.createdAt ?? ''}"`,
+    );
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'users.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `kullanicilar-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
     URL.revokeObjectURL(url);
   }, [filteredUsers]);
 
+  const allVisibleSelected =
+    filteredUsers.length > 0 && filteredUsers.every((user) => selectedIds.has(user.id));
+
   return (
-    <section aria-label="Kullanıcı Yönetimi" style={{ padding: '16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>👥 Kullanıcı Yönetimi</h2>
-        <button onClick={exportUsers} style={btnStyle}>📥 CSV İndir</button>
+    <section aria-label="Toplu Kullanıcı İşlemleri" style={{ padding: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>👥 Toplu Kullanıcı İşlemleri</h2>
+          <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#64748b' }}>
+            {users.length} kayıtlı kullanıcı · Firestore <code>users</code> koleksiyonu
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={() => void loadUsers()} style={btnStyle} disabled={loading}>🔄 Yenile</button>
+          <button onClick={exportCsv} style={btnStyle} disabled={filteredUsers.length === 0}>📥 CSV İndir</button>
+        </div>
       </div>
 
-      {/* Filters */}
+      {loadError && (
+        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 8, padding: '8px 12px', marginBottom: 12, fontSize: '0.8rem' }}>
+          Kullanıcılar yüklenemedi: {loadError}
+        </div>
+      )}
+
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
         <input
           placeholder="Ad veya e-posta ara..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(event) => setSearch(event.target.value)}
           style={inputStyle}
           aria-label="Kullanıcı ara"
         />
-        <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value as UserRoleType | 'all')} style={selectStyle} aria-label="Rol filtresi">
+        <select
+          value={roleFilter}
+          onChange={(event) => setRoleFilter(event.target.value as UserRole | 'all')}
+          style={selectStyle}
+          aria-label="Rol filtresi"
+        >
           <option value="all">Tüm Roller</option>
-          {(Object.keys(ROLE_LABELS) as UserRoleType[]).map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
+          {(Object.keys(ROLE_LABELS) as UserRole[]).map((role) => (
+            <option key={role} value={role}>{ROLE_LABELS[role]}</option>
+          ))}
         </select>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as ManagedUser['status'] | 'all')} style={selectStyle} aria-label="Durum filtresi">
+        <select
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+          style={selectStyle}
+          aria-label="Durum filtresi"
+        >
           <option value="all">Tüm Durumlar</option>
-          {(['active', 'pending', 'suspended'] as const).map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
+          {(Object.keys(STATUS_LABELS) as User['status'][]).map((status) => (
+            <option key={status} value={status}>{STATUS_LABELS[status]}</option>
+          ))}
         </select>
       </div>
 
-      {/* Bulk actions */}
       {selectedIds.size > 0 && (
-        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '8px 12px', marginBottom: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 8, padding: '8px 12px', marginBottom: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.85rem' }}>{selectedIds.size} kullanıcı seçildi</span>
-          <button onClick={handleBulkDeactivate} style={{ ...btnStyle, background: '#f59e0b' }}>Pasife Al</button>
-          <button onClick={() => setSelectedIds(new Set())} style={btnStyle}>Seçimi Kaldır</button>
+          <button onClick={() => void handleBulkSuspend()} style={{ ...btnStyle, background: '#f59e0b' }} disabled={bulkBusy}>
+            {bulkBusy ? 'İşleniyor...' : 'Seçilenleri Askıya Al'}
+          </button>
+          <button onClick={() => setSelectedIds(new Set())} style={{ ...btnStyle, background: '#64748b' }}>Seçimi Kaldır</button>
         </div>
       )}
 
-      {/* User table */}
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }} role="grid" aria-label="Kullanıcı listesi">
-          <thead>
-            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-              <th style={thStyle}><input type="checkbox" onChange={(e) => setSelectedIds(e.target.checked ? new Set(filteredUsers.map((u) => u.id)) : new Set())} aria-label="Tümünü seç" /></th>
-              <th style={thStyle}>Ad</th>
-              <th style={thStyle}>Email</th>
-              <th style={thStyle}>Rol</th>
-              <th style={thStyle}>Durum</th>
-              <th style={thStyle}>Çalışmalar</th>
-              <th style={thStyle}>İşlemler</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.map((user) => (
-              <React.Fragment key={user.id}>
-                <tr
-                  style={{ borderBottom: '1px solid #e2e8f0', cursor: 'pointer' }}
-                  onClick={() => setExpandedId(expandedId === user.id ? null : user.id)}
-                  aria-expanded={expandedId === user.id}
-                >
-                  <td style={tdStyle} onClick={(e) => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(user.id)}
-                      onChange={(e) => {
-                        const next = new Set(selectedIds);
-                        e.target.checked ? next.add(user.id) : next.delete(user.id);
-                        setSelectedIds(next);
-                      }}
-                      aria-label={`${user.name} seç`}
-                    />
-                  </td>
-                  <td style={tdStyle}>{user.name}</td>
-                  <td style={tdStyle}>{user.email}</td>
-                  <td style={tdStyle}>
-                    <select
-                      value={user.role}
-                      onChange={(e) => handleRoleChange(user.id, e.target.value as UserRoleType)}
-                      onClick={(e) => e.stopPropagation()}
-                      style={{ fontSize: '0.8rem', border: '1px solid #e2e8f0', borderRadius: 4, padding: '2px 4px' }}
-                      aria-label={`${user.name} rolünü değiştir`}
-                    >
-                      {(Object.keys(ROLE_LABELS) as UserRoleType[]).map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
-                    </select>
-                  </td>
-                  <td style={tdStyle}>{STATUS_LABELS[user.status]}</td>
-                  <td style={tdStyle}>{user.worksheetCount}</td>
-                  <td style={{ ...tdStyle, display: 'flex', gap: 4 }} onClick={(e) => e.stopPropagation()}>
-                    <button onClick={() => handleStatusChange(user.id, user.status === 'active' ? 'suspended' : 'active')} style={{ ...btnStyle, fontSize: '0.7rem', padding: '2px 6px' }}>
-                      {user.status === 'active' ? 'Askıya Al' : 'Aktifleştir'}
-                    </button>
-                    <button onClick={() => handleDeleteUser(user.id)} style={{ ...btnStyle, background: '#ef4444', fontSize: '0.7rem', padding: '2px 6px' }} aria-label={`${user.name} sil`}>
-                      Sil
-                    </button>
-                  </td>
-                </tr>
-                {expandedId === user.id && (
-                  <tr style={{ background: '#f8fafc' }}>
-                    <td colSpan={7} style={{ padding: '8px 12px' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 8 }}>
-                        <div><strong>Son Giriş:</strong> {user.lastLogin ? new Date(user.lastLogin).toLocaleString('tr-TR') : '—'}</div>
-                        <div><strong>Oluşturulma:</strong> {user.createdAt ? new Date(user.createdAt).toLocaleDateString('tr-TR') : '—'}</div>
-                        <div><strong>Dışa Aktarma:</strong> {user.exportCount}</div>
-                      </div>
+      {loading ? (
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: 24 }}>⏳ Kullanıcılar yükleniyor...</p>
+      ) : (
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }} role="grid" aria-label="Kullanıcı listesi">
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                <th style={thStyle}>
+                  <input
+                    type="checkbox"
+                    checked={allVisibleSelected}
+                    onChange={(event) =>
+                      setSelectedIds(event.target.checked ? new Set(filteredUsers.map((u) => u.id)) : new Set())
+                    }
+                    aria-label="Görünen tümünü seç"
+                  />
+                </th>
+                <th style={thStyle}>Ad</th>
+                <th style={thStyle}>E-posta</th>
+                <th style={thStyle}>Rol</th>
+                <th style={thStyle}>Durum</th>
+                <th style={thStyle}>Çalışma</th>
+                <th style={thStyle}>İşlemler</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map((user) => {
+                const isSelf = user.id === currentUser?.id;
+                const isBusy = busyId === user.id;
+                return (
+                  <tr key={user.id} style={{ borderBottom: '1px solid #e2e8f0', opacity: isBusy ? 0.6 : 1 }}>
+                    <td style={tdStyle}>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(user.id)}
+                        onChange={(event) => {
+                          setSelectedIds((prev) => {
+                            const next = new Set(prev);
+                            if (event.target.checked) next.add(user.id);
+                            else next.delete(user.id);
+                            return next;
+                          });
+                        }}
+                        aria-label={`${user.name} seç`}
+                      />
+                    </td>
+                    <td style={tdStyle}>
+                      {user.name}
+                      {isSelf && <span style={{ marginLeft: 6, fontSize: '0.65rem', color: '#3b82f6', fontWeight: 700 }}>(siz)</span>}
+                    </td>
+                    <td style={tdStyle}>{user.email}</td>
+                    <td style={tdStyle}>
+                      <select
+                        value={user.role}
+                        disabled={isSelf || isBusy}
+                        onChange={(event) => void handleRoleChange(user, event.target.value as UserRole)}
+                        style={{ fontSize: '0.8rem', border: '1px solid #e2e8f0', borderRadius: 4, padding: '2px 4px' }}
+                        aria-label={`${user.name} rolünü değiştir`}
+                      >
+                        {(Object.keys(ROLE_LABELS) as UserRole[]).map((role) => (
+                          <option key={role} value={role}>{ROLE_LABELS[role]}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td style={tdStyle}>{STATUS_LABELS[user.status] ?? user.status}</td>
+                    <td style={tdStyle}>{user.worksheetCount ?? 0}</td>
+                    <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>
+                      <button
+                        onClick={() => void handleStatusChange(user, user.status === 'active' ? 'suspended' : 'active')}
+                        disabled={isSelf || isBusy}
+                        style={{ ...btnStyle, fontSize: '0.7rem', padding: '2px 6px', background: user.status === 'active' ? '#f59e0b' : '#10b981' }}
+                      >
+                        {user.status === 'active' ? 'Askıya Al' : 'Aktifleştir'}
+                      </button>
+                      <button
+                        onClick={() => void handleDelete(user)}
+                        disabled={isSelf || isBusy}
+                        style={{ ...btnStyle, background: '#ef4444', fontSize: '0.7rem', padding: '2px 6px', marginLeft: 4 }}
+                        aria-label={`${user.name} sil`}
+                      >
+                        Sil
+                      </button>
                     </td>
                   </tr>
-                )}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-      {filteredUsers.length === 0 && (
-        <p style={{ textAlign: 'center', color: '#94a3b8', padding: 24 }}>Kullanıcı bulunamadı</p>
+      {!loading && filteredUsers.length === 0 && (
+        <p style={{ textAlign: 'center', color: '#94a3b8', padding: 24 }}>
+          {users.length === 0 ? 'Firestore kullanıcı koleksiyonunda kayıt bulunamadı.' : 'Filtreye uyan kullanıcı yok.'}
+        </p>
       )}
     </section>
   );

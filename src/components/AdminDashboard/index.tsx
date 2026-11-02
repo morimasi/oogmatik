@@ -21,6 +21,10 @@ import { AdminUserManagement } from './AdminUserManagement';
 import { AdminDraftReview } from './AdminDraftReview';
 import { AdminActivityApproval } from './AdminActivityApproval';
 import { AdminPermissionsIDE } from './PermissionsIDE';
+import { PermissionManager } from './PermissionManager';
+import { UserManagement } from './UserManagement';
+import { WorksheetAnalytics } from './WorksheetAnalytics';
+import { SystemHealth } from './SystemHealth';
 import { AdminContentEngine } from './AdminContentEngine';
 import { AdStudio } from '../AdStudio';
 import TeacherManagement from './TeacherManagement';
@@ -83,6 +87,9 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
       'drafts',
       'approvals',
       'permissions',
+      'user_ops',
+      'analytics',
+      'system_health',
       'ad_studio',
       'audit_log',
       'recycle_bin',
@@ -101,6 +108,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
   const [feedbackCount, setFeedbackCount] = useState(0);
   const [inspectingUser, setInspectingUser] = useState<User | null>(null);
   const [inspectView, setInspectView] = useState<'profile' | 'archive' | 'favorites'>('profile');
+  const [permissionView, setPermissionView] = useState<'ide' | 'matrix'>('ide');
 
   useEffect(() => {
     loadBaseData();
@@ -194,7 +202,10 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
           <NavButton active={activeTab === 'users'} label="Kullanıcılar" icon="fa-users" onClick={() => setActiveTab('users')} />
           <NavButton active={activeTab === 'teachers'} label="Öğretmenler" icon="fa-chalkboard-user" onClick={() => setActiveTab('teachers')} />
           <NavButton active={activeTab === 'students'} label="Öğrenciler" icon="fa-user-graduate" onClick={() => setActiveTab('students')} />
-          <NavButton active={activeTab === 'permissions'} label="Yetki Matrisi" icon="fa-lock" onClick={() => setActiveTab('permissions')} />
+          <NavButton active={activeTab === 'permissions'} label="Yetki Yönetimi" icon="fa-lock" onClick={() => setActiveTab('permissions')} />
+          <NavButton active={activeTab === 'user_ops'} label="Toplu Kullanıcı İşlemleri" icon="fa-user-gear" onClick={() => setActiveTab('user_ops')} />
+          <NavButton active={activeTab === 'analytics'} label="Üretim Analitiği" icon="fa-chart-column" onClick={() => setActiveTab('analytics')} />
+          <NavButton active={activeTab === 'system_health'} label="Sistem Durumu" icon="fa-server" onClick={() => setActiveTab('system_health')} />
           <NavButton active={activeTab === 'recycle_bin'} label="Geri Dönüşüm Kutusu" icon="fa-trash-arrow-up" onClick={() => setActiveTab('recycle_bin')} />
           <NavButton active={activeTab === 'audit_log'} label="Denetim Kaydı" icon="fa-clipboard-list" onClick={() => setActiveTab('audit_log')} />
 
@@ -236,6 +247,9 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'drafts' && 'Taslak Havuzu (OCR)'}
               {activeTab === 'approvals' && 'İçerik Onay Merkezi'}
               {activeTab === 'permissions' && 'Yetkilendirme (RBAC)'}
+              {activeTab === 'user_ops' && 'Toplu Kullanıcı İşlemleri'}
+              {activeTab === 'analytics' && 'Üretim Analitiği'}
+              {activeTab === 'system_health' && 'Sistem Durumu'}
               {activeTab === 'audit_log' && 'Denetim Kaydı'}
               {activeTab === 'ad_studio' && 'Reklam Stüdyosu'}
               {activeTab === 'recycle_bin' && 'Geri Dönüşüm Kutusu & Arşiv'}
@@ -272,7 +286,28 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'students' && <AdminStudentManagement />}
               {activeTab === 'drafts' && <AdminDraftReview />}
               {activeTab === 'approvals' && <AdminActivityApproval />}
-              {activeTab === 'permissions' && <AdminPermissionsIDE />}
+              {activeTab === 'permissions' && (
+                <div className="space-y-4">
+                  <div className="flex gap-2 bg-[var(--bg-secondary)] p-1 rounded-xl w-fit border border-[var(--border-color)]">
+                    <button
+                      onClick={() => setPermissionView('ide')}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${permissionView === 'ide' ? 'bg-[var(--bg-paper)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                    >
+                      Yetki IDE
+                    </button>
+                    <button
+                      onClick={() => setPermissionView('matrix')}
+                      className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${permissionView === 'matrix' ? 'bg-[var(--bg-paper)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+                    >
+                      İzin Matrisi
+                    </button>
+                  </div>
+                  {permissionView === 'ide' ? <AdminPermissionsIDE /> : <PermissionManager />}
+                </div>
+              )}
+              {activeTab === 'user_ops' && <UserManagement />}
+              {activeTab === 'analytics' && <WorksheetAnalytics />}
+              {activeTab === 'system_health' && <SystemHealth />}
               {activeTab === 'audit_log' && <AuditLog />}
               {activeTab === 'ad_studio' && <AdStudio />}
               {activeTab === 'recycle_bin' && <AdminRecycleBin />}
