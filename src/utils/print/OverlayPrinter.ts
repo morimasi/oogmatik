@@ -120,6 +120,13 @@ export const print = async (
     });
   }
 
+  // İç içe geçmiş (nested) sayfa elemanlarını filtrele: Başka bir sayfanın içinde olan alt sayfaları tekilleştir
+  const uniquePages = pages.filter((page, index) => {
+    return !pages.some((otherPage, otherIndex) => otherIndex !== index && otherPage.contains(page));
+  });
+  pages.length = 0;
+  pages.push(...uniquePages);
+
   if (pages.length === 0) {
     try {
       window.print();

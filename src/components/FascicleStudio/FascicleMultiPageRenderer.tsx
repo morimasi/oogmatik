@@ -59,36 +59,39 @@ export const FascicleMultiPageRenderer: React.FC<FascicleMultiPageRendererProps>
   if (isBlankPage) {
     return (
       <div className="relative group/page">
-        <div className="w-[210mm] min-h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 relative print-exact worksheet-page border border-zinc-200 flex flex-col justify-between" style={{ backgroundColor: bgMap[paperColor] || '#ffffff' }}>
+        <div
+          className="w-[210mm] h-[297mm] max-h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 relative print-exact worksheet-page border border-zinc-200 flex flex-col justify-between overflow-hidden box-border"
+          style={{ backgroundColor: bgMap[paperColor] || '#ffffff' }}
+        >
           {metadata.watermarkSettings?.enabled && renderWatermark(metadata.watermarkSettings)}
 
-          <div className="p-[12mm] flex-1 flex flex-col items-center justify-between border-2 border-dashed border-zinc-200 m-4 rounded-3xl">
-            <div className="w-full text-left">
+          <div className="p-[10mm] flex-1 min-h-0 overflow-hidden flex flex-col items-center justify-between border-2 border-dashed border-zinc-200 m-3 rounded-2xl">
+            <div className="w-full text-left shrink-0">
               <span className="text-[10px] font-black uppercase tracking-widest text-accent">
                 SERBEST ÇALIŞMA & NOT SAYFASI
               </span>
-              <h3 className="text-xl font-black text-zinc-800 mt-1">
+              <h3 className="text-lg font-black text-zinc-800 mt-1">
                 {(item.content as any)?.title || 'Boş Çizim & Not Alanı'}
               </h3>
-              <p className="text-xs text-zinc-400 mt-1">
+              <p className="text-xs text-zinc-400 mt-0.5">
                 {(item.content as any)?.instruction || 'Öğrencinin serbest not alması, soru çözmesi veya çizim yapması için ayrılmıştır.'}
               </p>
             </div>
 
             {/* Izgaralı / Kılavuz Çizgili Not Alanı */}
-            <div className="w-full flex-1 my-6 border-b border-zinc-200 opacity-30" style={{
+            <div className="w-full flex-1 my-4 border-b border-zinc-200 opacity-30" style={{
               backgroundImage: 'linear-gradient(#e5e7eb 1px, transparent 1px)',
               backgroundSize: '100% 28px'
             }} />
 
-            <div className="w-full flex justify-between text-[10px] font-bold text-zinc-400 uppercase">
+            <div className="w-full flex justify-between text-[10px] font-bold text-zinc-400 uppercase shrink-0">
               <span>Tarih: ____/____/20__</span>
               <span>Değerlendirme: ________________</span>
             </div>
           </div>
 
-          <div className="px-6 py-2 border-t border-zinc-100 flex justify-between items-center text-[9px] font-bold text-zinc-400 uppercase tracking-widest bg-white z-20">
-            <span>{metadata.title || 'bdmind Özel Eğitim'}</span>
+          <div className="px-6 py-2 border-t border-zinc-100 flex justify-between items-center text-[9px] font-bold text-zinc-400 uppercase tracking-widest bg-white z-20 shrink-0">
+            <span>{metadata.title && metadata.title !== 'İsimsiz Fasikül' ? metadata.title : 'bdmind Özel Eğitim'}</span>
             <span>Sayfa {startPageNumber} / {grandTotalPages}</span>
           </div>
         </div>
@@ -96,10 +99,10 @@ export const FascicleMultiPageRenderer: React.FC<FascicleMultiPageRendererProps>
     );
   }
 
-  // Standart Etkinlik Render (Çok Sayfaya Taşabilen Yapı)
+  // Standart Etkinlik Render (Tam A4 Boyutuna Kilitli, Asla 2. Sayfaya Taşmayan Yapı)
   return (
     <div className="relative group/page">
-      {/* Sol Kenar Bilgi Rozeti */}
+      {/* Sol Kenar Bilgi Rozeti (Sadece Ekranda) */}
       <div className="absolute -left-48 top-0 w-40 h-full no-print hidden xl:flex flex-col gap-4 py-4 pointer-events-none">
         <div className="glass-layer-3 p-4 rounded-2xl pointer-events-auto">
           <span className="text-[9px] font-black uppercase tracking-widest block mb-1" style={{ color: 'var(--accent-color)' }}>
@@ -115,16 +118,20 @@ export const FascicleMultiPageRenderer: React.FC<FascicleMultiPageRendererProps>
         </div>
       </div>
 
-      {/* A4 Kâğıt Render (Çok sayfada kaymadan uzayabilen min-h-[297mm]) */}
+      {/* A4 Kâğıt Render (Tam 210mm x 297mm Sabit, Taşma Yok) */}
       <div
-        className="w-[210mm] min-h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 relative print-exact worksheet-page border border-zinc-200 flex flex-col justify-between overflow-visible"
+        className="w-[210mm] h-[297mm] max-h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 relative print-exact worksheet-page border border-zinc-200 flex flex-col justify-between overflow-hidden box-border"
         style={{
           backgroundColor: bgMap[paperColor] || '#ffffff',
           fontSize: `${fontScale}%`,
+          breakInside: 'avoid',
+          pageBreakInside: 'avoid',
+          breakAfter: 'page',
+          pageBreakAfter: 'always',
         }}
       >
         {metadata.watermarkSettings?.enabled && renderWatermark(metadata.watermarkSettings)}
-        <div className="flex-1 flex flex-col" style={{ padding: paddingVal }}>
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col" style={{ padding: paddingVal }}>
           <Suspense fallback={
             <div className="w-full h-96 flex items-center justify-center bg-white">
               <div className="animate-spin rounded-full h-12 w-12" style={{ borderBottomColor: 'var(--accent-color)', borderWidth: '3px' }}></div>
@@ -140,9 +147,9 @@ export const FascicleMultiPageRenderer: React.FC<FascicleMultiPageRendererProps>
                 scale: fontScale / 100,
                 borderColor: '#e2e8f0',
                 borderWidth: 1,
-                margin: 10,
+                margin: 6,
                 columns: defaultColumns,
-                gap: 20,
+                gap: 16,
                 orientation: 'portrait',
                 themeBorder: 'none',
                 contentAlign: 'left',
@@ -154,24 +161,25 @@ export const FascicleMultiPageRenderer: React.FC<FascicleMultiPageRendererProps>
                 showTitle: true,
                 showInstruction: true,
                 showImage: true,
-                showFooter: true,
+                showFooter: false, // Universal Footer Band zaten var, içeride ikinci footer üretilmesin!
                 showAnswers: false,
                 showClues: false,
-                footerText: `${metadata.title || 'Fasikül'} • Sayfa ${startPageNumber} / ${grandTotalPages}`,
-                smartPagination: true,
+                footerText: '',
+                smartPagination: false, // Fasikülde her aktivite tam 1 A4 sayfası olarak sınırlandırılır
                 fontFamily: 'Lexend',
                 letterSpacing: 0,
                 wordSpacing: 0,
                 paragraphSpacing: 0,
+                compact: true, // A4 içine kusursuz oturması için kompakt mod
                 ...dynamicSettings
               } as StyleSettings}
             />
           </Suspense>
         </div>
 
-        {/* Universal Footer Band */}
-        <div className="px-6 py-2 border-t border-zinc-100 flex justify-between items-center text-[9px] font-bold text-zinc-400 uppercase tracking-widest bg-white z-20">
-          <span>{metadata.title || 'bdmind Özel Eğitim'}</span>
+        {/* Universal Footer Band (Tam sayfa tabanında sabit, asla sarkmaz) */}
+        <div className="px-6 py-2 border-t border-zinc-100 flex justify-between items-center text-[9px] font-bold text-zinc-400 uppercase tracking-widest bg-white z-20 shrink-0">
+          <span>{metadata.title && metadata.title !== 'İsimsiz Fasikül' ? metadata.title : 'bdmind Özel Eğitim'}</span>
           <span>Sayfa {startPageNumber} / {grandTotalPages}</span>
         </div>
       </div>

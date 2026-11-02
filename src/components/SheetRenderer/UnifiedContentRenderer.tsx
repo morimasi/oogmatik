@@ -243,12 +243,14 @@ export const UnifiedContentRenderer = ({
   studentProfile,
   settings,
   renderNonStandardBlock,
+  hideWrapper,
 }: {
   data: SingleWorksheetData;
   activityType: ActivityType | null;
   studentProfile?: StudentProfile | null;
   settings?: StyleSettings;
   renderNonStandardBlock?: (block: any) => React.ReactNode;
+  hideWrapper?: boolean;
 }) => {
   const { isEditorOpen, selectedBlockId, setSelectedBlockId, snapToGrid, gridSize } =
     useA4EditorStore();
@@ -338,7 +340,7 @@ export const UnifiedContentRenderer = ({
     const textureClass = settings?.paperTexture && settings.paperTexture !== 'none'
       ? `paper-texture-${settings.paperTexture}`
       : '';
-    const pageClass = `worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white flex flex-col ${isLandscape ? 'landscape landscape-print' : ''} ${textureClass}`;
+    const pageClass = hideWrapper ? `w-full flex-1 min-h-0 flex flex-col relative ${textureClass}` : `worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white flex flex-col ${isLandscape ? 'landscape landscape-print' : ''} ${textureClass}`;
 
     return (
       <div
@@ -346,22 +348,24 @@ export const UnifiedContentRenderer = ({
         data-page-idx={pageIdx}
         className={pageClass}
         style={{
-          backgroundColor: 'white',
+          backgroundColor: hideWrapper ? 'transparent' : 'white',
           color: 'black',
           colorScheme: 'light' as const,
           boxSizing: 'border-box',
-          padding: settings?.compact
-            ? (isLandscape ? '5mm 8mm' : '5mm')
-            : (settings?.margin ? `${settings.margin}mm` : '5mm'),
-          width: isLandscape ? '297mm' : '210mm',
-          minHeight: isLandscape ? '210mm' : '297mm',
+          padding: hideWrapper
+            ? '0'
+            : (settings?.compact
+              ? (isLandscape ? '5mm 8mm' : '5mm')
+              : (settings?.margin ? `${settings.margin}mm` : '5mm')),
+          width: hideWrapper ? '100%' : (isLandscape ? '297mm' : '210mm'),
+          minHeight: hideWrapper ? 'auto' : (isLandscape ? '210mm' : '297mm'),
           fontFamily: settings?.fontFamily || 'Lexend, sans-serif',
           fontSize: settings?.fontSize === 'büyük' ? '1.25rem' : settings?.fontSize === 'küçük' ? '0.875rem' : '1rem',
           lineHeight: (settings as any)?.lineSpacing === 'geniş' ? '2' : (settings as any)?.lineSpacing === 'dar' ? '1.25' : '1.6',
           '--worksheet-border-color': settings?.borderColor || '#000',
         } as unknown as React.CSSProperties}
       >
-        <div className="page-indicator-screen no-print" style={{ zIndex: 100 }}>SAYFA {pageIdx + 1}</div>
+        {!hideWrapper && <div className="page-indicator-screen no-print" style={{ zIndex: 100 }}>SAYFA {pageIdx + 1}</div>}
 
         <div
           className="w-full flex-1 flex flex-col relative print:overflow-visible"
@@ -464,7 +468,7 @@ export const UnifiedContentRenderer = ({
             </SortableContext>
           </DndContext>
 
-          {settings?.showFooter !== false && (
+          {settings?.showFooter !== false && !hideWrapper && (
             <div className="mt-auto pt-4 border-t-2 border-zinc-900 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.4em] text-zinc-400">
               <div className="flex items-center gap-2">
                 <span className="bg-black text-white px-1.5 py-0.5 rounded font-black">AI</span>
@@ -482,21 +486,27 @@ export const UnifiedContentRenderer = ({
 
   return (
     <div
-      className="w-full flex flex-col items-center gap-10 no-scrollbar scroll-smooth"
-      id="print-container"
+      className={hideWrapper ? "w-full flex-1 flex flex-col" : "w-full flex flex-col items-center gap-10 no-scrollbar scroll-smooth"}
+      id={hideWrapper ? undefined : "print-container"}
       onClick={() => {
         if (isEditorOpen) setSelectedBlockId(null);
       }}
     >
       {pages.length === 0 ? (
-        <div className="worksheet-page p-8 text-center text-gray-500">
+        <div className={hideWrapper ? "p-8 text-center text-gray-500" : "worksheet-page p-8 text-center text-gray-500"}>
           <p>İçerik bulunamadı. Lütfen farklı bir aktivite seçin.</p>
         </div>
       ) : (
         pages.filter(p => p && p.length > 0).map((p, i) => (
-          <LazyPage key={i} pageIdx={i} totalPages={pages.filter(p => p && p.length > 0).length}>
-            {renderPage(p, i)}
-          </LazyPage>
+          hideWrapper ? (
+            <React.Fragment key={i}>
+              {renderPage(p, i)}
+            </React.Fragment>
+          ) : (
+            <LazyPage key={i} pageIdx={i} totalPages={pages.filter(p => p && p.length > 0).length}>
+              {renderPage(p, i)}
+            </LazyPage>
+          )
         ))
       )}
     </div>

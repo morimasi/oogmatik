@@ -727,7 +727,7 @@ export const SheetRenderer = React.memo(
     // Modern layout: blocks with layoutArchitecture
     const isModernLayout = activeData?.layoutArchitecture || (Array.isArray(activeData?.blocks) && activeData.blocks.some((b: any) => b?.type));
 
-    if (!hideWrapper && isModernLayout) {
+    if (isModernLayout) {
       return (
         <UnifiedContentRenderer
           data={activeData}
@@ -735,6 +735,7 @@ export const SheetRenderer = React.memo(
           studentProfile={studentProfile}
           settings={settings}
           renderNonStandardBlock={renderNonStandardBlock}
+          hideWrapper={hideWrapper}
         />
       );
     }
@@ -755,6 +756,7 @@ export const SheetRenderer = React.memo(
         studentProfile={studentProfile}
         settings={settings}
         renderNonStandardBlock={renderNonStandardBlock}
+        hideWrapper={hideWrapper}
       />
     );
   }
