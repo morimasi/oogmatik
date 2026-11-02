@@ -21,12 +21,16 @@ describe('Fasikül Stüdyosu Ultra-Premium v2.5 Duman Testleri', () => {
       difficulty: 'Kolay',
       pageCount: 1,
       order: 0,
-      content: { data: [{ title: 'Harf Eşleme' }] }
+      content: { 
+        data: [{ title: 'Harf Eşleme' }],
+        pedagogicalNote: 'Görsel harf ayrıştırma ZPD güven inşası.'
+      }
     });
 
     const updated = useFascicleStore.getState();
     expect(updated.items).toHaveLength(1);
     expect(updated.items[0].id).toBe('test-item-1');
+    expect((updated.items[0].content as any).pedagogicalNote).toBeDefined();
 
     // Boş sayfa ekleme
     updated.addBlankPage();
@@ -82,5 +86,26 @@ describe('Fasikül Stüdyosu Ultra-Premium v2.5 Duman Testleri', () => {
     expect(typeof fascicleAIEngine.generateCoverDesign).toBe('function');
     expect(typeof fascicleAIEngine.generateExecutiveSummary).toBe('function');
     expect(typeof fascicleAIEngine.getSmartSuggestions).toBe('function');
+  });
+
+  it('pedagogicalNote ve tanı koyucu olmayan dil prensipleri sağlanmalı', () => {
+    const sampleItem = {
+      id: 'zpd-test',
+      type: ActivityType.READING_STROOP,
+      difficulty: 'Kolay' as const,
+      pageCount: 1,
+      order: 0,
+      content: {
+        title: 'Stroop Testi',
+        pedagogicalNote: 'Öğrencinin çeldiricileri bastırma ve dikkat odaklama becerisini destekler.'
+      }
+    };
+
+    const note = (sampleItem.content as any).pedagogicalNote;
+    expect(note).toBeTruthy();
+    // Tanı koyucu dil içermemeli
+    expect(note).not.toContain('disleksisi var');
+    expect(note).not.toContain('hasta');
+    expect(note).not.toContain('özürlü');
   });
 });

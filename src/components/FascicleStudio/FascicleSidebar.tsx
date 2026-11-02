@@ -85,8 +85,15 @@ export const FascicleSidebar: React.FC = () => {
       }
 
       const content = Array.isArray(result) ? result : [result];
+      const prevContent = (item.content as Record<string, any>) || {};
       updateItem(item.id, {
-        content: { data: content, title: result?.title || '', generatedAt: Date.now() },
+        content: {
+          data: content,
+          title: result?.title || prevContent.title || item.type,
+          instruction: result?.instruction || prevContent.instruction || '',
+          pedagogicalNote: result?.pedagogicalNote || prevContent.pedagogicalNote || '',
+          generatedAt: Date.now()
+        },
       });
 
       toast.success(`${item.type} başarıyla yeniden üretildi!`, { id: `regen-${item.id}` });

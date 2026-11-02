@@ -294,6 +294,8 @@ export const FascicleTemplatesModal: React.FC<FascicleTemplatesModalProps> = ({ 
         }
 
         const normalizedContent = Array.isArray(contentData) ? contentData : [contentData];
+        const pedagogicalNote = contentData?.pedagogicalNote ||
+          `${act.title} etkinliği, öğrencinin ZPD gelişim basamağında ${act.difficulty.toLowerCase()} düzeyde güven inşası ve bilişsel pekiştirme sağlamak üzere kurgulanmıştır.`;
 
         freshItems.push({
           id: uuidv4(),
@@ -305,6 +307,7 @@ export const FascicleTemplatesModal: React.FC<FascicleTemplatesModalProps> = ({ 
             data: normalizedContent,
             title: act.title,
             instruction: act.instruction,
+            pedagogicalNote,
             generatedAt: Date.now()
           }
         });

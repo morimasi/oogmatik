@@ -11,6 +11,7 @@ import {
 } from '@react-pdf/renderer';
 import { FascicleDocument, WatermarkSettings } from '../types/fascicle';
 import { logError } from '../utils/logger.js';
+import { normalizeFascicleContent } from './fascicleContentNormalizer';
 
 // Disleksi dostu Lexend fontunu yükleme
 Font.register({
@@ -210,12 +211,22 @@ const FasciclePdfDoc: React.FC<BuildPdfOptions> = ({ fascicle, watermarkText, wa
          </View>
       </Page>
 
-      {/* 2. İçerik Sayfaları (Gerçek Veri Rendering) */}
+      {/* 2. İçerik Sayfaları (Gerçek Veri Rendering - Normalizer Destekli) */}
       {fascicle.items.map((item, idx) => {
-        const rawContent = item.content as Record<string, any> || {};
-        const contentTitle = rawContent.title || rawContent.pageConfig?.title || `Bölüm ${idx + 1}: ${item.type.replace(/_/g, ' ')}`;
-        const contentInstruction = rawContent.instruction || rawContent.description || 'Aşağıdaki yönergeyi dikkatlice okuyup etkinliği tamamlayınız.';
-        const dataItems = Array.isArray(rawContent.data) ? rawContent.data : Array.isArray(rawContent.items) ? rawContent.items : [];
+        const normalized = normalizeFascicleContent(item as any, 1);
+        const normData = (normalized.data || {}) as Record<string, any>;
+        const rawContent = (item.content as Record<string, any>) || {};
+
+        const contentTitle = normData.title || rawContent.title || rawContent.pageConfig?.title || `Bölüm ${idx + 1}: ${item.type.replace(/_/g, ' ')}`;
+        const contentInstruction = normData.instruction || rawContent.instruction || rawContent.description || 'Aşağıdaki yönergeleri takip ederek etkinliği tamamlayınız.';
+        const dataItems = Array.isArray(normData.sorular)
+          ? normData.sorular
+          : Array.isArray(normData.items)
+          ? normData.items
+          : Array.isArray(rawContent.data)
+          ? rawContent.data
+          : [];
+        const pedagogicalNote = normData.pedagogicalNote || rawContent.pedagogicalNote;
 
         return (
           <Page key={item.id} size="A4" style={styles.page}>
@@ -242,7 +253,7 @@ const FasciclePdfDoc: React.FC<BuildPdfOptions> = ({ fascicle, watermarkText, wa
                 dataItems.slice(0, 5).map((d: any, dIdx: number) => (
                   <View key={dIdx} style={styles.itemCard}>
                     <Text style={styles.itemTitle}>
-                      {d.title || d.question || d.sentence || `Soru / Görev ${dIdx + 1}`}
+                      {d.title || d.question || d.soruMetni || d.sentence || `Soru / Görev ${dIdx + 1}`}
                     </Text>
                     {d.instruction && <Text style={styles.itemBody}>{d.instruction}</Text>}
                     {d.options && Array.isArray(d.options) && (
@@ -258,18 +269,18 @@ const FasciclePdfDoc: React.FC<BuildPdfOptions> = ({ fascicle, watermarkText, wa
                 ))
               ) : (
                 <View style={styles.itemCard}>
-                  <Text style={styles.itemTitle}>Özel Çalışma Alanı</Text>
+                  <Text style={styles.itemTitle}>Bireysel Öğrenme & Etkinlik Alanı</Text>
                   <Text style={styles.itemBody}>
-                    Bu sayfadaki alıştırmaları öğrencinin kendi hızında ve bireysel rehberlikle tamamlaması önerilir.
+                    Bu sayfadaki alıştırmaları öğrencinin kendi hızında, somut materyaller ve bireysel rehberlikle tamamlaması önerilir.
                   </Text>
                 </View>
               )}
 
               {/* Pedagojik Öğretmen Notu */}
-              {rawContent.pedagogicalNote && (
+              {pedagogicalNote && (
                 <View style={styles.teacherNote}>
                   <Text style={styles.teacherNoteTitle}>Öğretmene Nöro-Pedagojik Not</Text>
-                  <Text style={styles.teacherNoteText}>{rawContent.pedagogicalNote}</Text>
+                  <Text style={styles.teacherNoteText}>{pedagogicalNote}</Text>
                 </View>
               )}
             </View>

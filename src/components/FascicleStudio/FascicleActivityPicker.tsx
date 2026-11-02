@@ -57,13 +57,22 @@ export const FascicleActivityPicker: React.FC<FascicleActivityPickerProps> = ({ 
 
       const content = Array.isArray(result) ? result : [result];
       const title = (result?.title) || def?.title || type;
+      const instruction = result?.instruction || def?.description || 'Aşağıdaki yönergeleri takip ederek etkinliği tamamlayınız.';
+      const pedagogicalNote = result?.pedagogicalNote || `${def?.title || type} etkinliği, öğrencinin ZPD gelişim basamağında bilişsel becerilerini pekiştirmek için tasarlanmıştır.`;
+
       addItem({
         id: uuidv4(),
         type,
         difficulty: (options.difficulty as any) || 'Orta',
         pageCount: 1,
         order: items.length,
-        content: { data: content, title, generatedAt: Date.now() },
+        content: { 
+          data: content, 
+          title, 
+          instruction,
+          pedagogicalNote,
+          generatedAt: Date.now() 
+        },
       });
 
       logInfo(`[Fascicle] Activity added: ${type}`);

@@ -530,7 +530,15 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
                   src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https%3A%2F%2Fbdmind.com"
                   alt="QR Kod"
                   className="w-12 h-12 object-contain opacity-85"
+                  crossOrigin="anonymous"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                    const fallback = target.nextElementSibling as HTMLElement | null;
+                    if (fallback) fallback.style.display = 'block';
+                  }}
                 />
+                <i className="fa-solid fa-qrcode text-2xl" style={{ color: palette.dark, opacity: 0.7, display: 'none' }} />
               </div>
               <div className="text-[8px] font-bold tracking-[0.18em]" style={{ color: palette.text, opacity: 0.4 }}>
                 Düzenlenme Tarihi
