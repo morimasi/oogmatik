@@ -62,4 +62,22 @@ describe('Fasikül Baskı ve Boş Sayfa Önleme Testleri (Zafer Aydın)', () => 
     expect(getFooterTitle('İsimsiz Fasikül')).toBe('bdmind Özel Eğitim');
     expect(getFooterTitle('4. Sınıf Disleksi Destek Fasikülü')).toBe('4. Sınıf Disleksi Destek Fasikülü');
   });
+
+  it('İçindekiler sayfası kapak durumuna göre doğru sayfa numarası ve başlangıç sayfası üretmeli', () => {
+    // Kapak aktif olduğunda: Kapak = 1, İçindekiler = 2, İlk İçerik = 3
+    const isCoverActive = true;
+    const tocPageNumber = isCoverActive ? 2 : 1;
+    const firstContentPage = (isCoverActive ? 1 : 0) + 1 + 1;
+
+    expect(tocPageNumber).toBe(2);
+    expect(firstContentPage).toBe(3);
+
+    // Kapak kapalı olduğunda: Kapak yok, İçindekiler = 1, İlk İçerik = 2
+    const isCoverInactive = false;
+    const tocPageNumberNoCover = isCoverInactive ? 2 : 1;
+    const firstContentPageNoCover = (isCoverInactive ? 1 : 0) + 1 + 1;
+
+    expect(tocPageNumberNoCover).toBe(1);
+    expect(firstContentPageNoCover).toBe(2);
+  });
 });

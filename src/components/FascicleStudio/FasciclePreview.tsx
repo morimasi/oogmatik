@@ -354,6 +354,9 @@ export const FasciclePreview: React.FC = () => {
                   items={items} 
                   metadata={metadata} 
                   student={activeStudent} 
+                  pageNumber={isCoverActive ? 2 : 1}
+                  firstContentPageNumber={(isCoverActive ? 1 : 0) + 1 + 1}
+                  totalPages={grandTotalPages}
                 />
               )}
 
