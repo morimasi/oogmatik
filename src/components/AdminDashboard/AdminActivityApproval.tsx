@@ -88,14 +88,21 @@ export const AdminActivityApproval: React.FC = () => {
     }
   };
 
+  const [batchRejectReason, setBatchRejectReason] = useState('');
+
   const handleBatchReject = async () => {
     if (selectedIds.length === 0) return;
-    const reason = 'Toplu red — yönetici tarafından';
+    const reason = batchRejectReason.trim();
+    if (!reason) {
+      toast.error('Toplu red için bir gerekçe yazın');
+      return;
+    }
     try {
       await Promise.all(selectedIds.map(id => activityApprovalService.reject(id, 'admin-user', reason)));
       await loadDrafts();
       setSelectedIds([]);
       setIsSelectionMode(false);
+      setBatchRejectReason('');
       toast.success(`${selectedIds.length} içerik topluca reddedildi`);
     } catch {
       toast.error('Toplu reddetme başarısız');
@@ -190,6 +197,13 @@ export const AdminActivityApproval: React.FC = () => {
               {selectedIds.length} seçili
             </span>
             <div className="w-px h-6 bg-indigo-500/20"></div>
+            <input
+              value={batchRejectReason}
+              onChange={(e) => setBatchRejectReason(e.target.value)}
+              placeholder="Toplu red gerekçesi (zorunlu)"
+              aria-label="Toplu red gerekçesi"
+              className="flex-1 min-w-[180px] px-3 py-2 rounded-xl bg-white/70 dark:bg-black/40 border border-indigo-500/20 text-[10px] font-bold outline-none"
+            />
             <button onClick={handleBatchApprove} className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all">
               Toplu Onayla
             </button>

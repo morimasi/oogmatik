@@ -53,7 +53,14 @@ export const AuditLog: React.FC = () => {
         <div style={{ display: 'flex', gap: 6 }}>
           <button onClick={exportAsCsv} style={btnStyle}>📥 CSV</button>
           <button onClick={exportAsJson} style={btnStyle}>📥 JSON</button>
-          <button onClick={clearLog} style={{ ...btnStyle, background: '#ef4444' }}>🗑️ Temizle</button>
+          <button
+            onClick={() => {
+              if (confirm('Tüm denetim kayıtlarını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')) clearLog();
+            }}
+            style={{ ...btnStyle, background: '#ef4444' }}
+          >
+            🗑️ Temizle
+          </button>
         </div>
       </div>
 

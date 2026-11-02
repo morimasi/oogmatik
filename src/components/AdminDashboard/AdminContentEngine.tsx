@@ -31,9 +31,10 @@ interface StatCard {
 }
 
 export const AdminContentEngine: React.FC = () => {
-  const [_metrics, setMetrics] = useState<ContentEngineMetrics>(MOCK_METRICS);
-  const [_logs, setLogs] = useState<GenerationLogEntry[]>(MOCK_LOGS);
+  const [metrics, setMetrics] = useState<ContentEngineMetrics>(MOCK_METRICS);
+  const [logs] = useState<GenerationLogEntry[]>(MOCK_LOGS);
   const [loading, setLoading] = useState(true);
+  const [showAllLogs, setShowAllLogs] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -53,10 +54,10 @@ export const AdminContentEngine: React.FC = () => {
   };
 
   const stats: StatCard[] = [
-    { label: 'Toplam Şablon', value: String(MOCK_METRICS.totalTemplates), sub: `${MOCK_METRICS.activeGenerators} aktif`, icon: 'fa-cubes', color: 'from-blue-500 to-blue-700' },
-    { label: 'Başarı Oranı', value: `%${MOCK_METRICS.successRate}`, sub: `${MOCK_METRICS.errorRate}% hata`, icon: 'fa-check-circle', color: 'from-emerald-500 to-emerald-700', trend: 'up' },
-    { label: 'Ortalama Süre', value: `${MOCK_METRICS.avgLatencyMs}ms`, sub: 'son 24 saat', icon: 'fa-gauge-high', color: 'from-amber-500 to-amber-700' },
-    { label: 'Toplam Üretim', value: `${(MOCK_METRICS.totalGenerations / 1000).toFixed(1)}K`, sub: `${(MOCK_METRICS.tokenUsage / 1000).toFixed(0)}K token`, icon: 'fa-microchip', color: 'from-purple-500 to-purple-700' },
+    { label: 'Toplam Şablon', value: String(metrics.totalTemplates), sub: `${metrics.activeGenerators} aktif`, icon: 'fa-cubes', color: 'from-blue-500 to-blue-700' },
+    { label: 'Başarı Oranı', value: `%${metrics.successRate}`, sub: `${metrics.errorRate}% hata`, icon: 'fa-check-circle', color: 'from-emerald-500 to-emerald-700', trend: 'up' },
+    { label: 'Ortalama Süre', value: `${metrics.avgLatencyMs}ms`, sub: 'son 24 saat', icon: 'fa-gauge-high', color: 'from-amber-500 to-amber-700' },
+    { label: 'Toplam Üretim', value: `${(metrics.totalGenerations / 1000).toFixed(1)}K`, sub: `${(metrics.tokenUsage / 1000).toFixed(0)}K token`, icon: 'fa-microchip', color: 'from-purple-500 to-purple-700' },
   ];
 
   const quickLinks = [
@@ -168,10 +169,12 @@ export const AdminContentEngine: React.FC = () => {
               <i className="fa-solid fa-list text-purple-500"></i>
               Son Üretimler
             </h3>
-            <button className="text-[10px] text-indigo-500 font-black uppercase tracking-widest hover:text-indigo-400 transition-colors">Tümünü Gör</button>
+            <button onClick={() => setShowAllLogs(v => !v)} className="text-[10px] text-indigo-500 font-black uppercase tracking-widest hover:text-indigo-400 transition-colors">
+              {showAllLogs ? 'Daralt' : `Tümünü Gör (${logs.length})`}
+            </button>
           </div>
           <div className="space-y-2">
-            {MOCK_LOGS.map((log) => (
+            {logs.slice(0, showAllLogs ? logs.length : 3).map((log) => (
               <div key={log.id} className="flex items-center gap-4 p-3 rounded-xl bg-white/50 dark:bg-black/30 border border-zinc-200 dark:border-white/5 hover:bg-indigo-500/5 transition-all group">
                 <i className={`fa-solid ${statusIcon(log.status)} text-sm`}></i>
                 <div className="flex-1 min-w-0">
@@ -202,7 +205,7 @@ export const AdminContentEngine: React.FC = () => {
       <div className="rounded-[2.5rem] bg-white/40 dark:bg-black/20 border border-zinc-200 dark:border-white/5 backdrop-blur-xl p-8">
         <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-6 flex items-center gap-2">
           <i className="fa-solid fa-shield-halved text-emerald-500"></i>
-          Pipeline Sağlığı
+          Pipeline Sağlığı (temsilî)
         </h3>
         <div className="grid grid-cols-3 gap-6">
           {[

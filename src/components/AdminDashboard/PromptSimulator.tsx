@@ -9,7 +9,7 @@ import { WorksheetData, ActivityType } from '../../types/core';
 const SheetRenderer = lazy(() => import('../SheetRenderer').then(m => ({ default: m.SheetRenderer })));
 
 // Basit aktivite tipi tahminleyicisi
-const detectActivityType = (promptId: string): ActivityType => {
+const detectActivityType = (promptId: string): ActivityType | null => {
     // prompt_math_puzzle -> MATH_PUZZLE
     const rawId = promptId.replace(/^prompt_/i, '').toUpperCase();
 
@@ -23,7 +23,8 @@ const detectActivityType = (promptId: string): ActivityType => {
     if (rawId.includes('MATH')) return ActivityType.MATH_PUZZLE;
     if (rawId.includes('VISUAL')) return ActivityType.VISUAL_ODD_ONE_OUT;
 
-    return ActivityType.MATH_PUZZLE; // Fallback
+    // Bilinmeyen prompt: sessizce yanlış renderer seçmek yerine null dön.
+    return null;
 };
 
 interface _PromptSimulatorProps {
@@ -38,11 +39,13 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
     const [viewMode, setViewMode] = useState<'preview' | 'json'>('preview');
 
     // Otomatik algılanan aktivite tipi
-    const [selectedActivityType, setSelectedActivityType] = useState<ActivityType>(detectActivityType(prompt.id));
+    const [selectedActivityType, setSelectedActivityType] = useState<ActivityType>(
+        detectActivityType(prompt.id) ?? ActivityType.MATH_PUZZLE
+    );
 
     // Prompt veya ID değişince tipi güncelle
     useEffect(() => {
-        setSelectedActivityType(detectActivityType(prompt.id));
+        setSelectedActivityType(detectActivityType(prompt.id) ?? ActivityType.MATH_PUZZLE);
     }, [prompt.id]);
 
     useEffect(() => {
@@ -128,6 +131,11 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
                 {/* Renderer Override (Manuel Seçim) */}
                 <div className="mt-4 pt-4 border-t border-zinc-800">
                     <label className="text-[9px] font-bold text-zinc-500 uppercase block mb-2">RENDER MOTORU (DEBUG)</label>
+                    {!detectActivityType(prompt.id) && (
+                        <p className="text-[9px] text-amber-500 font-bold mb-2">
+                            ⚠ Aktivite tipi prompt kimliğinden algılanamadı; aşağıdan elle seçin.
+                        </p>
+                    )}
                     <select
                         value={selectedActivityType}
                         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedActivityType(e.target.value as ActivityType)}

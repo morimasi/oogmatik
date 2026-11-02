@@ -23,6 +23,7 @@ import {
 import { UserRole } from '../../types';
 import { authService } from '../../services/authService';
 import { adminService } from '../../services/adminService';
+import { logError } from '../../utils/logger';
 import { emailService } from '../../services/emailService';
 import { recycleBinService } from '../../services/recycleBinService';
 import { UserFilter, ManagedUser } from '../../types/admin';
@@ -69,9 +70,11 @@ export const AdminUserManagement: React.FC = () => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<ManagedUser | null>(null);
   const [archivingId, setArchivingId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
   const toast = useToastStore();
 
   const SUPER_ADMIN_EMAIL = 'morimasi@gmail.com';
+  const PAGE_SIZE = 20;
 
   // Gerçek zamanlı Firestore listener
   useEffect(() => {
@@ -103,7 +106,7 @@ export const AdminUserManagement: React.FC = () => {
         setLoading(false);
       },
       (error) => {
-        console.error('Firestore user listener error:', error);
+        logError('Firestore kullanıcı dinleyici hatası', { error });
         // Fallback: tek seferlik yükleme
         loadUsersFallback();
       }
@@ -151,6 +154,15 @@ export const AdminUserManagement: React.FC = () => {
       return 0;
     });
   }, [users, filter]);
+
+  // Sayfa her filtre değişiminde başa döner; aksi halde boş sayfada kalınabilir.
+  useEffect(() => {
+    setPage(1);
+  }, [filter.search, filter.role, filter.status, filter.sortBy]);
+
+  const pageCount = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pagedUsers = filteredUsers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
     const user = users.find(u => u.id === userId);
@@ -326,7 +338,7 @@ export const AdminUserManagement: React.FC = () => {
                 <tr><td colSpan={5} className="py-20 text-center text-zinc-500 font-bold uppercase text-xs">Eşleşen üye kaydı bulunamadı.</td></tr>
               ) : (
                 <AnimatePresence>
-                  {filteredUsers.map((user, idx) => {
+                  {pagedUsers.map((user, idx) => {
                     const isSuperAdmin = user.email === SUPER_ADMIN_EMAIL;
                     const isUserArchived = user.status === 'archived';
                     const isArchiving = archivingId === user.id;
@@ -484,8 +496,19 @@ export const AdminUserManagement: React.FC = () => {
           <span className="ml-2 text-emerald-500">● Canlı Senkronize</span>
         </p>
         <div className="flex items-center gap-2">
-           <button className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 text-zinc-500 border border-white/5 hover:bg-zinc-700 transition-colors">1</button>
-           <button className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600 hover:text-white transition-colors">2</button>
+           <button
+             onClick={() => setPage(Math.max(1, currentPage - 1))}
+             disabled={currentPage <= 1}
+             aria-label="Önceki sayfa"
+             className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 text-zinc-400 border border-white/5 hover:bg-zinc-700 transition-colors disabled:opacity-40"
+           >‹</button>
+           <span className="px-2 text-[10px] font-black uppercase tracking-widest text-zinc-500">{currentPage} / {pageCount}</span>
+           <button
+             onClick={() => setPage(Math.min(pageCount, currentPage + 1))}
+             disabled={currentPage >= pageCount}
+             aria-label="Sonraki sayfa"
+             className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 text-zinc-400 border border-white/5 hover:bg-zinc-700 transition-colors disabled:opacity-40"
+           >›</button>
         </div>
       </div>
 

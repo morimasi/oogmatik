@@ -129,7 +129,7 @@ export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUser
     
     // Simulated Time Series Data
     const generateTimeSeries = (points: number, min: number, max: number) => 
-        Array.from({length: points}, () => Math.floor(Math.random() * (max - min + 1) + min));
+        Array.from({length: points}, (_, i) => Math.round(min + ((Math.sin((i + min) * 0.8) + 1) / 2) * (max - min)));
 
     const metrics: AdminStatCard[] = [
         { 
@@ -148,7 +148,7 @@ export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUser
             chartData: generateTimeSeries(10, 8, 15)
         },
         { 
-            label: 'Başarı Oranı', value: '%98', 
+            label: 'Başarı Oranı (tahmini)', value: '%98', 
             trend: '%1', trendUp: true, icon: 'fa-check-circle', color: 'bg-emerald-100 text-emerald-600',
             chartData: [90, 92, 91, 94, 95, 96, 95, 97, 98, 98]
         },
@@ -170,10 +170,10 @@ export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUser
             <div className="flex flex-col md:flex-row justify-between items-end gap-4">
                 <div>
                     <h2 className="text-2xl font-black text-zinc-900 dark:text-white">Platform Özeti</h2>
-                    <p className="text-zinc-500 text-sm">Son 30 günlük performans verileri.</p>
+                    <p className="text-zinc-500 text-sm">Son 30 günlük performans özeti · trend ve seriler temsilîdir.</p>
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-zinc-700 dark:text-zinc-200">API Latency</p>
+                  <p className="text-xs font-bold text-zinc-700 dark:text-zinc-200">API Latency (temsilî)</p>
                   <p className="text-[10px] text-zinc-500">Google Gemini</p>
                   <span className="text-sm font-mono font-bold text-green-600">120ms</span>
                 </div>
@@ -203,7 +203,7 @@ export const AdminAnalytics: React.FC<AdminAnalyticsProps> = ({ stats, totalUser
 
             <div className="border-t border-zinc-100 dark:border-zinc-700 pt-4">
               <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-3">
-                Son Aktiviteler
+                Temsilî Son Aktiviteler
               </p>
               <div className="space-y-3">
                 {[

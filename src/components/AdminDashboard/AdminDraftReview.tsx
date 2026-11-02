@@ -55,7 +55,8 @@ export const AdminDraftReview = () => {
     setRefinedData({
       title: draft.title,
       description: draft.description,
-      category: 'visual-perception',
+      // Taslağın kendi kategorisi varsa onu koru; yoksa eski varsayılana düş.
+      category: (draft as unknown as { category?: string }).category ?? 'visual-perception',
       icon: 'fa-wand-magic-sparkles',
       targetSkills: [],
       learningObjectives: [],

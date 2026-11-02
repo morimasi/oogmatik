@@ -96,6 +96,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
 
   const [stats, setStats] = useState<ActivityStats[]>([]);
   const [_loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [usersCount, setUsersCount] = useState(0);
   const [feedbackCount, setFeedbackCount] = useState(0);
   const [inspectingUser, setInspectingUser] = useState<User | null>(null);
@@ -118,6 +119,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
       setFeedbackCount(feedbackData.feedbacks.filter(f => f.status === 'new').length);
     } catch (e: unknown) {
       logError('Yönetici yükleme hatası', e as Record<string, unknown>);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -241,8 +243,16 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
             <span className="px-2 py-0.5 rounded bg-[var(--bg-secondary)] text-[10px] font-mono text-[var(--text-muted)] border border-[var(--border-color)]">v1.3.0</span>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 text-emerald-500 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistem Aktif
+            <div
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                loadError
+                  ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                  : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+              }`}
+              title={loadError ? 'Yönetici verileri yüklenemedi; sayılar eksik olabilir.' : 'Yönetici verileri yüklendi.'}
+            >
+              <span className={`w-2 h-2 rounded-full ${loadError ? 'bg-amber-500' : 'bg-emerald-500 animate-pulse'}`}></span>
+              {loadError ? 'Veri Kısıtlı' : 'Sistem Aktif'}
             </div>
             <img src={user?.avatar} alt="" className="w-8 h-8 rounded-full border border-[var(--border-color)]" />
           </div>

@@ -96,6 +96,9 @@ export const SystemHealth: React.FC = () => {
         </div>
       </div>
 
+      <p style={{ fontSize: '0.75rem', color: '#d97706', margin: '0 0 8px' }}>
+        ℹ️ Temsili veri: bu panel gerçek izleme servisine bağlı değildir, değerler örnek amaçlı üretilir.
+      </p>
       <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '0 0 12px' }}>
         Son güncelleme: {lastRefreshed.toLocaleTimeString('tr-TR')}
       </p>

@@ -71,7 +71,7 @@ export const AdminRecycleBin: React.FC = () => {
     return items.filter(item => {
       const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (item.email && item.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (item.diagnosis && item.diagnosis.some(d => d.toLowerCase().includes(searchTerm.toLowerCase())));
+        (Array.isArray(item.diagnosis) && item.diagnosis.some(d => d.toLowerCase().includes(searchTerm.toLowerCase())));
       const matchesType = filterType === 'all' || item.entityType === filterType;
       return matchesSearch && matchesType;
     });
@@ -173,7 +173,7 @@ export const AdminRecycleBin: React.FC = () => {
                   <div className="min-w-0">
                     <h4 className="text-sm font-black text-[var(--text-primary)] truncate max-w-[160px]">{item.name}</h4>
                     <p className="text-[10px] font-bold text-[var(--text-muted)] truncate max-w-[160px]">
-                      {item.entityType === 'teacher' ? item.email : item.diagnosis?.join(', ') || 'Öğrenci'}
+                      {item.entityType === 'teacher' ? item.email : (Array.isArray(item.diagnosis) ? item.diagnosis.join(', ') : 'Öğrenci')}
                     </p>
                   </div>
                 </div>
