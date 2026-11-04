@@ -4,6 +4,7 @@ import type { ContentBlock, ThemeConfig, CompactA4Config } from '@/types/activit
 interface A4CompactRendererProps {
   title: string;
   blocks: ContentBlock[];
+  pedagogicalNote?: string;
   themeConfig: ThemeConfig | null;
   compactA4Config: CompactA4Config | null;
 }
@@ -74,7 +75,7 @@ function getBlockStyle(
  * Tema token'ları + CompactA4Config uygulanır. Lexend font disleksi standardı.
  */
 export const A4CompactRenderer = React.forwardRef<HTMLDivElement, A4CompactRendererProps>(
-  function A4CompactRenderer({ title, blocks, themeConfig, compactA4Config }, ref) {
+  function A4CompactRenderer({ title, blocks, pedagogicalNote, themeConfig, compactA4Config }, ref) {
     const bgPaper = themeConfig?.bgPaper ?? '#FFFDF7';
     const textColor = themeConfig?.textColor ?? '#1A1A2E';
     const marginMM = compactA4Config?.marginMM ?? 15;
@@ -129,6 +130,27 @@ export const A4CompactRenderer = React.forwardRef<HTMLDivElement, A4CompactRende
             );
           })}
         </div>
+
+        {pedagogicalNote && pedagogicalNote.trim().length > 0 && (
+          <div
+            data-testid="a4-pedagogical-footer"
+            style={{
+              position: 'absolute',
+              bottom: `${marginMM}mm`,
+              left: `${marginMM}mm`,
+              right: `${marginMM}mm`,
+              fontSize: '11pt',
+              lineHeight: 1.4,
+              color: textColor,
+              opacity: 0.85,
+              borderTop: `1px solid ${textColor}33`,
+              paddingTop: '8px',
+              fontStyle: 'italic',
+            }}
+          >
+            {pedagogicalNote}
+          </div>
+        )}
       </div>
     );
   }

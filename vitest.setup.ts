@@ -4,13 +4,14 @@ expect.extend(matchers);
 
 import { cleanup } from '@testing-library/react';
 
-// Runs a cleanup after each test case (e.g. clearing jsdom)
+// In-memory Firestore Store Mock
+export const firestoreStore = new Map<string, any>();
+
+// Runs a cleanup after each test case (e.g. clearing jsdom and in-memory stores)
 afterEach(() => {
   cleanup();
+  firestoreStore.clear();
 });
-
-// In-memory Firestore Store Mock
-const firestoreStore = new Map<string, any>();
 
 export const mockFirestoreDb = {};
 
@@ -18,8 +19,13 @@ vi.mock('@/services/firebaseClient', () => {
   return {
     db: mockFirestoreDb,
     collection: vi.fn((_db, name) => ({ type: 'collection', name })),
-    doc: vi.fn((_db, ...parts) => {
-      const path = parts.join('/');
+    doc: vi.fn((parent, ...parts) => {
+      let path = '';
+      if (parent && typeof parent === 'object' && parent.type === 'collection') {
+        path = `${parent.name}/${parts.join('/')}`;
+      } else {
+        path = parts.join('/');
+      }
       return { type: 'doc', path, id: parts[parts.length - 1] };
     }),
     getDoc: vi.fn(async (docRef) => {
@@ -44,13 +50,47 @@ vi.mock('@/services/firebaseClient', () => {
       const path = docRef?.path || docRef?.id || String(docRef);
       firestoreStore.delete(path);
     }),
-    getDocs: vi.fn(async () => ({
-      empty: true,
-      docs: [],
-      forEach: vi.fn(),
-    })),
-    query: vi.fn((c) => c),
-    where: vi.fn(),
+    getDocs: vi.fn(async (queryOrCol) => {
+      const colName = queryOrCol?.collection?.name || queryOrCol?.name || '';
+      const filters = queryOrCol?.filters || [];
+      const prefix = colName ? `${colName}/` : '';
+
+      const docs: any[] = [];
+      for (const [path, data] of firestoreStore.entries()) {
+        if (!colName || path.startsWith(prefix)) {
+          let matches = true;
+          for (const f of filters) {
+            if (f.op === '==' && data[f.field] !== f.value) {
+              matches = false;
+              break;
+            }
+          }
+          if (matches) {
+            docs.push({
+              id: path.split('/').pop() || path,
+              ref: { path, id: path.split('/').pop() || path },
+              data: () => JSON.parse(JSON.stringify(data)),
+              exists: () => true,
+            });
+          }
+        }
+      }
+      return {
+        empty: docs.length === 0,
+        size: docs.length,
+        docs,
+        forEach: (cb: any) => docs.forEach(cb),
+      };
+    }),
+    query: vi.fn((col, ...filters) => {
+      return {
+        type: 'query',
+        collection: col,
+        name: col?.name,
+        filters: filters.filter(Boolean),
+      };
+    }),
+    where: vi.fn((field, op, value) => ({ field, op, value })),
     orderBy: vi.fn(),
     limit: vi.fn(),
     startAfter: vi.fn(),

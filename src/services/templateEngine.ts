@@ -204,6 +204,10 @@ export const templateEngine = {
             html += renderSection(section, layout.columns);
         }
 
+        if (metadata.pedagogicalNote) {
+            html += `\n  <div style="margin-top: 16px; padding: 8px 12px; background: #f0fdf4; border-left: 3px solid #22c55e; border-radius: 4px; font-size: 11px; color: #166534;">\n    <strong>Pedagojik Not:</strong> ${escapeHtml(metadata.pedagogicalNote)}\n  </div>`;
+        }
+
         html += '\n</div>';
         return html;
     },
@@ -217,6 +221,11 @@ export const templateEngine = {
         let qualityScore = 100;
 
         // Zorunlu metadata kontrolleri
+        if (!template.metadata.pedagogicalNote || template.metadata.pedagogicalNote.trim().length < 10) {
+            errors.push({ field: 'metadata.pedagogicalNote', message: 'pedagogicalNote zorunludur ve en az 10 karakter olmalıdır (Elif kuralı).', severity: 'error' });
+            qualityScore -= 20;
+        }
+
         if (!template.metadata.title || template.metadata.title.length < 3) {
             errors.push({ field: 'metadata.title', message: 'Başlık en az 3 karakter olmalıdır.', severity: 'error' });
             qualityScore -= 15;

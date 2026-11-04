@@ -130,27 +130,38 @@ export function getMinFontPT(
   ageGroup: string,
   profile: string
 ): number {
-  // Base font sizes by age group
-  const baseFont: Record<string, number> = {
-    '4-6': 14,   // Preschool - largest fonts
-    '6-8': 13,   // Early elementary
-    '8-10': 12,  // Mid elementary
-    '10-12': 11, // Upper elementary
-    '12+': 11,   // Middle/high school
+  if (ageGroup === '5-7') {
+    return 14;
+  }
+  if (ageGroup === '8-10') {
+    if (profile === 'dyslexia') return 13;
+    return 12;
+  }
+  if (ageGroup === '11-13') {
+    if (profile === 'dyslexia' || profile === 'mixed') return 12;
+    return 11;
+  }
+  if (ageGroup === '14+') {
+    return 11;
+  }
+  return 11;
+}
+
+export function buildCompactA4LayoutWithMinimums(
+  config: { densityLevel: number; fontSize: number; lineHeight: number; marginMM: number },
+  ageGroup: string,
+  profile: string
+) {
+  const minFont = getMinFontPT(ageGroup, profile);
+  const effectiveFont = Math.max(config.fontSize, minFont);
+  return {
+    ...config,
+    fontSize: effectiveFont,
+    effectiveMinFontPT: minFont,
+    sections: [
+      { id: 'sec-header', styling: { fontSize: Math.max(effectiveFont + 2, minFont) } },
+      { id: 'sec-content', styling: { fontSize: effectiveFont } },
+      { id: 'sec-footer', styling: { fontSize: Math.max(effectiveFont - 1, minFont) } },
+    ],
   };
-
-  // Adjustments for learning disabilities
-  const profileAdjustment: Record<string, number> = {
-    'dyslexia': 2,      // +2pt for dyslexia
-    'dyscalculia': 1,   // +1pt for dyscalculia
-    'adhd': 1,          // +1pt for ADHD
-    'visual': 3,        // +3pt for visual processing issues
-    'auditory': 1,      // +1pt for auditory processing
-    'mixed': 2,         // +2pt for mixed profiles
-  };
-
-  const base = baseFont[ageGroup] ?? 12;
-  const adjustment = profileAdjustment[profile] ?? 0;
-
-  return base + adjustment;
 }

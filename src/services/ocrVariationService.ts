@@ -296,6 +296,9 @@ const validateVariation = (
   index: number
 ): string[] => {
   const warnings: string[] = [];
+  if (!variation.pedagogicalNote || variation.pedagogicalNote.length < 10) {
+    warnings.push(`Varyasyon ${index + 1}: Pedagojik not eksik veya yetersiz.`);
+  }
 
 
 

@@ -91,6 +91,8 @@ export interface FinancialProfile {
         installmentNumber: number;
     }[];
     notes?: string;
+    paymentMethods?: string[];
+    monthlyPaymentStatus?: 'paid' | 'pending' | 'overdue';
 }
 
 // 3. ATTENDANCE (Devamsızlık)
@@ -587,7 +589,9 @@ export const createDefaultFinancial = (studentId: string): FinancialProfile => (
     billingCycle: 'monthly',
     scholarshipRate: 0,
     transactions: [],
-    paymentPlan: []
+    paymentPlan: [],
+    paymentMethods: [],
+    monthlyPaymentStatus: 'pending'
 });
 
 /**

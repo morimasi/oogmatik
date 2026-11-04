@@ -20,10 +20,9 @@ export class GenericActivityGenerator<T> extends BaseGenerator<T> {
     }
 
     protected async execute(options: GeneratorOptions): Promise<T | T[]> {
-        // Öncelik: options.mode (UI'dan gelen dinamik seçim), Fallback: this.mode (Varsayılan)
-        const activeMode = (options.mode === 'ai' ? GeneratorMode.AI : 
-                           options.mode === 'fast' ? GeneratorMode.OFFLINE : 
-                           this.mode);
+        const activeMode = this.mode === GeneratorMode.OFFLINE
+            ? GeneratorMode.OFFLINE
+            : (options.mode === 'fast' ? GeneratorMode.OFFLINE : GeneratorMode.AI);
         
         if (activeMode === GeneratorMode.AI) {
             if (!this.aiFunction) {

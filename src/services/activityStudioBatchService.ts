@@ -19,9 +19,10 @@ function splitIntoBatches<T>(items: T[], size: number): T[][] {
 export interface BatchEnhanceResult {
   enhancedBlocks: ContentBlock[];
   batchCount: number;
+  aggregatedPedagogicalNote: string;
 }
 
-type BlockEnhancer = (block: ContentBlock) => Promise<{ enhanced: ContentBlock }>;
+type BlockEnhancer = (block: ContentBlock) => Promise<{ enhanced: ContentBlock; pedagogicalNote?: string }>;
 
 /**
  * 5+ blok için batch enhancement.
@@ -32,19 +33,29 @@ export async function enhanceMultipleBlocks(
   blocks: ContentBlock[],
   enhancerFn: BlockEnhancer
 ): Promise<BatchEnhanceResult> {
+  if (blocks.length === 0) {
+    return {
+      enhancedBlocks: [],
+      batchCount: 0,
+      aggregatedPedagogicalNote: '',
+    };
+  }
+
   const batches = splitIntoBatches(blocks, BATCH_SIZE);
   const allEnhanced: ContentBlock[] = [];
+  const uniqueNotes = new Set<string>();
 
   for (let i = 0; i < batches.length; i++) {
     const batch = batches[i];
-
     const results = await Promise.all(batch.map((block) => enhancerFn(block)));
 
     for (const result of results) {
       allEnhanced.push(result.enhanced);
+      if (result.pedagogicalNote && result.pedagogicalNote.trim().length > 0) {
+        uniqueNotes.add(result.pedagogicalNote.trim());
+      }
     }
 
-    // Son batch değilse bekle
     if (i < batches.length - 1) {
       await delay(BATCH_DELAY_MS);
     }
@@ -53,6 +64,7 @@ export async function enhanceMultipleBlocks(
   return {
     enhancedBlocks: allEnhanced,
     batchCount: batches.length,
+    aggregatedPedagogicalNote: Array.from(uniqueNotes).join(' | '),
   };
 }
 
@@ -63,6 +75,6 @@ export async function enhanceMultipleBlocks(
 export async function enhanceSingleBlock(
   block: ContentBlock,
   enhancerFn: BlockEnhancer
-): Promise<{ enhanced: ContentBlock }> {
+): Promise<{ enhanced: ContentBlock; pedagogicalNote?: string }> {
   return enhancerFn(block);
 }

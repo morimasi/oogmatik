@@ -10,8 +10,8 @@ import { ReadingSessionMetrics } from '../phonological/phonologicalScoringEngine
 import { ReadingPassage } from '../../components/LiveReadingStudio/sampleStories';
 
 /** Türkçe özel karakterleri latin-1 muadilleriyle değiştirir (jsPDF Helvetica uyumu) */
-const tr = (s: string): string =>
-  s
+const tr = (s?: string): string =>
+  (s || "")
     .replace(/İ/g, 'I')
     .replace(/ı/g, 'i')
     .replace(/Ğ/g, 'G')
@@ -190,7 +190,7 @@ export class ReadingAssessmentPdfGenerator {
     doc.text(tr('Onerilen Bireysellestirilmis Gelisim Calismalari'), MARGIN, y);
     y += 5;
 
-    metrics.recommendations.forEach((rec, idx) => {
+    (metrics.recommendations || []).forEach((rec, idx) => {
       doc.setFontSize(8.5);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(55, 65, 81);

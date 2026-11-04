@@ -9,6 +9,9 @@ import type { SinavAyarlari } from '../src/types/sinav';
 
 // Mock geminiClient
 vi.mock('../src/services/geminiClient', () => ({
+  MODEL_PRO_REASONING: 'gemini-2.5-pro',
+  MODEL_AGENTIC_FLASH: 'gemini-3.8-flash',
+  MASTER_MODEL: 'gemini-3.8-flash',
   callGeminiDirect: vi.fn().mockResolvedValue(`\`\`\`json
 {
   "baslik": "Değerlendirme Sınavı",

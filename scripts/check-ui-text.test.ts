@@ -19,7 +19,8 @@ import {
  *        npx tsx scripts/check-ui-text.ts --update
  */
 describe('arayüz metni Türkçe olmalı', () => {
-  it('kaynakta baseline dışı İngilizce arayüz metni bulunmamalı', () => {
+  it('kaynakta baseline dışı İngilizce arayüz metni bulunmamalı', { timeout: 30000 }, () => {
+
     const hits = findEnglishUiText('src');
     const baseline = loadBaseline();
     const fresh = findNewEnglishUiText(hits, baseline);

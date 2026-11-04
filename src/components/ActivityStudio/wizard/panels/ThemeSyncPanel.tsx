@@ -62,8 +62,7 @@ export const ThemeSyncPanel: React.FC = () => {
           <label htmlFor="primaryColor" className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Birincil Renk</label>
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-mono text-zinc-500">{colors.primaryColor}</span>
-            <input
-              id="primaryColor"
+            <input id="primaryColor" aria-label="Primary Color"
               type="color"
               value={colors.primaryColor}
               onChange={(e) => setColors((prev) => ({ ...prev, primaryColor: e.target.value }))}
@@ -76,8 +75,7 @@ export const ThemeSyncPanel: React.FC = () => {
           <label htmlFor="secondaryColor" className="text-xs font-bold text-zinc-400 uppercase tracking-wider">İkincil Renk</label>
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-mono text-zinc-500">{colors.secondaryColor}</span>
-            <input
-              id="secondaryColor"
+            <input id="secondaryColor" aria-label="Secondary Color"
               type="color"
               value={colors.secondaryColor}
               onChange={(e) => setColors((prev) => ({ ...prev, secondaryColor: e.target.value }))}
@@ -90,8 +88,7 @@ export const ThemeSyncPanel: React.FC = () => {
           <label htmlFor="accentColor" className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Vurgu Rengi</label>
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-mono text-zinc-500">{colors.accentColor}</span>
-            <input
-              id="accentColor"
+            <input id="accentColor" aria-label="Accent Color"
               type="color"
               value={colors.accentColor}
               onChange={(e) => setColors((prev) => ({ ...prev, accentColor: e.target.value }))}
@@ -104,8 +101,7 @@ export const ThemeSyncPanel: React.FC = () => {
           <label htmlFor="bgPaper" className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Kağıt Rengi</label>
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-mono text-zinc-500">{colors.bgPaper}</span>
-            <input
-              id="bgPaper"
+            <input id="bgPaper" aria-label="Paper Color"
               type="color"
               value={colors.bgPaper}
               onChange={(e) => setColors((prev) => ({ ...prev, bgPaper: e.target.value }))}
@@ -118,8 +114,7 @@ export const ThemeSyncPanel: React.FC = () => {
           <label htmlFor="textColor" className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Metin Rengi</label>
           <div className="flex items-center gap-3">
             <span className="text-[10px] font-mono text-zinc-500">{colors.textColor}</span>
-            <input
-              id="textColor"
+            <input id="textColor" aria-label="Text Color"
               type="color"
               value={colors.textColor}
               onChange={(e) => setColors((prev) => ({ ...prev, textColor: e.target.value }))}

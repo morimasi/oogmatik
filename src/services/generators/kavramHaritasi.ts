@@ -49,3 +49,9 @@ ZORUNLU: Sadece JSON döndür.
 
   return parsedData;
 };
+
+export class KavramHaritasiGenerator {
+  generate(options: any) {
+    return generateKavramHaritasiFromAI(options);
+  }
+}

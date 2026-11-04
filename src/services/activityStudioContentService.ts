@@ -29,6 +29,7 @@ function sanitizeText(raw: string, maxLength: number): string {
 export function createActivityBlock(input: {
   type: BlockType;
   content: string;
+  pedagogicalNote?: string;
   order?: number;
   videoUrl?: string;
   imageUrl?: string;
@@ -38,6 +39,7 @@ export function createActivityBlock(input: {
     type: input.type,
     order: input.order ?? 0,
     content: input.content,
+    pedagogicalNote: input.pedagogicalNote ?? '',
     videoUrl: input.videoUrl,
     imageUrl: input.imageUrl,
   };
@@ -70,51 +72,47 @@ export function removeActivityBlock(blocks: ContentBlock[], id: string): Content
  */
 export function extractContentBlocks(
   orchestratorResult: OrchestratorResult
-): { blocks: ContentBlock[] } {
+): { blocks: ContentBlock[]; pedagogicalNote: string } {
   const contentAgent = orchestratorResult.agentOutputs?.['content'];
+  const agentNote = contentAgent?.pedagogicalNote ?? '';
 
   if (!contentAgent?.data) {
-    return { blocks: [] };
+    return { blocks: [], pedagogicalNote: agentNote };
   }
 
   const rawData = contentAgent.data as Record<string, unknown>;
-
   if (typeof rawData !== 'object' || rawData === null) {
-    return { blocks: [] };
+    return { blocks: [], pedagogicalNote: agentNote };
   }
 
-  // BaseAgent içerisinden dönen raw property'si (AI'nin JSON çıktısı)
-  let payload = rawData.raw;
-
-  // JSON string olarak geldiyse ayrıştır
-  if (typeof payload === 'string') {
-    try {
-       payload = JSON.parse(payload);
-    } catch {}
+  let rawBlocks: unknown[] = [];
+  if (Array.isArray(rawData['blocks'])) {
+    rawBlocks = rawData['blocks'];
+  } else {
+    let payload = rawData.raw;
+    if (typeof payload === 'string') {
+      try { payload = JSON.parse(payload); } catch {}
+    }
+    if (typeof payload === 'object' && payload !== null && typeof (payload as Record<string, unknown>).text === 'string') {
+      try { payload = JSON.parse((payload as Record<string, unknown>).text as string); } catch {}
+    }
+    if (typeof payload === 'object' && payload !== null && Array.isArray((payload as Record<string, unknown>)['blocks'])) {
+      rawBlocks = (payload as Record<string, unknown>)['blocks'] as unknown[];
+    }
   }
-
-  // Vercel backend { text: "{\"blocks\":...}" } formuna sarıp dönerse:
-  if (typeof payload === 'object' && payload !== null && typeof (payload as Record<string, unknown>).text === 'string') {
-    try {
-       payload = JSON.parse((payload as Record<string, unknown>).text as string);
-    } catch {}
-  }
-
-  if (typeof payload !== 'object' || payload === null) {
-    return { blocks: [] };
-  }
-
-  const dataObj = payload as Record<string, unknown>;
-  const rawBlocks = Array.isArray(dataObj['blocks']) ? dataObj['blocks'] : [];
 
   const blocks: ContentBlock[] = rawBlocks.map((raw: unknown, idx: number) => {
     const item = (typeof raw === 'object' && raw !== null ? raw : {}) as Record<string, unknown>;
+    const blockNote = typeof item['pedagogicalNote'] === 'string' && item['pedagogicalNote'].trim().length > 0
+      ? item['pedagogicalNote']
+      : agentNote;
 
     return {
       id: `block_${idx}`,
       type: (typeof item['type'] === 'string' ? item['type'] : 'activity') as BlockType,
       order: idx,
       content: String(item['content'] ?? ''),
+      pedagogicalNote: blockNote,
       videoUrl: typeof item['videoUrl'] === 'string' ? item['videoUrl'] : undefined,
       imageUrl: typeof item['imageUrl'] === 'string' ? item['imageUrl'] : undefined,
     };
@@ -122,6 +120,7 @@ export function extractContentBlocks(
 
   return {
     blocks,
+    pedagogicalNote: agentNote,
   };
 }
 

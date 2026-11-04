@@ -20,6 +20,7 @@ export interface GizemliSayilarWorksheetData {
   title: string;
   instruction: string;
   puzzles: GizemliSayiPuzzle[];
+  riddles?: Array<GizemliSayiPuzzle & { mysteryNumber: number }>;
   difficulty: string;
   numberRange: string;
   showIcons: boolean;
@@ -52,13 +53,16 @@ export async function generateOfflineGizemliSayilar(
 
   const worksheetCount = opts.worksheetCount || 1;
   const difficulty = opts.difficulty || customSettings.difficulty || 'Orta';
-  const puzzleCount = customSettings.itemCount || opts.itemCount || (difficulty === 'Zor' ? 4 : 6);
-  const clueCount = customSettings.clueCount || (difficulty === 'Zor' ? 4 : 3);
+  const puzzleCount = opts.itemsPerPage || customSettings.itemCount || opts.itemCount || (difficulty === 'Zor' ? 4 : 6);
+  const clueCount = opts.clueCount || customSettings.clueCount || (difficulty === 'Zor' ? 4 : 3);
   const showIcons = customSettings.showIcons !== false;
 
   let minRange = 10;
   let maxRange = 50;
-  if (difficulty === 'Kolay') {
+  if (Array.isArray(opts.numberRange) && opts.numberRange.length === 2) {
+    minRange = opts.numberRange[0];
+    maxRange = opts.numberRange[1];
+  } else if (difficulty === 'Kolay') {
     minRange = 10;
     maxRange = 40;
   } else if (difficulty === 'Orta') {
@@ -164,10 +168,15 @@ export async function generateOfflineGizemliSayilar(
       puzzles.push({
         id: `gizemli_${p + 1}`,
         targetNumber: target,
-        clues,
+        clues: clues.slice(0, clueCount),
         options: optionsSorted,
       });
     }
+
+    const riddles = puzzles.map((p) => ({
+      ...p,
+      mysteryNumber: p.targetNumber,
+    }));
 
     pages.push({
       id: `gizemli_sheet_${Date.now()}_${w}`,
@@ -175,6 +184,7 @@ export async function generateOfflineGizemliSayilar(
       title: 'Gizemli Sayılar: İpuçlarını Takip Et!',
       instruction: 'Verilen dedektif ipuçlarını incele, tüm kuralları sağlayan TEK gizemli sayıyı bul ve işaretle.',
       puzzles,
+      riddles,
       difficulty,
       numberRange: `${minRange}-${maxRange}`,
       showIcons,

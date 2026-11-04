@@ -23,7 +23,7 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         : paperSize;
   const dims = PAPER_DIMENSIONS[paperSize];
   const styleText = `
-    @page { size: ${pageSize}; margin: 8mm !important; }
+    @page { size: ${pageSize}; margin: 8mm !important; width: ${dims?.width ?? '210mm'}; height: ${dims?.height ?? '297mm'}; }
     @media print {
       html, body {
         width: 100% !important;

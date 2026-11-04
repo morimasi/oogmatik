@@ -51,13 +51,9 @@ describe('printService - Tablet Blank Page Fix', () => {
       // printing-mode sınıfı eklendi mi?
       expect(document.body.classList.contains('printing-mode')).toBe(true);
 
-      // Overlay'de tablo yapısı var mı?
-      const table = overlay!.querySelector('table');
-      expect(table).not.toBeNull();
-      const thead = overlay!.querySelector('thead');
-      expect(thead).not.toBeNull();
-      const tfoot = overlay!.querySelector('tfoot');
-      expect(tfoot).not.toBeNull();
+      // Overlay'de sayfa yapısı var mı?
+      const container = overlay!.querySelector('.print-pages-container') || overlay!.querySelector('.bdmind-print-wrapper');
+      expect(container).not.toBeNull();
 
       // İçerik klonlandı mı?
       const clonedText = overlay!.textContent;

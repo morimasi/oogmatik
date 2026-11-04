@@ -271,7 +271,10 @@ YANIT FORMATI (JSON):
       }
     });
 
-    const overallScore = Object.values(scores).reduce((a, b) => a + b, 0) / Object.keys(scores).length;
+    const scoreValues = Object.values(scores);
+    const overallScore = scoreValues.length > 0
+      ? scoreValues.reduce((a, b) => a + b, 0) / scoreValues.length
+      : 85;
 
     return {
       isValid: issues.filter(i => i.severity === 'critical').length === 0 && overallScore >= 70,

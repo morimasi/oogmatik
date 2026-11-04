@@ -14,9 +14,10 @@ vi.stubGlobal('fetch', mockFetch);
 
 vi.mock('../src/utils/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+  logError: vi.fn(),
+  logInfo: vi.fn(),
 }));
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const makeGeminiResponse = (jsonPayload: Record<string, unknown>) =>
   Promise.resolve({

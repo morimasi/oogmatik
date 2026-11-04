@@ -59,3 +59,9 @@ ZORUNLU: Sadece JSON döndür.
 
   return parsedData;
 };
+
+export class EsAnlamliKelimelerGenerator {
+  generate(options: any) {
+    return generateEsAnlamliKelimelerFromAI(options);
+  }
+}

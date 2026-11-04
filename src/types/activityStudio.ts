@@ -219,6 +219,7 @@ export interface ActivityLibraryQuery {
 export type BlockType = 'title' | 'question' | 'explanation' | 'activity' | 'spacing' | 'resource';
 
 export interface ContentBlock {
+  pedagogicalNote?: string;
   id: string;
   type: BlockType;
   order: number;
@@ -281,6 +282,8 @@ export interface SafePDFMetadata {
 }
 
 export interface ActivityStudioState {
+  pedagogicalNote: string;
+  setPedagogicalNote: (note: string) => void;
   currentStep: WizardStepId;
   steps: WizardStep[];
   isGenerating: boolean;

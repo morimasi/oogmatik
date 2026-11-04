@@ -6,6 +6,13 @@ import { PedagogicalHeader } from '../common';
 export const FindTheDifferenceSheet = ({ data }: { data: FindTheDifferenceData }) => {
     const settings = data?.settings;
     const puzzles = data?.puzzles || [];
+    if (!puzzles || puzzles.length === 0) {
+        return (
+            <div className="p-8 text-center text-zinc-500 font-bold">
+                Geçersiz infografik verisi veya boş içerik.
+            </div>
+        );
+    }
     const puzzleCount = settings?.puzzleCount || puzzles.length || 1;
     const diffType = settings?.differenceType || 'visual';
 

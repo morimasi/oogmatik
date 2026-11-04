@@ -118,14 +118,15 @@ export class MLEngine {
     };
 
     // Calculate weighted score
-    const score = 
-      (features.avgCompletionRate * weights.avgCompletionRate) +
-      (features.avgAccuracy * weights.avgAccuracy) +
-      (Math.min(features.sessionCount / 50, 1) * 100 * weights.sessionCount) +
-      (Math.max(1 - features.daysSinceLastLogin / 30, 0) * 100 * weights.daysSinceLastLogin) +
-      (features.bepProgress * weights.bepProgress) +
-      (Math.max(1 - features.plateauWeeks / 10, 0) * 100 * weights.plateauWeeks);
-
+    const penaltyLogin = Math.min(features.daysSinceLastLogin / 30, 1) * 100 * 0.1;
+    const penaltyPlateau = Math.min(features.plateauWeeks / 10, 1) * 100 * 0.05;
+    const score =
+      (features.avgCompletionRate * 0.35) +
+      (features.avgAccuracy * 0.35) +
+      (Math.min(features.sessionCount / 50, 1) * 100 * 0.15) +
+      (features.bepProgress * 0.15) -
+      penaltyLogin -
+      penaltyPlateau;
     // Confidence based on feature variance
     const confidence = Math.min(70 + Math.random() * 20, 95);
 

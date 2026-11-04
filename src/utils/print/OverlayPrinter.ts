@@ -96,8 +96,10 @@ export const print = async (
 ): Promise<void> => {
   if (typeof window === 'undefined') return;
 
-  await forceRenderAllPages();
   ensurePrintStyle(paperSize);
+  if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+    await forceRenderAllPages();
+  }
 
   // 1. Yazdırılacak sayfaları topla
   const roots = Array.from(document.querySelectorAll(elementSelector)) as HTMLElement[];

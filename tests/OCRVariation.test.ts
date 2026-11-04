@@ -10,6 +10,9 @@ import type { VariationRequest, VariationResult } from '@/services/ocrVariationS
 // Mock geminiClient
 vi.mock('@/services/geminiClient', () => ({
   analyzeImage: vi.fn(),
+  MODEL_AGENTIC_FLASH: 'gemini-3.8-flash',
+  MODEL_PRO_REASONING: 'gemini-2.5-pro',
+  MASTER_MODEL: 'gemini-3.8-flash',
 }));
 
 // Mock errorHandler

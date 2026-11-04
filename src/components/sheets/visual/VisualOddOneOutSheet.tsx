@@ -88,6 +88,13 @@ export const VisualOddOneOutSheet = ({
     ? puzzles 
     : (legacyRows.length > 0 ? [{ rows: legacyRows, title: 'Görsel Tarama Matrisi', targetSkill: 'Visual Discrimination' }] : []);
 
+  if (!effectivePuzzles || effectivePuzzles.length === 0) {
+    return (
+      <div className="p-8 text-center text-zinc-500 font-bold">
+        Geçersiz infografik verisi veya boş içerik.
+      </div>
+    );
+  }
   const puzzleCount = effectivePuzzles.length;
   const itemsPerRow = settings?.itemsPerRow || 6;
   const aestheticMode = settings?.aestheticMode || 'premium';
