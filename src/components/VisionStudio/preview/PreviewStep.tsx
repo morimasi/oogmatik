@@ -96,17 +96,17 @@ function InlineEditable({
 }
 
 // ---- A4 Sayfa Bileşeni (Hem ekran hem yazdırma motoru) ----
-interface A4PageProps {
+export interface A4PageProps {
   activity: GeneratedActivity;
   showAnswerKey: boolean;
   isEditMode: boolean;
-  onUpdateTitle: (title: string) => void;
-  onUpdateInstructions: (instructions: string) => void;
-  onUpdateSection: (sectionId: string, patch: Partial<ActivitySection>) => void;
-  onUpdatePedagogicalNote: (note: string) => void;
+  onUpdateTitle?: (title: string) => void;
+  onUpdateInstructions?: (instructions: string) => void;
+  onUpdateSection?: (sectionId: string, patch: Partial<ActivitySection>) => void;
+  onUpdatePedagogicalNote?: (note: string) => void;
 }
 
-const A4Page = React.forwardRef<HTMLDivElement, A4PageProps>(
+export const A4Page = React.forwardRef<HTMLDivElement, A4PageProps>(
   (
     {
       activity,
@@ -135,7 +135,7 @@ const A4Page = React.forwardRef<HTMLDivElement, A4PageProps>(
           <h1 className="text-xl font-bold text-slate-800 leading-tight">
             <InlineEditable
               value={activity.title}
-              onSave={onUpdateTitle}
+              onSave={onUpdateTitle ?? (() => {})}
               isEditMode={isEditMode}
               className="text-xl font-bold text-slate-800"
             />
@@ -156,7 +156,7 @@ const A4Page = React.forwardRef<HTMLDivElement, A4PageProps>(
             <span className="font-semibold text-slate-700 mr-1">Yönerge:</span>
             <InlineEditable
               value={activity.instructions}
-              onSave={onUpdateInstructions}
+              onSave={onUpdateInstructions ?? (() => {})}
               multiline
               isEditMode={isEditMode}
               className="text-sm text-slate-600"
@@ -171,7 +171,7 @@ const A4Page = React.forwardRef<HTMLDivElement, A4PageProps>(
               key={section.id}
               section={section}
               isEditMode={isEditMode}
-              onUpdateSection={(patch) => onUpdateSection(section.id, patch)}
+              onUpdateSection={(patch) => onUpdateSection?.(section.id, patch)}
             />
           ))}
         </div>
@@ -200,7 +200,7 @@ const A4Page = React.forwardRef<HTMLDivElement, A4PageProps>(
             <p className="text-xs font-bold text-indigo-700 mb-1">📋 Pedagojik Öğretmen Notu (ZPD & Disleksi Desteği)</p>
             <InlineEditable
               value={activity.pedagogicalNote}
-              onSave={onUpdatePedagogicalNote}
+              onSave={onUpdatePedagogicalNote ?? (() => {})}
               multiline
               isEditMode={isEditMode}
               className="text-xs text-indigo-600 leading-relaxed"

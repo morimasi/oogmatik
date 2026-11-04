@@ -3,9 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, ArrowLeft, Layers, Trash2, Eye, ChevronDown, Filter, FileText,
   Share2, AlertTriangle, ArrowUpDown,
-  Calendar, Type, ExternalLink, Grid3X3
+  Calendar, Type, ExternalLink, Grid3X3, Sparkles, Printer, X
 } from 'lucide-react';
 import { SavedWorksheet, SavedAssessment, Curriculum } from '../types';
+import type { GeneratedActivity } from '../types/visionStudio';
+import { getApprovedActivities } from '../services/visionStudio/activityRepository';
+import { A4Page } from './VisionStudio/preview/PreviewStep';
+import { useReactToPrint } from 'react-to-print';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToastStore } from '../store/useToastStore';
@@ -342,6 +346,157 @@ const PlanCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
     );
 };
 
+const VISION_CATEGORIES = [
+  { id: 'all', title: 'Tüm Vision Etkinlikleri' },
+  { id: 'matematik', title: 'Matematik' },
+  { id: 'turkce', title: 'Türkçe' },
+  { id: 'fen', title: 'Fen Bilimleri' },
+  { id: 'sosyal', title: 'Sosyal Bilgiler' },
+  { id: 'ingilizce', title: 'İngilizce' },
+  { id: 'diger', title: 'Diğer' },
+];
+
+const VisionModalViewer: React.FC<{
+  activity: GeneratedActivity | null;
+  isOpen: boolean;
+  onClose: () => void;
+}> = ({ activity, isOpen, onClose }) => {
+  const [showAnswerKey, setShowAnswerKey] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: activity?.title || 'Vision_Etkinlik',
+  });
+
+  if (!isOpen || !activity) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-3xl border border-[var(--border-color)] bg-[var(--bg-paper)] shadow-2xl flex flex-col"
+      >
+        <div className="flex items-center justify-between border-b border-[var(--border-color)] px-6 py-4 bg-[var(--bg-secondary)]/60">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="rounded-lg bg-indigo-500/15 px-2 py-0.5 text-[10px] font-black uppercase text-indigo-500">Vision Etkinliği</span>
+              <span className="text-xs text-[var(--text-muted)] font-medium">· {activity.grade} · {activity.subject}</span>
+            </div>
+            <h3 className="font-lexend text-base font-bold text-[var(--text-primary)] mt-0.5">{activity.title}</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAnswerKey(!showAnswerKey)}
+              className={cn(
+                "rounded-xl border px-3 py-1.5 text-xs font-bold transition-all",
+                showAnswerKey ? "border-amber-400 bg-amber-500/10 text-amber-500" : "border-[var(--border-color)] text-[var(--text-muted)] hover:bg-[var(--bg-secondary)]"
+              )}
+            >
+              {showAnswerKey ? '🔑 Cevaplar Açık' : '🔑 Cevap Anahtarı'}
+            </button>
+            <button
+              onClick={() => handlePrint()}
+              className="flex items-center gap-1.5 rounded-xl bg-[var(--accent-color)] px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:opacity-90"
+            >
+              <Printer className="h-3.5 w-3.5" /> Yazdır / PDF
+            </button>
+            <button
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-xl text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        <div className="custom-scrollbar flex-1 overflow-y-auto p-6 bg-slate-100 dark:bg-slate-900/60 flex justify-center">
+          <div className="shadow-xl rounded-sm">
+            <A4Page
+              ref={printRef}
+              activity={activity}
+              showAnswerKey={showAnswerKey}
+              isEditMode={false}
+            />
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const VisionMaterialCard: React.FC<{
+  item: GeneratedActivity;
+  onPreview: (item: GeneratedActivity) => void;
+}> = ({ item, onPreview }) => {
+  if (!item || !item.id) return null;
+
+  return (
+    <GlassCard className="h-64 flex flex-col p-5 group relative overflow-hidden transition-all duration-500 hover:shadow-2xl">
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+      <div className="relative z-10 flex justify-between items-start mb-3">
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => onPreview(item)}
+          className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl border border-indigo-500/20 bg-indigo-500/10 text-indigo-500 shadow-inner"
+        >
+          <Sparkles className="h-6 w-6" />
+        </motion.div>
+
+        <div className="flex items-center gap-1.5">
+          <span className={cn(
+            "rounded-lg px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider",
+            item.difficulty === 'kolay' ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/20' :
+            item.difficulty === 'orta' ? 'bg-amber-500/15 text-amber-500 border border-amber-500/20' :
+            'bg-rose-500/15 text-rose-500 border border-rose-500/20'
+          )}>
+            {item.difficulty}
+          </span>
+          <span className="rounded-lg bg-[var(--bg-secondary)] px-2 py-0.5 text-[9px] font-bold text-[var(--text-secondary)] border border-[var(--border-color)]">
+            {item.grade}
+          </span>
+        </div>
+      </div>
+
+      <div onClick={() => onPreview(item)} className="relative z-10 flex flex-1 flex-col cursor-pointer">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></span>
+          <span className="font-lexend text-[9px] font-black uppercase tracking-[0.18em] text-indigo-500">
+            {item.subject} · {item.category}
+          </span>
+        </div>
+
+        <h3 className="font-lexend mb-1 line-clamp-2 text-[14px] font-black leading-snug text-[var(--text-primary)] group-hover:text-indigo-500 transition-colors">
+          {item.title}
+        </h3>
+
+        {item.pedagogicalNote && (
+          <p className="line-clamp-2 text-[11px] text-[var(--text-muted)] italic leading-relaxed">
+            {item.pedagogicalNote}
+          </p>
+        )}
+
+        <div className="font-lexend mt-auto pt-3 border-t border-[var(--border-color)]/40 flex items-center justify-between text-[10px] font-bold text-[var(--text-muted)]">
+          <div className="flex items-center gap-1.5 bg-[var(--bg-secondary)]/50 px-2.5 py-1 rounded-full border border-[var(--border-color)]/30">
+            <Calendar className="h-3 w-3 opacity-70" />
+            {item.createdAt ? new Date(item.createdAt).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' }) : '—'}
+          </div>
+
+          <div className="flex items-center gap-1 text-indigo-500 font-semibold group-hover:translate-x-0.5 transition-transform">
+            <Eye className="h-3.5 w-3.5" />
+            <span>İncele / Yazdır</span>
+          </div>
+        </div>
+      </div>
+    </GlassCard>
+  );
+};
+
 // --- Main View ---
 
 // --- Premium Confirm Dialog ---
@@ -381,12 +536,14 @@ const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, confirmLab
 export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad, onBack, targetUserId }) => {
     const toast = useToastStore();
     const { user } = useAuthStore();
-    const [activeTab, setActiveTab] = useState<'materials' | 'reports' | 'plans'>('materials');
+    const [activeTab, setActiveTab] = useState<'materials' | 'reports' | 'plans' | 'vision'>('materials');
     const [activeCategory, setActiveCategory] = useState<string>('all');
 
     const [worksheets, setWorksheets] = useState<SavedWorksheet[]>([]);
     const [assessments, setAssessments] = useState<SavedAssessment[]>([]);
     const [plans, setPlans] = useState<Curriculum[]>([]);
+    const [visionActivities, setVisionActivities] = useState<GeneratedActivity[]>([]);
+    const [selectedVisionActivity, setSelectedVisionActivity] = useState<GeneratedActivity | null>(null);
     const [materialsTotal, setMaterialsTotal] = useState(0);
 
     const [loading, setLoading] = useState(true);
@@ -507,8 +664,8 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
         return items.sort((a, b) => {
             const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
             const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-            const nameA = (a.name || a.studentName || '').toLowerCase();
-            const nameB = (b.name || b.studentName || '').toLowerCase();
+            const nameA = (a.name || a.studentName || a.title || '').toLowerCase();
+            const nameB = (b.name || b.studentName || b.title || '').toLowerCase();
             const dir = sortDir === 'desc' ? -1 : 1;
             if (sortBy === 'date') return (dateA - dateB) * dir;
             return nameA.localeCompare(nameB) * dir;
@@ -662,7 +819,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                         </p>
                         <div className="flex flex-wrap items-baseline gap-3">
                             <h1 className="font-lexend text-3xl font-black tracking-tight text-[var(--text-primary)] md:text-4xl">
-                                {activeTab === 'materials' ? 'Materyaller' : activeTab === 'reports' ? 'Raporlar' : 'Eğitim planları'}
+                                {activeTab === 'materials' ? 'Materyaller' : activeTab === 'vision' ? 'Vision Etkinlikleri' : activeTab === 'reports' ? 'Raporlar' : 'Eğitim planları'}
                             </h1>
                             <span className="text-lg font-bold tabular-nums text-[var(--accent-color)] opacity-80">
                                 {filteredItems.length}
@@ -679,7 +836,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                             <Search className="ml-4 h-5 w-5 shrink-0 text-[var(--text-muted)] transition-colors group-focus-within:text-[var(--accent-color)]" aria-hidden />
                             <input
                                 type="search"
-                                placeholder={`${activeTab === 'materials' ? 'Materyal adı' : 'Öğrenci'} ara…`}
+                                placeholder={`${activeTab === 'materials' ? 'Materyal adı' : activeTab === 'vision' ? 'Etkinlik veya ders' : 'Öğrenci'} ara…`}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="font-lexend w-full border-none bg-transparent py-3.5 pl-3 pr-4 text-sm font-medium text-[var(--text-primary)] outline-none placeholder:text-[var(--text-muted)]"
@@ -799,7 +956,13 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                                 }}
                             />
 
-                            {/* Feedback Modal Integration */}
+                            <VisionModalViewer
+    isOpen={!!selectedVisionActivity}
+    activity={selectedVisionActivity}
+    onClose={() => setSelectedVisionActivity(null)}
+/>
+
+{/* Feedback Modal Integration */}
                             <FeedbackModal 
                                 isOpen={feedbackModal.isOpen}
                                 onClose={() => setFeedbackModal({ isOpen: false, item: null })}
