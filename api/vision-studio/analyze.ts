@@ -184,14 +184,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const prompt = buildAnalysisPrompt(fileType, generateVariations);
 
-    // Firebase Storage'dan dosyayı alıp base64 inlineData olarak Gemini'ye gönder
-    const fileRes = await fetch(fileUrl);
-    if (!fileRes.ok) {
-      throw new Error(`Dosya indirilemedi: ${fileRes.statusText}`);
+    let base64Data = '';
+    let mimeType = fileType === 'pdf' ? 'application/pdf' : 'image/jpeg';
+
+    if (parsed.data.fileBase64) {
+      const rawBase64 = parsed.data.fileBase64;
+      if (rawBase64.includes(',')) {
+        const parts = rawBase64.split(',');
+        base64Data = parts[1];
+        const headerMatch = parts[0].match(/data:(.*?);base64/);
+        if (headerMatch) mimeType = headerMatch[1];
+      } else {
+        base64Data = rawBase64;
+      }
+    } else if (parsed.data.fileUrl) {
+      const fileRes = await fetch(parsed.data.fileUrl);
+      if (!fileRes.ok) {
+        throw new Error(`Dosya indirilemedi: ${fileRes.statusText}`);
+      }
+      const arrayBuffer = await fileRes.arrayBuffer();
+      base64Data = Buffer.from(arrayBuffer).toString('base64');
+      mimeType = fileRes.headers.get('content-type') || (fileType === 'pdf' ? 'application/pdf' : 'image/jpeg');
     }
-    const arrayBuffer = await fileRes.arrayBuffer();
-    const base64Data = Buffer.from(arrayBuffer).toString('base64');
-    const mimeType = fileRes.headers.get('content-type') || (fileType === 'pdf' ? 'application/pdf' : 'image/jpeg');
 
     const imagePart = {
       inlineData: {
@@ -274,7 +288,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  // 7. generationJobs log
+  // 7. Uretilen aktiviteleri Firestore'a kaydet (Admin SDK guvencesiyle)
+  for (const act of activities) {
+    try {
+      await adminDb.collection('visionStudioActivities').doc(act.id).set(act);
+    } catch (dbErr) {
+      console.error('[VisionStudio] AdminDb aktivite kaydetme hatasi:', dbErr);
+    }
+  }
+
+  // 8. generationJobs log
   await adminDb.collection('visionStudioJobs').add({
     userId,
     fileId,

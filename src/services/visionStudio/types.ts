@@ -2,7 +2,9 @@
 import type { AIAnalysisResult, GeneratedActivity } from '../../types/visionStudio';
 
 export interface AnalyzeRequest {
-  fileUrl: string;
+  fileUrl?: string;
+  fileBase64?: string;
+  fileName?: string;
   fileType: 'pdf' | 'image';
   fileId: string;
   userId: string;

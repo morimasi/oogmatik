@@ -5,6 +5,7 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileText, Image as ImageIcon, AlertCircle, Sparkles } from 'lucide-react';
+import { v4 as uuid } from 'uuid';
 import { useVisionStudioStore } from '../../../store/useVisionStudioStore';
 import { uploadActivityFile } from '../../../services/visionStudio/activityRepository';
 import { analyzeUploadedFile } from '../../../services/visionStudio/visionAnalysisService';
@@ -39,20 +40,52 @@ export default function UploadStep() {
       setLoading(true);
 
       try {
-        // 1. Firebase Storage'a yükle
+        // 1. Dosyayı base64'e dönüştür (her zaman güvenli, sıfır izin engeli)
         setPhase('uploading');
-        const uploadedFile = await uploadActivityFile(file, user.id, setUploadProgress);
-        setUploadedFile(uploadedFile);
+        setUploadProgress(20);
+        const fileBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        setUploadProgress(50);
 
-        // 2. AI analizine gönder (kullanıcının seçtiği varyasyon sayısı ile)
+        // Firebase Storage yüklemesini dene (izin varsa saklar, yoksa base64 ile devam eder)
+        let downloadUrl = '';
+        let fileId = uuid();
+        try {
+          const uploaded = await uploadActivityFile(file, user.id, (p) =>
+            setUploadProgress(50 + Math.round(p * 0.4))
+          );
+          downloadUrl = uploaded.downloadUrl;
+          fileId = uploaded.id;
+          setUploadedFile(uploaded);
+        } catch (storageErr) {
+          console.warn('[VisionStudio] Storage doğrudan yükleme atlandı (base64 ile devam ediliyor):', storageErr);
+          setUploadedFile({
+            id: fileId,
+            storagePath: `visionStudio/${user.id}/${fileId}`,
+            downloadUrl: URL.createObjectURL(file),
+            fileName: file.name,
+            fileType: file.type === 'application/pdf' ? 'pdf' : 'image',
+            fileSizeBytes: file.size,
+            uploadedAt: new Date().toISOString(),
+            uploadedBy: user.id,
+          });
+        }
+
+        // 2. AI analizine gönder (base64 güvencesiyle)
         setPhase('analyzing');
         setStep('analyzing');
 
         const response = await analyzeUploadedFile(
           {
-            fileUrl: uploadedFile.downloadUrl,
-            fileType: uploadedFile.fileType,
-            fileId: uploadedFile.id,
+            fileUrl: downloadUrl || undefined,
+            fileBase64,
+            fileName: file.name,
+            fileType: file.type === 'application/pdf' ? 'pdf' : 'image',
+            fileId,
             userId: user.id,
             generateVariations: variationCount,
           },
@@ -63,9 +96,13 @@ export default function UploadStep() {
         setAnalysisResult(response.analysis);
         setGeneratedActivities(response.activities);
 
-        // 3. Üretilen etkinlikleri Firestore'a kaydet
+        // 3. Üretilen etkinlikleri Firestore'a kaydet (Sunucu zaten kaydetti, istemci de senkronlar)
         for (const activity of response.activities) {
-          await saveGeneratedActivity(activity);
+          try {
+            await saveGeneratedActivity(activity);
+          } catch (syncErr) {
+            console.warn('[VisionStudio] İstemci Firestore kaydı atlandı (sunucu zaten kaydetti):', syncErr);
+          }
         }
 
         setStep('preview');

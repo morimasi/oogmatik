@@ -11,7 +11,7 @@ export const UploadedFileSchema = z.object({
   downloadUrl: z.string().url(),
   fileName: z.string().min(1),
   fileType: z.enum(['pdf', 'image']),
-  fileSizeBytes: z.number().int().positive().max(20 * 1024 * 1024, 'Dosya 20 MB\'dan küçük olmalı'),
+  fileSizeBytes: z.number().int().positive().max(20 * 1024 * 1024),
   uploadedAt: z.string().datetime(),
   uploadedBy: z.string().min(1),
 });
@@ -125,11 +125,15 @@ export const GeneratedActivitySchema = z.object({
 
 // API istek şeması — AI analize gönderilecek
 export const AnalyzeRequestSchema = z.object({
-  fileUrl: z.string().url('Gecerli bir dosya URL-si gerekli'),
+  fileUrl: z.string().optional(),
+  fileBase64: z.string().optional(),
+  fileName: z.string().default('etkinlik'),
   fileType: z.enum(['pdf', 'image']),
   fileId: z.string().min(1),
   userId: z.string().min(1),
   generateVariations: z.number().int().min(1).max(3).default(1),
+}).refine((d) => Boolean(d.fileUrl || d.fileBase64), {
+  message: 'fileUrl veya fileBase64 saglanmalidir.',
 });
 
 export type AnalyzeRequest = z.infer<typeof AnalyzeRequestSchema>;

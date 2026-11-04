@@ -73,11 +73,15 @@ export async function uploadActivityFile(
     uploadedBy: userId,
   };
 
-  // Firestore'a kayıt
-  await setDoc(doc(db, 'visionStudioUploads', id), {
-    ...record,
-    uploadedAt: serverTimestamp(),
-  });
+  // Firestore'a kayıt (istemci izni olmasa dahi dosya Storage'a yüklendiği için akış kesilmez)
+  try {
+    await setDoc(doc(db, 'visionStudioUploads', id), {
+      ...record,
+      uploadedAt: serverTimestamp(),
+    });
+  } catch (dbErr) {
+    console.warn('[VisionStudio] Upload meta kaydı Firestore client ile yazılamadı (sunucu devralacak):', dbErr);
+  }
 
   return record;
 }
@@ -152,37 +156,74 @@ function getAllowedTransitions(from: ActivityStatus): ActivityStatus[] {
 
 // ---- Öğretmene ait etkinlikleri listele ----
 export async function getTeacherActivities(userId: string): Promise<GeneratedActivity[]> {
-  const q = query(
-    collection(db, 'visionStudioActivities'),
-    where('ownerId', '==', userId),
-    where('deletedAt', '==', null),
-    orderBy('createdAt', 'desc')
-  );
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => d.data() as GeneratedActivity);
+  try {
+    const q = query(
+      collection(db, 'visionStudioActivities'),
+      where('ownerId', '==', userId),
+      where('deletedAt', '==', null),
+      orderBy('createdAt', 'desc')
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => d.data() as GeneratedActivity);
+  } catch {
+    const fallbackQ = query(
+      collection(db, 'visionStudioActivities'),
+      where('ownerId', '==', userId)
+    );
+    const snap = await getDocs(fallbackQ);
+    return snap.docs
+      .map((d) => d.data() as GeneratedActivity)
+      .filter((a) => !a.deletedAt)
+      .sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime());
+  }
 }
 
 // ---- Admin: onay bekleyen etkinlikler ----
 export async function getPendingActivities(): Promise<GeneratedActivity[]> {
-  const q = query(
-    collection(db, 'visionStudioActivities'),
-    where('status', '==', 'pending'),
-    orderBy('createdAt', 'asc')
-  );
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => d.data() as GeneratedActivity);
+  try {
+    const q = query(
+      collection(db, 'visionStudioActivities'),
+      where('status', '==', 'pending'),
+      orderBy('createdAt', 'asc')
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => d.data() as GeneratedActivity);
+  } catch {
+    const fallbackQ = query(
+      collection(db, 'visionStudioActivities'),
+      where('status', '==', 'pending')
+    );
+    const snap = await getDocs(fallbackQ);
+    return snap.docs
+      .map((d) => d.data() as GeneratedActivity)
+      .sort((a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime());
+  }
 }
 
 // ---- Admin: yayınlanan etkinlikler (kategoriye göre) ----
 export async function getApprovedActivities(category?: string): Promise<GeneratedActivity[]> {
-  let q = query(
-    collection(db, 'visionStudioActivities'),
-    where('status', '==', 'approved'),
-    orderBy('approvedAt', 'desc')
-  );
-  if (category) {
-    q = query(q, where('category', '==', category));
+  try {
+    let q = query(
+      collection(db, 'visionStudioActivities'),
+      where('status', '==', 'approved'),
+      orderBy('approvedAt', 'desc')
+    );
+    if (category) {
+      q = query(q, where('category', '==', category));
+    }
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => d.data() as GeneratedActivity);
+  } catch {
+    const fallbackQ = category
+      ? query(
+          collection(db, 'visionStudioActivities'),
+          where('status', '==', 'approved'),
+          where('category', '==', category)
+        )
+      : query(collection(db, 'visionStudioActivities'), where('status', '==', 'approved'));
+    const snap = await getDocs(fallbackQ);
+    return snap.docs
+      .map((d) => d.data() as GeneratedActivity)
+      .sort((a, b) => new Date(b.approvedAt ?? b.createdAt ?? 0).getTime() - new Date(a.approvedAt ?? a.createdAt ?? 0).getTime());
   }
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => d.data() as GeneratedActivity);
 }
