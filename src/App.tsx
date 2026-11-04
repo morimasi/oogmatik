@@ -79,7 +79,7 @@ const SuperStudio = lazy(() =>
   import('./components/SuperStudio').then((module) => ({ default: module.SuperStudio }))
 );
 const ActivityStudio = lazy(() =>
-  import('./components/ActivityStudio').then((module) => ({ default: module.ActivityStudio }))
+  import('./components/VisionStudio').then((module) => ({ default: module.ActivityStudio }))
 );
 const PDFViewer = lazy(() =>
   import('./components/PDFViewer/PDFViewer').then((module) => ({ default: module.PDFViewer || module.default }))

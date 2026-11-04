@@ -2,7 +2,15 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { activityApprovalService } from '../../services/activityApprovalService';
 import type { ActivityDraft } from '../../types/admin';
 import type { ApprovalStatus } from '../../types/ocr-activity';
-import { filterDraftsBySource, type ApprovalSourceFilter } from '../../services/activityStudioApprovalFilter';
+export type ApprovalSourceFilter = 'all' | 'activity-studio' | 'other';
+
+export function filterDraftsBySource(drafts: ActivityDraft[], filter: ApprovalSourceFilter): ActivityDraft[] {
+  if (filter === 'all') return drafts;
+  if (filter === 'activity-studio') {
+    return drafts.filter((d) => (d as unknown as { source?: string }).source === 'activity-studio');
+  }
+  return drafts.filter((d) => (d as unknown as { source?: string }).source !== 'activity-studio');
+}
 import { useToastStore } from '../../store/useToastStore';
 import { logError } from '../../utils/logger';
 import { motion, AnimatePresence } from 'framer-motion';

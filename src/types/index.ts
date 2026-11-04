@@ -9,6 +9,7 @@ export * from './ocr-activity';
 export * from './worksheet';
 export * from './creativeStudio';
 export * from './activityStudio';
+export * from './visionStudio';
 export * from './student-advanced';
 export * from './progress';
 export * from './user';
