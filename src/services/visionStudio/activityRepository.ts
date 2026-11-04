@@ -1,5 +1,7 @@
 // ============================================================
-// VisionStudio — Firebase Storage Yükleme Servisi
+// VisionStudio — Firestore / Storage Veri Erişimi
+// - Düzenlemeleri (merge) kalıcılaştırır
+// - Sorguları bileşik index gerektirmeyecek şekilde sadeleştirir
 // ============================================================
 import {
   ref,
@@ -15,7 +17,6 @@ import {
   updateDoc,
   query,
   where,
-  orderBy,
   getDocs,
   serverTimestamp,
   Timestamp,
@@ -23,11 +24,15 @@ import {
 import { storage, db } from '../firebaseClient';
 import { AppError } from '../../utils/AppError';
 import type { UploadedFile, GeneratedActivity, ActivityStatus, AuditLogEntry } from '../../types/visionStudio';
+import { canTransition } from './statusMachine';
+import { decodeActivity, encodeSections } from '../../utils/visionStudio/persistenceCodec';
 import { v4 as uuid } from 'uuid';
 
 // ---- Yükleme ----
 const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE_BYTES = 20 * 1024 * 1024; // 20 MB
+
+const ACTIVITIES_COLLECTION = 'visionStudioActivities';
 
 export async function uploadActivityFile(
   file: File,
@@ -86,15 +91,37 @@ export async function uploadActivityFile(
   return record;
 }
 
-// ---- Etkinlik kaydetme / güncelleme ----
-export async function saveGeneratedActivity(activity: GeneratedActivity): Promise<void> {
-  const ref = doc(db, 'visionStudioActivities', activity.id);
-  await setDoc(ref, {
-    ...activity,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  });
+// ---- Etkinlik düzenlemelerini kaydetme ----
+const EDITABLE_FIELDS = [
+  'title',
+  'instructions',
+  'sections',
+  'pedagogicalNote',
+  'teacherNotes',
+  'answerKey',
+  'objectives',
+  'difficulty',
+  'durationMinutes',
+] as const;
+
+/**
+ * Öğretmenin A4 önizlemede yaptığı düzenlemeleri kalıcılaştırır.
+ * `createdAt` korunur; yalnızca düzenlenebilir alanlar merge edilir.
+ */
+export async function persistActivityEdits(activity: GeneratedActivity): Promise<void> {
+  const activityRef = doc(db, ACTIVITIES_COLLECTION, activity.id);
+  const patch: Record<string, unknown> = { updatedAt: serverTimestamp() };
+
+  for (const field of EDITABLE_FIELDS) {
+    if (activity[field] === undefined) continue;
+    patch[field] = field === 'sections' ? encodeSections(activity.sections ?? []) : activity[field];
+  }
+
+  await setDoc(activityRef, patch, { merge: true });
 }
+
+// ---- Durum makinesi ----
+export { canTransition } from './statusMachine';
 
 export async function updateActivityStatus(
   activityId: string,
@@ -103,21 +130,23 @@ export async function updateActivityStatus(
   actorRole: 'teacher' | 'admin',
   reason?: string
 ): Promise<void> {
-  const actRef = doc(db, 'visionStudioActivities', activityId);
+  const actRef = doc(db, ACTIVITIES_COLLECTION, activityId);
   const snap = await getDoc(actRef);
   if (!snap.exists()) {
     throw new AppError('Etkinlik bulunamadı.', 'NOT_FOUND', 404);
   }
   const current = snap.data() as GeneratedActivity;
 
-  // Geçerli geçiş kontrolü
-  const allowed = getAllowedTransitions(current.status);
-  if (!allowed.includes(newStatus)) {
+  if (!canTransition(current.status, newStatus)) {
     throw new AppError(
       `'${current.status}' durumundan '${newStatus}' durumuna geçiş yapılamaz.`,
       'INVALID_TRANSITION',
       409
     );
+  }
+
+  if ((newStatus === 'approved' || newStatus === 'rejected') && actorRole !== 'admin') {
+    throw new AppError('Yalnızca yönetici onaylayabilir veya reddedebilir.', 'FORBIDDEN', 403);
   }
 
   const logEntry: AuditLogEntry = {
@@ -141,89 +170,56 @@ export async function updateActivityStatus(
   await setDoc(logRef, logEntry);
 }
 
-// Durum makinesi geçiş tablosu
-function getAllowedTransitions(from: ActivityStatus): ActivityStatus[] {
-  const map: Record<ActivityStatus, ActivityStatus[]> = {
-    uploading:  ['analyzing'],
-    analyzing:  ['ready'],
-    ready:      ['pending'],
-    pending:    ['approved', 'rejected'],
-    approved:   [],
-    rejected:   ['pending'],
-  };
-  return map[from] ?? [];
+function createdTime(value: unknown): number {
+  if (typeof value === 'string') {
+    const t = new Date(value).getTime();
+    return Number.isFinite(t) ? t : 0;
+  }
+  if (value && typeof value === 'object' && 'toMillis' in value) {
+    const toMillis = (value as { toMillis?: () => number }).toMillis;
+    return typeof toMillis === 'function' ? toMillis() : 0;
+  }
+  return 0;
 }
 
-// ---- Öğretmene ait etkinlikleri listele ----
+function isVisible(activity: GeneratedActivity): boolean {
+  return !activity.deletedAt;
+}
+
+// ---- Öğretmene ait etkinlikler ----
 export async function getTeacherActivities(userId: string): Promise<GeneratedActivity[]> {
-  try {
-    const q = query(
-      collection(db, 'visionStudioActivities'),
-      where('ownerId', '==', userId),
-      where('deletedAt', '==', null),
-      orderBy('createdAt', 'desc')
-    );
-    const snap = await getDocs(q);
-    return snap.docs.map((d) => d.data() as GeneratedActivity);
-  } catch {
-    const fallbackQ = query(
-      collection(db, 'visionStudioActivities'),
-      where('ownerId', '==', userId)
-    );
-    const snap = await getDocs(fallbackQ);
-    return snap.docs
-      .map((d) => d.data() as GeneratedActivity)
-      .filter((a) => !a.deletedAt)
-      .sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime());
-  }
+  // orderBy('createdAt') bileşik index gerektirdiği için sıralama istemcide yapılır.
+  const q = query(collection(db, ACTIVITIES_COLLECTION), where('ownerId', '==', userId));
+  const snap = await getDocs(q);
+  return snap.docs
+    .map((d) => decodeActivity(d.data()))
+    .filter(isVisible)
+    .sort((a, b) => createdTime(b.createdAt) - createdTime(a.createdAt));
 }
 
 // ---- Admin: onay bekleyen etkinlikler ----
 export async function getPendingActivities(): Promise<GeneratedActivity[]> {
-  try {
-    const q = query(
-      collection(db, 'visionStudioActivities'),
-      where('status', '==', 'pending'),
-      orderBy('createdAt', 'asc')
-    );
-    const snap = await getDocs(q);
-    return snap.docs.map((d) => d.data() as GeneratedActivity);
-  } catch {
-    const fallbackQ = query(
-      collection(db, 'visionStudioActivities'),
-      where('status', '==', 'pending')
-    );
-    const snap = await getDocs(fallbackQ);
-    return snap.docs
-      .map((d) => d.data() as GeneratedActivity)
-      .sort((a, b) => new Date(a.createdAt ?? 0).getTime() - new Date(b.createdAt ?? 0).getTime());
-  }
+  const q = query(collection(db, ACTIVITIES_COLLECTION), where('status', '==', 'pending'));
+  const snap = await getDocs(q);
+  return snap.docs
+    .map((d) => decodeActivity(d.data()))
+    .filter(isVisible)
+    .sort((a, b) => createdTime(a.createdAt) - createdTime(b.createdAt));
 }
 
-// ---- Admin: yayınlanan etkinlikler (kategoriye göre) ----
+// ---- Arşiv: onaylanmış etkinlikler ----
 export async function getApprovedActivities(category?: string): Promise<GeneratedActivity[]> {
-  try {
-    let q = query(
-      collection(db, 'visionStudioActivities'),
-      where('status', '==', 'approved'),
-      orderBy('approvedAt', 'desc')
-    );
-    if (category) {
-      q = query(q, where('category', '==', category));
-    }
-    const snap = await getDocs(q);
-    return snap.docs.map((d) => d.data() as GeneratedActivity);
-  } catch {
-    const fallbackQ = category
-      ? query(
-          collection(db, 'visionStudioActivities'),
-          where('status', '==', 'approved'),
-          where('category', '==', category)
-        )
-      : query(collection(db, 'visionStudioActivities'), where('status', '==', 'approved'));
-    const snap = await getDocs(fallbackQ);
-    return snap.docs
-      .map((d) => d.data() as GeneratedActivity)
-      .sort((a, b) => new Date(b.approvedAt ?? b.createdAt ?? 0).getTime() - new Date(a.approvedAt ?? a.createdAt ?? 0).getTime());
-  }
+  const q = category
+    ? query(
+        collection(db, ACTIVITIES_COLLECTION),
+        where('status', '==', 'approved'),
+        where('category', '==', category)
+      )
+    : query(collection(db, ACTIVITIES_COLLECTION), where('status', '==', 'approved'));
+
+  const snap = await getDocs(q);
+  return snap.docs
+    .map((d) => decodeActivity(d.data()))
+    .filter(isVisible)
+    .sort((a, b) => createdTime(b.approvedAt ?? b.createdAt) - createdTime(a.approvedAt ?? a.createdAt));
 }

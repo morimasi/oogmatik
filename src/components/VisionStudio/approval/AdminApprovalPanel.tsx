@@ -2,20 +2,95 @@
 // VisionStudio — Admin Onay Paneli
 // pending etkinlikleri listeler, onay / red işlemi yapar
 // ============================================================
-import React, { useEffect, useState, useCallback } from 'react';
-import { CheckCircle, XCircle, Eye, Clock } from 'lucide-react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { useReactToPrint } from 'react-to-print';
+import { CheckCircle, XCircle, Eye, Clock, Printer, X } from 'lucide-react';
 import {
   getPendingActivities,
   updateActivityStatus,
 } from '../../../services/visionStudio/activityRepository';
 import type { GeneratedActivity, ActivitySection } from '../../../types/visionStudio';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { A4Page } from '../preview/PreviewStep';
+
+// ---- Yönetici için tam A4 önizleme (baskı çıktısıyla birebir) ----
+function ActivityA4PreviewModal({
+  activity,
+  onClose,
+}: {
+  activity: GeneratedActivity;
+  onClose: () => void;
+}) {
+  const printRef = useRef<HTMLDivElement>(null);
+  const [showAnswerKey, setShowAnswerKey] = useState(true);
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+    documentTitle: activity.title,
+    pageStyle: '@page { size: A4; margin: 0; }',
+  });
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-6 py-3 dark:border-slate-700">
+          <div className="min-w-0">
+            <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+              A4 Onay Önizlemesi
+            </p>
+            <h3 className="truncate text-sm font-bold text-slate-800 dark:text-white">{activity.title}</h3>
+          </div>
+          <div className="flex flex-shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowAnswerKey((v) => !v)}
+              className="rounded-xl border border-slate-300 px-3 py-1.5 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              {showAnswerKey ? 'Cevap Anahtarı Açık' : 'Cevap Anahtarı'}
+            </button>
+            <button
+              type="button"
+              onClick={() => handlePrint()}
+              className="flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-indigo-700"
+            >
+              <Printer className="h-3.5 w-3.5" /> Yazdır
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Kapat"
+              className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-auto bg-slate-100 p-6 dark:bg-slate-950">
+          <div className="mx-auto w-fit shadow-xl">
+            <A4Page
+              ref={printRef}
+              activity={activity}
+              showAnswerKey={showAnswerKey}
+              isEditMode={false}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function VisionStudioAdminPanel() {
   const { user } = useAuthStore();
   const [activities, setActivities] = useState<GeneratedActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [previewId, setPreviewId] = useState<string | null>(null);
+  const [fullPreview, setFullPreview] = useState<GeneratedActivity | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -148,6 +223,14 @@ export default function VisionStudioAdminPanel() {
                   </button>
 
                   <button
+                    onClick={() => setFullPreview(activity)}
+                    className="flex items-center gap-1.5 text-xs text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-lg px-3 py-1.5 transition-colors"
+                    aria-label="A4 onizleme"
+                  >
+                    <Printer className="h-3.5 w-3.5" /> A4 Görünüm
+                  </button>
+
+                  <button
                     onClick={() => handleApprove(activity.id)}
                     disabled={actionLoading === activity.id}
                     className="flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
@@ -203,7 +286,7 @@ export default function VisionStudioAdminPanel() {
               {/* Onizleme: ilk 3 bolum */}
               {previewId === activity.id && (
                 <div className="mt-4 border-t border-slate-100 dark:border-slate-700 pt-4 space-y-3">
-                  {activity.sections.slice(0, 3).map((sec: ActivitySection) => (
+                  {(activity.sections ?? []).slice(0, 3).map((sec: ActivitySection) => (
                     <div key={sec.id} className="text-sm text-slate-700 dark:text-slate-300">
                       {sec.title && <p className="font-semibold mb-0.5">{sec.title}</p>}
                       {'text' in sec.content && (
@@ -214,14 +297,18 @@ export default function VisionStudioAdminPanel() {
                       )}
                     </div>
                   ))}
-                  {activity.sections.length > 3 && (
-                    <p className="text-xs text-slate-400">…ve {activity.sections.length - 3} bolum daha</p>
+                  {(activity.sections ?? []).length > 3 && (
+                    <p className="text-xs text-slate-400">…ve {(activity.sections ?? []).length - 3} bolum daha</p>
                   )}
                 </div>
               )}
             </div>
           ))}
         </div>
+      )}
+
+      {fullPreview && (
+        <ActivityA4PreviewModal activity={fullPreview} onClose={() => setFullPreview(null)} />
       )}
     </div>
   );

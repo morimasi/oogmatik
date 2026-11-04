@@ -9,7 +9,28 @@ export * from './ocr-activity';
 export * from './worksheet';
 export * from './creativeStudio';
 export * from './activityStudio';
-export * from './visionStudio';
+// visionStudio: ActivityCategory / SectionType / AuditLogEntry adları diğer
+// modüllerde de bulunduğu için yıldız export yerine açık liste kullanılır.
+export type {
+  UploadFileType,
+  ActivityStatus,
+  DifficultyLevel,
+  UploadedFile,
+  AIObjective,
+  AIAnalysisResult,
+  ActivitySection,
+  ActivitySectionContent,
+  TextContent,
+  InstructionContent,
+  PageBreakContent,
+  QuestionContent,
+  FillInTheBlankContent,
+  MatchingContent,
+  TableContent,
+  ImageContent,
+  GeneratedActivity,
+  VisionStudioState,
+} from './visionStudio';
 export * from './student-advanced';
 export * from './progress';
 export * from './user';

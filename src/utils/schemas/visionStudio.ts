@@ -117,7 +117,7 @@ export const GeneratedActivitySchema = z.object({
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   version: z.number().int().nonnegative(),
-  deletedAt: z.string().datetime().optional(),
+  deletedAt: z.string().datetime().nullable().optional(),
   rejectionReason: z.string().optional(),
   approvedBy: z.string().optional(),
   approvedAt: z.string().datetime().optional(),
@@ -126,7 +126,7 @@ export const GeneratedActivitySchema = z.object({
 // API istek şeması — AI analize gönderilecek
 export const AnalyzeRequestSchema = z.object({
   fileUrl: z.string().optional(),
-  fileBase64: z.string().optional(),
+  fileBase64: z.string().max(4_000_000, 'Dosya cok buyuk').optional(),
   fileName: z.string().default('etkinlik'),
   fileType: z.enum(['pdf', 'image']),
   fileId: z.string().min(1),
@@ -136,5 +136,12 @@ export const AnalyzeRequestSchema = z.object({
   message: 'fileUrl veya fileBase64 saglanmalidir.',
 });
 
+// API yanıt şeması — istemci sunucudan gelen veriyi körü körüne kabul etmez
+export const AnalyzeResponseSchema = z.object({
+  analysis: AIAnalysisResultSchema,
+  activities: z.array(GeneratedActivitySchema).min(1, 'En az bir etkinlik uretilmelidir'),
+});
+
 export type AnalyzeRequest = z.infer<typeof AnalyzeRequestSchema>;
+export type AnalyzeResponse = z.infer<typeof AnalyzeResponseSchema>;
 export type GeneratedActivityInput = z.infer<typeof GeneratedActivitySchema>;

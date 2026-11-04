@@ -214,15 +214,39 @@ service cloud.firestore {
     }
 
     // VisionStudio — Üretilen Etkinlikler ve Denetim Kayıtları
+    // Öğretmen yalnızca kendi taslağını düzenleyip onaya gönderebilir;
+    // 'approved' durumunu SADECE yönetici atayabilir.
     match /visionStudioActivities/{activityId} {
-      allow read: if isAuthenticated() || (resource != null && resource.data.status == 'approved');
-      allow create: if isAuthenticated() && request.resource.data.ownerId == request.auth.uid;
-      allow update: if isAuthenticated() && (resource.data.ownerId == request.auth.uid || isAdmin());
+      allow read: if isAuthenticated() && (
+        isAdmin()
+        || resource.data.ownerId == request.auth.uid
+        || resource.data.status == 'approved'
+      );
+      allow create: if isAuthenticated()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.status == 'ready';
+      allow update: if isAuthenticated() && (
+        isAdmin()
+        || (
+          resource.data.ownerId == request.auth.uid
+          && resource.data.status in ['ready', 'rejected']
+          && (request.resource.data.status == resource.data.status
+              || request.resource.data.status == 'pending')
+          && request.resource.data.ownerId == resource.data.ownerId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+               'title', 'instructions', 'sections', 'pedagogicalNote',
+               'teacherNotes', 'answerKey', 'objectives', 'difficulty',
+               'durationMinutes', 'status', 'updatedAt', 'version'
+             ])
+        )
+      );
       allow delete: if isAdmin();
 
       match /auditLog/{logId} {
-        allow read: if isAuthenticated();
-        allow create: if isAuthenticated();
+        allow read: if isAdmin() || (isAuthenticated() && get(
+          /databases/$(database)/documents/visionStudioActivities/$(activityId)
+        ).data.ownerId == request.auth.uid);
+        allow create: if isAuthenticated() && request.resource.data.actorId == request.auth.uid;
       }
     }
   }

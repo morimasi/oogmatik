@@ -14,6 +14,78 @@ interface PreviewStepProps {
   isSending: boolean;
 }
 
+function safeDateLabel(value: unknown): string {
+  if (typeof value === 'string') {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('tr-TR');
+  }
+  if (value && typeof value === 'object' && 'toDate' in value) {
+    const toDate = (value as { toDate?: () => Date }).toDate;
+    if (typeof toDate === 'function') return toDate.call(value).toLocaleDateString('tr-TR');
+  }
+  return '';
+}
+
+function safePdfFileName(title: string): string {
+  const cleaned = title
+    .replace(/[^\p{L}\p{N}\- _]/gu, '')
+    .trim()
+    .replace(/\s+/g, '-');
+  return `${cleaned || 'vision-etkinlik'}.pdf`;
+}
+
+/**
+ * A4 önizleme düğümünü gerçek bir PDF dosyasına çevirir.
+ * html2canvas + jsPDF yalnızca gerektiğinde dinamik yüklenir.
+ */
+interface PdfDocument {
+  addImage: (data: string, format: string, x: number, y: number, w: number, h: number) => void;
+  addPage: () => void;
+  save: (name: string) => void;
+}
+
+interface PdfConstructor {
+  new (options: { orientation: 'portrait'; unit: 'mm'; format: 'a4' }): PdfDocument;
+}
+
+async function exportNodeToPdf(node: HTMLElement, title: string): Promise<void> {
+  const [{ default: html2canvas }, jsPdfModule] = await Promise.all([
+    import('html2canvas'),
+    import('jspdf'),
+  ]);
+
+  // jspdf paketinin tip tanımı named export'u bildirmiyor; runtime'da "jsPDF" sınıfı mevcut.
+  const JsPDF = (jsPdfModule as unknown as { jsPDF: PdfConstructor }).jsPDF;
+
+  const canvas = await html2canvas(node, {
+    scale: 2,
+    backgroundColor: '#ffffff',
+    useCORS: true,
+    logging: false,
+  });
+
+  const imgData = canvas.toDataURL('image/jpeg', 0.92);
+  const pdf = new JsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const imgHeight = (canvas.height * pageWidth) / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, 'JPEG', 0, position, pageWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+
+  pdf.save(safePdfFileName(title));
+}
+
 // ---- Satır İçi Düzenleme (Inline Editable) Bileşeni ----
 interface InlineEditableProps {
   value: string;
@@ -123,6 +195,7 @@ export const A4Page = React.forwardRef<HTMLDivElement, A4PageProps>(
       <div
         ref={ref}
         className="
+          flex flex-col
           bg-white text-slate-900 font-[Lexend]
           w-[210mm] min-h-[297mm]
           px-[16mm] py-[16mm]
@@ -166,7 +239,7 @@ export const A4Page = React.forwardRef<HTMLDivElement, A4PageProps>(
 
         {/* Bölümler */}
         <div className="space-y-6">
-          {activity.sections.map((section) => (
+          {(activity.sections ?? []).map((section) => (
             <SectionRenderer
               key={section.id}
               section={section}
@@ -177,11 +250,11 @@ export const A4Page = React.forwardRef<HTMLDivElement, A4PageProps>(
         </div>
 
         {/* Cevap Anahtarı (Öğrenci çıktısında varsayılan olarak gizli) */}
-        {showAnswerKey && activity.answerKey.length > 0 && (
+        {showAnswerKey && (activity.answerKey ?? []).length > 0 && (
           <div className="mt-10 border-t-2 border-dashed border-slate-200 pt-6 print:break-before-page">
             <h2 className="text-base font-bold text-slate-700 mb-3">🔑 Cevap Anahtarı</h2>
             <div className="space-y-2">
-              {activity.answerKey.map((ak, i) => (
+              {(activity.answerKey ?? []).map((ak, i) => (
                 <div key={ak.sectionId} className="text-sm">
                   <span className="font-semibold text-slate-700">{i + 1}.</span>{' '}
                   <span className="text-slate-800 font-medium">{ak.answer}</span>
@@ -210,7 +283,7 @@ export const A4Page = React.forwardRef<HTMLDivElement, A4PageProps>(
 
         {/* Alt Bilgi */}
         <div className="mt-auto pt-10 text-center text-xs text-slate-300 print:fixed print:bottom-[8mm] print:w-full">
-          bdmind Ultra Etkinlik • {activity.grade} • {new Date(activity.createdAt).toLocaleDateString('tr-TR')}
+          bdmind Ultra Etkinlik • {activity.grade} • {safeDateLabel(activity.createdAt)}
         </div>
       </div>
     );
@@ -463,6 +536,8 @@ export default function PreviewStep({ activity, onSendForApproval, isSending }: 
   const printRef = useRef<HTMLDivElement>(null);
   const [showAnswerKey, setShowAnswerKey] = useState(false);
   const [isEditMode, setIsEditMode] = useState(true);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   const { generatedActivities, selectedActivityId, selectActivity, updateActivity } =
     useVisionStudioStore();
@@ -477,6 +552,24 @@ export default function PreviewStep({ activity, onSendForApproval, isSending }: 
       }
     `,
   });
+
+  const handleDownloadPdf = async () => {
+    const node = printRef.current;
+    if (!node || isDownloadingPdf) return;
+    setIsDownloadingPdf(true);
+    setPdfError(null);
+    try {
+      await exportNodeToPdf(node, activity.title);
+    } catch (err: unknown) {
+      setPdfError(
+        err instanceof Error
+          ? `PDF olusturulamadi: ${err.message}`
+          : 'PDF olusturulamadi. Lutfen tekrar deneyin.'
+      );
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
 
   const handleUpdateTitle = (title: string) => {
     updateActivity(activity.id, { title });
@@ -589,13 +682,32 @@ export default function PreviewStep({ activity, onSendForApproval, isSending }: 
 
           <button
             type="button"
-            onClick={() => handlePrint()}
-            className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold transition-colors shadow-sm"
+            onClick={handleDownloadPdf}
+            disabled={isDownloadingPdf}
+            className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-60 text-slate-700 dark:text-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold transition-colors shadow-sm"
             aria-label="PDF indir"
           >
-            <Download className="h-4 w-4 text-slate-500" />
-            PDF Olarak Kaydet
+            {isDownloadingPdf ? (
+              <>
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                PDF Hazırlanıyor…
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4 text-slate-500" />
+                PDF Olarak Kaydet
+              </>
+            )}
           </button>
+
+          {pdfError && (
+            <p role="alert" className="text-[11px] text-red-600 dark:text-red-400 leading-snug px-1">
+              {pdfError}
+            </p>
+          )}
 
           <div className="border-t border-slate-200 dark:border-slate-700 my-1" />
 

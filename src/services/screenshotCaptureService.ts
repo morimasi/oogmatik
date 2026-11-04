@@ -31,6 +31,7 @@ const MODULE_COLORS: Record<AdStudioTarget, string> = {
   feedbacks: '#4c1d95',
   drafts: '#9333ea',
   approvals: '#7e22ce',
+  vision_approvals: '#4f46e5',
   permissions: '#a21caf',
   user_ops: '#0ea5e9',
   analytics: '#14b8a6',

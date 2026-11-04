@@ -147,7 +147,7 @@ export interface GeneratedActivity {
   createdAt: string;
   updatedAt: string;
   version: number;
-  deletedAt?: string;           // soft-delete
+  deletedAt?: string | null;    // soft-delete
 
   // Onay
   rejectionReason?: string;

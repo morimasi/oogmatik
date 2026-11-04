@@ -1,5 +1,5 @@
 // VisionStudio — Servis katmanı paylaşılan tipleri
-import type { AIAnalysisResult, GeneratedActivity } from '../../types/visionStudio';
+import type { AnalyzeResponse as SchemaAnalyzeResponse } from '../../utils/schemas/visionStudio';
 
 export interface AnalyzeRequest {
   fileUrl?: string;
@@ -11,7 +11,5 @@ export interface AnalyzeRequest {
   generateVariations: number;
 }
 
-export interface AnalyzeResponse {
-  analysis: AIAnalysisResult;
-  activities: GeneratedActivity[];
-}
+/** Sunucu yanıtı Zod şemasından türetilir (tek doğruluk kaynağı). */
+export type AnalyzeResponse = SchemaAnalyzeResponse;

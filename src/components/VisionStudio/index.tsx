@@ -6,7 +6,10 @@ import React, { useState } from 'react';
 import { Upload, Search, Eye, BadgeCheck, ArrowLeft } from 'lucide-react';
 
 import { useVisionStudioStore } from '../../store/useVisionStudioStore';
-import { updateActivityStatus } from '../../services/visionStudio/activityRepository';
+import {
+  persistActivityEdits,
+  updateActivityStatus,
+} from '../../services/visionStudio/activityRepository';
 import { useAuthStore } from '../../store/useAuthStore';
 
 import UploadStep    from './upload/UploadStep';
@@ -35,10 +38,17 @@ export function VisionStudio({ onBack }: VisionStudioProps = {}) {
   const selectedActivity = generatedActivities.find((a) => a.id === selectedActivityId) ?? null;
 
   async function handleSendForApproval() {
-    if (!selectedActivity || !user?.id) return;
+    if (!selectedActivity) return;
+    if (!user?.id) {
+      setSendError('Oturum bilgisi bulunamadi. Lutfen tekrar giris yapin.');
+      return;
+    }
     setIsSending(true);
     setSendError(null);
     try {
+      // Önizlemedeki tıkla-düzenle değişiklikleri önce kalıcılaştırılır;
+      // aksi halde yönetici AI'ın ilk halini onaylar.
+      await persistActivityEdits(selectedActivity);
       await updateActivityStatus(
         selectedActivity.id,
         'pending',

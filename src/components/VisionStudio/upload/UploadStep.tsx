@@ -9,10 +9,21 @@ import { v4 as uuid } from 'uuid';
 import { useVisionStudioStore } from '../../../store/useVisionStudioStore';
 import { uploadActivityFile } from '../../../services/visionStudio/activityRepository';
 import { analyzeUploadedFile } from '../../../services/visionStudio/visionAnalysisService';
-import { saveGeneratedActivity } from '../../../services/visionStudio/activityRepository';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { AppError } from '../../../utils/AppError';
 
 const MAX_MB = 20;
+// Vercel gövde sınırı (~4.5 MB) nedeniyle base64 yalnızca küçük dosyalarda gönderilir.
+const INLINE_BASE64_MAX_BYTES = 2.5 * 1024 * 1024;
+
+function readAsDataUrl(file: File): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error('Dosya okunamadi.'));
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function UploadStep() {
   const { user } = useAuthStore();
@@ -34,29 +45,25 @@ export default function UploadStep() {
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
-      if (!file || !user?.id) return;
+      if (!file) return;
+      if (!user?.id) {
+        setError('Oturum bilgisi bulunamadi. Lutfen tekrar giris yapin.');
+        return;
+      }
 
       setError(null);
       setLoading(true);
 
       try {
-        // 1. Dosyayı base64'e dönüştür (her zaman güvenli, sıfır izin engeli)
+        // 1. Dosyayı önce Storage'a yüklemeyi dene (izin yoksa base64 ile devam edilir)
         setPhase('uploading');
-        setUploadProgress(20);
-        const fileBase64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-        setUploadProgress(50);
+        setUploadProgress(10);
 
-        // Firebase Storage yüklemesini dene (izin varsa saklar, yoksa base64 ile devam eder)
         let downloadUrl = '';
         let fileId = uuid();
         try {
           const uploaded = await uploadActivityFile(file, user.id, (p) =>
-            setUploadProgress(50 + Math.round(p * 0.4))
+            setUploadProgress(10 + Math.round(p * 0.55))
           );
           downloadUrl = uploaded.downloadUrl;
           fileId = uploaded.id;
@@ -75,14 +82,28 @@ export default function UploadStep() {
           });
         }
 
-        // 2. AI analizine gönder (base64 güvencesiyle)
+        const canUseRemoteUrl = Boolean(downloadUrl);
+        const shouldInline = !canUseRemoteUrl || file.size <= INLINE_BASE64_MAX_BYTES;
+
+        if (!shouldInline) {
+          throw new AppError(
+            `Dosya depolamaya yuklenemedi ve ${Math.round(INLINE_BASE64_MAX_BYTES / (1024 * 1024))} MB uzerindeki dosyalar dogrudan analiz edilemiyor. Lutfen daha kucuk bir dosya deneyin veya tekrar deneyin.`,
+            'FILE_TOO_LARGE',
+            413
+          );
+        }
+
+        // 2. Büyük dosyalarda gövdeyi şişirmemek için base64 yerine Storage URL'i kullanılır.
+        const fileBase64 = shouldInline ? await readAsDataUrl(file) : undefined;
+        setUploadProgress(80);
+
         setPhase('analyzing');
         setStep('analyzing');
 
         const response = await analyzeUploadedFile(
           {
-            fileUrl: downloadUrl || undefined,
-            fileBase64,
+            fileUrl: canUseRemoteUrl ? downloadUrl : undefined,
+            ...(fileBase64 ? { fileBase64 } : {}),
             fileName: file.name,
             fileType: file.type === 'application/pdf' ? 'pdf' : 'image',
             fileId,
@@ -93,18 +114,9 @@ export default function UploadStep() {
           user.role
         );
 
+        // Etkinlikleri sunucu (Admin SDK) zaten kaydetti; istemci tekrar yazmaz.
         setAnalysisResult(response.analysis);
         setGeneratedActivities(response.activities);
-
-        // 3. Üretilen etkinlikleri Firestore'a kaydet (Sunucu zaten kaydetti, istemci de senkronlar)
-        for (const activity of response.activities) {
-          try {
-            await saveGeneratedActivity(activity);
-          } catch (syncErr) {
-            console.warn('[VisionStudio] İstemci Firestore kaydı atlandı (sunucu zaten kaydetti):', syncErr);
-          }
-        }
-
         setStep('preview');
       } catch (err: unknown) {
         const msg =
@@ -286,7 +298,15 @@ export default function UploadStep() {
           role="alert"
           className="mt-4 w-full max-w-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3 text-xs text-amber-700 dark:text-amber-300"
         >
-          {fileRejections[0].errors.map((e) => e.message).join(' • ')}
+          {fileRejections[0].errors
+            .map((e) => {
+              if (e.code === 'file-too-large') return `Dosya ${MAX_MB} MB'dan büyük olamaz.`;
+              if (e.code === 'file-invalid-type')
+                return 'Desteklenmeyen dosya türü. PDF, JPEG, PNG veya WebP yükleyin.';
+              if (e.code === 'too-many-files') return 'Aynı anda yalnızca bir dosya yükleyebilirsiniz.';
+              return e.message;
+            })
+            .join(' • ')}
         </div>
       )}
     </div>

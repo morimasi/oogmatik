@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, ArrowLeft, Layers, Trash2, Eye, ChevronDown, Filter, FileText,
@@ -576,6 +576,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
             setWorksheets([]);
             setAssessments([]);
             setPlans([]);
+            setVisionActivities([]);
             setPage(0);
             loadData(0);
         }
@@ -605,6 +606,12 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
             } else if (activeTab === 'plans') {
                 const plData = await curriculumService.getUserCurriculums(effectiveUserId!);
                 setPlans(plData);
+                setHasMore(false);
+            } else if (activeTab === 'vision') {
+                const visionData = await getApprovedActivities(
+                    activeCategory === 'all' ? undefined : activeCategory
+                );
+                setVisionActivities(visionData);
                 setHasMore(false);
             }
         } catch (e: unknown) {
@@ -659,7 +666,10 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
         } else if (activeTab === 'plans') {
             items = plans.filter(item => item && (item.studentName || '').toLowerCase().includes(query));
         } else {
-            items = [];
+            items = visionActivities.filter((item) =>
+                item &&
+                (`${item.title || ''} ${item.subject || ''}`).toLowerCase().includes(query)
+            );
         }
         return items.sort((a, b) => {
             const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -670,12 +680,13 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
             if (sortBy === 'date') return (dateA - dateB) * dir;
             return nameA.localeCompare(nameB) * dir;
         });
-    }, [activeTab, debouncedSearchQuery, worksheets, assessments, plans, sortBy, sortDir]);
+    }, [activeTab, debouncedSearchQuery, worksheets, assessments, plans, visionActivities, sortBy, sortDir]);
 
     const tabs = [
         { id: 'materials' as const, label: 'Materyaller', icon: Layers, count: materialsTotal },
         { id: 'reports' as const, label: 'Raporlar', icon: FileText, count: assessments.length },
         { id: 'plans' as const, label: 'Eğitim Planları', icon: Grid3X3, count: plans.length },
+        { id: 'vision' as const, label: 'Vision Etkinlikleri', icon: Sparkles, count: visionActivities.length },
     ];
 
     if (!effectiveUserId && !loading) {
@@ -805,6 +816,35 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                         </div>
                     </div>
                 )}
+
+                {activeTab === 'vision' && (
+                    <div className="mt-2 flex min-h-0 flex-1 flex-col border-t border-[var(--border-color)] pt-6">
+                        <div className="mb-4 flex items-center justify-between px-2">
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)]">Vision kategorileri</h4>
+                            <Sparkles className="h-3.5 w-3.5 text-indigo-500 opacity-80" aria-hidden />
+                        </div>
+                        <div className="custom-scrollbar flex flex-1 flex-col space-y-1 overflow-y-auto pb-6 pr-1">
+                            {VISION_CATEGORIES.map((cat) => (
+                                <button
+                                    type="button"
+                                    key={cat.id}
+                                    onClick={() => setActiveCategory(cat.id)}
+                                    className={cn(
+                                        'w-full rounded-xl border px-4 py-2.5 text-left text-xs transition-all',
+                                        activeCategory === cat.id
+                                            ? 'border-indigo-500/40 bg-indigo-500/10 font-bold text-indigo-500 shadow-sm'
+                                            : 'border-transparent text-[var(--text-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--text-secondary)]',
+                                    )}
+                                >
+                                    {cat.title}
+                                </button>
+                            ))}
+                        </div>
+                        <p className="px-3 pb-2 text-[10px] leading-relaxed text-[var(--text-muted)] opacity-80">
+                            Yalnızca yönetici onayından geçmiş etkinlikler listelenir.
+                        </p>
+                    </div>
+                )}
             </div>
 
             <div className="relative z-10 flex min-w-0 flex-1 flex-col bg-[var(--bg-primary)]">
@@ -897,7 +937,9 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                             <div className="max-w-sm px-4">
                                 <h3 className="font-lexend mb-2 text-xl font-bold text-[var(--text-primary)]">Kayıt yok</h3>
                                 <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
-                                    Arama veya seçtiğin kategoride sonuç çıkmadı. Farklı bir filtre deneyebilir veya yeni materyal üreterek arşive ekleyebilirsin.
+                                    {activeTab === 'vision'
+                                        ? 'Bu kategoride onaylanmış Vision etkinliği bulunmuyor. Öğretmenlerin gönderdiği etkinlikler yönetici onayından sonra burada görünür.'
+                                        : 'Arama veya seçtiğin kategoride sonuç çıkmadı. Farklı bir filtre deneyebilir veya yeni materyal üreterek arşive ekleyebilirsin.'}
                                 </p>
                             </div>
                         </motion.div>
@@ -936,6 +978,13 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                                             onLoad={onLoad} 
                                             onDelete={(id: string) => setConfirmDelete({ id, type: 'plans' })} 
                                             isReadOnly={isReadOnly} 
+                                        />
+                                    ))}
+                                    {activeTab === 'vision' && filteredItems.map((item: GeneratedActivity) => (
+                                        <VisionMaterialCard
+                                            key={item.id}
+                                            item={item}
+                                            onPreview={(activity) => setSelectedVisionActivity(activity)}
                                         />
                                     ))}
                                 </AnimatePresence>

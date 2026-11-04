@@ -13,6 +13,7 @@ export type AdminTab =
   | 'feedbacks'
   | 'drafts'
   | 'approvals'
+  | 'vision_approvals'
   | 'permissions'
   | 'user_ops'
   | 'analytics'
