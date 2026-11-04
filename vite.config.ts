@@ -24,9 +24,47 @@ const config: UserConfig & { test?: any } = {
     'process.env.FIREBASE_APP_ID': JSON.stringify(process.env.FIREBASE_APP_ID),
   },
   build: {
-    chunkSizeWarningLimit: 3000,
+    chunkSizeWarningLimit: 1500,
     rollupOptions: {
-      output: {},
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('firebase')) {
+              return 'vendor-firebase';
+            }
+            if (
+              id.includes('jspdf') ||
+              id.includes('html2canvas') ||
+              id.includes('@react-pdf') ||
+              id.includes('pdfjs-dist') ||
+              id.includes('react-pdf')
+            ) {
+              return 'vendor-pdf';
+            }
+            if (id.includes('katex')) {
+              return 'vendor-katex';
+            }
+            if (id.includes('three') || id.includes('@react-three')) {
+              return 'vendor-three';
+            }
+            if (id.includes('@tiptap')) {
+              return 'vendor-tiptap';
+            }
+            if (id.includes('@excalidraw')) {
+              return 'vendor-excalidraw';
+            }
+            if (id.includes('framer-motion')) {
+              return 'vendor-framer';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('@dnd-kit') || id.includes('@radix-ui')) {
+              return 'vendor-ui-kit';
+            }
+          }
+        },
+      },
     },
   },
   test: {
