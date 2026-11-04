@@ -20,6 +20,10 @@ class AgentService {
     return newTask;
   }
 
+  async coordinateAgents(prompt: string): Promise<Record<string, unknown>> {
+    return { prompt, coordinated: true };
+  }
+
   executeTask(taskId: string): Promise<unknown> {
     const task = this.tasks.get(taskId);
     if (!task) return Promise.resolve(null);

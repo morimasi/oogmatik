@@ -238,7 +238,7 @@ export class AdvancedAIService {
         text: detectedText,
         confidence: 88,
         language,
-        lines: [{ text: detectedText, confidence: 88 }],
+        lines: [{ text: detectedText, confidence: 88, boundingBox: { x: 0, y: 0, width: 100, height: 20 } }],
         corrections: [],
       };
       logInfo('Handwriting recognition completed', {

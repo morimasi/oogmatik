@@ -31,6 +31,7 @@ export interface AgentInput {
 export interface AgentOutput {
   agentId: AgentId;
   data: Record<string, unknown>;
+  pedagogicalNote?: string;
   tokenUsage: { input: number; output: number };
   timestamp: string;
 }

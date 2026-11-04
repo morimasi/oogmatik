@@ -5,10 +5,8 @@ import {
     AdvancedStudent, 
     createAdvancedStudent
 } from '../types/student-advanced';
-import { Student } from '../types/student';
 import { agentService } from './agentService';
 
-import { ApiResponse } from '../utils/errorHandler';
 import { logError } from '../utils/logger';
 
 // --- TYPES FOR AI RESULTS ---

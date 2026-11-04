@@ -258,7 +258,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                     <div className="bg-white dark:bg-zinc-900 p-8 rounded-[3rem] border border-zinc-100 dark:border-zinc-800 flex flex-col items-center">
                                         <h4 className="text-sm font-black uppercase self-start mb-6">Bilişsel Radar</h4>
                                         <div className="w-full h-80">
-                                            <RadarChart data={aiResult.radarData.map(d => ({ label: d.subject, value: d.value }))} />
+                                            <RadarChart data={aiResult.radarData.map(d => ({ label: d.subject || d.label || '', value: d.value }))} />
                                         </div>
                                     </div>
                                     <div className="space-y-4">
@@ -275,7 +275,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                         <div className="bg-rose-50 dark:bg-rose-900/10 p-6 rounded-[2.5rem] border border-rose-100 dark:border-rose-800">
                                             <h5 className="text-[10px] font-black text-rose-600 uppercase mb-3">Gelişim Alanları</h5>
                                             <ul className="space-y-2">
-                                                {aiResult.challenges.map((c, i) => (
+                                                {(aiResult.challenges || []).map((c, i) => (
                                                     <li key={i} className="text-xs font-bold flex items-start gap-2">
                                                         <i className="fa-solid fa-triangle-exclamation text-rose-500 mt-1"></i> {c}
                                                     </li>
