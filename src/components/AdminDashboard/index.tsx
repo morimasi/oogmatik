@@ -20,6 +20,7 @@ import { AdminStaticContent } from './AdminStaticContent';
 import { AdminUserManagement } from './AdminUserManagement';
 import { AdminDraftReview } from './AdminDraftReview';
 import { AdminActivityApproval } from './AdminActivityApproval';
+import VisionStudioAdminPanel from '../VisionStudio/approval/AdminApprovalPanel';
 import { AdminPermissionsIDE } from './PermissionsIDE';
 import { PermissionManager } from './PermissionManager';
 import { UserManagement } from './UserManagement';
@@ -215,6 +216,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
           <NavButton active={activeTab === 'prompts'} label="Prompt Stüdyosu" icon="fa-terminal" onClick={() => setActiveTab('prompts')} />
           <NavButton active={activeTab === 'drafts'} label="OCR Taslakları" icon="fa-camera-rotate" onClick={() => setActiveTab('drafts')} />
           <NavButton active={activeTab === 'approvals'} label="İçerik Onayları" icon="fa-check-double" onClick={() => setActiveTab('approvals')} />
+          <NavButton active={activeTab === 'vision_approvals'} label="Vision Onay Kuyruğu" icon="fa-wand-magic-sparkles" onClick={() => setActiveTab('vision_approvals')} />
           <NavButton active={activeTab === 'static_content'} label="Veri Kaynakları" icon="fa-database" onClick={() => setActiveTab('static_content')} />
 
           <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Destek</p>
@@ -246,6 +248,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'feedbacks' && 'Geri Bildirimler'}
               {activeTab === 'drafts' && 'Taslak Havuzu (OCR)'}
               {activeTab === 'approvals' && 'İçerik Onay Merkezi'}
+              {activeTab === 'vision_approvals' && 'Vision Etkinlik Onay Merkezi'}
               {activeTab === 'permissions' && 'Yetkilendirme (RBAC)'}
               {activeTab === 'user_ops' && 'Toplu Kullanıcı İşlemleri'}
               {activeTab === 'analytics' && 'Üretim Analitiği'}
@@ -286,6 +289,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'students' && <AdminStudentManagement />}
               {activeTab === 'drafts' && <AdminDraftReview />}
               {activeTab === 'approvals' && <AdminActivityApproval />}
+              {activeTab === 'vision_approvals' && <VisionStudioAdminPanel />}
               {activeTab === 'permissions' && (
                 <div className="space-y-4">
                   <div className="flex gap-2 bg-[var(--bg-secondary)] p-1 rounded-xl w-fit border border-[var(--border-color)]">
