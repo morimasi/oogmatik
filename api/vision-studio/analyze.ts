@@ -104,7 +104,8 @@ async function consumeQuota(firestore: Firestore, userId: string): Promise<void>
 }
 
 // ---- Gemini ----
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
+const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY || '';
+const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({
   model: MODEL_NAME,
   generationConfig: {
@@ -172,8 +173,9 @@ FORMAT — SADECE GEÇERLİ JSON DöNDÜR:
   ]
 }
 
-KESİN KURALLAR:
+KESIN KURALLAR:
 - "activities" dizisinde tam olarak ${variations} etkinlik olsun; her biri farklı başlık ve farklı soru içeriği taşısın.
+- Her etkinlik için tam olarak 3-4 odaklı soru/bölüm (section) üret. Gereksiz uzun paragraflardan kaçın, yönergeleri net, kısa ve disleksi dostu tut.
 - pedagogicalNote her etkinlikte ZORUNLUDUR; tanı koyucu dil kullanma ("disleksisi var" YANLIŞ, "disleksi desteğine ihtiyacı var" DOĞRU).
 - Tüm metinler Türkçe olacak.
 - "image" türünde bölüm ÜRETME (görsel dosyası sağlanamıyor). Gerekirse tablo veya metin kullan.

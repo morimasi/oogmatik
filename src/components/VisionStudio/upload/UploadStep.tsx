@@ -83,17 +83,17 @@ export default function UploadStep() {
         }
 
         const canUseRemoteUrl = Boolean(downloadUrl);
-        const shouldInline = !canUseRemoteUrl || file.size <= INLINE_BASE64_MAX_BYTES;
+        // Remote URL (Firebase Storage) basariliysa Vercel'e base64 gondermeye gerek yoktur.
+        const shouldInline = !canUseRemoteUrl && file.size <= INLINE_BASE64_MAX_BYTES;
 
-        if (!shouldInline) {
+        if (!canUseRemoteUrl && !shouldInline) {
           throw new AppError(
-            `Dosya depolamaya yuklenemedi ve ${Math.round(INLINE_BASE64_MAX_BYTES / (1024 * 1024))} MB uzerindeki dosyalar dogrudan analiz edilemiyor. Lutfen daha kucuk bir dosya deneyin veya tekrar deneyin.`,
+            `Dosya depolamaya yuklenemedi ve ${Math.round(INLINE_BASE64_MAX_BYTES / (1024 * 1024))} MB uzerindeki dosyalar dogrudan analiz edilemiyor. Lutfen Firebase Storage kurallarini guncelleyin veya daha kucuk bir dosya deneyin.`,
             'FILE_TOO_LARGE',
             413
           );
         }
 
-        // 2. Büyük dosyalarda gövdeyi şişirmemek için base64 yerine Storage URL'i kullanılır.
         const fileBase64 = shouldInline ? await readAsDataUrl(file) : undefined;
         setUploadProgress(80);
 
