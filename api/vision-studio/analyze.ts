@@ -28,7 +28,13 @@ import {
 } from '../../src/utils/visionStudio/normalizeActivity.js';
 import { encodeActivity } from '../../src/utils/visionStudio/persistenceCodec.js';
 
-const MODEL_NAME = 'gemini-2.5-flash';
+const DEFAULT_MODEL = 'gemini-1.5-flash';
+const CANDIDATE_MODELS = [
+  'gemini-1.5-flash',
+  'gemini-2.0-flash',
+  'gemini-2.5-flash',
+  'gemini-1.5-pro',
+];
 const DAILY_LIMIT = 20;
 // Vercel sunucu gövdesi sınırı ~4.5 MB; base64 şişmesi için güvenli üst sınır.
 const MAX_INLINE_BASE64_CHARS = 3_500_000;
@@ -106,13 +112,45 @@ async function consumeQuota(firestore: Firestore, userId: string): Promise<void>
 // ---- Gemini ----
 const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY || '';
 const genAI = new GoogleGenerativeAI(apiKey);
-const model = genAI.getGenerativeModel({
-  model: MODEL_NAME,
-  generationConfig: {
-    temperature: 0.7,
-    responseMimeType: 'application/json',
-  },
-});
+
+function sanitizeMimeType(raw: string | null | undefined, fileType: string): string {
+  const clean = (raw ?? '').split(';')[0].trim().toLowerCase();
+  const valid = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+  if (valid.includes(clean)) return clean;
+  return fileType === 'pdf' ? 'application/pdf' : 'image/jpeg';
+}
+
+async function generateWithFallback(
+  client: GoogleGenerativeAI,
+  prompt: string,
+  inlineData: { data: string; mimeType: string }
+): Promise<{ text: string; modelUsed: string }> {
+  let lastError: unknown;
+  for (const modelName of CANDIDATE_MODELS) {
+    try {
+      const model = client.getGenerativeModel({
+        model: modelName,
+        generationConfig: {
+          temperature: 0.4,
+          responseMimeType: 'application/json',
+        },
+      });
+      const result = await model.generateContent([
+        prompt,
+        { inlineData },
+      ]);
+      const text = result.response.text?.();
+      if (text) {
+        return { text, modelUsed: modelName };
+      }
+    } catch (err: unknown) {
+      lastError = err;
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`[VisionStudio] Model ${modelName} basarisiz: ${msg}, siradakine geciliyor...`);
+    }
+  }
+  throw lastError;
+}
 
 function buildAnalysisPrompt(fileType: string, variations: number, fileId: string): string {
   return `
@@ -225,7 +263,7 @@ function extractJson(rawText: string): unknown {
   return JSON.parse(jsonSlice);
 }
 
-async function repairJSON(rawText: string, errorMsg: string): Promise<unknown> {
+async function repairJSON(client: GoogleGenerativeAI, rawText: string, errorMsg: string): Promise<unknown> {
   const repairPrompt = `
 Aşağıdaki JSON geçersiz. Hata: ${errorMsg}
 Şemayı koruyarak yalnızca düzeltilmiş, geçerli JSON döndür. Açıklama veya kod bloğu ekleme.
@@ -233,8 +271,19 @@ Aşağıdaki JSON geçersiz. Hata: ${errorMsg}
 ${rawText.slice(0, 60_000)}
   `.trim();
 
-  const repairResult = await model.generateContent(repairPrompt);
-  return extractJson(repairResult.response.text());
+  for (const mName of ['gemini-1.5-flash', 'gemini-2.0-flash']) {
+    try {
+      const model = client.getGenerativeModel({
+        model: mName,
+        generationConfig: { responseMimeType: 'application/json' },
+      });
+      const repairResult = await model.generateContent(repairPrompt);
+      return extractJson(repairResult.response.text());
+    } catch {
+      // devam et
+    }
+  }
+  return null;
 }
 
 interface GeminiJson {

@@ -56,7 +56,9 @@ export async function uploadActivityFile(
   const storageRef = ref(storage, storagePath);
 
   await new Promise<UploadTaskSnapshot>((resolve, reject) => {
-    const task = uploadBytesResumable(storageRef, file);
+    const task = uploadBytesResumable(storageRef, file, {
+      contentType: file.type || (ext === 'pdf' ? 'application/pdf' : 'image/jpeg'),
+    });
     task.on(
       'state_changed',
       (snap) => onProgress?.(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
