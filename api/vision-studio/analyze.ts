@@ -12,18 +12,21 @@ import { getAuth } from 'firebase-admin/auth';
 import { FieldValue, getFirestore, type Firestore } from 'firebase-admin/firestore';
 import { v4 as uuid } from 'uuid';
 
+// "type": "module" — Vercel fonksiyonu ESM olarak çalışır ve göreli import'lar
+// .js uzantısı taşımak zorundadır (api/generate.ts ile aynı desen).
+// Uzantısız specifier = ERR_MODULE_NOT_FOUND = FUNCTION_INVOCATION_FAILED.
 import {
   AnalyzeRequestSchema,
   GeneratedActivitySchema,
-} from '../../src/utils/schemas/visionStudio';
-import type { GeneratedActivity } from '../../src/types/visionStudio';
+} from '../../src/utils/schemas/visionStudio.js';
+import type { GeneratedActivity } from '../../src/types/visionStudio.js';
 import {
   dedupeByTitle,
   normalizeActivityDraft,
   normalizeAnalysis,
   type NormalizedActivityDraft,
-} from '../../src/utils/visionStudio/normalizeActivity';
-import { encodeActivity } from '../../src/utils/visionStudio/persistenceCodec';
+} from '../../src/utils/visionStudio/normalizeActivity.js';
+import { encodeActivity } from '../../src/utils/visionStudio/persistenceCodec.js';
 
 const MODEL_NAME = 'gemini-2.5-flash';
 const DAILY_LIMIT = 20;
