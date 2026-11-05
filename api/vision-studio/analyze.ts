@@ -199,7 +199,7 @@ FORMAT — SADECE GEÇERLİ JSON DÖNDÜR:
     "detectedActivityType": "çalışma sayfası|test|bulmaca|eşleştirme|tablo",
     "summary": "Orijinal etkinliğin tüm bileşenlerini ve yapısını anlatan detaylı mimari özet",
     "tokensUsed": 0,
-    "modelUsed": "${MODEL_NAME}"
+    "modelUsed": "gemini-flash"
   },
   "activities": [
     {
@@ -368,6 +368,7 @@ async function runAnalysis(req: VercelRequest, res: VercelResponse) {
 
   // 4. Gemini Vision çağrısı
   let rawText = '';
+  let usedModelName = 'gemini-unknown';
   try {
     const prompt = buildAnalysisPrompt(fileType, generateVariations, fileId).replace('__OWNER_ID__', userId);
 
@@ -397,11 +398,15 @@ async function runAnalysis(req: VercelRequest, res: VercelResponse) {
       throw new Error('Dosya içeriği boş.');
     }
 
-    const result = await model.generateContent([
+    // Gemini model fallback - basarili bir model bulunana kadar sirayla dene
+    const { text: modelOutput, modelUsed } = await generateWithFallback(
+      genAI,
       prompt,
-      { inlineData: { data: base64Data, mimeType } },
-    ]);
-    rawText = result.response.text();
+      { data: base64Data, mimeType }
+    );
+    rawText = modelOutput;
+    usedModelName = modelUsed;
+    console.info('[VisionStudio] Basarili model: ' + modelUsed);
   } catch (err: unknown) {
     console.error('[VisionStudio] Gemini API hatası:', err);
     return res.status(502).json({
@@ -423,7 +428,7 @@ async function runAnalysis(req: VercelRequest, res: VercelResponse) {
     attempts++;
     const previous = typeof aiResponse === 'string' ? aiResponse : JSON.stringify(aiResponse);
     try {
-      aiResponse = await repairJSON(previous ?? '', 'JSON nesnesi bekleniyordu');
+      aiResponse = await repairJSON(genAI, previous ?? '', 'JSON nesnesi bekleniyordu');
     } catch (err: unknown) {
       console.warn(`[VisionStudio] JSON onarim turu ${attempts} basarisiz:`, err);
     }
@@ -487,7 +492,7 @@ async function runAnalysis(req: VercelRequest, res: VercelResponse) {
     );
   }
 
-  const analysis = normalizeAnalysis(aiResponse.analysis, selectedDrafts[0], { modelUsed: MODEL_NAME });
+  const analysis = normalizeAnalysis(aiResponse.analysis, selectedDrafts[0], { modelUsed: usedModelName });
 
   // 7. Firestore'a kaydet (Admin SDK)
   const savedIds: string[] = [];
@@ -525,7 +530,7 @@ async function runAnalysis(req: VercelRequest, res: VercelResponse) {
       variationsRequested: generateVariations,
       activitiesGenerated: activities.length,
       persisted: persistedActivities.length,
-      modelUsed: MODEL_NAME,
+      modelUsed: usedModelName,
       createdAt: now,
     });
   } catch (jobErr) {
