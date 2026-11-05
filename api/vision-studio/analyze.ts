@@ -31,25 +31,45 @@ const DAILY_LIMIT = 20;
 const MAX_INLINE_BASE64_CHARS = 3_500_000;
 
 // ---- Firebase Admin başlat ----
-// Eksik ortam değişkeni modül yüklenirken çökmesin; handler anlaşılır 503 döner.
-const adminConfigured = Boolean(
-  process.env.FIREBASE_ADMIN_PROJECT_ID &&
-    process.env.FIREBASE_ADMIN_CLIENT_EMAIL &&
-    process.env.FIREBASE_ADMIN_PRIVATE_KEY
-);
-
-if (adminConfigured && !getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-      privateKey: (process.env.FIREBASE_ADMIN_PRIVATE_KEY ?? '').replace(/\\n/g, '\n'),
-    }),
-  });
+// Vercel'de private key çoğu zaman tırnaklı veya tek satırda "\n" olarak yapıştırılır.
+function normalizePrivateKey(raw: string | undefined): string {
+  const value = (raw ?? '').trim();
+  if (!value) return '';
+  const unquoted =
+    (value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))
+      ? value.slice(1, -1)
+      : value;
+  return unquoted.replace(/\\n/g, '\n');
 }
 
-const adminAuth = adminConfigured ? getAuth() : null;
-const adminDb = adminConfigured ? getFirestore() : null;
+const adminProjectId = (process.env.FIREBASE_ADMIN_PROJECT_ID ?? '').trim();
+const adminClientEmail = (process.env.FIREBASE_ADMIN_CLIENT_EMAIL ?? '').trim();
+const adminPrivateKey = normalizePrivateKey(process.env.FIREBASE_ADMIN_PRIVATE_KEY);
+const adminConfigured = Boolean(adminProjectId && adminClientEmail && adminPrivateKey);
+
+// Bozuk kimlik bilgisi modül yüklenirken çökmesin (aksi halde teşhis edilemeyen 500 döner);
+// handler anlaşılır 503 + kod döner.
+let adminInitError: string | null = null;
+if (adminConfigured) {
+  try {
+    if (!getApps().length) {
+      initializeApp({
+        credential: cert({
+          projectId: adminProjectId,
+          clientEmail: adminClientEmail,
+          privateKey: adminPrivateKey,
+        }),
+      });
+    }
+  } catch (err: unknown) {
+    adminInitError = err instanceof Error ? err.message : String(err);
+    console.error('[VisionStudio] Firebase Admin baslatilamadi:', err);
+  }
+}
+
+const adminReady = adminConfigured && adminInitError === null;
+const adminAuth = adminReady ? getAuth() : null;
+const adminDb = adminReady ? getFirestore() : null;
 
 // ---- Kota ----
 class QuotaError extends Error {}
@@ -189,12 +209,22 @@ function isGeminiJson(value: unknown): value is GeminiJson {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+async function runAnalysis(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: { message: 'Method Not Allowed', code: 'METHOD_NOT_ALLOWED' } });
   }
 
   if (!adminAuth || !adminDb) {
+    if (adminInitError) {
+      console.error('[VisionStudio] Admin kimlik bilgisi gecersiz:', adminInitError);
+      return res.status(503).json({
+        success: false,
+        error: {
+          message: 'Sunucu kimlik bilgileri gecersiz. Yonetici FIREBASE_ADMIN_PRIVATE_KEY degerini kontrol etmeli.',
+          code: 'ADMIN_CREDENTIALS_INVALID',
+        },
+      });
+    }
     console.error('[VisionStudio] Firebase Admin yapilandirmasi eksik (FIREBASE_ADMIN_*).');
     return res.status(503).json({
       success: false,
@@ -421,4 +451,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     data: { analysis, activities: persistedActivities },
     timestamp: new Date().toISOString(),
   });
+}
+
+// Handler içindeki beklenmeyen her hata yapılandırılmış JSON dönsün;
+// aksi halde istemci yalnızca teşhis edilemeyen bir 500 görür.
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  try {
+    return await runAnalysis(req, res);
+  } catch (err: unknown) {
+    console.error('[VisionStudio] Beklenmeyen endpoint hatasi:', err);
+    if (res.headersSent) return;
+    return res.status(500).json({
+      success: false,
+      error: {
+        message: 'Beklenmeyen bir sunucu hatasi olustu. Lutfen tekrar deneyin.',
+        code: 'UNEXPECTED_ERROR',
+      },
+    });
+  }
 }

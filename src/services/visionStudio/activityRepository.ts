@@ -78,16 +78,9 @@ export async function uploadActivityFile(
     uploadedBy: userId,
   };
 
-  // Firestore'a kayıt (istemci izni olmasa dahi dosya Storage'a yüklendiği için akış kesilmez)
-  try {
-    await setDoc(doc(db, 'visionStudioUploads', id), {
-      ...record,
-      uploadedAt: serverTimestamp(),
-    });
-  } catch (dbErr) {
-    console.warn('[VisionStudio] Upload meta kaydı Firestore client ile yazılamadı (sunucu devralacak):', dbErr);
-  }
-
+  // Meta kaydı bilinçli olarak yazılmıyor: dosyanın kendisi Storage'da ve
+  // analiz kaydı visionStudioJobs'ta tutuluyor. İstemci Firestore yazımı,
+  // kurallar farklı bir ortamda eski kaldığında akışı gereksiz yere uyarıyordu.
   return record;
 }
 
