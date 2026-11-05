@@ -236,7 +236,7 @@ service cloud.firestore {
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
                'title', 'instructions', 'sections', 'pedagogicalNote',
                'teacherNotes', 'answerKey', 'objectives', 'difficulty',
-               'durationMinutes', 'status', 'updatedAt', 'version'
+               'status', 'status', 'updatedAt', 'version'
              ])
         )
       );

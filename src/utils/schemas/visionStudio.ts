@@ -121,6 +121,16 @@ export const GeneratedActivitySchema = z.object({
   rejectionReason: z.string().optional(),
   approvedBy: z.string().optional(),
   approvedAt: z.string().datetime().optional(),
+
+  // Paylaşım & Yayınlama
+  isPublic: z.boolean().optional(),
+  shareSlug: z.string().optional(),
+  assignedStudents: z.array(z.object({
+    studentId: z.string(),
+    studentName: z.string(),
+    assignedAt: z.string(),
+  })).optional(),
+  totalPoints: z.number().nonnegative().optional(),
 });
 
 // API istek şeması — AI analize gönderilecek

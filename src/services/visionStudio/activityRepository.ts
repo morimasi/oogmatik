@@ -95,6 +95,10 @@ const EDITABLE_FIELDS = [
   'objectives',
   'difficulty',
   'durationMinutes',
+  'isPublic',
+  'shareSlug',
+  'assignedStudents',
+  'totalPoints',
 ] as const;
 
 /**

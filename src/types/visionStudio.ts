@@ -153,6 +153,12 @@ export interface GeneratedActivity {
   rejectionReason?: string;
   approvedBy?: string;
   approvedAt?: string;
+
+  // Paylaşım & Yayınlama (Fullstack Ordinaryüs Özellikleri)
+  isPublic?: boolean;
+  shareSlug?: string;
+  assignedStudents?: Array<{ studentId: string; studentName: string; assignedAt: string }>;
+  totalPoints?: number;
 }
 
 // --- Audit Log ---
