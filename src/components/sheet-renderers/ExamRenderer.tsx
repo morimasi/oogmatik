@@ -35,6 +35,9 @@ export const ExamRenderer: React.FC<Props> = ({ examType, data, settings }) => {
     questionSpacingMm: Number(settings?.margin || 10),
   };
 
+  // Fasikülde sınav sayfalara bölündüğünde toplam soru sayısı korunur.
+  const totalSoruOverride = (data as { totalSoruOverride?: number }).totalSoruOverride;
+
   if (examType === 'turkce') {
     const sinav = data as Sinav;
     return (
@@ -43,6 +46,7 @@ export const ExamRenderer: React.FC<Props> = ({ examType, data, settings }) => {
         showAnswers={showAnswers} 
         config={config} 
         isPrinting={isPrinting}
+        totalSoru={totalSoruOverride}
       />
     );
   }

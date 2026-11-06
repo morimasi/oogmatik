@@ -1,6 +1,7 @@
 import React from 'react';
 import { FascicleItem, FascicleMetadata } from '../../types/fascicle';
 import { Student } from '../../types';
+import { getFasciclePageCount } from '../../utils/fascicleContentNormalizer';
 
 interface FascicleTableOfContentsPageProps {
   items: FascicleItem[];
@@ -86,7 +87,8 @@ export const FascicleTableOfContentsPage: React.FC<FascicleTableOfContentsPagePr
         <div className={`flex-1 min-h-0 overflow-hidden ${isTwoColumns ? 'grid grid-cols-2 gap-2 content-start' : isManyItems ? 'space-y-1.5' : 'space-y-2.5'}`}>
           {items.map((item, idx) => {
             const startPage = currentPageAcc;
-            currentPageAcc += item.pageCount || 1;
+            const itemPageCount = getFasciclePageCount(item);
+            currentPageAcc += itemPageCount;
 
             const formattedTitle = (item.content as any)?.title || 
               (item.content as any)?.pageConfig?.title || 
@@ -139,9 +141,9 @@ export const FascicleTableOfContentsPage: React.FC<FascicleTableOfContentsPagePr
                     <span className="text-[11px] font-black text-zinc-900">
                       S. {startPage}
                     </span>
-                    {(item.pageCount || 1) > 1 && (
+                    {itemPageCount > 1 && (
                       <span className="text-[8px] text-zinc-400 font-bold">
-                        -{startPage + (item.pageCount || 1) - 1}
+                        -{startPage + itemPageCount - 1}
                       </span>
                     )}
                   </div>

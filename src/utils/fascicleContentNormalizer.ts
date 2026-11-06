@@ -1,4 +1,5 @@
-import { ActivityType, SingleWorksheetData } from '../types';
+import { ActivityType, SingleWorksheetData, StyleSettings } from '../types';
+import { paginationService } from '../services/paginationService';
 
 /**
  * FascicleContentNormalizer
@@ -24,38 +25,144 @@ interface NormalizedContent {
   pageCount: number;
 }
 
+/** Kaç sorunun tek A4 sayfasına yerleştirileceği (sınav türleri). */
+const EXAM_QUESTIONS_PER_PAGE = 4;
+
+/** Sınav türleri iki kolon, etkinlikler tek kolon basılır. */
+export function defaultColumnsForActivity(type: string): number {
+  return type === ActivityType.SINAV || type === ActivityType.MAT_SINAV ? 2 : 1;
+}
+
+/** Fasikül öğesinin render edilebilir sayfa listesi. */
+export interface FasciclePageBundle {
+  activityType: ActivityType;
+  pages: SingleWorksheetData[];
+}
+
+const LIST_KEYS = ['blocks', 'puzzles', 'operations', 'steps', 'problems', 'items'] as const;
+
 /**
- * Get the actual number of A4 pages an item will render.
- * Some renderers (SuperStudio, KelimeCumle) render multiple pages internally.
+ * Kâğıt üzerinde taşacak tek sayfalık içeriği ağırlık bazlı, blok sınırlarından böler.
+ * Bilinmeyen/özel şekillerde ve zaten sayfalanmış modern layout'larda dokunmaz.
+ */
+function splitOverflowingPage(page: SingleWorksheetData, activityType: ActivityType): SingleWorksheetData[] {
+  const raw = page as unknown as Record<string, unknown> | null;
+  if (!raw || typeof raw !== 'object') return [page];
+
+  // Modern layout zaten kendi sayfa yapısını taşıyor; çift render riski nedeniyle bölmeyiz.
+  if (raw.layoutArchitecture || raw.blocksArchitecture) return [page];
+
+  const hasList = LIST_KEYS.some(key => Array.isArray(raw[key]) && (raw[key] as unknown[]).length > 0);
+  if (!hasList) return [page];
+
+  const paged = paginationService.process([page], activityType, { smartPagination: true } as StyleSettings);
+  return Array.isArray(paged) && paged.length > 0 ? paged : [page];
+}
+
+/** Kelime-Cümle Stüdyosu'nun sayfa başına öğe sayısı (stüdyo ile birebir aynı). */
+function kelimeCumleItemsPerPage(config: Record<string, unknown> | undefined): number {
+  const explicit = Number(config?.itemsPerPage);
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+
+  switch (config?.type) {
+    case 'test': return 5;
+    case 'kelime_tamamlama': return 12;
+    case 'karisik_cumle': return 8;
+    case 'zit_anlam': return 15;
+    default: return 10;
+  }
+}
+
+/**
+ * Bir fasikül öğesinin TÜM A4 sayfalarını üretir.
+ *
+ * Kural: Fasikülde hiçbir içerik kırpılmaz. Etkinlik kaç sayfa üretiyorsa
+ * (çok sayfalı havuz içeriği, Süper Stüdyo sayfaları, Kelime-Cümle parçaları,
+ * sınav soru blokları) hepsi sırayla ayrı A4 sayfası olarak döner.
+ * TOC / toplam sayfa / render bu fonksiyonun aynı çıktısını kullanır.
+ */
+export function buildFasciclePages(
+  item: { type: string; content: unknown },
+  defaultColumns?: number
+): FasciclePageBundle {
+  const activityType = item.type as ActivityType;
+  const raw = (item.content as Record<string, unknown>) || {};
+  const columns = defaultColumns ?? defaultColumnsForActivity(item.type);
+
+  // ─── Ham WorksheetData[] (ActionModule / arşivden ekleme): her öğe bir A4 sayfasıdır
+  if (Array.isArray(item.content)) {
+    const dataPages = item.content as SingleWorksheetData[];
+    const pages = dataPages.flatMap(page => splitOverflowingPage(page, activityType));
+    if (pages.length > 0) return { activityType, pages };
+  }
+
+  // ─── Etkinlik Havuzu / arşiv sarmalı: { data: WorksheetData[], title, generatedAt }
+  const isWrapper = Array.isArray(raw.data) && (raw.data as unknown[]).length > 0 &&
+    typeof raw.title === 'string' && !raw.layout && !raw.layoutArchitecture && !raw.storyData;
+
+  if (isWrapper) {
+    const dataPages = raw.data as SingleWorksheetData[];
+    const pages = dataPages.flatMap(page => splitOverflowingPage(page, activityType));
+    if (pages.length > 0) return { activityType, pages };
+  }
+
+  // ─── SUPER_STUDIO: { content: GeneratedContentPayload[] } → her payload bir sayfa
+  if (activityType === ActivityType.SUPER_STUDIO) {
+    const payloads = Array.isArray(raw.content) ? (raw.content as unknown[]) : [];
+    if (payloads.length > 0) {
+      return {
+        activityType,
+        pages: payloads.map(payload => ({ content: [payload] }) as unknown as SingleWorksheetData),
+      };
+    }
+  }
+
+  // ─── KELIME_CUMLE: { content: KelimeCumleGeneratedContent, config }
+  if (activityType === ActivityType.KELIME_CUMLE) {
+    const inner = raw.content as Record<string, unknown> | undefined;
+    const innerItems: unknown[] = Array.isArray(inner?.items) ? inner.items as unknown[] : [];
+    if (innerItems.length > 0) {
+      const perPage = kelimeCumleItemsPerPage(raw.config as Record<string, unknown> | undefined);
+      const chunkActivityType = typeof inner?.activityType === 'string' ? inner.activityType : 'bosluk_doldurma';
+      const chunks: SingleWorksheetData[] = [];
+      for (let i = 0; i < innerItems.length; i += perPage) {
+        chunks.push({
+          ...raw,
+          content: { ...inner, items: innerItems.slice(i, i + perPage) },
+          activityType: chunkActivityType,
+        } as unknown as SingleWorksheetData);
+      }
+      if (chunks.length > 0) return { activityType, pages: chunks };
+    }
+  }
+
+  // ─── SINAV / MAT_SINAV: soruları sayfa başına 4'erli bloklara böl
+  if (activityType === ActivityType.SINAV || activityType === ActivityType.MAT_SINAV) {
+    const sorular = Array.isArray(raw.sorular) ? (raw.sorular as unknown[]) : [];
+    if (sorular.length > EXAM_QUESTIONS_PER_PAGE) {
+      const pages: SingleWorksheetData[] = [];
+      for (let i = 0; i < sorular.length; i += EXAM_QUESTIONS_PER_PAGE) {
+        pages.push({
+          ...raw,
+          sorular: sorular.slice(i, i + EXAM_QUESTIONS_PER_PAGE),
+          totalSoruOverride: sorular.length,
+        } as unknown as SingleWorksheetData);
+      }
+      return { activityType, pages };
+    }
+  }
+
+  // ─── Genel: normalize et, tek sayfaya sığmayan içeriği blok sınırından böl
+  const normalized = normalizeFascicleContent(item, columns);
+  return { activityType: normalized.activityType, pages: splitOverflowingPage(normalized.data, normalized.activityType) };
+}
+
+/**
+ * Bir fasikül öğesinin kapladığı gerçek A4 sayfa sayısı.
+ * Render ile aynı kaynaktan (buildFasciclePages) hesaplanır; TOC ve toplam sayfa tutarlıdır.
  */
 export function getFasciclePageCount(item: { type: string; content: unknown; pageCount: number }): number {
-  const content = item.content as Record<string, unknown> || {};
-
-  switch (item.type) {
-    case ActivityType.SUPER_STUDIO: {
-      // SUPER_STUDIO stores { content: GeneratedContentPayload[] }
-      const pages = (content.content as unknown[]) || [];
-      return Math.max(pages.length, 1);
-    }
-    case ActivityType.KELIME_CUMLE: {
-      // KELIME_CUMLE stores { content: KelimeCumleGeneratedContent, config }
-      const innerContent = content.content as Record<string, unknown> | undefined;
-      if (innerContent?.pages) {
-        return Math.max((innerContent.pages as unknown[]).length, 1);
-      }
-      return item.pageCount || 1;
-    }
-    case ActivityType.SINAV:
-    case ActivityType.MAT_SINAV: {
-      // Exams: ~4 questions per page
-      const sinav = content as Record<string, unknown>;
-      const sorular = (sinav.sorular as unknown[]) || [];
-      if (sorular.length === 0) return item.pageCount || 1;
-      return Math.ceil(sorular.length / 4);
-    }
-    default:
-      return item.pageCount || 1;
-  }
+  return Math.max(buildFasciclePages(item).pages.length, 1);
 }
 
 /**

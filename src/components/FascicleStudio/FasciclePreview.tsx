@@ -12,6 +12,7 @@ import { FasciclePageStyleToolbar } from './FasciclePageStyleToolbar';
 import { FascicleMultiPageRenderer } from './FascicleMultiPageRenderer';
 import { FascicleWatermarkSettingsModal } from './FascicleWatermarkSettingsModal';
 import { useStudentStore } from '../../store/useStudentStore';
+import { getFasciclePageCount } from '../../utils/fascicleContentNormalizer';
 import { v4 as uuidv4 } from 'uuid';
 
 const renderWatermark = (ws: WatermarkSettings) => {
@@ -100,7 +101,9 @@ export const FasciclePreview: React.FC = () => {
   const isTocActive = isCoverActive && coverSettings.showTableOfContents !== false;
   const isSummaryActive = isCoverActive && coverSettings.showSummaryPage !== false;
 
-  const totalContentPages = items.reduce((sum, item) => sum + (item.pageCount || 1), 0);
+  // Etkinliklerin ÜRETTİĞİ tüm sayfalar sayılır (çok sayfalı etkinlikler eksiksiz basılır)
+  const contentPageCounts = items.map(item => getFasciclePageCount(item));
+  const totalContentPages = contentPageCounts.reduce((sum, count) => sum + count, 0);
   const grandTotalPages = (isCoverActive ? 1 : 0) + (isTocActive ? 1 : 0) + totalContentPages + (isSummaryActive ? 1 : 0);
 
   // Akıllı Başlangıç Numarası Hesabı
@@ -392,8 +395,8 @@ export const FasciclePreview: React.FC = () => {
 
               {/* İÇERİK SAYFALARI (Items) - FascicleMultiPageRenderer ile Esnek Kırılım */}
               {items.length > 0 ? items.map((item, index) => {
-                runningPageCounter += 1;
                 const currentPageNumber = runningPageCounter;
+                runningPageCounter += contentPageCounts[index];
 
                 return (
                   <FascicleMultiPageRenderer

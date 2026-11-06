@@ -7,6 +7,8 @@ interface SinavOnizlemeProps {
   showAnswers?: boolean;
   config?: PrintConfig;
   isPrinting?: boolean;
+  /** Sınav sayfalara bölündüğünde (fasikül) toplam soru sayısını doğru göstermek için. */
+  totalSoru?: number;
 }
 
 export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
@@ -14,7 +16,9 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
   showAnswers = false,
   config,
   isPrinting = false,
+  totalSoru,
 }) => {
+  const displayedTotalSoru = totalSoru ?? sinav.sorular.length;
   const fontSizePt = config ? `${config.fontSize}pt` : '12pt';
   const fontFamily = config?.fontFamily === 'times' ? 'Times New Roman, Times, serif' : (config?.fontFamily === 'helvetica' ? 'Inter, Helvetica, Arial, sans-serif' : 'Lexend, Inter, sans-serif');
   const questionGap = config ? `${config.questionSpacingMm * 2}px` : '16px';
@@ -51,7 +55,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
             {[
-              { label: 'Toplam Soru', val: `${sinav.sorular.length} soru` },
+              { label: 'Toplam Soru', val: `${displayedTotalSoru} soru` },
               { label: 'Toplam Puan', val: `${sinav.toplamPuan} puan` },
               { label: 'Süre', val: `~${Math.ceil(sinav.tahminiSure / 60)} dk` },
             ].map(({ label, val }) => (
@@ -66,7 +70,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
         <div className="sinav-print-header" style={{ textAlign: 'center', marginBottom: '12px', borderBottom: '1px solid #000', paddingBottom: '6px' }}>
           <h1 style={{ fontSize: '18px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '4px' }}>{sinav.baslik}</h1>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '11px', fontWeight: 'bold' }}>
-            <span>TOPLAM SORU: {sinav.sorular.length}</span>
+            <span>TOPLAM SORU: {displayedTotalSoru}</span>
             <span>SÜRE: {Math.ceil(sinav.tahminiSure / 60)} DK</span>
           </div>
         </div>

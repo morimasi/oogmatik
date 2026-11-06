@@ -5,6 +5,7 @@ import { ActivityType } from '../../types/activity';
 import { GeneratorOptions } from '../../types/core';
 import { FascicleItem } from '../../types/fascicle';
 import { logError, logInfo, logWarn } from '../../utils/logger';
+import { getFasciclePageCount } from '../../utils/fascicleContentNormalizer';
 import { v4 as uuidv4 } from 'uuid';
 import { X, Loader2, Sparkles, Search, Layers, Check, CheckCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -73,19 +74,22 @@ export const FascicleActivityPicker: React.FC<FascicleActivityPickerProps> = ({ 
     const pedagogicalNote = (typeof raw?.pedagogicalNote === 'string' && raw.pedagogicalNote) ||
       `${def?.title || type} etkinliği, öğrencinin ZPD gelişim basamağında bilişsel becerilerini pekiştirmek için tasarlanmıştır.`;
 
+    const contentWrapper = {
+      data: content,
+      title,
+      instruction,
+      pedagogicalNote,
+      generatedAt: Date.now()
+    };
+
     return {
       id: uuidv4(),
       type,
       difficulty: toFascicleDifficulty(options.difficulty),
-      pageCount: 1,
+      // Etkinliğin gerçek A4 sayfa sayısı (çok sayfalı üretimler kırpılmaz)
+      pageCount: getFasciclePageCount({ type, content: contentWrapper, pageCount: 1 }),
       order: 0, // addItem sırayı mevcut liste uzunluğuna göre kendisi atar
-      content: {
-        data: content,
-        title,
-        instruction,
-        pedagogicalNote,
-        generatedAt: Date.now()
-      },
+      content: contentWrapper,
     };
   }, [metadata]);
 
