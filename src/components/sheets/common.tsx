@@ -485,6 +485,8 @@ export const ImageDisplay = React.memo(
           .catch(() => {
             if (isMounted) {
               setHasError(true);
+              // Görsel üretilemediğinde boş kutu yerine pedagojik SVG yer tutucusu gösterilir.
+              setUseInlineSvg(true);
               setIsLoading(false);
             }
           });
@@ -580,14 +582,16 @@ export const ImageDisplay = React.memo(
                 <div className="w-24 h-2 bg-zinc-100 rounded"></div>
               </div>
             )}
-            <img
-              src={imageUrl || ''}
-              alt={description}
-              loading="lazy"
-              className={`w-full h-full object-contain transition-all duration-700 ${isLoading || !imageUrl ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100 blur-0'}`}
-              onLoad={() => setIsLoading(false)}
-              onError={handleError}
-            />
+            {imageUrl && (
+              <img
+                src={imageUrl}
+                alt={description}
+                loading="lazy"
+                className={`w-full h-full object-contain transition-all duration-700 ${isLoading ? 'opacity-0 scale-95 blur-sm' : 'opacity-100 scale-100 blur-0'}`}
+                onLoad={() => setIsLoading(false)}
+                onError={handleError}
+              />
+            )}
           </>
         )}
       </div>
