@@ -3,6 +3,7 @@ import { useFascicleStore } from '../src/store/useFascicleStore';
 import { getFasciclePageCount, normalizeFascicleContent } from '../src/utils/fascicleContentNormalizer';
 import { ActivityType } from '../src/types/activity';
 import { fascicleAIEngine } from '../src/services/fascicleAIEngine';
+import { sanitizeSvgMarkup } from '../src/utils/fascicleSecurity';
 
 describe('Fasikül Stüdyosu Ultra-Premium v2.5 Duman Testleri', () => {
   beforeEach(() => {
@@ -107,5 +108,37 @@ describe('Fasikül Stüdyosu Ultra-Premium v2.5 Duman Testleri', () => {
     expect(note).not.toContain('disleksisi var');
     expect(note).not.toContain('hasta');
     expect(note).not.toContain('özürlü');
+  });
+
+  // Faz 4 / XSS-1: AI kapak SVG'si sanitize edilmeden basılmaz
+  it('sanitizeSvgMarkup zararlı script ve olay niteliklerini temizlemeli', () => {
+    const dirty =
+      '<svg viewBox="0 0 10 10"><script>alert(1)</script>' +
+      '<circle cx="5" cy="5" r="4" onload="alert(2)" fill="#9b8df7" /></svg>';
+
+    const clean = sanitizeSvgMarkup(dirty);
+
+    expect(clean).not.toContain('<script');
+    expect(clean).not.toContain('alert(');
+    expect(clean).not.toContain('onload');
+    expect(clean).toContain('circle');
+    expect(clean).toContain('#9b8df7');
+  });
+
+  it('sanitizeSvgMarkup güvenli dekoratif SVG\'yi korumalı, boş girdide boş dönmeli', () => {
+    const safe = '<svg viewBox="0 0 800 600"><rect x="0" y="0" width="10" height="10" fill="#7dcea0" /></svg>';
+
+    expect(sanitizeSvgMarkup(safe)).toContain('rect');
+    expect(sanitizeSvgMarkup('')).toBe('');
+    expect(sanitizeSvgMarkup(null)).toBe('');
+  });
+
+  // Faz 2 / FEA-4: AI yönetici özeti store üzerinden kalıcı tutulur
+  it('executiveSummary store\'da saklanmalı ve reset ile temizlenmeli', () => {
+    useFascicleStore.getState().setExecutiveSummary('Bu fasikül güven inşası için sıralanmıştır.');
+    expect(useFascicleStore.getState().executiveSummary).toBe('Bu fasikül güven inşası için sıralanmıştır.');
+
+    useFascicleStore.getState().reset();
+    expect(useFascicleStore.getState().executiveSummary).toBe('');
   });
 });

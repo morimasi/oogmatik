@@ -1,6 +1,7 @@
 import React from 'react';
 import { CoverPageSettings, WatermarkSettings } from '../../types/fascicle';
 import { Student } from '../../types';
+import { sanitizeSvgMarkup } from '../../utils/fascicleSecurity';
 
 
 interface FascicleCoverPageProps {
@@ -317,8 +318,8 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
         )
       )}
 
-      {/* Theme Decorations */}
-      {themeConfig.getDecorations(palette, settings.customSvgDecorations)}
+      {/* Theme Decorations — AI SVG'si sanitize edilmeden basılmaz (XSS koruması) */}
+      {themeConfig.getDecorations(palette, sanitizeSvgMarkup(settings.customSvgDecorations))}
 
       {/* Curved top accent line */}
       <div className="absolute top-0 left-0 right-0 z-[1] pointer-events-none">

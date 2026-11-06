@@ -13,6 +13,12 @@ interface FascicleMultiPageRendererProps {
   renderWatermark: (ws: WatermarkSettings) => React.ReactNode;
 }
 
+/** Kenar boşluğu anahtarını normalize eder; tanımsız değerler 'normal'e düşer. */
+function marginMarginKey(margin: string): string {
+  if (margin === 'narrow' || margin === 'wide') return margin;
+  return 'normal';
+}
+
 export const FascicleMultiPageRenderer: React.FC<FascicleMultiPageRendererProps> = ({
   item,
   itemIndex,
@@ -186,8 +192,3 @@ export const FascicleMultiPageRenderer: React.FC<FascicleMultiPageRendererProps>
     </div>
   );
 };
-
-function marginMarginKey(margin: string): string {
-  if (margin === 'narrow' || margin === 'wide') return margin;
-  return 'normal';
-}

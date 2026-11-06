@@ -6,6 +6,7 @@ interface FascicleState {
   currentFascicleId: string | null;
   metadata: FascicleMetadata;
   items: FascicleItem[];
+  executiveSummary: string; // AI Yönetici / Veli Özeti (Faz 2 — dinamik entegrasyon)
   
   // History for Undo/Redo
   past: { items: FascicleItem[]; metadata: FascicleMetadata }[];
@@ -18,6 +19,7 @@ interface FascicleState {
   // Actions
   setFascicle: (fascicle: FascicleDocument) => void;
   updateMetadata: (metadata: Partial<FascicleMetadata>) => void;
+  setExecutiveSummary: (summary: string) => void;
   addItem: (item: FascicleItem) => void;
   removeItem: (itemId: string) => void;
   reorderItems: (startIndex: number, endIndex: number) => void;
@@ -77,6 +79,7 @@ export const useFascicleStore = create<FascicleState>()(
       currentFascicleId: null,
       metadata: initialMetadata,
       items: [],
+      executiveSummary: '',
       past: [],
       future: [],
       selectedItemId: null,
@@ -87,6 +90,7 @@ export const useFascicleStore = create<FascicleState>()(
           currentFascicleId: fascicle.id,
           metadata: fascicle.metadata,
           items: fascicle.items,
+          executiveSummary: fascicle.executiveSummary ?? '',
           past: [],
           future: []
         });
@@ -99,6 +103,10 @@ export const useFascicleStore = create<FascicleState>()(
           future: [],
           metadata: { ...metadata, ...newMeta }
         });
+      },
+
+      setExecutiveSummary: (summary) => {
+        set({ executiveSummary: summary });
       },
 
       addItem: (item) => {
@@ -232,6 +240,7 @@ export const useFascicleStore = create<FascicleState>()(
           currentFascicleId: null,
           metadata: initialMetadata,
           items: [],
+          executiveSummary: '',
           past: [],
           future: []
         });
@@ -242,7 +251,8 @@ export const useFascicleStore = create<FascicleState>()(
       partialize: (state) => ({
         currentFascicleId: state.currentFascicleId,
         metadata: state.metadata,
-        items: state.items
+        items: state.items,
+        executiveSummary: state.executiveSummary
       }),
     }
   )

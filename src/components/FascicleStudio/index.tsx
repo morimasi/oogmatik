@@ -177,6 +177,7 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
               disabled={past.length === 0}
               className={`p-1.5 rounded-md transition-colors ${past.length > 0 ? 'hover:bg-[var(--bg-secondary)] text-[var(--text-primary)]' : 'text-[var(--text-muted)] cursor-not-allowed'}`}
               title="Geri Al"
+              aria-label="Son işlemi geri al"
             >
               <Undo size={16} />
             </button>
@@ -185,6 +186,7 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
               disabled={future.length === 0}
               className={`p-1.5 rounded-md transition-colors ${future.length > 0 ? 'hover:bg-[var(--bg-secondary)] text-[var(--text-primary)]' : 'text-[var(--text-muted)] cursor-not-allowed'}`}
               title="İleri Sar"
+              aria-label="Geri alınan işlemi ileri sar"
             >
               <Redo size={16} />
             </button>

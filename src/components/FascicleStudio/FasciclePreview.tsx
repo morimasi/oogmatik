@@ -71,7 +71,7 @@ const renderWatermark = (ws: WatermarkSettings) => {
 };
 
 export const FasciclePreview: React.FC = () => {
-  const { items, metadata, setFascicle } = useFascicleStore();
+  const { items, metadata, setFascicle, executiveSummary, setExecutiveSummary } = useFascicleStore();
   const { templates, saveTemplate, deleteTemplate } = useFascicleTemplateStore();
   const { activeStudent } = useStudentStore();
   const [viewState, setViewState] = useState<'desktop' | 'mobile'>('desktop');
@@ -81,6 +81,7 @@ export const FasciclePreview: React.FC = () => {
   const [templateName, setTemplateName] = useState('');
   const [showWatermarkSettings, setShowWatermarkSettings] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
 
   // Dinamik Toplam Sayfa ve Numaralandırma Hesabı
   const coverSettings = metadata.coverPageSettings || {
@@ -143,6 +144,25 @@ export const FasciclePreview: React.FC = () => {
     toast.success(`"${tpl.title}" yüklendi!`);
   }, [setFascicle]);
 
+  // Faz 2 / FEA-4: AI Yönetici Özeti — dinamik üretim ve kalıcı saklama
+  const handleGenerateSummary = useCallback(async () => {
+    if (items.length === 0) {
+      toast.error('Özet oluşturmak için fasikülde en az bir etkinlik olmalı.');
+      return;
+    }
+    setSummaryLoading(true);
+    const toastId = toast.loading('AI pedagojik özet yazıyor...');
+    try {
+      const summary = await fascicleAIEngine.generateExecutiveSummary(metadata, items);
+      setExecutiveSummary(summary);
+      toast.success('AI yönetici özeti güncellendi.', { id: toastId });
+    } catch {
+      toast.error('AI özeti üretilemedi; mevcut not korunuyor.', { id: toastId });
+    } finally {
+      setSummaryLoading(false);
+    }
+  }, [items, metadata, setExecutiveSummary]);
+
   const handleDeleteTemplate = useCallback((e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     deleteTemplate(id);
@@ -167,6 +187,7 @@ export const FasciclePreview: React.FC = () => {
                 onClick={() => setShowSaveConfirm(true)}
                 className="studio-icon-btn p-1.5 rounded-lg text-[var(--text-muted)] hover:text-emerald-400"
                 title="Fasikülü Şablon Olarak Kaydet"
+                aria-label="Fasikülü şablon olarak kaydet"
               >
                 <Save size={16} />
               </button>
@@ -178,6 +199,7 @@ export const FasciclePreview: React.FC = () => {
                 onClick={() => setShowTemplates(!showTemplates)}
                 className={`studio-icon-btn p-1.5 rounded-lg ${showTemplates ? 'text-[var(--accent-color)] border border-[var(--accent-muted)]' : ''}`}
                 title="Kayıtlı Fasikül Şablonları"
+                aria-label="Kayıtlı fasikül şablonlarını aç"
               >
                 <BookTemplate size={16} />
               </button>
@@ -270,6 +292,7 @@ export const FasciclePreview: React.FC = () => {
                 cursor: aiLoading || items.length === 0 ? 'not-allowed' : 'pointer',
               }}
               title={items.length === 0 ? 'Önce fasiküle aktivite ekleyin' : 'AI ile Kapak Oluştur (içeriğe göre)'}
+              aria-label={items.length === 0 ? 'AI kapak: önce aktivite ekleyin' : 'AI ile kapak tasarımı oluştur'}
             >
               <Sparkles size={16} className={aiLoading ? 'animate-spin' : ''} />
             </button>
@@ -279,6 +302,7 @@ export const FasciclePreview: React.FC = () => {
               onClick={() => setShowWatermarkSettings(true)}
               className={`studio-icon-btn p-1.5 rounded-lg ${metadata.watermarkSettings?.enabled ? 'text-[var(--accent-color)] border border-[var(--accent-muted)]' : ''}`}
               title="Filigran Ayarları"
+              aria-label="Filigran ayarlarını aç"
             >
               <Droplets size={16} />
             </button>
@@ -287,13 +311,19 @@ export const FasciclePreview: React.FC = () => {
             <button 
                onClick={() => setViewState('mobile')}
                className={`studio-icon-btn p-1.5 rounded-lg ${viewState === 'mobile' ? 'text-[var(--accent-color)] border border-[var(--accent-muted)]' : ''}`}
-               title="Mobil/Tablet Küçültülmüş Görünüm">
+               title="Mobil/Tablet Küçültülmüş Görünüm"
+               aria-label="Mobil görünüme geç"
+               aria-pressed={viewState === 'mobile'}>
+            
               <Smartphone size={16} />
             </button>
             <button 
                onClick={() => setViewState('desktop')}
                className={`studio-icon-btn p-1.5 rounded-lg ${viewState === 'desktop' ? 'text-[var(--accent-color)] border border-[var(--accent-muted)]' : ''}`}
-               title="Gerçek Baskı Görünümü">
+               title="Gerçek Baskı Görünümü"
+               aria-label="Baskı (masaüstü) görünümüne geç"
+               aria-pressed={viewState === 'desktop'}>
+            
               <Monitor size={16} />
             </button>
          </div>
@@ -395,6 +425,9 @@ export const FasciclePreview: React.FC = () => {
                   metadata={metadata}
                   student={activeStudent}
                   totalPages={grandTotalPages}
+                  executiveSummary={executiveSummary}
+                  onGenerateSummary={handleGenerateSummary}
+                  isGeneratingSummary={summaryLoading}
                 />
               )}
           </div>

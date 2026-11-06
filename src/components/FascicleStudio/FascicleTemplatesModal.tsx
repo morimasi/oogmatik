@@ -341,6 +341,7 @@ export const FascicleTemplatesModal: React.FC<FascicleTemplatesModalProps> = ({ 
           <button
             onClick={onClose}
             className="studio-icon-btn p-2 rounded-xl text-[var(--text-muted)] hover:text-[var(--text-primary)] transition"
+            aria-label="Hazır paket penceresini kapat"
           >
             <X size={24} />
           </button>
@@ -404,6 +405,8 @@ export const FascicleTemplatesModal: React.FC<FascicleTemplatesModalProps> = ({ 
                     <button
                       onClick={() => handleApplyTemplate(template)}
                       disabled={isLoading}
+                      aria-label={`${template.title} paketini fasiküle yükle`}
+                      aria-busy={isLoading}
                       className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md text-white disabled:opacity-50"
                       style={{
                         background: 'linear-gradient(135deg, var(--accent-color), var(--accent-hover))'
@@ -434,6 +437,7 @@ export const FascicleTemplatesModal: React.FC<FascicleTemplatesModalProps> = ({ 
           <button
             onClick={onClose}
             className="px-4 py-1.5 border border-[var(--border-color)] rounded-lg hover:bg-[var(--bg-secondary)] text-[var(--text-primary)] font-medium transition"
+            aria-label="Paket seçimini iptal et"
           >
             Vazgeç
           </button>

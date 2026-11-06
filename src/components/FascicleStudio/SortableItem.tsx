@@ -58,6 +58,7 @@ export const SortableItem: React.FC<SortableItemProps> = ({ id, item, onRemove, 
         <div
           {...attributes}
           {...listeners}
+          aria-label={`${contentTitle} öğesini sürükleyerek sırala`}
           className="cursor-grab active:cursor-grabbing p-1.5 text-[var(--text-muted)] hover:text-[var(--text-secondary)] mr-2 rounded hover:bg-[var(--surface-glass)]"
         >
           <GripVertical size={18} />
@@ -90,6 +91,7 @@ export const SortableItem: React.FC<SortableItemProps> = ({ id, item, onRemove, 
             onClick={(e) => { e.stopPropagation(); onRegenerate(item); }}
             className="studio-icon-btn p-1.5 rounded-lg text-[var(--text-muted)] hover:text-emerald-400"
             title="Yeniden Üret (Varyasyon)"
+            aria-label={`${contentTitle} etkinliğini yeniden üret`}
           >
             <RefreshCw size={15} />
           </button>
@@ -97,6 +99,7 @@ export const SortableItem: React.FC<SortableItemProps> = ({ id, item, onRemove, 
             onClick={() => onRemove(item.id)}
             className="studio-icon-btn p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-400"
             title="Fasikülden Kaldır"
+            aria-label={`${contentTitle} etkinliğini fasikülden kaldır`}
           >
             <Trash2 size={15} />
           </button>
@@ -133,6 +136,7 @@ export const SortableItem: React.FC<SortableItemProps> = ({ id, item, onRemove, 
             <button
               onClick={() => onRegenerate(item)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-700/30"
+              aria-label={`${contentTitle} etkinliğini yeniden üret`}
             >
               <RefreshCw size={13} />
               Yeniden Üret
@@ -140,6 +144,7 @@ export const SortableItem: React.FC<SortableItemProps> = ({ id, item, onRemove, 
             <button
               onClick={() => onRemove(item.id)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-red-600/20 text-red-400 hover:bg-red-600/30 border border-red-700/30"
+              aria-label={`${contentTitle} etkinliğini fasikülden kaldır`}
             >
               <Trash2 size={13} />
               Kaldır

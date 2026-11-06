@@ -7,6 +7,11 @@ interface FascicleExecutiveSummaryPageProps {
   metadata: FascicleMetadata;
   student: Student | null;
   totalPages: number;
+  /** AI tarafından üretilmiş yönetici/veli özeti (varsa statik notun yerine gösterilir) */
+  executiveSummary?: string;
+  /** Verilmezse AI özet butonu render edilmez (ör. PDF/print bağlamı) */
+  onGenerateSummary?: () => void;
+  isGeneratingSummary?: boolean;
 }
 
 export const FascicleExecutiveSummaryPage: React.FC<FascicleExecutiveSummaryPageProps> = ({
@@ -14,6 +19,9 @@ export const FascicleExecutiveSummaryPage: React.FC<FascicleExecutiveSummaryPage
   metadata,
   student,
   totalPages,
+  executiveSummary,
+  onGenerateSummary,
+  isGeneratingSummary = false,
 }) => {
   const summaryNote = metadata.coverPageSettings?.summaryNote ||
     'Bu fasikül, öğrencinin özel öğrenme gereksinimleri (Disleksi / DEHB / Diskalkuli) gözetilerek nöro-pedagojik sarmal yaklaşımla hazırlanmıştır.';
@@ -44,11 +52,25 @@ export const FascicleExecutiveSummaryPage: React.FC<FascicleExecutiveSummaryPage
 
         {/* Executive Summary Card */}
         <div className="p-5 bg-gradient-to-br from-purple-50 to-indigo-50/50 border border-purple-200/60 rounded-2xl mb-6 shadow-sm">
-          <h4 className="text-xs font-black text-purple-900 uppercase tracking-widest mb-2 flex items-center gap-2">
-            <span>Öğretmen & Uzman Pedagojik Özeti</span>
-          </h4>
-          <p className="text-xs text-purple-950/80 leading-relaxed font-medium">
-            {summaryNote}
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <h4 className="text-xs font-black text-purple-900 uppercase tracking-widest flex items-center gap-2">
+              <span>{executiveSummary ? 'AI Yönetici & Veli Özeti' : 'Öğretmen & Uzman Pedagojik Özeti'}</span>
+            </h4>
+            {onGenerateSummary && (
+              <button
+                type="button"
+                onClick={onGenerateSummary}
+                disabled={isGeneratingSummary}
+                className="no-print shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-purple-300 bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-purple-700 transition-colors hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label={executiveSummary ? 'AI yönetici özetini yeniden oluştur' : 'AI yönetici özeti oluştur'}
+                aria-busy={isGeneratingSummary}
+              >
+                {isGeneratingSummary ? 'Yazılıyor...' : executiveSummary ? 'Yenile' : 'AI Özeti'}
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-purple-950/80 leading-relaxed font-medium whitespace-pre-line">
+            {executiveSummary || summaryNote}
           </p>
         </div>
 
