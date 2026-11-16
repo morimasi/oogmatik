@@ -77,8 +77,8 @@ const PASTEL_REGION_COLORS: Record<string, { fill: string; stroke: string }> = {
 
 const MONOCHROME_LABEL_BACKGROUND = 'rgba(255,255,255,0.98)';
 
-// Harita etiketleri için disleksi dostu yazı tipi (OpenDyslexic projede yerel font olarak yüklenir)
-export const MAP_LABEL_FONT_FAMILY = '"OpenDyslexic", "Lexend", sans-serif';
+// Harita etiketleri için disleksi ve MEB Dik Temel Harf yazı tipi (Kayra Aydın yerel fontu)
+export const MAP_LABEL_FONT_FAMILY = '"Kayra Aydın", "Kayra Aydin", "Kayra", "OpenDyslexic", "Lexend", sans-serif';
 
 export const REGION_LABEL_FONT_SIZE = 18;
 export const REGION_LABEL_HEIGHT = 26;

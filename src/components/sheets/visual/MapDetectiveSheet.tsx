@@ -197,16 +197,16 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                                 for (let i = 0; i <= cols; i++) {
                                     gridLines.push(<line key={`v${i}`} x1={i * colWidth} y1={0} x2={i * colWidth} y2={500} stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeDasharray="5,5" className="print-grid-line" />);
                                     if (i < cols) {
-                                        gridLines.push(<text key={`c${i}`} x={i * colWidth + colWidth / 2} y={20} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{String.fromCharCode(65 + i)}</text>);
-                                        gridLines.push(<text key={`c${i}_b`} x={i * colWidth + colWidth / 2} y={490} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{String.fromCharCode(65 + i)}</text>);
+                                        gridLines.push(<text key={`c${i}`} x={i * colWidth + colWidth / 2} y={20} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text" style={{ fontFamily: MAP_LABEL_FONT_FAMILY }}>{String.fromCharCode(65 + i)}</text>);
+                                        gridLines.push(<text key={`c${i}_b`} x={i * colWidth + colWidth / 2} y={490} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text" style={{ fontFamily: MAP_LABEL_FONT_FAMILY }}>{String.fromCharCode(65 + i)}</text>);
                                     }
                                 }
 
                                 for (let i = 0; i <= rows; i++) {
                                     gridLines.push(<line key={`h${i}`} x1={0} y1={i * rowHeight} x2={1000} y2={i * rowHeight} stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeDasharray="5,5" className="print-grid-line" />);
                                     if (i < rows) {
-                                        gridLines.push(<text key={`r${i}`} x={20} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{i + 1}</text>);
-                                        gridLines.push(<text key={`r${i}_r`} x={980} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{i + 1}</text>);
+                                        gridLines.push(<text key={`r${i}`} x={20} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text" style={{ fontFamily: MAP_LABEL_FONT_FAMILY }}>{i + 1}</text>);
+                                        gridLines.push(<text key={`r${i}_r`} x={980} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text" style={{ fontFamily: MAP_LABEL_FONT_FAMILY }}>{i + 1}</text>);
                                     }
                                 }
                                 return gridLines;

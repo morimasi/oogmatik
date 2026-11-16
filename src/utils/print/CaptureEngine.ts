@@ -18,7 +18,7 @@ export const preloadFontsForCapture = async (): Promise<void> => {
   try {
     await document.fonts.ready;
 
-    const fontFamilies = ['Lexend', 'Inter', 'Comic Neue', 'Lora', 'OpenDyslexic'];
+    const fontFamilies = ['Lexend', 'Inter', 'Comic Neue', 'Lora', 'OpenDyslexic', 'Kayra Aydın', 'Kayra Aydin'];
     const weights = ['400', '600', '700', '800'];
     const testText = 'ABCÇDEFGĞHIİJKLMNOÖPRSŞTUÜVYZabcçdefgğhıijklmnoöprsştuüvyz0123456789';
     const loadPromises: Promise<unknown>[] = [];

@@ -1,4 +1,5 @@
 import React from 'react';
+import { MAP_LABEL_FONT_FAMILY } from './TurkeyMapSVG';
 
 interface TreasureMapSVGProps {
   showRegionLabels?: boolean;
@@ -77,7 +78,7 @@ export const TreasureMapSVG = ({
         <circle cx="340" cy="290" r="4" />
       </g>
       <path d="M 450,190 C 460,210 450,230 440,250 C 430,270 425,290 430,310 L 435,330" fill="none" stroke="#7eb8d6" strokeWidth="3" strokeLinecap="round" opacity="0.5" />
-      <text x="170" y="415" fontSize="10" fontWeight="bold" fill="#8b4513" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">BAŞLANGIÇ</text>
+      <text x="170" y="415" fontSize="10" fontWeight="bold" fill="#8b4513" textAnchor="middle" fontFamily={MAP_LABEL_FONT_FAMILY}>BAŞLANGIÇ</text>
       <circle cx="170" cy="400" r="5" fill="#8b4513" />
       {[
 
@@ -101,7 +102,7 @@ export const TreasureMapSVG = ({
 
       ))}
 
-      <text x="490" y="155" fontSize="18" fontWeight="900" fill="#6b4226" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif" transform="rotate(-5, 490, 155)">Gizemli Ada</text>
+      <text x="490" y="155" fontSize="18" fontWeight="900" fill="#6b4226" textAnchor="middle" fontFamily={MAP_LABEL_FONT_FAMILY} transform="rotate(-5, 490, 155)">Gizemli Ada</text>
 
       <g transform="translate(850, 110)">
 
@@ -121,13 +122,13 @@ export const TreasureMapSVG = ({
 
         <circle r="2" fill="#8b4513" />
 
-        <text x="0" y="-38" fontSize="11" fontWeight="900" fill="#8b4513" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">K</text>
+        <text x="0" y="-38" fontSize="11" fontWeight="900" fill="#8b4513" textAnchor="middle" fontFamily={MAP_LABEL_FONT_FAMILY}>K</text>
 
-        <text x="0" y="44" fontSize="9" fontWeight="700" fill="#8b4513" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">G</text>
+        <text x="0" y="44" fontSize="9" fontWeight="700" fill="#8b4513" textAnchor="middle" fontFamily={MAP_LABEL_FONT_FAMILY}>G</text>
 
-        <text x="-42" y="4" fontSize="9" fontWeight="700" fill="#8b4513" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">B</text>
+        <text x="-42" y="4" fontSize="9" fontWeight="700" fill="#8b4513" textAnchor="middle" fontFamily={MAP_LABEL_FONT_FAMILY}>B</text>
 
-        <text x="42" y="4" fontSize="9" fontWeight="700" fill="#8b4513" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">D</text>
+        <text x="42" y="4" fontSize="9" fontWeight="700" fill="#8b4513" textAnchor="middle" fontFamily={MAP_LABEL_FONT_FAMILY}>D</text>
 
       </g>
 
@@ -139,7 +140,7 @@ export const TreasureMapSVG = ({
 
         <circle r="20" fill="none" stroke="#d32f2f" strokeWidth="2" strokeDasharray="4,3" />
 
-        <text y="30" fontSize="10" fontWeight="900" fill="#d32f2f" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">HAZİNE BURADA</text>
+        <text y="30" fontSize="10" fontWeight="900" fill="#d32f2f" textAnchor="middle" fontFamily={MAP_LABEL_FONT_FAMILY}>HAZİNE BURADA</text>
 
       </g>
 
@@ -163,23 +164,23 @@ export const TreasureMapSVG = ({
 
         <rect x="0" y="0" width="180" height="80" fill="#f5e6c8" fillOpacity="0.9" stroke="#8b5e3c" strokeWidth="1" rx="4" />
 
-        <text x="90" y="16" fontSize="9" fontWeight="900" fill="#6b4226" textAnchor="middle" fontFamily="OpenDyslexic, Lexend, sans-serif">LEJANT</text>
+        <text x="90" y="16" fontSize="9" fontWeight="900" fill="#6b4226" textAnchor="middle" fontFamily={MAP_LABEL_FONT_FAMILY}>LEJANT</text>
 
         <line x1="10" y1="28" x2="10" y2="34" stroke="#8b4513" strokeWidth="2.5" strokeDasharray="4,4" />
 
-        <text x="22" y="33" fontSize="8" fill="#6b4226" fontFamily="OpenDyslexic, Lexend, sans-serif">Gizli Yol</text>
+        <text x="22" y="33" fontSize="8" fill="#6b4226" fontFamily={MAP_LABEL_FONT_FAMILY}>Gizli Yol</text>
 
-        <text x="10" y="47" fontSize="12" fontWeight="900" fill="#d32f2f" fontFamily="OpenDyslexic, Lexend, sans-serif">X</text>
+        <text x="10" y="47" fontSize="12" fontWeight="900" fill="#d32f2f" fontFamily={MAP_LABEL_FONT_FAMILY}>X</text>
 
-        <text x="22" y="48" fontSize="8" fill="#6b4226" fontFamily="OpenDyslexic, Lexend, sans-serif">Hazine Noktası</text>
+        <text x="22" y="48" fontSize="8" fill="#6b4226" fontFamily={MAP_LABEL_FONT_FAMILY}>Hazine Noktası</text>
 
         <polygon points="10,58 13,68 7,68" fill="#7a6b4a" />
 
-        <text x="22" y="65" fontSize="8" fill="#6b4226" fontFamily="OpenDyslexic, Lexend, sans-serif">Dağ</text>
+        <text x="22" y="65" fontSize="8" fill="#6b4226" fontFamily={MAP_LABEL_FONT_FAMILY}>Dağ</text>
 
         <circle cx="10" cy="74" r="2.5" fill="#5a7a3a" />
 
-        <text x="22" y="76" fontSize="8" fill="#6b4226" fontFamily="OpenDyslexic, Lexend, sans-serif">Orman</text>
+        <text x="22" y="76" fontSize="8" fill="#6b4226" fontFamily={MAP_LABEL_FONT_FAMILY}>Orman</text>
 
       </g>
 

@@ -113,9 +113,10 @@ describe('Harita Dedektifi yapılandırma seçenekleri', () => {
     expect(pastelMarkup).toContain('fill="#ede9fe"');
   });
 
-  it('bölge etiketlerini OpenDyslexic ile halosuz ve okunaklı çizer', () => {
+  it('bölge etiketlerini Kayra Aydın ve OpenDyslexic font ailesi ile halosuz ve okunaklı çizer', () => {
     const markup = renderToStaticMarkup(<TurkeyMapSVG />);
 
+    expect(markup).toContain('Kayra Aydın');
     expect(markup).toContain('OpenDyslexic');
     expect(markup).not.toContain('paint-order');
     expect(markup).not.toContain('font-weight="900"');

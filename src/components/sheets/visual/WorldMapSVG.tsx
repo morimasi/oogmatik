@@ -1,4 +1,5 @@
 import React from 'react';
+import { MAP_LABEL_FONT_FAMILY } from './TurkeyMapSVG';
 
 interface WorldMapSVGProps {
   emphasizedRegion?: string;
@@ -48,7 +49,7 @@ export const WorldMapSVG = ({
         <path d="M100,480 L200,475 L300,470 L400,468 L500,470 L600,472 L700,468 L800,470 L900,475 L950,478" fill="none" stroke="#b0bec5" strokeWidth="8" strokeLinecap="round" opacity="0.5" />
       </g>
       {showRegionLabels && (
-        <g fontFamily="OpenDyslexic, Lexend, sans-serif" fontWeight="400" fontSize="12" fill="#52525b" opacity="0.9">
+        <g fontFamily={MAP_LABEL_FONT_FAMILY} fontWeight="400" fontSize="12" fill="#52525b" opacity="0.9">
           <text x="200" y="160" textAnchor="middle" fontSize="15">KUZEY AMERİKA</text>
           <text x="330" y="360" textAnchor="middle" fontSize="13">GÜNEY AMERİKA</text>
           <text x="500" y="170" textAnchor="middle" fontSize="14">AFRİKA</text>
