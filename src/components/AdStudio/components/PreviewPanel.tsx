@@ -1,10 +1,14 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { AdOutput, AD_TARGET_LABELS, AD_FORMAT_LABELS } from '../../../types/adStudio';
 import { generateVideo } from '../../../services/adVideoGenerator';
+import { captureElementAsDataUrl } from '../../../services/screenshotCaptureService';
 import { AdVisualMockupRenderer } from './AdVisualMockupRenderer';
 import { AdScoreBadge } from './AdScoreBadge';
 import { AdVoicePlayer } from './AdVoicePlayer';
 import { AdLiveEditor } from './AdLiveEditor';
+
+type DeviceAnimStyle = 'slide-up' | 'zoom-in' | 'rotate-reveal' | 'parallax' | 'float';
+type DeviceType = 'phone' | 'tablet' | 'desktop';
 
 interface PreviewPanelProps {
   output: AdOutput;
@@ -28,6 +32,12 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot, 
   const videoRef = useRef<HTMLVideoElement>(null);
   const blobUrlRef = useRef<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Sahne bazlı ekran/cihaz state'leri
+  const [sceneScreenshots, setSceneScreenshots] = useState<Record<number, string>>({});
+  const [sceneAnimStyles, setSceneAnimStyles] = useState<Record<number, DeviceAnimStyle>>({});
+  const [sceneDeviceTypes, setSceneDeviceTypes] = useState<Record<number, DeviceType>>({});
+  const [captureToast, setCaptureToast] = useState<string | null>(null);
 
   const revokeBlobUrl = useCallback(() => {
     if (blobUrlRef.current) {
@@ -69,6 +79,25 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot, 
     setVideoError(null);
   }, []);
 
+  const handleCaptureScene = useCallback(async (sceneNo: number) => {
+    setCaptureToast(`Sahne ${sceneNo} için: şimdi yakalamak istediğin uygulama ekranına geçin, 3 saniye sonra yakalanacak...`);
+    await new Promise<void>(resolve => setTimeout(resolve, 3000));
+    setCaptureToast(null);
+    const captureRoot = document.querySelector('[data-capture-root]');
+    if (!(captureRoot instanceof HTMLElement)) {
+      setCaptureToast('Yakalanacak ekran bulunamadı. [data-capture-root] elementi yok.');
+      setTimeout(() => setCaptureToast(null), 3000);
+      return;
+    }
+    try {
+      const dataUrl = await captureElementAsDataUrl(captureRoot);
+      setSceneScreenshots(prev => ({ ...prev, [sceneNo]: dataUrl }));
+    } catch {
+      setCaptureToast('Ekran yakalama başarısız.');
+      setTimeout(() => setCaptureToast(null), 3000);
+    }
+  }, []);
+
   const handleGenerateVideo = useCallback(async () => {
     if (output.scenes.length === 0) return;
     abortRef.current?.abort();
@@ -79,11 +108,15 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot, 
     try {
       // Sahnenin kendi yüksek çözünürlüklü SVG/vektör görseli varsa onu koru!
       // Yalnızca görseli bulunmayan sahneler için screenshot fallback kullan.
+      // Her sahnenin appScreenshot, deviceType, deviceAnimStyle patch'i eklendi.
       const patchedOutput = {
         ...output,
         scenes: output.scenes.map(s => ({
           ...s,
-          sceneVisual: s.sceneVisual && s.sceneVisual.trim().length > 0 ? s.sceneVisual : (screenshot || ''),
+          sceneVisual: s.sceneVisual?.trim() || screenshot || '',
+          appScreenshot: sceneScreenshots[s.sceneNo] ?? undefined,
+          deviceType: sceneDeviceTypes[s.sceneNo] ?? 'phone',
+          deviceAnimStyle: sceneAnimStyles[s.sceneNo] ?? 'slide-up',
         })),
       };
       const { webm } = await generateVideo(patchedOutput, {
@@ -102,7 +135,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot, 
       setVideoError(msg);
       setVideoState('error');
     }
-  }, [output, videoFormat, screenshot, revokeBlobUrl]);
+  }, [output, videoFormat, screenshot, sceneScreenshots, sceneDeviceTypes, sceneAnimStyles, revokeBlobUrl]);
 
   const handleDownloadVideo = useCallback(() => {
     if (!videoUrl) return;
@@ -121,6 +154,86 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot, 
         </div>
         <span className="text-[9px] text-zinc-500 font-mono">{output.duration} saniye</span>
       </div>
+
+      {/* Capture Toast */}
+      {captureToast && (
+        <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[10px]">
+          <i className="fa-solid fa-circle-info mt-0.5 flex-shrink-0" />
+          <span>{captureToast}</span>
+        </div>
+      )}
+
+      {/* Sahne Bazlı Uygulama Ekranları */}
+      {output.scenes.length > 0 && (
+        <div className="rounded-xl bg-white/[0.03] border border-white/10 p-3 space-y-2 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm">📱</span>
+            <span className="text-[10px] font-black uppercase tracking-wider text-indigo-300">Sahne Bazlı Uygulama Ekranları</span>
+          </div>
+
+          {output.scenes.map(scene => {
+            const hasScreenshot = !!sceneScreenshots[scene.sceneNo];
+            const animStyle = sceneAnimStyles[scene.sceneNo] ?? 'slide-up';
+            const deviceType = sceneDeviceTypes[scene.sceneNo] ?? 'phone';
+
+            return (
+              <div key={scene.sceneNo} className="flex items-center gap-2 flex-wrap">
+                <span className="text-[9px] font-bold text-zinc-400 w-14 flex-shrink-0">
+                  Sahne {scene.sceneNo}:
+                </span>
+
+                {/* Ekran Seçici */}
+                <select
+                  value={hasScreenshot ? 'captured' : 'none'}
+                  onChange={() => { /* yalnızca yakalama butonu ile değişir */ }}
+                  className="py-1 px-2 rounded-lg bg-zinc-800 border border-white/10 text-zinc-300 text-[9px] font-bold focus:outline-none cursor-default min-w-[110px]"
+                >
+                  <option value="none">Ekran Yok</option>
+                  {hasScreenshot && <option value="captured">✅ Ekran Var</option>}
+                </select>
+
+                {/* Yakala Butonu */}
+                <button
+                  onClick={() => handleCaptureScene(scene.sceneNo)}
+                  disabled={!!captureToast}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[9px] font-bold hover:bg-indigo-500/30 transition-all disabled:opacity-40"
+                  title="Uygulamadan ekran yakala"
+                >
+                  📸 Yakala
+                </button>
+
+                {/* Animasyon Stili */}
+                <select
+                  value={animStyle}
+                  onChange={e => setSceneAnimStyles(prev => ({ ...prev, [scene.sceneNo]: e.target.value as DeviceAnimStyle }))}
+                  className="py-1 px-2 rounded-lg bg-zinc-800 border border-white/10 text-zinc-300 text-[9px] font-bold focus:outline-none cursor-pointer"
+                >
+                  <option value="slide-up">🎞 slide-up</option>
+                  <option value="zoom-in">🎞 zoom-in</option>
+                  <option value="rotate-reveal">🎞 rotate-reveal</option>
+                  <option value="parallax">🎞 parallax</option>
+                  <option value="float">🎞 float</option>
+                </select>
+
+                {/* Cihaz Tipi */}
+                <select
+                  value={deviceType}
+                  onChange={e => setSceneDeviceTypes(prev => ({ ...prev, [scene.sceneNo]: e.target.value as DeviceType }))}
+                  className="py-1 px-2 rounded-lg bg-zinc-800 border border-white/10 text-zinc-300 text-[9px] font-bold focus:outline-none cursor-pointer"
+                >
+                  <option value="phone">📱 phone</option>
+                  <option value="tablet">📲 tablet</option>
+                  <option value="desktop">🖥 desktop</option>
+                </select>
+              </div>
+            );
+          })}
+
+          <p className="text-[9px] text-zinc-500 leading-relaxed pt-1 border-t border-white/5">
+            💡 &ldquo;Yakala&rdquo; butonu o sahnede göstermek istediğin ekranı yakalamak için uygulamayı açar
+          </p>
+        </div>
+      )}
 
       <div className="flex items-center gap-2">
         <select

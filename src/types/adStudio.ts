@@ -120,6 +120,12 @@ export interface AdScene {
   textOverlay: string;
   transition: string;
   sceneVisual?: string;
+  /** base64 data URL — gerçek uygulama ekranı görüntüsü */
+  appScreenshot?: string;
+  /** Cihaz mockup tipi */
+  deviceType?: 'phone' | 'tablet' | 'desktop';
+  /** Cihaz animasyon stili */
+  deviceAnimStyle?: 'slide-up' | 'zoom-in' | 'rotate-reveal' | 'parallax' | 'float';
 }
 
 export interface AdScore {

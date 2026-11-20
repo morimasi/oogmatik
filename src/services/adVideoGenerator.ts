@@ -21,6 +21,11 @@ interface VideoOptions {
   signal?: AbortSignal;
 }
 
+/** AdScene + runtime-yüklü screenshot image (sadece generateVideo içinde kullanılır) */
+interface AdSceneWithImg extends AdScene {
+  _screenshotImg?: HTMLImageElement;
+}
+
 function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
@@ -117,6 +122,254 @@ function strokeRoundRect(
   ctx.closePath();
   ctx.stroke();
 }
+
+// ---------------------------------------------------------------------------
+// DEVICE MOCKUP & APP SCREEN ANIMATION SİSTEMİ
+// Prof. Dr. Görkem Çetin — Ordinaryüs Baş Grafiker & Vektör Mimarı
+// ---------------------------------------------------------------------------
+
+type DeviceType = 'phone' | 'tablet' | 'desktop';
+type DeviceAnimStyle = 'slide-up' | 'zoom-in' | 'rotate-reveal' | 'parallax' | 'float';
+type ScreenTransitionStyle = 'swipe-left' | 'fade' | 'scale-up';
+
+/**
+ * Cihaz çerçevesi (mockup) + uygulama ekranı animasyonu.
+ * Saf Canvas 2D — dış kütüphane yok, TypeScript strict.
+ */
+function drawDeviceMockup(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  appScreenshot: HTMLImageElement,
+  deviceType: DeviceType,
+  t: number,
+  animStyle: DeviceAnimStyle
+): void {
+  const eased = easeInOutCubic(Math.min(1, Math.max(0, t)));
+
+  // ---- Animasyon Dönüşümü ----
+  ctx.save();
+
+  // Dönüşüm merkezini cihazın ortasına al
+  const cx = x + w / 2;
+  const cy = y + h / 2;
+  ctx.translate(cx, cy);
+
+  switch (animStyle) {
+    case 'slide-up': {
+      // Aşağıdan yukarı kayarak girer (t=0 → h*1.5 offset, t=1 → 0)
+      const slideOffset = (1 - eased) * h * 1.5;
+      ctx.translate(0, slideOffset);
+      break;
+    }
+    case 'zoom-in': {
+      // 0.7x → 1.0x büyür
+      const scale = 0.7 + 0.3 * eased;
+      ctx.scale(scale, scale);
+      break;
+    }
+    case 'rotate-reveal': {
+      // -8° → 0°, opaklık 0 → 1
+      const angle = (-8 * (1 - eased) * Math.PI) / 180;
+      ctx.rotate(angle);
+      ctx.globalAlpha = eased;
+      break;
+    }
+    case 'parallax': {
+      // Hafifçe yukarı aşağı float (sin bazlı sürekli)
+      const floatY = Math.sin(t * Math.PI * 2) * 6;
+      ctx.translate(0, floatY);
+      break;
+    }
+    case 'float': {
+      // sin(t*π*2)*8px yukarı aşağı
+      const floatOffset = Math.sin(t * Math.PI * 2) * 8;
+      ctx.translate(0, floatOffset);
+      break;
+    }
+  }
+
+  ctx.translate(-cx, -cy);
+
+  // ---- Cihaz Gölgesi ----
+  ctx.shadowColor = 'rgba(99,102,241,0.4)';
+  ctx.shadowBlur = 30;
+
+  // ---- Cihaza Göre Kenar Payı ----
+  const isPhone = deviceType === 'phone';
+  const isTablet = deviceType === 'tablet';
+  // Desktop için daha az yuvarlaklık
+  const outerRadius = isPhone ? 36 : isTablet ? 28 : 16;
+  const borderW = 3;
+  const gapW = 4; // inner gap
+  const innerPad = borderW + gapW;
+
+  // Dış çerçeve: koyu metalik
+  ctx.fillStyle = '#1a1a2e';
+  fillRoundRect(ctx, x, y, w, h, outerRadius);
+
+  // Dış kenarlık
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = '#333355';
+  ctx.lineWidth = borderW;
+  strokeRoundRect(ctx, x, y, w, h, outerRadius);
+
+  // ---- Ekran Klip Alanı ----
+  const screenX = x + innerPad;
+  const screenY = y + innerPad + (isPhone ? 20 : 0); // kamera alanı için üstten boşluk
+  const screenW = w - innerPad * 2;
+  const screenH = h - innerPad * 2 - (isPhone ? 50 : 0); // üst kamera + alt home bar
+
+  // Ekran arka planı
+  ctx.fillStyle = '#0a0a1a';
+  fillRoundRect(ctx, screenX, screenY, screenW, screenH, outerRadius - innerPad);
+
+  // Screenshot'ı contain mantığıyla çiz
+  ctx.save();
+  ctx.beginPath();
+  const scrRadius = Math.max(0, outerRadius - innerPad);
+  ctx.moveTo(screenX + scrRadius, screenY);
+  ctx.lineTo(screenX + screenW - scrRadius, screenY);
+  ctx.quadraticCurveTo(screenX + screenW, screenY, screenX + screenW, screenY + scrRadius);
+  ctx.lineTo(screenX + screenW, screenY + screenH - scrRadius);
+  ctx.quadraticCurveTo(screenX + screenW, screenY + screenH, screenX + screenW - scrRadius, screenY + screenH);
+  ctx.lineTo(screenX + scrRadius, screenY + screenH);
+  ctx.quadraticCurveTo(screenX, screenY + screenH, screenX, screenY + screenH - scrRadius);
+  ctx.lineTo(screenX, screenY + scrRadius);
+  ctx.quadraticCurveTo(screenX, screenY, screenX + scrRadius, screenY);
+  ctx.closePath();
+  ctx.clip();
+
+  // Contain mantığıyla screenshot çiz
+  const iw = appScreenshot.naturalWidth || screenW;
+  const ih = appScreenshot.naturalHeight || screenH;
+  const imgRatio = iw / ih;
+  const scrRatio = screenW / screenH;
+
+  let dw: number;
+  let dh: number;
+  if (imgRatio > scrRatio) {
+    dw = screenW;
+    dh = screenW / imgRatio;
+  } else {
+    dh = screenH;
+    dw = screenH * imgRatio;
+  }
+  const dx = screenX + (screenW - dw) / 2;
+  const dy = screenY + (screenH - dh) / 2;
+  ctx.drawImage(appScreenshot, dx, dy, dw, dh);
+
+  ctx.restore();
+
+  // ---- Phone'a Özel: Kamera Noktası (Sol Üst) ----
+  if (isPhone) {
+    // Üst kamera notch alanı
+    ctx.fillStyle = '#0d0d1f';
+    ctx.fillRect(x + innerPad, y + innerPad, w - innerPad * 2, 20);
+
+    // Kamera noktası
+    ctx.fillStyle = '#222222';
+    ctx.beginPath();
+    ctx.arc(x + w / 2, y + innerPad + 10, 6, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Alt Home Bar
+    const homeBarW = 40;
+    const homeBarH = 4;
+    const homeBarX = x + w / 2 - homeBarW / 2;
+    const homeBarY = y + h - innerPad - homeBarH - 6;
+    ctx.fillStyle = '#333333';
+    fillRoundRect(ctx, homeBarX, homeBarY, homeBarW, homeBarH, homeBarH / 2);
+  }
+
+  ctx.restore();
+}
+
+/**
+ * İki uygulama ekranı arasında geçiş animasyonu.
+ */
+function drawAppScreenTransition(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  img1: HTMLImageElement,
+  img2: HTMLImageElement,
+  t: number,
+  transitionStyle: ScreenTransitionStyle
+): void {
+  const eased = easeInOutCubic(Math.min(1, Math.max(0, t)));
+
+  ctx.save();
+
+  // Klip bölgesi
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.clip();
+
+  switch (transitionStyle) {
+    case 'swipe-left': {
+      // img1 sola kayar, img2 sağdan girer
+      const offset = eased * w;
+      ctx.drawImage(img1, x - offset, y, w, h);
+      ctx.drawImage(img2, x + (w - offset), y, w, h);
+      break;
+    }
+    case 'fade': {
+      // Crossfade
+      ctx.drawImage(img1, x, y, w, h);
+      ctx.globalAlpha = eased;
+      ctx.drawImage(img2, x, y, w, h);
+      ctx.globalAlpha = 1;
+      break;
+    }
+    case 'scale-up': {
+      // img1 küçülür (merkeze doğru), img2 büyüyerek gelir
+      const scale1 = 1 - eased * 0.3;
+      const scale2 = 0.7 + eased * 0.3;
+      const cx = x + w / 2;
+      const cy = y + h / 2;
+
+      // img1 küçülür
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(scale1, scale1);
+      ctx.globalAlpha = 1 - eased;
+      ctx.drawImage(img1, -w / 2, -h / 2, w, h);
+      ctx.restore();
+
+      // img2 büyüyerek gelir
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(scale2, scale2);
+      ctx.globalAlpha = eased;
+      ctx.drawImage(img2, -w / 2, -h / 2, w, h);
+      ctx.restore();
+
+      ctx.globalAlpha = 1;
+      break;
+    }
+  }
+
+  ctx.restore();
+}
+
+/**
+ * appScreenshot varsa HTMLImageElement yükler (base64 data URL)
+ */
+function loadBase64Image(dataUrl: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('appScreenshot yüklenemedi'));
+    img.src = dataUrl;
+  });
+}
+
+// ---------------------------------------------------------------------------
 
 function wrapTextLines(
   ctx: CanvasRenderingContext2D,
@@ -218,7 +471,7 @@ function drawAtmosphere(
 function renderPortrait9x16(
   ctx: CanvasRenderingContext2D,
   w: number, h: number,
-  scene: AdScene,
+  scene: AdSceneWithImg,
   img: HTMLImageElement | null,
   t: number,
   progress: number,
@@ -257,7 +510,7 @@ function renderPortrait9x16(
   ctx.fillText(`Sahne ${scene.sceneNo}/${totalScenes} · ${scene.duration}sn`, w * 0.94, topY + brandPillH / 2);
 
   // -------------------------------------------------------------
-  // B. ULTRA-HD VİTRİN KARTI (Showcase Card) - Asla bozulmaz/pikselleşmez
+  // B. VİTRİN ALANI — appScreenshot varsa cihaz mockupu, yoksa klasik kart
   // -------------------------------------------------------------
   const cardX = w * 0.06;
   const cardY = h * 0.11;
@@ -265,70 +518,88 @@ function renderPortrait9x16(
   const cardH = h * 0.42;
   const cardRadius = 32;
 
-  // Kart Gölgesi
-  ctx.shadowColor = `rgba(${accentRgb},0.35)`;
-  ctx.shadowBlur = 40;
-  ctx.fillStyle = '#100c2a';
-  fillRoundRect(ctx, cardX, cardY, cardW, cardH, cardRadius);
-  ctx.shadowBlur = 0;
+  if (scene.appScreenshot && scene._screenshotImg) {
+    // ---- Cihaz Mockup Modu ----
+    // Telefon oranında mockup alanı: ortalanmış, biraz daha dar
+    const mockW = cardW * 0.55;
+    const mockH = cardH;
+    const mockX = cardX + (cardW - mockW) / 2;
+    drawDeviceMockup(
+      ctx,
+      mockX, cardY, mockW, mockH,
+      scene._screenshotImg,
+      scene.deviceType ?? 'phone',
+      t,
+      scene.deviceAnimStyle ?? 'slide-up'
+    );
+  } else {
+    // ---- Klasik SVG Vitrin Kartı (Geriye Dönük Uyumluluk) ----
 
-  // Kartın İçini Kırp (Clip)
-  ctx.save();
-  ctx.beginPath();
-  fillRoundRect(ctx, cardX, cardY, cardW, cardH, cardRadius);
-  ctx.clip();
+    // Kart Gölgesi
+    ctx.shadowColor = `rgba(${accentRgb},0.35)`;
+    ctx.shadowBlur = 40;
+    ctx.fillStyle = '#100c2a';
+    fillRoundRect(ctx, cardX, cardY, cardW, cardH, cardRadius);
+    ctx.shadowBlur = 0;
 
-  // Kart İçi Arka Planı
-  const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
-  cardGrad.addColorStop(0, '#150f38');
-  cardGrad.addColorStop(1, '#0e0926');
-  ctx.fillStyle = cardGrad;
-  ctx.fillRect(cardX, cardY, cardW, cardH);
+    // Kartın İçini Kırp (Clip)
+    ctx.save();
+    ctx.beginPath();
+    fillRoundRect(ctx, cardX, cardY, cardW, cardH, cardRadius);
+    ctx.clip();
 
-  // Görsel Çizimi (Yüksek Netlikte Orantılı Fit)
-  if (img) {
-    const eased = easeInOutCubic(Math.min(1, Math.max(0, t)));
-    const zoom = 1.0 + 0.035 * eased; // Aşırı zoom engellendi! Sadece %3.5 zarif hareket
-    const iw = img.naturalWidth || 1200;
-    const ih = img.naturalHeight || 900;
-    const imgRatio = iw / ih;
-    const cardRatio = cardW / cardH;
+    // Kart İçi Arka Planı
+    const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
+    cardGrad.addColorStop(0, '#150f38');
+    cardGrad.addColorStop(1, '#0e0926');
+    ctx.fillStyle = cardGrad;
+    ctx.fillRect(cardX, cardY, cardW, cardH);
 
-    let dw = cardW;
-    let dh = cardH;
+    // Görsel Çizimi (Yüksek Netlikte Orantılı Fit)
+    if (img) {
+      const eased = easeInOutCubic(Math.min(1, Math.max(0, t)));
+      const zoom = 1.0 + 0.035 * eased;
+      const iw = img.naturalWidth || 1200;
+      const ih = img.naturalHeight || 900;
+      const imgRatio = iw / ih;
+      const cardRatio = cardW / cardH;
 
-    if (imgRatio > cardRatio) {
-      dw = cardW * zoom;
-      dh = (cardW / imgRatio) * zoom;
-    } else {
-      dh = cardH * zoom;
-      dw = (cardH * imgRatio) * zoom;
+      let dw = cardW;
+      let dh = cardH;
+
+      if (imgRatio > cardRatio) {
+        dw = cardW * zoom;
+        dh = (cardW / imgRatio) * zoom;
+      } else {
+        dh = cardH * zoom;
+        dw = (cardH * imgRatio) * zoom;
+      }
+
+      const dx = cardX + (cardW - dw) / 2;
+      const dy = cardY + (cardH - dh) / 2;
+      ctx.drawImage(img, dx, dy, dw, dh);
     }
 
-    const dx = cardX + (cardW - dw) / 2;
-    const dy = cardY + (cardH - dh) / 2;
-    ctx.drawImage(img, dx, dy, dw, dh);
+    ctx.restore();
+
+    // Kart Kenarlığı
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.lineWidth = 1.5;
+    strokeRoundRect(ctx, cardX, cardY, cardW, cardH, cardRadius);
+
+    // Kart Üstü Mini Etiket (Sol Alt)
+    const tagW = w * 0.32;
+    const tagH = h * 0.024;
+    const tagX = cardX + w * 0.03;
+    const tagY = cardY + cardH - tagH - w * 0.03;
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    fillRoundRect(ctx, tagX, tagY, tagW, tagH, 8);
+    ctx.fillStyle = '#a5b4fc';
+    ctx.font = `700 ${w * 0.018}px Lexend, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('✨ Sıfır Bilişsel Yük', tagX + tagW / 2, tagY + tagH / 2);
   }
-
-  ctx.restore();
-
-  // Kart Kenarlığı
-  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-  ctx.lineWidth = 1.5;
-  strokeRoundRect(ctx, cardX, cardY, cardW, cardH, cardRadius);
-
-  // Kart Üstü Mini Etiket (Sol Alt)
-  const tagW = w * 0.32;
-  const tagH = h * 0.024;
-  const tagX = cardX + w * 0.03;
-  const tagY = cardY + cardH - tagH - w * 0.03;
-  ctx.fillStyle = 'rgba(0,0,0,0.65)';
-  fillRoundRect(ctx, tagX, tagY, tagW, tagH, 8);
-  ctx.fillStyle = '#a5b4fc';
-  ctx.font = `700 ${w * 0.018}px Lexend, sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('✨ Sıfır Bilişsel Yük', tagX + tagW / 2, tagY + tagH / 2);
 
   // -------------------------------------------------------------
   // C. KANCA BAŞLIĞI (Headline / Text Overlay) - Okunabilir, Büyük & Net
@@ -433,7 +704,7 @@ function renderPortrait9x16(
 function renderLandscape16x9(
   ctx: CanvasRenderingContext2D,
   w: number, h: number,
-  scene: AdScene,
+  scene: AdSceneWithImg,
   img: HTMLImageElement | null,
   t: number,
   progress: number,
@@ -521,58 +792,75 @@ function renderLandscape16x9(
   ctx.textBaseline = 'middle';
   ctx.fillText('Ücretsiz Başla ── bdmind.com', colLeftX + ctaW / 2, ctaY + ctaH / 2);
 
-  // 5. SAĞ KOLON: VİTRİN KARTI (Görsel Sahne)
+  // 5. SAĞ KOLON: VİTRİN ALANI — appScreenshot varsa cihaz mockupu, yoksa klasik kart
   const cardX = w * 0.54;
   const cardY = h * 0.12;
   const cardW = w * 0.40;
   const cardH = h * 0.72;
   const cardRadius = 32;
 
-  ctx.shadowColor = `rgba(${accentRgb},0.4)`;
-  ctx.shadowBlur = 40;
-  ctx.fillStyle = '#100c2a';
-  fillRoundRect(ctx, cardX, cardY, cardW, cardH, cardRadius);
-  ctx.shadowBlur = 0;
+  if (scene.appScreenshot && scene._screenshotImg) {
+    // ---- Cihaz Mockup Modu ----
+    // Telefon oranı için mockup alanı dikey bölgeye sığdırılır
+    const mockW = cardW * 0.75;
+    const mockH = cardH;
+    const mockX = cardX + (cardW - mockW) / 2;
+    drawDeviceMockup(
+      ctx,
+      mockX, cardY, mockW, mockH,
+      scene._screenshotImg,
+      scene.deviceType ?? 'phone',
+      t,
+      scene.deviceAnimStyle ?? 'slide-up'
+    );
+  } else {
+    // ---- Klasik SVG Vitrin Kartı (Geriye Dönük Uyumluluk) ----
+    ctx.shadowColor = `rgba(${accentRgb},0.4)`;
+    ctx.shadowBlur = 40;
+    ctx.fillStyle = '#100c2a';
+    fillRoundRect(ctx, cardX, cardY, cardW, cardH, cardRadius);
+    ctx.shadowBlur = 0;
 
-  ctx.save();
-  fillRoundRect(ctx, cardX, cardY, cardW, cardH, cardRadius);
-  ctx.clip();
+    ctx.save();
+    fillRoundRect(ctx, cardX, cardY, cardW, cardH, cardRadius);
+    ctx.clip();
 
-  const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
-  cardGrad.addColorStop(0, '#150f38');
-  cardGrad.addColorStop(1, '#0e0926');
-  ctx.fillStyle = cardGrad;
-  ctx.fillRect(cardX, cardY, cardW, cardH);
+    const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
+    cardGrad.addColorStop(0, '#150f38');
+    cardGrad.addColorStop(1, '#0e0926');
+    ctx.fillStyle = cardGrad;
+    ctx.fillRect(cardX, cardY, cardW, cardH);
 
-  if (img) {
-    const eased = easeInOutCubic(Math.min(1, Math.max(0, t)));
-    const zoom = 1.0 + 0.03 * eased;
-    const iw = img.naturalWidth || 1200;
-    const ih = img.naturalHeight || 900;
-    const imgRatio = iw / ih;
-    const cardRatio = cardW / cardH;
+    if (img) {
+      const eased = easeInOutCubic(Math.min(1, Math.max(0, t)));
+      const zoom = 1.0 + 0.03 * eased;
+      const iw = img.naturalWidth || 1200;
+      const ih = img.naturalHeight || 900;
+      const imgRatio = iw / ih;
+      const cardRatio = cardW / cardH;
 
-    let dw = cardW;
-    let dh = cardH;
+      let dw = cardW;
+      let dh = cardH;
 
-    if (imgRatio > cardRatio) {
-      dw = cardW * zoom;
-      dh = (cardW / imgRatio) * zoom;
-    } else {
-      dh = cardH * zoom;
-      dw = (cardH * imgRatio) * zoom;
+      if (imgRatio > cardRatio) {
+        dw = cardW * zoom;
+        dh = (cardW / imgRatio) * zoom;
+      } else {
+        dh = cardH * zoom;
+        dw = (cardH * imgRatio) * zoom;
+      }
+
+      const dx = cardX + (cardW - dw) / 2;
+      const dy = cardY + (cardH - dh) / 2;
+      ctx.drawImage(img, dx, dy, dw, dh);
     }
 
-    const dx = cardX + (cardW - dw) / 2;
-    const dy = cardY + (cardH - dh) / 2;
-    ctx.drawImage(img, dx, dy, dw, dh);
+    ctx.restore();
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.lineWidth = 1.5;
+    strokeRoundRect(ctx, cardX, cardY, cardW, cardH, cardRadius);
   }
-
-  ctx.restore();
-
-  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-  ctx.lineWidth = 1.5;
-  strokeRoundRect(ctx, cardX, cardY, cardW, cardH, cardRadius);
 
   // 6. Alt İlerleme Çubuğu
   const barY = h * 0.94;
@@ -594,7 +882,7 @@ function renderLandscape16x9(
 function renderFrame(
   ctx: CanvasRenderingContext2D,
   w: number, h: number,
-  scene: AdScene,
+  scene: AdSceneWithImg,
   img: HTMLImageElement | null,
   t: number,
   progress: number,
