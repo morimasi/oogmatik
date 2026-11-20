@@ -77,9 +77,15 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot, 
     setVideoProgress(0);
     setVideoError(null);
     try {
-      const patchedOutput = screenshot
-        ? { ...output, scenes: output.scenes.map(s => ({ ...s, sceneVisual: screenshot })) }
-        : output;
+      // Sahnenin kendi yüksek çözünürlüklü SVG/vektör görseli varsa onu koru!
+      // Yalnızca görseli bulunmayan sahneler için screenshot fallback kullan.
+      const patchedOutput = {
+        ...output,
+        scenes: output.scenes.map(s => ({
+          ...s,
+          sceneVisual: s.sceneVisual && s.sceneVisual.trim().length > 0 ? s.sceneVisual : (screenshot || ''),
+        })),
+      };
       const { webm } = await generateVideo(patchedOutput, {
         format: videoFormat,
         signal: abortRef.current.signal,
