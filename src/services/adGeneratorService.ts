@@ -6,6 +6,11 @@ import {
   AdStudioTarget,
   AD_TARGET_DESCRIPTIONS,
 } from '../types/adStudio';
+import { generateOfflineAd } from './adOfflineEngine';
+import { auditAdContent } from './adComplianceAuditor';
+import { logWarn } from '../utils/logger';
+
+export { generateOfflineAd };
 
 const AD_SYSTEM_INSTRUCTION = `Sen bdmind'in kıdemli reklam yazarısın. [DEPLOY: 2025_07_v6]
 bdmind, disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocukları için AI destekli eğitim platformudur.
@@ -165,44 +170,68 @@ async function callGemini(prompt: string, systemInstruction: string): Promise<Re
 }
 
 export async function generateAd(settings: AdStudioSettings, brandKit: BrandKit): Promise<AdOutput> {
-  const prompt = buildPrompt(settings, brandKit);
-  const systemInstr = `${AD_SYSTEM_INSTRUCTION}\n\nFORMAT: ${settings.format}\nHEDEF KITLE: ${settings.audience.join(', ')}\n`;
+  try {
+    const prompt = buildPrompt(settings, brandKit);
+    const systemInstr = `${AD_SYSTEM_INSTRUCTION}\n\nFORMAT: ${settings.format}\nHEDEF KITLE: ${settings.audience.join(', ')}\n`;
 
-  const result = await callGemini(prompt, systemInstr);
+    const result = await callGemini(prompt, systemInstr);
 
-  const sceneVisuals = result.sceneVisuals as Record<string, string> | undefined;
-  const scenes = Array.isArray(result.scenes) ? result.scenes.map((s: Record<string, unknown>) => ({
-    sceneNo: Number(s.sceneNo) || 0,
-    duration: Number(s.duration) || 5,
-    visualDesc: String(s.visualDesc || ''),
-    voiceover: String(s.voiceover || ''),
-    textOverlay: String(s.textOverlay || ''),
-    transition: String(s.transition || 'cut'),
-    sceneVisual: String(s.sceneVisual || sceneVisuals?.[String(s.sceneNo)] || ''),
-  })) : [];
+    const sceneVisuals = result.sceneVisuals as Record<string, string> | undefined;
+    const scenes = Array.isArray(result.scenes) ? result.scenes.map((s: Record<string, unknown>) => ({
+      sceneNo: Number(s.sceneNo) || 0,
+      duration: Number(s.duration) || 5,
+      visualDesc: String(s.visualDesc || ''),
+      voiceover: String(s.voiceover || ''),
+      textOverlay: String(s.textOverlay || ''),
+      transition: String(s.transition || 'cut'),
+      sceneVisual: String(s.sceneVisual || sceneVisuals?.[String(s.sceneNo)] || ''),
+    })) : [];
 
-  return {
-    id: crypto.randomUUID(),
-    campaignId: '',
-    title: String(result.title || `${settings.target} - ${settings.format}`),
-    target: settings.target,
-    audience: settings.audience,
-    tone: settings.tone,
-    format: settings.format,
-    duration: settings.duration,
-    language: settings.language,
-    brandKitId: settings.brandKitId,
-    scenes,
-    script: String(result.script || ''),
-    socialCopy: String(result.socialCopy || ''),
-    emailSubject: String(result.emailSubject || ''),
-    emailBody: String(result.emailBody || ''),
-    tags: settings.tags,
-    status: 'generated',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    version: 1,
-  };
+    const script = String(result.script || '');
+    const socialCopy = String(result.socialCopy || '');
+    const emailSubject = String(result.emailSubject || '');
+    const emailBody = String(result.emailBody || '');
+    const title = String(result.title || `${settings.target} - ${settings.format}`);
+
+    const pedagogicalNote = String(
+      result.pedagogicalNote ||
+      `[Pedagojik Not]: Bu reklam materyali, disleksi ve öğrenme çeşitliliği gösteren öğrencilerin özgüvenini ve güçlü yönlerini destekleyecek şekilde sıfır bilişsel yük standardında tasarlanmıştır.`
+    );
+
+    const score = auditAdContent(`${script} ${socialCopy} ${emailBody}`, title, settings.callToAction);
+
+    return {
+      id: crypto.randomUUID(),
+      campaignId: '',
+      title,
+      target: settings.target,
+      audience: settings.audience,
+      tone: settings.tone,
+      format: settings.format,
+      duration: settings.duration,
+      language: settings.language,
+      brandKitId: settings.brandKitId,
+      scenes,
+      script,
+      socialCopy,
+      emailSubject,
+      emailBody,
+      tags: settings.tags,
+      status: 'generated',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      version: 1,
+      pedagogicalNote,
+      score,
+      callToActionUrl: brandKit.website,
+    };
+  } catch (err: unknown) {
+    logWarn('AI reklam üretimi başarısız oldu veya çevrimdışı moddasınız, profesyonel çevrimdışı motor devreye alınıyor', {
+      error: err instanceof Error ? err.message : String(err),
+    });
+    // Sıfır Hata Toleransı: Akıllı Çevrimdışı Motor ile zengin reklam üret
+    return generateOfflineAd(settings, brandKit);
+  }
 }
 
 export async function generateBatch(
@@ -241,20 +270,21 @@ export function exportAd(output: AdOutput, format: 'md' | 'json' | 'html'): stri
     case 'json':
       return JSON.stringify(output, null, 2);
 
-    case 'md':
-      return `# ${output.title}
+    case 'md': {
+      let md = `# ${output.title}
 
-## Hedef Modul: ${output.target}
+## Hedef Modül: ${output.target}
 ## Hedef Kitle: ${output.audience.join(', ')}
-## Ton: ${output.tone} | Sure: ${output.duration}s
-
+## Ton: ${output.tone} | Süre: ${output.duration}s
+${output.pedagogicalNote ? `\n> **Pedagojik Not:** ${output.pedagogicalNote}\n` : ''}
+${output.score ? `\n### AI Reklam Skoru: %${output.score.overall} (Kanca: ${output.score.hookScore}, Okunabilirlik: ${output.score.readabilityScore}, Uyum: ${output.score.complianceScore})\n` : ''}
 ## Storyboard
 
 ${output.scenes.map(s => `### Sahne ${s.sceneNo} (${s.duration}s)
-- **Gorsel:** ${s.visualDesc}
+- **Görsel:** ${s.visualDesc}
 - **Seslendirme:** ${s.voiceover}
-- **Ekran Yazisi:** ${s.textOverlay}
-- **Gecis:** ${s.transition}
+- **Ekran Yazısı:** ${s.textOverlay}
+- **Geçiş:** ${s.transition}
 `).join('\n')}
 
 ## Tam Senaryo
@@ -268,49 +298,101 @@ ${output.socialCopy}
 ## E-posta
 
 **Konu:** ${output.emailSubject}
-**Govde:** ${output.emailBody}
+**Gövde:**
+${output.emailBody}
+`;
 
----
-_bdmind AdStudio ile AI destekli olusturulmustur._`;
+      if (output.brochureData && output.brochureData.length > 0) {
+        md += `\n## Broşür & El İlanı Bölümleri\n\n`;
+        output.brochureData.forEach((sec, idx) => {
+          md += `### Bölüm ${idx + 1}: ${sec.title}\n`;
+          if (sec.subtitle) md += `*${sec.subtitle}*\n`;
+          sec.points.forEach(p => { md += `- ${p}\n`; });
+          if (sec.callout) md += `> **Vurgu:** ${sec.callout}\n`;
+          md += `\n`;
+        });
+      }
+
+      if (output.webData) {
+        md += `\n## Web & Açılış Sayfası Metni\n\n`;
+        md += `**Hero Başlığı:** ${output.webData.heroTitle}\n`;
+        md += `**Hero Alt Başlığı:** ${output.webData.heroSubtitle}\n`;
+        md += `**CTA:** ${output.webData.ctaPrimary} / ${output.webData.ctaSecondary}\n\n`;
+        md += `### Temel Özellikler:\n`;
+        output.webData.features.forEach(f => {
+          md += `- **${f.title}:** ${f.desc}\n`;
+        });
+      }
+
+      if (output.googleData) {
+        md += `\n## Google & Meta Reklamları\n\n`;
+        md += `**Başlıklar:**\n${output.googleData.headlines.map(h => `- ${h}`).join('\n')}\n\n`;
+        md += `**Açıklamalar:**\n${output.googleData.descriptions.map(d => `- ${d}`).join('\n')}\n`;
+      }
+
+      md += `\n---\n_bdmind AdStudio Ultra-Premium AI ile üretilmiştir._\n`;
+      return md;
+    }
 
     case 'html': {
       const scenesHtml = output.scenes.map(s => `
         <div style="background:#1e1b4b;border-radius:1rem;padding:1.5rem;margin-bottom:1rem;border:1px solid rgba(255,255,255,0.1)">
           <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem">
-            <strong>Sahne ${s.sceneNo}</strong>
-            <span>${s.duration}s</span>
+            <strong style="color:#a78bfa">Sahne ${s.sceneNo}</strong>
+            <span style="color:#94a3b8;font-size:0.875rem">${s.duration}s</span>
           </div>
-          <p><em>Gorsel:</em> ${s.visualDesc}</p>
-          <p><em>Ses:</em> ${s.voiceover}</p>
-          <p><em>Yazi:</em> ${s.textOverlay}</p>
-          <p><em>Gecis:</em> ${s.transition}</p>
+          <p><strong>Görsel:</strong> ${s.visualDesc}</p>
+          <p><strong>Seslendirme:</strong> <em style="color:#cbd5e1">"${s.voiceover}"</em></p>
+          <p><strong>Yazı:</strong> <span style="color:#f59e0b">${s.textOverlay}</span></p>
+          <p style="font-size:0.75rem;color:#64748b">Geçiş: ${s.transition}</p>
         </div>`).join('');
 
       return `<!DOCTYPE html>
 <html><head><meta charset="utf-8">
+<title>${output.title}</title>
 <style>
-body{font-family:'Lexend',sans-serif;background:#0f0a2e;color:#e2e8f0;max-width:800px;margin:auto;padding:2rem}
-h1{font-size:2rem;font-weight:900;background:linear-gradient(135deg,#a78bfa,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.meta{color:#94a3b8;font-size:0.875rem;margin-bottom:2rem}
-hr{border-color:rgba(255,255,255,0.1);margin:2rem 0}
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700;900&display=swap');
+body{font-family:'Lexend',sans-serif;background:#0b081e;color:#e2e8f0;max-width:850px;margin:auto;padding:2.5rem;line-height:1.6}
+h1{font-size:2.2rem;font-weight:900;background:linear-gradient(135deg,#a78bfa,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:0.5rem}
+.badge{display:inline-block;padding:0.25rem 0.75rem;border-radius:9999px;background:rgba(99,102,241,0.2);color:#a5b4fc;font-size:0.75rem;font-weight:700;margin-right:0.5rem}
+.meta{color:#94a3b8;font-size:0.875rem;margin-bottom:2rem;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:1.5rem}
+.card{background:rgba(255,255,255,0.04);border-radius:1rem;padding:1.5rem;margin-bottom:1.5rem;border:1px solid rgba(255,255,255,0.08)}
+hr{border-color:rgba(255,255,255,0.1);margin:2.5rem 0}
+@media print {
+  body{background:#ffffff;color:#0f172a;padding:0}
+  .card{border:1px solid #cbd5e1;background:#f8fafc}
+}
 </style></head><body>
+<span class="badge">bdmind AdStudio Premium</span>
 <h1>${output.title}</h1>
 <div class="meta">
-  <p>Hedef: ${output.target} | Kitle: ${output.audience.join(', ')} | Ton: ${output.tone} | Sure: ${output.duration}s</p>
+  <p><strong>Hedef:</strong> ${output.target} | <strong>Kitle:</strong> ${output.audience.join(', ')} | <strong>Ton:</strong> ${output.tone} | <strong>Süre:</strong> ${output.duration}s</p>
+  ${output.pedagogicalNote ? `<p style="color:#38bdf8;font-size:0.8rem;margin-top:0.5rem"><strong>Pedagojik Not:</strong> ${output.pedagogicalNote}</p>` : ''}
 </div>
-<h2>Storyboard</h2>
+
+<h2>🎬 Storyboard & Sahneler</h2>
 ${scenesHtml}
+
 <hr>
-<h2>Tam Senaryo</h2>
-<p>${output.script.replace(/\n/g, '<br>')}</p>
+<h2>📜 Tam Senaryo Metni</h2>
+<div class="card">
+  <p style="white-space:pre-wrap">${output.script}</p>
+</div>
+
 <hr>
-<h2>Sosyal Medya</h2>
-<blockquote style="border-left:4px solid #7c3aed;padding-left:1rem;font-style:italic">${output.socialCopy}</blockquote>
+<h2>📱 Sosyal Medya İletişimi</h2>
+<div class="card" style="border-left:4px solid #7c3aed">
+  <p style="white-space:pre-wrap">${output.socialCopy}</p>
+</div>
+
 <hr>
-<h2>E-posta</h2>
-<p><strong>Konu:</strong> ${output.emailSubject}</p>
-<p>${output.emailBody.replace(/\n/g, '<br>')}</p>
-<p style="color:#64748b;font-size:0.75rem;margin-top:3rem">bdmind AdStudio ile AI destekli olusturulmustur.</p>
+<h2>📧 E-posta Kampanyası</h2>
+<div class="card">
+  <p><strong>Konu:</strong> ${output.emailSubject}</p>
+  <div style="margin-top:1rem;white-space:pre-wrap">${output.emailBody}</div>
+</div>
+
+<p style="color:#64748b;font-size:0.75rem;margin-top:3rem;text-align:center">bdmind EdTech AdStudio ile AI destekli oluşturulmuştur.</p>
 </body></html>`;
     }
 

@@ -5,12 +5,52 @@ import defaultKit from '../components/AdStudio/assets/default-brand-kit.json';
 const STORAGE_KEY = 'bdmind_brand_kits';
 const ACTIVE_KEY = 'bdmind_active_brand_kit';
 
+const DEFAULT_BRAND_KITS: BrandKit[] = [
+  defaultKit as BrandKit,
+  {
+    id: 'pastel_dyslexia',
+    name: 'Disleksi Dostu Pastel',
+    logo: '',
+    primaryColor: '#0D9488',
+    secondaryColor: '#F59E0B',
+    font: 'Lexend',
+    slogan: 'Sıfır bilişsel yük ile özgüvenli öğrenme',
+    website: 'https://bdmind.com/disleksi',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'meb_kurumsal',
+    name: 'MEB & Özel Eğitim Kurumsal',
+    logo: '',
+    primaryColor: '#4F46E5',
+    secondaryColor: '#E11D48',
+    font: 'Lexend',
+    slogan: 'MEB 573 KHK ve BEP Tam Uyumlu',
+    website: 'https://bdmind.com/kurumsal',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'modern_edtech',
+    name: 'Modern EdTech İnovasyon',
+    logo: '',
+    primaryColor: '#10B981',
+    secondaryColor: '#6366F1',
+    font: 'Lexend',
+    slogan: 'Geleceğin Nöro-Pedagojik Eğitim Platformu',
+    website: 'https://bdmind.com',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+];
+
 function loadAll(): BrandKit[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw) as BrandKit[];
+    if (raw) {
+      const parsed = JSON.parse(raw) as BrandKit[];
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
   } catch { /* ignore */ }
-  return [];
+  return DEFAULT_BRAND_KITS;
 }
 
 function loadActive(): BrandKit {

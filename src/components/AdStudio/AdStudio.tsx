@@ -17,9 +17,10 @@ import { TemplateLibrary } from './components/TemplateLibrary';
 import { MediaLibrary } from './components/MediaLibrary';
 import { ExportPanel } from './components/ExportPanel';
 import { ModulePreview } from './components/ModulePreview';
+import { PresetCampaigns } from './components/PresetCampaigns';
 import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
 
-type Panel = 'studio' | 'history' | 'campaigns' | 'templates' | 'media' | 'brand';
+type Panel = 'studio' | 'presets' | 'history' | 'campaigns' | 'templates' | 'media' | 'brand';
 
 export const AdStudio: React.FC = () => {
   const generator = useAdGenerator();
@@ -79,12 +80,19 @@ export const AdStudio: React.FC = () => {
 
   const navItems: { key: Panel; label: string; icon: string }[] = [
     { key: 'studio', label: 'Stüdyo', icon: 'fa-wand-magic-sparkles' },
+    { key: 'presets', label: 'Hazır Kampanyalar', icon: 'fa-sparkles' },
     { key: 'history', label: 'Geçmiş', icon: 'fa-clock-rotate-left' },
     { key: 'campaigns', label: 'Kampanyalar', icon: 'fa-bullhorn' },
     { key: 'templates', label: 'Şablonlar', icon: 'fa-copy' },
     { key: 'media', label: 'Medya', icon: 'fa-photo-film' },
     { key: 'brand', label: 'Marka Kiti', icon: 'fa-palette' },
   ];
+
+  const handleSelectPreset = (presetSettings: typeof generator.settings) => {
+    generator.setAllSettings(presetSettings);
+    setActivePanel('studio');
+    generator.setStep(4);
+  };
 
   return (
     <div className="space-y-6 font-lexend">
@@ -169,7 +177,11 @@ export const AdStudio: React.FC = () => {
               </div>
             ) : generator.output ? (
               <>
-                <PreviewPanel output={generator.output} screenshot={captured[generator.output.target]} />
+                <PreviewPanel
+                  output={generator.output}
+                  screenshot={captured[generator.output.target]}
+                  onUpdateOutput={generator.updateOutput}
+                />
                 <div style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}>
                   <div ref={previewRef}>
                     <ModulePreview target={generator.output.target} />
@@ -191,6 +203,12 @@ export const AdStudio: React.FC = () => {
               <BatchGenerator />
             </div>
           )}
+        </div>
+      )}
+
+      {activePanel === 'presets' && (
+        <div className="rounded-[2rem] bg-white/40 dark:bg-black/20 border border-zinc-200 dark:border-white/5 backdrop-blur-xl p-6">
+          <PresetCampaigns onSelectPreset={handleSelectPreset} />
         </div>
       )}
 

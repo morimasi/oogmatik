@@ -1363,29 +1363,39 @@ Tüm ajanlardan geçer not ("approved: true") almayan hiçbir otonom blueprint s
 Tüm bdmind modülleri/stüdyoları için AI destekli, özelleştirilebilir reklam içeriği üretir. Storyboard, video script, sosyal medya, e-posta, basın bülteni, broşür ve web metni formatlarında çıktı verir.
 
 ### Ana Bileşen
-- `AdStudio.tsx` — Ana hub: sihirbaz, önizleme, geçmiş, kampanyalar
+- `AdStudio.tsx` — Ana hub: sihirbaz, önizleme, geçmiş, kampanyalar, hazır paketler
 - `components/StepWizard.tsx` — 5 adımlı premium sihirbaz
 - `components/TargetSelector.tsx` — Modül/stüdyo seçimi (18+ hedef)
 - `components/AudienceSelector.tsx` — Çoklu hedef kitle + öncelik
 - `components/ToneSelector.tsx` — Ton seçimi + yüzdelik karışım slider'ları
-- `components/FormatPicker.tsx` — 7 format + süre seçici
+- `components/FormatPicker.tsx` — 9 format (storyboard, video script, social, email, press, brochure, web, google ads, pitch deck) + süre seçici
 - `components/BrandSettings.tsx` — Marka kiti düzenleyici (çoklu, renk, font, slogan)
 - `components/AdvancedOptions.tsx` — Dil, aciliyet, CTA, sezon, etiket
-- `components/PreviewPanel.tsx` — Format bazlı canlı önizleme
+- `components/PreviewPanel.tsx` — Canlı çoklu görünüm önizleme (Mockup, Storyboard, Metinler, Video)
+- `components/AdVisualMockupRenderer.tsx` — 7 platform için gerçekçi cihaz mockup'ları (Instagram, Reels, LinkedIn, Google Ads, Broşür, Web Landing, E-posta)
+- `components/AdScoreBadge.tsx` — AI Reklam Kalite & Etik Skoru (Kanca, Okunabilirlik, Duygu, MEB & Tanı Dili Uyumu)
+- `components/AdVoicePlayer.tsx` — Web Speech API ile canlı Türkçe seslendirme önizleme (TTS)
+- `components/AdLiveEditor.tsx` — Canlı inline reklam metin ve sahne düzenleyicisi
+- `components/PresetCampaigns.tsx` — 6 adet hazır yüksek dönüşümlü profesyonel kampanya paketi
 - `components/VersionHistory.tsx` — Versiyon geçmişi, diff, favori, arşiv
 - `components/ABTestPanel.tsx` — A/B varyasyon üret + karşılaştır
 - `components/BatchGenerator.tsx` — Tüm modüller için toplu üretim
 - `components/CampaignManager.tsx` — Kampanya oluşturma/yönetme
 - `components/TemplateLibrary.tsx` — Şablon kaydetme/yükleme/export/import
 - `components/MediaLibrary.tsx` — Görsel asset yönetimi
-- `components/ExportPanel.tsx` — MD/JSON/HTML export + kopyala
+- `components/ExportPanel.tsx` — MD/JSON/HTML export + A4 Yazdır/PDF + kopyala
 
-### Servis
-- `services/adGeneratorService.ts` — AI prompt motoru (`/api/generate` üzerinden)
-  - `generateAd()` — Tek reklam üretimi
+### Servis ve Motorlar
+- `services/adGeneratorService.ts` — AI prompt motoru (`/api/generate` üzerinden) + Akıllı Çevrimdışı Fallback
+  - `generateAd()` — Tek reklam üretimi (AI + Offline Fallback)
+  - `generateOfflineAd()` — Sıfır bekleme süreli zengin çevrimdışı üretim
   - `generateBatch()` — Toplu reklam üretimi
   - `generateABVariation()` — A/B varyasyon
   - `exportAd()` — MD/JSON/HTML formatlama
+- `services/adOfflineEngine.ts` — Tüm modüller ve hedef kitleler için 100% gerçekçi profesyonel reklam DNA'sı
+- `services/adSvgIllustrations.ts` — Prof. Dr. Görkem Çetin onaylı yüksek netlikte saf SVG sahneleri
+- `services/adComplianceAuditor.ts` — Dr. Ahmet Kaya & Doç. Dr. Leyla Korkmaz MEB 573 KHK, KVKK Madde 6 ve tanı koyucu dil denetçisi
+- `services/adVideoGenerator.ts` — HTML5 Canvas + MediaRecorder ile 9:16 ve 16:9 WebM video render motoru
 
 ### Hook'lar
 - `hooks/useAdGenerator.ts` — step yönetimi, settings state, generate/loading/error

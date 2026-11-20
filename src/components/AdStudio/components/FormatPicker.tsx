@@ -14,8 +14,10 @@ const FORMAT_OPTIONS: { key: AdFormat; label: string; desc: string; icon: string
   { key: 'social_media', label: 'Sosyal Medya', desc: 'Instagram, LinkedIn, X postu', icon: 'fa-hashtag' },
   { key: 'email', label: 'E-posta', desc: 'Kampanya e-posta metni', icon: 'fa-envelope' },
   { key: 'press_release', label: 'Basın Bülteni', desc: 'Resmi basın açıklaması', icon: 'fa-newspaper' },
-  { key: 'brochure', label: 'Broşür', desc: 'Tanıtım broşür metni', icon: 'fa-book-open' },
+  { key: 'brochure', label: 'Broşür & El İlanı', desc: 'A4/A5 tanıtım broşürü', icon: 'fa-book-open' },
   { key: 'web_copy', label: 'Web Metni', desc: 'Açılış sayfası ve ürün açıklaması', icon: 'fa-globe' },
+  { key: 'google_ads', label: 'Google & Meta Ads', desc: 'Arama başlıkları ve açıklamalar', icon: 'fa-magnifying-glass' },
+  { key: 'pitch_deck', label: 'Pitch Deck / Sunum', desc: 'Okul ve yatırımcı satış slaytları', icon: 'fa-person-chalkboard' },
 ];
 
 export const FormatPicker: React.FC<FormatPickerProps> = ({ format, duration, onFormatChange, onDurationChange }) => {

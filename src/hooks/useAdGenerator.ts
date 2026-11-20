@@ -92,15 +92,27 @@ export function useAdGenerator() {
     });
   }, []);
 
+  const setAllSettings = useCallback((newSettings: AdStudioSettings) => {
+    setSettings(newSettings);
+  }, []);
+
+  const updateOutput = useCallback((updated: AdOutput) => {
+    setOutput(updated);
+    addToHistory(updated);
+  }, [addToHistory]);
+
   return {
     step,
     setStep,
     nextStep,
     prevStep,
     settings,
+    setAllSettings,
     updateSettings,
     updateToneMix,
     output,
+    setOutput,
+    updateOutput,
     isGenerating,
     error,
     setError,

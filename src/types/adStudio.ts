@@ -15,9 +15,30 @@ export type AdAudience = 'teachers' | 'parents' | 'therapists' | 'school_admin' 
 
 export type AdTone = 'corporate' | 'emotional' | 'scientific' | 'playful' | 'urgent';
 
-export type AdFormat = 'storyboard' | 'video_script' | 'social_media' | 'email' | 'press_release' | 'brochure' | 'web_copy';
+export type AdFormat =
+  | 'storyboard'
+  | 'video_script'
+  | 'social_media'
+  | 'email'
+  | 'press_release'
+  | 'brochure'
+  | 'web_copy'
+  | 'google_ads'
+  | 'pitch_deck';
 
 export type AdStatus = 'draft' | 'generated' | 'exported' | 'archived';
+
+export const AD_FORMAT_LABELS: Record<AdFormat, string> = {
+  storyboard: 'Storyboard',
+  video_script: 'Video Senaryosu',
+  social_media: 'Sosyal Medya',
+  email: 'E-posta Kampanyası',
+  press_release: 'Basın Bülteni',
+  brochure: 'Broşür & El İlanı',
+  web_copy: 'Web & Açılış Sayfası',
+  google_ads: 'Google & Meta Ads',
+  pitch_deck: 'Pitch Deck / Okul Sunumu',
+};
 
 export const AD_TARGET_LABELS: Record<AdStudioTarget, string> = {
   dashboard: 'Yönetim Paneli',
@@ -101,6 +122,72 @@ export interface AdScene {
   sceneVisual?: string;
 }
 
+export interface AdScore {
+  overall: number; // 0-100
+  hookScore: number;
+  readabilityScore: number;
+  emotionalScore: number;
+  complianceScore: number;
+  ethicsStatus: 'approved' | 'warning' | 'needs_review';
+  diagnosticTermsDetected: string[];
+  suggestions: string[];
+}
+
+export interface AdBrochureSection {
+  title: string;
+  subtitle?: string;
+  points: string[];
+  callout?: string;
+}
+
+export interface AdWebSection {
+  heroTitle: string;
+  heroSubtitle: string;
+  ctaPrimary: string;
+  ctaSecondary: string;
+  features: { title: string; desc: string; icon?: string }[];
+  testimonials?: { quote: string; author: string; role: string }[];
+  faq?: { question: string; answer: string }[];
+}
+
+export interface AdGoogleMeta {
+  headlines: string[];
+  descriptions: string[];
+  keywords: string[];
+  displayUrl: string;
+  callouts: string[];
+}
+
+export interface AdPitchSlide {
+  slideNo: number;
+  title: string;
+  bullets: string[];
+  speakerNotes: string[];
+}
+
+export interface AdSocialVariations {
+  instagram: {
+    caption: string;
+    hashtags: string[];
+    carouselSlides?: string[];
+  };
+  linkedin: {
+    headline: string;
+    body: string;
+    hashtags: string[];
+  };
+  reelsTikTok: {
+    hook: string;
+    visualNotes: string;
+    script: string;
+  };
+  facebookAd?: {
+    primaryText: string;
+    headline: string;
+    description: string;
+  };
+}
+
 export interface AdOutput {
   id: string;
   campaignId: string;
@@ -122,6 +209,14 @@ export interface AdOutput {
   createdAt: string;
   updatedAt: string;
   version: number;
+  pedagogicalNote?: string;
+  score?: AdScore;
+  brochureData?: AdBrochureSection[];
+  webData?: AdWebSection;
+  googleData?: AdGoogleMeta;
+  pitchData?: AdPitchSlide[];
+  socialVariations?: AdSocialVariations;
+  callToActionUrl?: string;
 }
 
 export interface AdCampaign {
@@ -194,4 +289,13 @@ export interface MediaAsset {
   type: string;
   size: number;
   createdAt: string;
+}
+
+export interface AdPresetTemplate {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  badge: string;
+  settings: AdStudioSettings;
 }
