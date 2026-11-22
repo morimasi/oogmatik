@@ -245,6 +245,11 @@ export interface MathDrillConfig {
   orientation: 'vertical' | 'horizontal';
   showAnswer: boolean;
   fontSize: number;
+  learningProfile?: string;
+  estimatedTimeMinutes?: number;
+  visualSupport?: boolean;
+  ageGroup?: string;
+  difficulty?: string;
 }
 
 export interface MathPageConfig {
@@ -296,6 +301,8 @@ export interface MathProblemConfig {
   bepGoals?: string[];
   ageGroup?: string;
   learningProfile?: string;
+  estimatedTimeMinutes?: number;
+  visualSupport?: boolean;
 }
 
 export interface LogicGridPuzzleData extends BaseActivityData {

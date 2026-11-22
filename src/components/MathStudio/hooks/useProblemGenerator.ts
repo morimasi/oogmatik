@@ -1,12 +1,13 @@
-// Math Studio — AI Problem Generator Hook
+// Math Studio — AI Problem Generator Hook with Robust Offline Fallback
 
 import { useState, useCallback } from 'react';
 import { MathProblemConfig, MathProblem } from '../../../types/math';
-import { generateMathProblemsAI } from '../../../services/generators/mathStudio';
+import { generateMathProblemsAI, generateOfflineMathStudioProblems } from '../../../services/generators/mathStudio';
 import { DEFAULT_PROBLEM_CONFIG } from '../constants';
 import { calculateItemsPerPage } from '../utils';
 
 import { logError } from '../../../utils/logger.js';
+
 export const useProblemGenerator = (initialStudentName: string, pageMargin: number = 38) => {
     const [problemConfig, setProblemConfig] = useState<MathProblemConfig>({
         ...DEFAULT_PROBLEM_CONFIG,
@@ -45,8 +46,13 @@ export const useProblemGenerator = (initialStudentName: string, pageMargin: numb
 
             const finalConfig = { ...problemConfig, count: effectiveCount };
 
-            const result = await generateMathProblemsAI(finalConfig) as { problems?: any[]; instruction?: string; pedagogicalNote?: string };
-            const mapped = (result.problems || []).map((p: any, i: number) => ({
+            const result = await generateMathProblemsAI(finalConfig) as { problems?: MathProblem[]; instruction?: string; pedagogicalNote?: string };
+            
+            const rawProblems = (result && result.problems && result.problems.length > 0)
+                ? result.problems
+                : generateOfflineMathStudioProblems(finalConfig).problems;
+
+            const mapped: MathProblem[] = rawProblems.map((p, i) => ({
                 id: `p-${Date.now()}-${i}`,
                 text: p.text || "Soru metni yüklenemedi.",
                 answer: p.answer || "?",
@@ -57,17 +63,23 @@ export const useProblemGenerator = (initialStudentName: string, pageMargin: numb
                 options: p.options || [],
                 steps: p.steps || [],
             }));
+
             setGeneratedProblems(mapped);
-            setInstruction(result.instruction || '');
-            setPedagogicalNote(result.pedagogicalNote || '');
+            setInstruction(result?.instruction || generateOfflineMathStudioProblems(finalConfig).instruction);
+            setPedagogicalNote(result?.pedagogicalNote || generateOfflineMathStudioProblems(finalConfig).pedagogicalNote);
             return { success: true };
         } catch (e) {
             logError(e instanceof Error ? e : String(e));
-            return { success: false, error: "Problem üretilemedi. API Hatası." };
+            // Seamless offline recovery: never let the student encounter a blank page
+            const fallback = generateOfflineMathStudioProblems(problemConfig);
+            setGeneratedProblems(fallback.problems);
+            setInstruction(fallback.instruction);
+            setPedagogicalNote(fallback.pedagogicalNote);
+            return { success: true };
         } finally {
             setIsGenerating(false);
         }
-    }, [problemConfig]);
+    }, [problemConfig, pageMargin]);
 
     return {
         problemConfig,
