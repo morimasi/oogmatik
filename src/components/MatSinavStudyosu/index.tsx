@@ -51,9 +51,10 @@ const SectionHeader: React.FC<{ icon: string; title: string; badge?: string; isO
 
 interface MatSinavStudyosuProps {
     initialData?: any;
+    onBack?: () => void;
 }
 
-export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData }) => {
+export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData, onBack }) => {
     const {
         ayarlar,
         setSinif,
@@ -311,7 +312,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
     };
 
     return (
-        <div className="h-screen flex flex-col bg-[var(--bg-secondary)] font-sans overflow-hidden selection:bg-accent/20 selection:text-accent">
+        <div className="h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] font-lexend overflow-hidden selection:bg-accent/20 selection:text-accent">
 
             {/* Background Decor */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -320,16 +321,25 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
             </div>
 
             {/* Header */}
-            <div className="flex-none px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-paper)]/70 backdrop-blur-2xl flex items-center justify-between gap-4 z-50">
-                <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20">
+            <div className="flex-none px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-paper)]/85 backdrop-blur-2xl flex items-center justify-between gap-4 z-50 shadow-sm">
+                <div className="flex items-center gap-3">
+                    {onBack && (
+                        <button
+                            onClick={onBack}
+                            className="w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] text-[var(--text-muted)] hover:text-accent shadow-sm"
+                            title="Geri Dön"
+                        >
+                            <i className="fa-solid fa-arrow-left text-sm"></i>
+                        </button>
+                    )}
+                    <div className="w-10 h-10 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20 text-white font-bold">
                         <span className="text-xl">🧮</span>
                     </div>
                     <div>
                         <h1 className="text-lg font-black text-[var(--text-primary)] tracking-tight leading-none">
-                            Süper Matematik Sınav Stüdyosu
+                            Matematik Sınav Stüdyosu
                         </h1>
-                        <p className="text-[10px] text-accent/70 font-bold uppercase tracking-widest mt-1 opacity-80">MEB 2024-2025 · AI Destekli · 1-8. Sınıf</p>
+                        <p className="text-[10px] text-accent/80 font-bold uppercase tracking-widest mt-1 opacity-80">MEB 2024-2025 · AI Destekli · 1-8. Sınıf</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -340,9 +350,9 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
                         </div>
                     )}
                     {kazanimCount > 0 && (
-                        <div className="px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-100/50 flex items-center gap-2">
+                        <div className="px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
-                            <span className="text-[11px] font-bold text-purple-700">{kazanimCount} Kazanım</span>
+                            <span className="text-[11px] font-bold text-purple-400">{kazanimCount} Kazanım</span>
                         </div>
                     )}
                     <div className="px-3 py-1.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)]/50 flex items-center gap-2">
@@ -434,10 +444,10 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
 
                         {/* Hata */}
                         {error && (
-                            <div className="m-5 p-4 bg-red-50 border border-red-100 rounded-2xl text-[13px] text-red-600 font-medium flex items-start gap-3">
+                            <div className="m-5 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-[13px] text-red-400 font-medium flex items-start gap-3">
                                 <span className="text-lg leading-none">⚠️</span>
                                 <span>{error}</span>
-                                <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-600">✕</button>
+                                <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-300">✕</button>
                             </div>
                         )}
 
@@ -452,7 +462,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
                         <div className="flex bg-[var(--bg-secondary)]/30 p-1.5 rounded-2xl backdrop-blur-xl border border-[var(--border-color)]/10 shadow-inner">
                             {(['onizleme', 'cevap-anahtari', 'gecmis'] as TabType[]).map((tab) => (
                                 <button key={tab} onClick={() => setActiveTab(tab)} disabled={tab !== 'gecmis' && !aktifSinav}
-                                    className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all duration-500 ${activeTab === tab ? 'bg-white text-accent shadow-[0_4px_12px_rgba(0,0,0,0.05)] scale-105 z-10' : (tab === 'gecmis' || aktifSinav) ? 'text-[var(--text-muted)] hover:text-accent hover:bg-white/40' : 'text-[var(--text-muted)] opacity-70 cursor-not-allowed'}`}>
+                                    className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all duration-500 ${activeTab === tab ? 'bg-[var(--bg-paper)] text-accent shadow-md scale-105 z-10 border border-[var(--border-color)]' : (tab === 'gecmis' || aktifSinav) ? 'text-[var(--text-muted)] hover:text-accent hover:bg-[var(--bg-paper)]/40' : 'text-[var(--text-muted)] opacity-70 cursor-not-allowed'}`}>
                                     {tab === 'onizleme' ? <span className="flex items-center gap-2">👁️ <span className="hidden sm:inline">Önizleme</span></span> : tab === 'cevap-anahtari' ? <span className="flex items-center gap-2">✓ <span className="hidden sm:inline">Cevap Anahtarı</span></span> : <span className="flex items-center gap-2">📋 <span className="hidden sm:inline">Geçmiş ({sinavGecmisi.length})</span></span>}
                                 </button>
                             ))}
@@ -671,56 +681,56 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
 
             {/* ÖĞRENCİYE ATA MODAL */}
             {showAssignModal && (
-                <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-center justify-center" onClick={() => setShowAssignModal(false)}>
-                    <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                        <h2 className="text-lg font-black text-gray-800 mb-4">Öğrenciye Ata</h2>
+                <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowAssignModal(false)}>
+                    <div className="bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-3xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="text-lg font-black text-[var(--text-primary)] mb-4">Öğrenciye Ata</h2>
                         {useStudentStore.getState().students.length === 0 ? (
-                            <p className="text-sm text-gray-500">Henüz öğrenci eklenmemiş. Lütfen önce öğrenci ekleyin.</p>
+                            <p className="text-sm text-[var(--text-muted)]">Henüz öğrenci eklenmemiş. Lütfen önce öğrenci ekleyin.</p>
                         ) : (
-                            <div className="space-y-2 max-h-80 overflow-y-auto">
+                            <div className="space-y-2 max-h-80 overflow-y-auto custom-scrollbar">
                                 {useStudentStore.getState().students.map((s: any) => (
                                     <button
                                         key={s.id}
                                         onClick={() => handleAssignToStudent(s.id, s.name)}
                                         disabled={isAssigning}
-                                        className="w-full text-left px-4 py-3 rounded-2xl border border-gray-200 hover:border-amber-300 hover:bg-amber-50 transition-all flex items-center gap-3 group"
+                                        className="w-full text-left px-4 py-3 rounded-2xl border border-[var(--border-color)] hover:border-amber-400/50 hover:bg-amber-500/10 transition-all flex items-center gap-3 group"
                                     >
-                                        <span className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 font-bold text-sm">
+                                        <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center font-bold text-sm">
                                             {s.name.charAt(0)}
                                         </span>
                                         <div>
-                                            <div className="font-bold text-sm text-gray-800">{s.name}</div>
-                                            <div className="text-[10px] text-gray-500">{s.grade} · {s.learningStyle}</div>
+                                            <div className="font-bold text-sm text-[var(--text-primary)]">{s.name}</div>
+                                            <div className="text-[10px] text-[var(--text-muted)]">{s.grade} · {s.learningStyle}</div>
                                         </div>
                                         {isAssigning && <span className="ml-auto text-amber-500"><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg></span>}
                                     </button>
                                 ))}
                             </div>
                         )}
-                        <button onClick={() => setShowAssignModal(false)} className="mt-4 w-full py-2.5 rounded-2xl bg-gray-100 text-gray-600 font-bold text-sm hover:bg-gray-200 transition-all">İptal</button>
+                        <button onClick={() => setShowAssignModal(false)} className="mt-4 w-full py-2.5 rounded-2xl bg-[var(--bg-secondary)] text-[var(--text-primary)] font-bold text-sm hover:bg-[var(--bg-paper)] transition-all border border-[var(--border-color)]">İptal</button>
                     </div>
                 </div>
             )}
 
             {/* PAYLAŞIM MODAL */}
             {showShareModal && (
-                <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-center justify-center" onClick={() => setShowShareModal(false)}>
-                    <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                        <h2 className="text-lg font-black text-gray-800 mb-4">Sınavı Paylaş</h2>
-                        <p className="text-sm text-gray-500 mb-3">Paylaşmak istediğiniz kullanıcının ID'sini girin:</p>
+                <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowShareModal(false)}>
+                    <div className="bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-3xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="text-lg font-black text-[var(--text-primary)] mb-4">Sınavı Paylaş</h2>
+                        <p className="text-sm text-[var(--text-muted)] mb-3">Paylaşmak istediğiniz kullanıcının ID'sini girin:</p>
                         <input
                             type="text"
                             value={shareUserId}
                             onChange={(e) => setShareUserId(e.target.value)}
                             placeholder="Kullanıcı ID'si"
-                            className="w-full px-4 py-2.5 rounded-2xl border-2 border-gray-200 text-sm font-medium focus:border-purple-400 focus:outline-none"
+                            className="w-full px-4 py-2.5 rounded-2xl border-2 border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--text-primary)] text-sm font-medium focus:border-purple-400 focus:outline-none"
                         />
                         <div className="flex gap-2 mt-4">
                             <button onClick={handleConfirmShare} disabled={isSharing || !shareUserId.trim()}
                                 className="flex-1 py-2.5 rounded-2xl bg-purple-600 text-white font-bold text-sm hover:bg-purple-700 transition-all disabled:opacity-50">
                                 {isSharing ? 'Paylaşılıyor...' : 'Paylaş'}
                             </button>
-                            <button onClick={() => setShowShareModal(false)} className="flex-1 py-2.5 rounded-2xl bg-gray-100 text-gray-600 font-bold text-sm hover:bg-gray-200 transition-all">İptal</button>
+                            <button onClick={() => setShowShareModal(false)} className="flex-1 py-2.5 rounded-2xl bg-[var(--bg-secondary)] text-[var(--text-primary)] font-bold text-sm hover:bg-[var(--bg-paper)] transition-all border border-[var(--border-color)]">İptal</button>
                         </div>
                     </div>
                 </div>

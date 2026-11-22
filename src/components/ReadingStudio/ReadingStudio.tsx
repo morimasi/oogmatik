@@ -564,10 +564,10 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
             <button
               onClick={handleGenerate}
               disabled={isLoading}
-              className="w-full py-4 bg-[var(--accent-color)] text-white font-black rounded-xl text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[var(--accent-muted)] hover:opacity-90 hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full py-4 bg-[var(--accent-color)] text-white font-black rounded-xl text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[var(--accent-muted)] hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
-              {isLoading ? 'BEKLEYİN...' : 'SINAVI OLUŞTUR'}
+              {isLoading ? 'BEKLEYİN...' : 'HİKAYEYİ OLUŞTUR'}
             </button>
           </div>
         </aside>

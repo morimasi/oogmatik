@@ -98,11 +98,11 @@ export const KazanimPicker: React.FC<KazanimPickerProps> = ({
               onClick={() => handleUniteToggle(unite.id)}
               className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all duration-200 group ${selectedUnites.includes(unite.id)
                 ? 'bg-accent/5 border-accent/30 shadow-sm'
-                : 'bg-white border-[var(--border-color)] hover:border-[var(--border-color)] hover:bg-[var(--bg-primary)]'
+                : 'bg-[var(--bg-paper)] border-[var(--border-color)] hover:border-accent/30 hover:bg-[var(--bg-primary)]'
                 }`}
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div className={`w-1.5 h-6 rounded-full transition-colors ${selectedUnites.includes(unite.id) ? 'bg-accent' : 'bg-[var(--bg-secondary)] group-hover:bg-slate-300'}`}></div>
+                <div className={`w-1.5 h-6 rounded-full transition-colors ${selectedUnites.includes(unite.id) ? 'bg-accent' : 'bg-[var(--bg-secondary)] group-hover:bg-accent/40'}`}></div>
                 <div className="truncate">
                   <div className={`text-[13px] font-semibold transition-colors ${selectedUnites.includes(unite.id) ? 'text-accent' : 'text-[var(--text-primary)]'}`}>
                     Ünite {unite.uniteNo}: {unite.baslik}
@@ -110,7 +110,7 @@ export const KazanimPicker: React.FC<KazanimPickerProps> = ({
                   <div className="text-[10px] text-[var(--text-muted)] font-medium">{unite.kazanimlar.length} kazanım mevcut</div>
                 </div>
               </div>
-              <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all ${selectedUnites.includes(unite.id) ? 'bg-accent border-accent text-white' : 'bg-white border-[var(--border-color)] group-hover:border-[var(--border-color)]'
+              <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all ${selectedUnites.includes(unite.id) ? 'bg-accent border-accent text-white' : 'bg-[var(--bg-secondary)] border-[var(--border-color)] group-hover:border-accent/40'
                 }`}>
                 {selectedUnites.includes(unite.id) && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
               </div>
@@ -136,11 +136,11 @@ export const KazanimPicker: React.FC<KazanimPickerProps> = ({
                 key={kazanim.kod}
                 onClick={() => handleKazanimToggle(kazanim.kod)}
                 className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left transition-all duration-200 group ${selectedKazanimlar.includes(kazanim.kod)
-                  ? 'bg-emerald-50/40 border-emerald-100'
-                  : 'bg-white border-slate-50 hover:bg-[var(--bg-primary)] hover:border-[var(--border-color)]'
+                  ? 'bg-emerald-500/10 border-emerald-500/30'
+                  : 'bg-[var(--bg-paper)] border-[var(--border-color)] hover:bg-[var(--bg-primary)] hover:border-accent/30'
                   }`}
               >
-                <div className={`mt-0.5 w-4 h-4 rounded-md border flex-shrink-0 flex items-center justify-center transition-all ${selectedKazanimlar.includes(kazanim.kod) ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-white border-[var(--border-color)] group-hover:border-[var(--border-color)]'
+                <div className={`mt-0.5 w-4 h-4 rounded-md border flex-shrink-0 flex items-center justify-center transition-all ${selectedKazanimlar.includes(kazanim.kod) ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-[var(--bg-secondary)] border-[var(--border-color)] group-hover:border-accent/40'
                   }`}>
                   {selectedKazanimlar.includes(kazanim.kod) && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                 </div>

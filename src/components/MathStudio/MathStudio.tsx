@@ -244,8 +244,8 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) =
 
     return (
         <div
-            className="h-full flex flex-col overflow-hidden font-sans absolute inset-0 z-50 select-none"
-            style={{ backgroundColor: 'var(--bg-primary, #09090b)', color: 'var(--text-primary, #f4f4f5)' }}
+            className="h-full flex flex-col overflow-hidden font-lexend absolute inset-0 z-50 select-none"
+            style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
         >
             {/* HEADER */}
             <MathHeader
@@ -282,7 +282,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) =
                             onClick={() => setIsSidebarOpen(false)}
                         />
                         <div
-                            className="w-80 flex flex-col overflow-hidden shrink-0 z-50 lg:relative lg:z-auto absolute inset-y-0 left-0 lg:static bg-zinc-950/90 border-r border-white/10 backdrop-blur-2xl"
+                            className="w-80 flex flex-col overflow-hidden shrink-0 z-50 lg:relative lg:z-auto absolute inset-y-0 left-0 lg:static bg-[var(--bg-paper)]/95 border-r border-[var(--border-color)] backdrop-blur-2xl shadow-2xl transition-all"
                         >
                             <div className="flex-1 overflow-y-auto custom-scrollbar">
                                 <StudentPanel
@@ -318,7 +318,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) =
                             </div>
 
                             {/* Sticky Bottom Generate Button */}
-                            <div className="p-4 bg-zinc-950/90 border-t border-white/10 shrink-0 z-10 w-full relative mt-auto shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.5)]">
+                            <div className="p-4 bg-[var(--bg-paper)] border-t border-[var(--border-color)] shrink-0 z-10 w-full relative mt-auto shadow-2xl">
                                 {mode === 'problem_ai' ? (
                                     <button
                                         onClick={handleGenerate}
@@ -355,7 +355,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) =
                 <div
                     className="flex-1 relative overflow-auto flex flex-col items-center p-8 custom-scrollbar gap-8"
                     id="math-canvas-container"
-                    style={{ backgroundColor: 'var(--bg-inset, #121215)' }}
+                    style={{ backgroundColor: 'var(--bg-primary)' }}
                 >
                     {mode === 'drill' && (
                         <DrillCanvas

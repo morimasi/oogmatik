@@ -11,6 +11,7 @@ import { AppError } from '../../utils/AppError';
 import { logError } from '../../utils/logger.js';
 
 interface SuperStudioProps {
+  onBack?: () => void;
 }
 
 const WIZARD_STEPS = [
@@ -19,7 +20,7 @@ const WIZARD_STEPS = [
   { key: 'preview' as const, label: 'Önizleme', icon: 'fa-eye' },
 ];
 
-export const SuperStudio: React.FC<SuperStudioProps> = () => {
+export const SuperStudio: React.FC<SuperStudioProps> = ({ onBack }) => {
   const {
     isGenerating,
     selectedTemplates,
@@ -175,17 +176,29 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
     <div className="flex h-full w-full bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-hidden font-lexend">
       {/* Sol Panel: Ayarlar ve Düzenleme */}
       <div className="w-[450px] flex-shrink-0 flex flex-col border-r border-[var(--border-color)] bg-[var(--bg-paper)] shadow-xl relative z-10">
-        <div className="p-6 border-b border-[var(--border-color)] bg-[var(--bg-paper)]">
-          <h1 className="text-2xl font-black italic uppercase tracking-tighter text-[var(--accent-color)]">
-            Super Türkçe Stüdyosu
-          </h1>
-          <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mt-1">Premium İçerik Üretim Merkezi</p>
+        <div className="p-5 border-b border-[var(--border-color)] bg-[var(--bg-paper)] flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] text-[var(--text-muted)] hover:text-accent shadow-sm shrink-0"
+                title="Geri Dön"
+              >
+                <i className="fa-solid fa-arrow-left text-sm"></i>
+              </button>
+            )}
+            <div>
+              <h1 className="text-xl font-black italic uppercase tracking-tighter text-[var(--accent-color)] leading-none">
+                Super Türkçe Stüdyosu
+              </h1>
+              <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mt-1">
+                MEB 2024-2025 · Premium Anlama Merkezi
+              </p>
+            </div>
+          </div>
           {/* Klavye kısayol ipucu */}
-          <div className="mt-2 flex gap-2 text-[10px] text-slate-500">
-            <span className="bg-slate-800/50 px-1.5 py-0.5 rounded">Ctrl+Enter</span>
-            <span className="text-slate-600">Üret</span>
-            <span className="bg-slate-800/50 px-1.5 py-0.5 rounded ml-1">Esc</span>
-            <span className="text-slate-600">İptal</span>
+          <div className="hidden sm:flex flex-col items-end gap-1 text-[9px] text-[var(--text-muted)]">
+            <span className="bg-[var(--bg-secondary)] px-1.5 py-0.5 rounded border border-[var(--border-color)] font-mono">Ctrl+Enter</span>
           </div>
         </div>
 
@@ -230,17 +243,17 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
           <div className="p-4 space-y-8 pb-8">
             {/* Generation Progress Bar - motor.md Faz 1.3 */}
             {isGenerating && (
-              <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 space-y-3">
+              <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl p-4 space-y-3 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <i className="fa-solid fa-circle-notch fa-spin text-teal-400"></i>
-                    <span className="text-sm font-medium text-slate-200">Üretiliyor...</span>
+                    <span className="text-sm font-bold text-[var(--text-primary)]">Üretiliyor...</span>
                   </div>
-                  <span className="text-xs font-mono text-teal-400">{generationProgress}%</span>
+                  <span className="text-xs font-mono font-bold text-teal-400">{generationProgress}%</span>
                 </div>
 
                 {/* Progress bar */}
-                <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div className="h-2 bg-[var(--bg-paper)] rounded-full overflow-hidden border border-[var(--border-color)]">
                   <div
                     className="h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all duration-500 ease-out"
                     style={{ width: `${generationProgress}%` }}
@@ -258,7 +271,7 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
                       <div
                         key={step.key}
                         className={`flex flex-col items-center gap-1 transition-colors ${
-                          isDone ? 'text-emerald-400' : isActive ? 'text-teal-300' : 'text-slate-600'
+                          isDone ? 'text-emerald-400 font-bold' : isActive ? 'text-teal-400 font-black' : 'text-[var(--text-muted)]'
                         }`}
                       >
                         <i className={`fa-solid ${step.icon} text-xs`}></i>
@@ -275,7 +288,7 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
                     setGenerationStep('idle');
                     setGenerationProgress(0);
                   }}
-                  className="w-full py-1.5 text-xs text-red-400 hover:text-red-300 border border-red-800/50 rounded-lg hover:bg-red-900/20 transition-colors"
+                  className="w-full py-1.5 text-xs text-red-400 hover:text-red-300 border border-red-500/30 rounded-xl hover:bg-red-500/10 transition-colors font-bold"
                 >
                   <i className="fa-solid fa-ban mr-1"></i>
                   İptal

@@ -657,7 +657,7 @@ const AppContent = () => {
                     )}
                     {currentView === 'super-turkce' && (
                       <ProtectedRoute module="super-turkce" onBack={handleGoBack}>
-                        <SuperStudio />
+                        <SuperStudio onBack={handleGoBack} />
                       </ProtectedRoute>
                     )}
                     {currentView === 'activity-studio' && (
@@ -725,20 +725,20 @@ const AppContent = () => {
                     )}
                     {currentView === 'sinav-studyosu' && (
                       <ProtectedRoute module="sinav-studyosu" onBack={handleGoBack}>
-                        <SinavStudyosu initialData={studioData} />
+                        <SinavStudyosu onBack={handleGoBack} initialData={studioData} />
                       </ProtectedRoute>
                     )}
                     {currentView === 'mat-sinav-studyosu' && (
                       <ProtectedRoute module="math-studio" onBack={handleGoBack}>
                         <MatSinavStudyosu
-                          initialData={studioData}
+                          onBack={handleGoBack} initialData={studioData}
                         />
                       </ProtectedRoute>
                     )}
                     {currentView === 'mat-problem-studyosu' && (
                       <ProtectedRoute module="mat-problem-studyosu" onBack={handleGoBack}>
                         <MatProblemStudyosu
-                          initialData={studioData}
+                          onBack={handleGoBack} initialData={studioData}
                         />
                       </ProtectedRoute>
                     )}
@@ -768,7 +768,7 @@ const AppContent = () => {
                     {currentView === 'infographic-studio' && (
                       <ProtectedRoute module="infographic-studio" onBack={() => navigateTo('generator')}>
                         <React.Suspense fallback={<LoadingPlaceholder />}>
-                          <SuperStudio />
+                          <SuperStudio onBack={handleGoBack} />
                         </React.Suspense>
                       </ProtectedRoute>
                     )}

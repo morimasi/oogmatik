@@ -49,12 +49,12 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
     }[learningProfile] || { label: 'Özel Eğitim', icon: 'fa-graduation-cap', color: 'bg-accent/10 text-accent border-accent/30' };
 
     return (
-        <div className="h-16 bg-zinc-950/80 backdrop-blur-xl border-b border-white/10 flex justify-between items-center px-4 shrink-0 z-50">
+        <div className="h-16 bg-[var(--bg-paper)]/90 backdrop-blur-xl border-b border-[var(--border-color)] flex justify-between items-center px-4 shrink-0 z-50">
             {/* LEFT — Brand & Back */}
             <div className="flex items-center gap-3">
                 <button
                     onClick={onBack}
-                    className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white transition-all shadow-sm"
+                    className="w-9 h-9 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-primary)] hover:text-accent transition-all shadow-sm"
                     title="Geri Dön"
                 >
                     <i className="fa-solid fa-arrow-left text-xs"></i>
@@ -63,14 +63,14 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
                 {/* Mobile sidebar toggle */}
                 <button
                     onClick={onToggleSidebar}
-                    className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white transition-all lg:hidden"
+                    className="w-9 h-9 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-primary)] hover:text-accent transition-all lg:hidden"
                     title={isSidebarOpen ? 'Paneli Kapat' : 'Paneli Aç'}
                 >
                     <i className={`fa-solid ${isSidebarOpen ? 'fa-xmark' : 'fa-bars'} text-xs`}></i>
                 </button>
 
                 <div className="flex items-center gap-2">
-                    <h1 className="font-black text-base tracking-tight text-white flex items-center gap-2">
+                    <h1 className="font-black text-base tracking-tight text-[var(--text-primary)] flex items-center gap-2">
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-emerald-400">
                             MATEMATİK STÜDYOSU
                         </span>
@@ -101,13 +101,13 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
             </div>
 
             {/* CENTER — Mode Switch */}
-            <div className="flex bg-black/40 border border-white/10 rounded-2xl p-1 gap-1 shadow-inner">
+            <div className="flex bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl p-1 gap-1 shadow-inner">
                 <button
                     onClick={() => setMode('drill')}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                         mode === 'drill'
                             ? 'bg-accent text-white shadow-md shadow-accent/20 scale-[1.02]'
-                            : 'text-zinc-400 hover:text-white'
+                            : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                 >
                     <i className="fa-solid fa-calculator text-xs"></i>
@@ -118,7 +118,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                         mode === 'problem_ai'
                             ? 'bg-accent text-white shadow-md shadow-accent/20 scale-[1.02]'
-                            : 'text-zinc-400 hover:text-white'
+                            : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                 >
                     <i className="fa-solid fa-brain text-xs"></i>
@@ -131,7 +131,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
                 {/* Regenerate */}
                 <button
                     onClick={onRegenerate}
-                    className="w-9 h-9 rounded-xl bg-white/5 hover:bg-accent border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white transition-all shadow-sm"
+                    className="w-9 h-9 rounded-xl bg-[var(--bg-secondary)] hover:bg-accent border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-white transition-all shadow-sm"
                     title="Soruları Yeniden Üret"
                 >
                     <i className="fa-solid fa-rotate text-xs"></i>
@@ -141,7 +141,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
                 {onCopyLink && (
                     <button
                         onClick={onCopyLink}
-                        className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white transition-all shadow-sm hidden md:flex"
+                        className="w-9 h-9 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all shadow-sm hidden md:flex"
                         title="Çalışma Linkini Kopyala"
                     >
                         <i className="fa-solid fa-link text-xs"></i>
@@ -152,7 +152,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
                 <button
                     onClick={() => onPrint('download')}
                     disabled={isPrinting}
-                    className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white transition-all shadow-sm disabled:opacity-50"
+                    className="w-9 h-9 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all shadow-sm disabled:opacity-50"
                     title="A4 PDF Olarak İndir"
                 >
                     {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin text-xs"></i> : <i className="fa-solid fa-file-pdf text-xs"></i>}
@@ -162,7 +162,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
                 <button
                     onClick={() => onPrint('print')}
                     disabled={isPrinting}
-                    className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white transition-all shadow-sm hidden sm:flex disabled:opacity-50"
+                    className="w-9 h-9 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all shadow-sm hidden sm:flex disabled:opacity-50"
                     title="Doğrudan Yazdır"
                 >
                     <i className="fa-solid fa-print text-xs"></i>
@@ -173,7 +173,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
                     <button
                         onClick={onExportAnswerKey}
                         disabled={isPrinting}
-                        className="w-9 h-9 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 flex items-center justify-center text-amber-300 hover:text-amber-200 transition-all shadow-sm hidden lg:flex"
+                        className="w-9 h-9 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-500 hover:text-amber-400 transition-all shadow-sm hidden lg:flex"
                         title="Yalnızca Cevap Anahtarını İndir"
                     >
                         <i className="fa-solid fa-key text-xs"></i>
@@ -183,7 +183,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
                 {/* Share Modal */}
                 <button
                     onClick={onShare}
-                    className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white transition-all shadow-sm"
+                    className="w-9 h-9 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all shadow-sm"
                     title="Öğrenci veya Meslektaşla Paylaş"
                 >
                     <i className="fa-solid fa-share-nodes text-xs"></i>
@@ -217,7 +217,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
                         });
                         toast.success('Fasiküle eklendi!');
                     }}
-                    className="w-9 h-9 rounded-xl bg-fuchsia-600/80 hover:bg-fuchsia-500 border border-fuchsia-400/30 flex items-center justify-center text-white transition-all shadow-md shadow-fuchsia-600/20"
+                    className="w-9 h-9 rounded-xl bg-fuchsia-600/90 hover:bg-fuchsia-500 border border-fuchsia-400/40 flex items-center justify-center text-white transition-all shadow-md shadow-fuchsia-600/20"
                     title="Fasikül Kitapçığına Ekle"
                 >
                     <i className="fa-solid fa-layer-group text-xs"></i>
@@ -229,8 +229,8 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
                     disabled={isSaving}
                     className={`px-3 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-md ${
                         isSaving
-                            ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
-                            : 'bg-white text-zinc-950 hover:bg-zinc-200 hover:scale-[1.02]'
+                            ? 'bg-[var(--bg-secondary)] text-[var(--text-muted)] cursor-not-allowed'
+                            : 'bg-[var(--accent-color)] text-white hover:opacity-90 hover:scale-[1.02]'
                     }`}
                 >
                     {isSaving ? <i className="fa-solid fa-circle-notch fa-spin text-xs"></i> : <i className="fa-solid fa-floppy-disk text-xs"></i>}

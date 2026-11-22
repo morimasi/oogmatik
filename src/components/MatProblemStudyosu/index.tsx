@@ -47,9 +47,10 @@ const FmtBtn: React.FC<{ active?: boolean; onClick: () => void; children: React.
 
 export interface MatProblemStudyosuProps {
     initialData?: unknown;
+    onBack?: () => void;
 }
 
-export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialData: _initialData }) => {
+export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialData: _initialData, onBack }) => {
     const {
         ayarlar, dizgiAyarlari, aktifProblemSeti, isGenerating,
         setAyarlar, setDizgiAyarlari, setAktifProblemSeti, setIsGenerating,
@@ -274,16 +275,34 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
     const filteredContacts = contacts.filter(c => c.name.toLowerCase().includes(userSearch.toLowerCase()));
 
     return (
-        <div className="flex flex-col h-full bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300 overflow-hidden">
+        <div className="flex flex-col h-full bg-[var(--bg-primary)] text-[var(--text-primary)] font-lexend transition-colors duration-300 overflow-hidden">
             {/* ═══ ÜST BAR ═══ */}
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 py-2 bg-[var(--bg-paper)] border-b border-[var(--border-color)] print:hidden gap-2 md:gap-0">
-                <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
-                    <div className="flex items-center gap-2">
-                        <span className="text-lg">📐</span>
-                        <h1 className="text-sm font-bold text-cyan-500">Matematik Problem Stüdyosu</h1>
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-6 py-3 bg-[var(--bg-paper)]/85 backdrop-blur-2xl border-b border-[var(--border-color)] print:hidden gap-3 md:gap-0 shadow-sm z-50">
+                <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
+                    {onBack && (
+                        <button
+                            onClick={onBack}
+                            className="w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] text-[var(--text-muted)] hover:text-cyan-500 shadow-sm shrink-0"
+                            title="Geri Dön"
+                        >
+                            <i className="fa-solid fa-arrow-left text-sm"></i>
+                        </button>
+                    )}
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 bg-cyan-600 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/20 text-white font-bold">
+                            <span className="text-xl">📐</span>
+                        </div>
+                        <div>
+                            <h1 className="text-base font-black text-[var(--text-primary)] tracking-tight leading-none">
+                                Matematik Problem Stüdyosu
+                            </h1>
+                            <p className="text-[10px] text-cyan-500/80 font-bold uppercase tracking-widest mt-1">
+                                LGS & MEB Uyumlu Açık Uçlu Senaryolar
+                            </p>
+                        </div>
                     </div>
                     {aktifProblemSeti && (
-                        <span className="bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto md:ml-2 whitespace-nowrap">
+                        <span className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-[10px] font-black px-2.5 py-1 rounded-full ml-auto md:ml-3 whitespace-nowrap shadow-xs">
                             {aktifProblemSeti.problemler.length} Problem
                         </span>
                     )}

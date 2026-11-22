@@ -106,7 +106,7 @@ export const MatKazanimPicker: React.FC<MatKazanimPickerProps> = ({
                 const ikon = OGRENME_ALANI_IKONLARI[unite.ogrenmeAlani] || '📚';
 
                 return (
-                    <div key={unite.id} className="rounded-2xl border border-[var(--border-color)] overflow-hidden transition-all duration-300 bg-white">
+                    <div key={unite.id} className="rounded-2xl border border-[var(--border-color)] overflow-hidden transition-all duration-300 bg-[var(--bg-paper)]">
                         {/* Ünite Başlığı */}
                         <button
                             onClick={() => toggleUnite(unite.id, unite)}

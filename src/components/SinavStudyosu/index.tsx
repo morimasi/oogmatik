@@ -73,6 +73,7 @@ const FmtBtn: React.FC<{
 
 interface SinavStudyosuProps {
   initialData?: unknown;
+  onBack?: () => void;
 }
 
 /** unknown hydration girdisinden güvenli kayıt çıkarır (any yasak). */
@@ -81,7 +82,7 @@ const asRecord = (value: unknown): Record<string, unknown> | null =>
     ? (value as Record<string, unknown>)
     : null;
 
-export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => {
+export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData, onBack }) => {
   const {
     ayarlar,
     setSinif,
@@ -347,7 +348,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
     ayarlar.soruDagilimi['acik-uclu'];
 
   return (
-    <div className="h-screen flex flex-col bg-[var(--bg-secondary)] font-sans overflow-hidden selection:bg-accent/20 selection:text-accent">
+    <div className="h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)] font-lexend overflow-hidden selection:bg-accent/20 selection:text-accent">
 
       {/* Background Decor */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -356,16 +357,25 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
       </div>
 
       {/* Header */}
-      <div className="flex-none px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-paper)]/70 backdrop-blur-2xl flex items-center justify-between gap-4 z-50">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20">
+      <div className="flex-none px-6 py-3 border-b border-[var(--border-color)] bg-[var(--bg-paper)]/85 backdrop-blur-2xl flex items-center justify-between gap-4 z-50 shadow-sm">
+        <div className="flex items-center gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] text-[var(--text-muted)] hover:text-accent shadow-sm"
+              title="Geri Dön"
+            >
+              <i className="fa-solid fa-arrow-left text-sm"></i>
+            </button>
+          )}
+          <div className="w-10 h-10 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/20 text-white font-bold">
             <span className="text-xl">📝</span>
           </div>
           <div>
             <h1 className="text-lg font-black text-[var(--text-primary)] tracking-tight leading-none">
-              Sınav Stüdyosu
+              Türkçe Sınav Stüdyosu
             </h1>
-            <p className="text-[10px] text-accent/80 font-bold uppercase tracking-widest mt-1 opacity-80">MEB 2024-2025 · AI Destekli</p>
+            <p className="text-[10px] text-accent/80 font-bold uppercase tracking-widest mt-1 opacity-80">MEB 2024-2025 · AI Destekli Sınav Mimarisi</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -376,9 +386,9 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
             </div>
           )}
           {kazanimCount > 0 && (
-            <div className="px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-100/50 flex items-center gap-2">
+            <div className="px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
-              <span className="text-[11px] font-bold text-purple-700">{kazanimCount} Kazanım</span>
+              <span className="text-[11px] font-bold text-purple-400">{kazanimCount} Kazanım</span>
             </div>
           )}
           <div className="px-3 py-1.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)]/50 flex items-center gap-2">
@@ -484,9 +494,10 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
             </div>
 
             {error && (
-              <div className="m-5 p-4 bg-red-50 border border-red-100 rounded-2xl text-[13px] text-red-600 font-medium flex items-start gap-3">
+              <div className="m-5 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-[13px] text-red-400 font-medium flex items-start gap-3">
                 <span className="text-lg leading-none">⚠️</span>
                 <span>{error}</span>
+                <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-300">✕</button>
               </div>
             )}
 
