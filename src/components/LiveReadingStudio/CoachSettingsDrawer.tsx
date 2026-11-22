@@ -15,6 +15,7 @@ import {
 import { MascotType } from './EduMascot';
 
 export type ReadingMode = 'flow' | 'karaoke' | 'window';
+export type PaperTint = 'dark' | 'cream' | 'mint' | 'rose';
 
 export interface CoachSettings {
   patienceThresholdSeconds: number; // 1.5, 3.0, 5.0
@@ -30,6 +31,7 @@ export interface CoachSettings {
   readingMode: ReadingMode;
   autoAdvanceOnSilence: boolean;
   celebrationFrequency: 'frequent' | 'normal' | 'minimal';
+  paperTint?: PaperTint;
 }
 
 interface CoachSettingsDrawerProps {
@@ -362,6 +364,36 @@ export const CoachSettingsDrawer: React.FC<CoachSettingsDrawerProps> = ({
                     onChange={(e) => onUpdateSettings({ isRulerActive: e.target.checked })}
                     className="w-5 h-5 accent-teal-500 rounded cursor-pointer"
                   />
+                </div>
+
+                {/* Disleksi Kâğıt Tonu (Görsel Rahatlatma) */}
+                <div className="pt-2 border-t border-white/5 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-semibold text-zinc-300">
+                    <span>Disleksi Kâğıt Tonu (Görsel Rahatlatma)</span>
+                    <span className="text-[10px] text-zinc-500">Irlene / Skotopik Rahatlama</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { id: 'dark', label: 'Koyu Gece', previewBg: 'bg-zinc-900 border-zinc-700' },
+                      { id: 'cream', label: 'Krem Bej', previewBg: 'bg-[#FAF7EE] border-[#E8DFC8]' },
+                      { id: 'mint', label: 'Nane Yeşili', previewBg: 'bg-[#F0F7F4] border-[#CCE3DE]' },
+                      { id: 'rose', label: 'Pastel Gül', previewBg: 'bg-[#FDF4F5] border-[#EAD5D7]' },
+                    ].map((tint) => (
+                      <button
+                        key={tint.id}
+                        type="button"
+                        onClick={() => onUpdateSettings({ paperTint: tint.id as PaperTint })}
+                        className={`p-2 rounded-xl border flex flex-col items-center gap-1.5 transition-all ${
+                          (settings.paperTint || 'dark') === tint.id
+                            ? 'border-indigo-400 bg-indigo-500/20 text-white font-bold'
+                            : 'border-white/5 bg-zinc-900 text-zinc-400 hover:bg-zinc-850'
+                        }`}
+                      >
+                        <span className={`w-5 h-5 rounded-full border shadow-sm ${tint.previewBg}`} />
+                        <span className="text-[10px]">{tint.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

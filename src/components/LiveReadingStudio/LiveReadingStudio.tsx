@@ -16,18 +16,23 @@ import {
   Wand2,
   Layers,
   Zap,
-  BookmarkCheck
+  BookmarkCheck,
+  History,
+  Library,
+  Users
 } from 'lucide-react';
 import { EduMascot, MascotState } from './EduMascot';
 import { AudioWaveform } from './AudioWaveform';
 import { ReadingRulerStage } from './ReadingRulerStage';
 import { CoachSettingsDrawer, CoachSettings } from './CoachSettingsDrawer';
 import { AiStoryGeneratorModal } from './AiStoryGeneratorModal';
+import { PassageLibraryModal } from './PassageLibraryModal';
+import { ReadingHistoryDrawer } from './ReadingHistoryDrawer';
 import { SAMPLE_READING_PASSAGES, ReadingPassage, parseCustomTextToPassage } from './sampleStories';
 import { LiveReadingCoachService } from '../../services/liveReadingCoachService';
 import { ReadingSessionMetrics } from '../../services/phonological/phonologicalScoringEngine';
 import { ReadingAssessmentPdfGenerator } from '../../services/pdf/ReadingAssessmentPdfGenerator';
-import { readingSessionService } from '../../services/readingSessionService';
+import { readingSessionService, SavedReadingSession } from '../../services/readingSessionService';
 import { useStudentStore } from '../../store/useStudentStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useToastStore } from '../../store/useToastStore';
@@ -41,7 +46,7 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
   onBack,
   initialPassage,
 }) => {
-  const { activeStudent } = useStudentStore();
+  const { activeStudent, students, setActiveStudent } = useStudentStore();
   const toast = useToastStore();
 
   // Aktif Metin
@@ -63,6 +68,8 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [showAiModal, setShowAiModal] = useState<boolean>(false);
   const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
+  const [showLibraryModal, setShowLibraryModal] = useState<boolean>(false);
+  const [showHistoryDrawer, setShowHistoryDrawer] = useState<boolean>(false);
   const [customTitle, setCustomTitle] = useState<string>('');
   const [customText, setCustomText] = useState<string>('');
 
@@ -86,6 +93,7 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
     readingMode: 'flow',
     autoAdvanceOnSilence: false,
     celebrationFrequency: 'normal',
+    paperTint: 'dark',
   });
 
   // Koç Servisi Referansı
@@ -339,11 +347,29 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
                 v2.2 Pro
               </span>
             </div>
-            {activeStudent && (
-              <p className="text-[11px] text-zinc-400">
+            {students.length > 0 ? (
+              <div className="flex items-center gap-1.5 mt-1">
+                <Users className="w-3 h-3 text-indigo-400" />
+                <select
+                  value={activeStudent?.id || ''}
+                  onChange={(e) => {
+                    const st = students.find((s) => s.id === e.target.value);
+                    if (st) setActiveStudent(st);
+                  }}
+                  className="text-[11px] bg-zinc-900/90 text-zinc-300 border border-white/10 rounded-lg px-2 py-0.5 focus:outline-none focus:border-indigo-400 cursor-pointer"
+                >
+                  {students.map((st) => (
+                    <option key={st.id} value={st.id}>
+                      {st.name} {st.grade ? `(${st.grade})` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : activeStudent ? (
+              <p className="text-[11px] text-zinc-400 mt-0.5">
                 Öğrenci: <strong className="text-zinc-200">{activeStudent.name}</strong>
               </p>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -368,7 +394,7 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
           </div>
         </div>
 
-        {/* Sağ: AI Hikaye Üret, Metin Seçici, Ayarlar ve PDF İndir */}
+        {/* Sağ: AI Hikaye Üret, Metin Seçici, Kütüphane, Geçmiş, Ayarlar ve PDF İndir */}
         <div className="flex items-center gap-2">
           {/* ✨ AI HİKAYE ÜRET BUTONU (Öne Çıkan) */}
           <button
@@ -376,28 +402,28 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
             className="px-3.5 py-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:opacity-95 text-white text-xs font-bold shadow-lg shadow-indigo-500/25 transition-all flex items-center gap-1.5 ring-2 ring-indigo-400/30"
           >
             <Wand2 className="w-4 h-4 text-amber-300 animate-pulse" />
-            <span className="hidden sm:inline">AI Hikaye Üret</span>
+            <span className="hidden sm:inline">AI Hikaye</span>
           </button>
 
-          {/* Metin Değiştirici */}
-          <select
-            value={selectedPassage.id}
-            onChange={(e) => {
-              const found = SAMPLE_READING_PASSAGES.find((p) => p.id === e.target.value);
-              if (found) handleSelectPassage(found);
-            }}
-            className="hidden lg:block text-xs bg-zinc-900 border border-white/10 rounded-2xl px-3 py-2 text-zinc-300 focus:outline-none focus:border-indigo-500 cursor-pointer max-w-[200px] truncate"
+          {/* 📚 METİN KÜTÜPHANESİ BUTONU */}
+          <button
+            onClick={() => setShowLibraryModal(true)}
+            title="Metin Kütüphanesini Aç (17 Kademeli Metin)"
+            className="px-3 py-2 rounded-2xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-xs font-semibold text-indigo-300 hover:text-white flex items-center gap-1.5 transition-all"
           >
-            {SAMPLE_READING_PASSAGES.map((p) => {
-              const gradeNum = activeStudent?.grade ? activeStudent.grade.replace(/[^0-9]/g, '') : '';
-              const isMatch = gradeNum && p.level.includes(gradeNum);
-              return (
-                <option key={p.id} value={p.id}>
-                  {isMatch ? `⭐ ${p.title} (${p.level})` : `${p.title} (${p.level})`}
-                </option>
-              );
-            })}
-          </select>
+            <Library className="w-4 h-4 text-indigo-400" />
+            <span className="hidden md:inline">Kütüphane</span>
+          </button>
+
+          {/* 📊 SEANS GEÇMİŞİ & PORTFOLYO ÇEKMECESİ */}
+          <button
+            onClick={() => setShowHistoryDrawer(true)}
+            title="Geçmiş Seanslar & Gelişim Portfolyosu"
+            className="p-2 sm:px-3 sm:py-2 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-zinc-300 hover:text-white flex items-center gap-1.5 transition-all"
+          >
+            <History className="w-4 h-4 text-teal-400" />
+            <span className="hidden xl:inline">Geçmiş</span>
+          </button>
 
           {/* Özel Metin Ekle */}
           <button
@@ -474,6 +500,7 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
           isRulerActive={settings.isRulerActive}
           isSyllableColoringActive={settings.isSyllableColoringActive}
           readingMode={settings.readingMode}
+          paperTint={settings.paperTint || 'dark'}
           onWordClick={(index) => {
             coachRef.current?.setWordIndex(index);
           }}
@@ -818,6 +845,35 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* METİN KÜTÜPHANESİ MODALI (17 Kademeli Metin Seçici) */}
+      <PassageLibraryModal
+        isOpen={showLibraryModal}
+        onClose={() => setShowLibraryModal(false)}
+        selectedPassageId={selectedPassage.id}
+        onSelectPassage={(passage) => {
+          handleSelectPassage(passage);
+          setShowLibraryModal(false);
+        }}
+      />
+
+      {/* SEANS GEÇMİŞİ & PORTFOLYO ÇEKMECESİ */}
+      <ReadingHistoryDrawer
+        isOpen={showHistoryDrawer}
+        onClose={() => setShowHistoryDrawer(false)}
+        onViewReport={(session) => {
+          setShowHistoryDrawer(false);
+          // İlgili metni bul veya seans başlığıyla hazırla
+          const found = SAMPLE_READING_PASSAGES.find((p) => p.id === session.passageId);
+          if (found) {
+            setSelectedPassage(found);
+          }
+          setSessionMetrics(session.metrics);
+          setUserAnswers(session.comprehensionAnswers || {});
+          setActiveModalTab('metrics');
+          setIsSavedToPortfolio(true);
+        }}
+      />
 
       {/* AYARLAR ÇEKMECESİ */}
       <CoachSettingsDrawer

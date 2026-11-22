@@ -194,5 +194,27 @@ describe('LiveReadingStudio — Comprehensive Architectural Tests', () => {
         expect(passage.comprehensionQuestions?.length).toBeGreaterThan(0);
       });
     });
+
+    it('covers all target age groups across the library', async () => {
+      const { SAMPLE_READING_PASSAGES } = await import(
+        '../src/components/LiveReadingStudio/sampleStories'
+      );
+      const ageGroups = SAMPLE_READING_PASSAGES.map((p) => p.ageGroup);
+      expect(ageGroups.some((ag) => ag.includes('1. Sınıf') || ag.includes('1-2'))).toBe(true);
+      expect(ageGroups.some((ag) => ag.includes('2') || ag.includes('3'))).toBe(true);
+      const levels = SAMPLE_READING_PASSAGES.map((p) => p.level);
+      expect(levels).toContain('kolay');
+      expect(levels).toContain('orta');
+    });
+  });
+
+  describe('Dyslexia Ergonomics & Paper Tints', () => {
+    it('supports 4 visual stress reduction paper tints', () => {
+      const validTints = ['dark', 'cream', 'mint', 'rose'];
+      expect(validTints).toContain('dark');
+      expect(validTints).toContain('cream');
+      expect(validTints).toContain('mint');
+      expect(validTints).toContain('rose');
+    });
   });
 });

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ReadingPassage } from './sampleStories';
-import { ReadingMode } from './CoachSettingsDrawer';
+import { ReadingMode, PaperTint } from './CoachSettingsDrawer';
 
 interface ReadingRulerStageProps {
   passage: ReadingPassage;
@@ -11,8 +11,49 @@ interface ReadingRulerStageProps {
   isRulerActive: boolean;
   isSyllableColoringActive: boolean;
   readingMode?: ReadingMode;
+  paperTint?: PaperTint;
   onWordClick?: (index: number) => void;
 }
+
+const TINT_STYLES: Record<
+  PaperTint,
+  {
+    container: string;
+    border: string;
+    title: string;
+    unreadText: string;
+    farText: string;
+  }
+> = {
+  dark: {
+    container: 'bg-zinc-950/70 border-white/10 text-white',
+    border: 'border-white/10',
+    title: 'text-white',
+    unreadText: 'text-zinc-200 hover:text-white hover:bg-white/5',
+    farText: 'text-zinc-600 opacity-40 blur-[0.3px]',
+  },
+  cream: {
+    container: 'bg-[#FAF7EE] border-[#E8DFC8] text-[#2C241B] shadow-amber-950/10',
+    border: 'border-[#E8DFC8]',
+    title: 'text-[#2C241B]',
+    unreadText: 'text-[#42372B] hover:text-[#1F1912] hover:bg-[#F2EDDC]',
+    farText: 'text-[#A89E8D] opacity-40 blur-[0.3px]',
+  },
+  mint: {
+    container: 'bg-[#F0F7F4] border-[#CCE3DE] text-[#1D352E] shadow-teal-950/10',
+    border: 'border-[#CCE3DE]',
+    title: 'text-[#1D352E]',
+    unreadText: 'text-[#2B4B42] hover:text-[#132520] hover:bg-[#E3EEE9]',
+    farText: 'text-[#8BAAA0] opacity-40 blur-[0.3px]',
+  },
+  rose: {
+    container: 'bg-[#FDF4F5] border-[#EAD5D7] text-[#341B20] shadow-rose-950/10',
+    border: 'border-[#EAD5D7]',
+    title: 'text-[#341B20]',
+    unreadText: 'text-[#4F2C33] hover:text-[#261317] hover:bg-[#F5E2E4]',
+    farText: 'text-[#B48F95] opacity-40 blur-[0.3px]',
+  },
+};
 
 export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
   passage,
@@ -22,10 +63,12 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
   isRulerActive,
   isSyllableColoringActive,
   readingMode = 'flow',
+  paperTint = 'dark',
   onWordClick,
 }) => {
   const words = passage.words;
   const activeWordRef = useRef<HTMLSpanElement | null>(null);
+  const tint = TINT_STYLES[paperTint] || TINT_STYLES.dark;
 
   // Aktif kelime değiştikçe odağı yumuşakça kaydır
   useEffect(() => {
@@ -41,9 +84,9 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
   const effectiveFontSize = readingMode === 'karaoke' ? Math.round(fontSize * 1.15) : fontSize;
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto rounded-[2.5rem] bg-zinc-950/70 border border-white/10 p-6 sm:p-12 shadow-2xl backdrop-blur-2xl transition-all duration-300">
+    <div className={`relative w-full max-w-4xl mx-auto rounded-[2.5rem] border p-6 sm:p-12 shadow-2xl backdrop-blur-2xl transition-all duration-300 ${tint.container}`}>
       {/* Başlık ve Metin Bilgisi */}
-      <div className="flex items-center justify-between pb-6 mb-6 border-b border-white/10">
+      <div className={`flex items-center justify-between pb-6 mb-6 border-b ${tint.border}`}>
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
@@ -60,7 +103,7 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
               </span>
             )}
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-lexend">
+          <h2 className={`text-2xl sm:text-3xl font-extrabold tracking-tight font-lexend ${tint.title}`}>
             {passage.title}
           </h2>
           <span className="text-xs text-zinc-400 font-medium">Hedef Kitle: {passage.ageGroup}</span>
@@ -123,8 +166,8 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
                   : isRead
                   ? 'text-emerald-400 font-medium'
                   : isFarFromActive
-                  ? 'text-zinc-600 opacity-40 blur-[0.3px]'
-                  : 'text-zinc-200 hover:text-white hover:bg-white/5'
+                  ? tint.farText
+                  : tint.unreadText
               }`}
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.95 }}
