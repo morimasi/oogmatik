@@ -20,6 +20,19 @@ export interface CoachCallbacks {
   onError?: (error: Error) => void;
 }
 
+interface IWebSpeechRecognition {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  maxAlternatives: number;
+  start: () => void;
+  stop: () => void;
+  onstart: (() => void) | null;
+  onresult: ((event: { results: { [index: number]: { [altIndex: number]: { transcript: string } } & { length: number } } & { length: number } }) => void) | null;
+  onerror: ((event: { error?: string }) => void) | null;
+  onend: (() => void) | null;
+}
+
 /** Türkçe metin normalizasyonu */
 export function normalizeTr(s: string): string {
   return s
@@ -86,7 +99,7 @@ export class LiveReadingCoachService {
   private coachSpeakingReleaseTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Web Speech API nesnesi
-  private recognition: any = null;
+  private recognition: IWebSpeechRecognition | null = null;
   private isRecognitionRunning = false;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -176,7 +189,11 @@ export class LiveReadingCoachService {
   private initSpeechRecognition(): void {
     if (typeof window === 'undefined') return;
 
-    const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const win = window as unknown as {
+      SpeechRecognition?: new () => IWebSpeechRecognition;
+      webkitSpeechRecognition?: new () => IWebSpeechRecognition;
+    };
+    const SpeechRec = win.SpeechRecognition || win.webkitSpeechRecognition;
     if (SpeechRec) {
       this.recognition = new SpeechRec();
       this.recognition.continuous = true;
@@ -188,7 +205,7 @@ export class LiveReadingCoachService {
         this.isRecognitionRunning = true;
       };
 
-      this.recognition.onresult = (event: any) => {
+      this.recognition.onresult = (event) => {
         if (!this.isSessionActive || !this.currentPassage || this.isCoachSpeaking) return;
 
         const results = event.results;
@@ -201,7 +218,7 @@ export class LiveReadingCoachService {
         }
       };
 
-      this.recognition.onerror = (event: any) => {
+      this.recognition.onerror = (event) => {
         const errorType = event?.error;
         if (errorType === 'not-allowed') {
           this.callbacks.onError?.(new Error('Mikrofon izni verilmedi. Lütfen tarayıcınızdan mikrofona izin verin.'));

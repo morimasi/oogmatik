@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, Loader2, BookOpen, Layers, Target, Compass, Wand2 } from 'lucide-react';
+import { X, Sparkles, Loader2, BookOpen, Layers, Target, Compass, Wand2, UserCheck } from 'lucide-react';
 import { AIStoryConfig, AIReadingStoryService } from '../../services/aiReadingStoryService';
 import { ReadingPassage } from './sampleStories';
 import { MascotType } from './EduMascot';
+import { useStudentStore } from '../../store/useStudentStore';
 
 interface AiStoryGeneratorModalProps {
   isOpen: boolean;
@@ -29,6 +30,8 @@ export const AiStoryGeneratorModal: React.FC<AiStoryGeneratorModalProps> = ({
   onClose,
   onStoryGenerated,
 }) => {
+  const { activeStudent } = useStudentStore();
+
   const [config, setConfig] = useState<AIStoryConfig>({
     ageGroup: '7-9',
     gradeLevel: '2',
@@ -38,6 +41,32 @@ export const AiStoryGeneratorModal: React.FC<AiStoryGeneratorModalProps> = ({
     customTopic: '',
     mascotTone: currentMascot,
   });
+
+  // Öğrenci profili seçiliyse ZPD yaş ve sınıf seviyesini otomatik uyarla
+  useEffect(() => {
+    if (activeStudent) {
+      const age = activeStudent.age || 8;
+      const ageGroup: AIStoryConfig['ageGroup'] =
+        age <= 7 ? '5-7' : age <= 9 ? '7-9' : age <= 11 ? '9-11' : '11-14';
+
+      let gradeLevel: AIStoryConfig['gradeLevel'] = '2';
+      const cleanGrade = (activeStudent.grade || '').toLowerCase();
+      if (cleanGrade.includes('1')) gradeLevel = '1';
+      else if (cleanGrade.includes('2')) gradeLevel = '2';
+      else if (cleanGrade.includes('3')) gradeLevel = '3';
+      else if (cleanGrade.includes('4')) gradeLevel = '4';
+      else if (cleanGrade.includes('5') || cleanGrade.includes('6') || cleanGrade.includes('7') || cleanGrade.includes('8')) {
+        gradeLevel = '5-8';
+      }
+
+      setConfig((prev) => ({
+        ...prev,
+        ageGroup,
+        gradeLevel,
+        mascotTone: currentMascot,
+      }));
+    }
+  }, [activeStudent, currentMascot, isOpen]);
 
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -82,9 +111,17 @@ export const AiStoryGeneratorModal: React.FC<AiStoryGeneratorModalProps> = ({
                       Canlı Koç Entegre
                     </span>
                   </h3>
-                  <p className="text-xs text-zinc-400">
-                    Öğrencinin yaşına, hece zorluğuna ve ilgi alanına göre saniyeler içinde benzersiz okuma metni
-                  </p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-xs text-zinc-400">
+                      Öğrencinin yaşına, hece zorluğuna ve ilgi alanına göre saniyeler içinde benzersiz okuma metni
+                    </p>
+                    {activeStudent && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded-md border border-indigo-500/30">
+                        <UserCheck className="w-3 h-3 text-indigo-400" />
+                        {activeStudent.name} ({activeStudent.grade})
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               <button

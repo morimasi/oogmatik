@@ -13,7 +13,10 @@ import {
   BookOpen,
   CheckCircle2,
   XCircle,
-  Wand2
+  Wand2,
+  Layers,
+  Zap,
+  BookmarkCheck
 } from 'lucide-react';
 import { EduMascot, MascotState } from './EduMascot';
 import { AudioWaveform } from './AudioWaveform';
@@ -24,7 +27,9 @@ import { SAMPLE_READING_PASSAGES, ReadingPassage, parseCustomTextToPassage } fro
 import { LiveReadingCoachService } from '../../services/liveReadingCoachService';
 import { ReadingSessionMetrics } from '../../services/phonological/phonologicalScoringEngine';
 import { ReadingAssessmentPdfGenerator } from '../../services/pdf/ReadingAssessmentPdfGenerator';
+import { readingSessionService } from '../../services/readingSessionService';
 import { useStudentStore } from '../../store/useStudentStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { useToastStore } from '../../store/useToastStore';
 
 interface LiveReadingStudioProps {
@@ -64,6 +69,7 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
   // Okuduğunu Anlama Mini Soruları Durumu
   const [userAnswers, setUserAnswers] = useState<Record<string, number>>({});
   const [activeModalTab, setActiveModalTab] = useState<'metrics' | 'comprehension'>('metrics');
+  const [isSavedToPortfolio, setIsSavedToPortfolio] = useState<boolean>(false);
 
   // Ayarlar
   const [settings, setSettings] = useState<CoachSettings>({
@@ -104,13 +110,29 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
       onVolumeChange: (rms) => {
         setCurrentVolume(rms);
       },
-      onSessionComplete: (metrics) => {
+      onSessionComplete: async (metrics) => {
         setIsSessionActive(false);
         setSessionMetrics(metrics);
         setUserAnswers({});
         setActiveModalTab('metrics');
+        setIsSavedToPortfolio(false);
         if (timerRef.current) clearInterval(timerRef.current);
         toast.success('Tebrikler! Okuma seansı başarıyla tamamlandı.');
+
+        // Otomatik Firestore ve BEP Portfolyo Kaydı
+        try {
+          const { user } = useAuthStore.getState();
+          await readingSessionService.saveSession(
+            user?.id || 'guest',
+            activeStudent?.id,
+            activeStudent?.name || 'Sevgili Öğrenci',
+            selectedPassage,
+            metrics
+          );
+          setIsSavedToPortfolio(true);
+        } catch {
+          // Yerel depoda korundu
+        }
       },
       onError: (err) => {
         toast.error(err.message || 'Mikrofon başlatılamadı.');
@@ -138,6 +160,23 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [isSessionActive]);
+
+  // Öğrenci Sınıf Seviyesine Göre ZPD Metin Eşleşmesi
+  useEffect(() => {
+    if (!initialPassage && activeStudent?.grade) {
+      const gradeClean = activeStudent.grade.toLowerCase();
+      const matched = SAMPLE_READING_PASSAGES.find((p) => {
+        if (gradeClean.includes('1')) return p.level.includes('1');
+        if (gradeClean.includes('2')) return p.level.includes('2');
+        if (gradeClean.includes('3')) return p.level.includes('3');
+        if (gradeClean.includes('4') || gradeClean.includes('5')) return p.level.includes('4') || p.level.includes('İleri');
+        return false;
+      });
+      if (matched && matched.id !== selectedPassage.id) {
+        setSelectedPassage(matched);
+      }
+    }
+  }, [activeStudent?.grade, initialPassage]);
 
   // Seansı Başlat / Duraklat
   const handleToggleSession = async () => {
@@ -347,13 +386,17 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
               const found = SAMPLE_READING_PASSAGES.find((p) => p.id === e.target.value);
               if (found) handleSelectPassage(found);
             }}
-            className="hidden lg:block text-xs bg-zinc-900 border border-white/10 rounded-2xl px-3 py-2 text-zinc-300 focus:outline-none focus:border-indigo-500 cursor-pointer max-w-[170px] truncate"
+            className="hidden lg:block text-xs bg-zinc-900 border border-white/10 rounded-2xl px-3 py-2 text-zinc-300 focus:outline-none focus:border-indigo-500 cursor-pointer max-w-[200px] truncate"
           >
-            {SAMPLE_READING_PASSAGES.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.title}
-              </option>
-            ))}
+            {SAMPLE_READING_PASSAGES.map((p) => {
+              const gradeNum = activeStudent?.grade ? activeStudent.grade.replace(/[^0-9]/g, '') : '';
+              const isMatch = gradeNum && p.level.includes(gradeNum);
+              return (
+                <option key={p.id} value={p.id}>
+                  {isMatch ? `⭐ ${p.title} (${p.level})` : `${p.title} (${p.level})`}
+                </option>
+              );
+            })}
           </select>
 
           {/* Özel Metin Ekle */}
@@ -508,9 +551,19 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
               <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-1">
                 Harika Bir Seans Tamamlandı!
               </h2>
-              <p className="text-xs text-zinc-400 mb-4">
+              <p className="text-xs text-zinc-400 mb-3">
                 {selectedPassage.title} — {sessionMetrics.gradeLevelEquivalent}
               </p>
+
+              {/* Portfolyo & BEP Kayıt Rozeti */}
+              <div className="inline-flex items-center gap-2 mb-4 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 py-1.5 px-3.5 rounded-full">
+                <BookmarkCheck className="w-3.5 h-3.5" />
+                <span>
+                  {isSavedToPortfolio
+                    ? 'Seans başarıyla öğrenci portfolyosuna ve BEP hedeflerine kaydedildi'
+                    : 'Seans güvenli yerel önbelleğe kaydedildi'}
+                </span>
+              </div>
 
               {/* Sekmeler: Metrikler / Okuduğunu Anlama */}
               {selectedPassage.comprehensionQuestions && selectedPassage.comprehensionQuestions.length > 0 && (
@@ -623,6 +676,56 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
                   })}
                 </div>
               )}
+
+              {/* Diğer Stüdyolara Aktarım ve Köprüler */}
+              <div className="pt-3 pb-4 mb-3 border-t border-white/10 text-left">
+                <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider block mb-2">
+                  Sonraki Adım & Müdahale Köprüleri
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const event = new CustomEvent('openStudio', { detail: 'fascicle-studio' });
+                      window.dispatchEvent(event);
+                      setSessionMetrics(null);
+                    }}
+                    className="p-2.5 rounded-xl bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20 text-violet-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                    title="Bu metin ve takılınan hecelerden fasikül hazırla"
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>Fasikül Tasarla</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const event = new CustomEvent('openStudio', { detail: 'sari-kitap-studio' });
+                      window.dispatchEvent(event);
+                      setSessionMetrics(null);
+                    }}
+                    className="p-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                    title="Sarı Kitap hızlı okuma ve odak penceresiyle çalış"
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>Pencere Tekniği</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const event = new CustomEvent('openStudio', { detail: 'reading-studio' });
+                      window.dispatchEvent(event);
+                      setSessionMetrics(null);
+                    }}
+                    className="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-300 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                    title="Okuma-Anlama Stüdyosunda derinleştir"
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>Okuma Stüdyosu</span>
+                  </button>
+                </div>
+              </div>
 
               {/* Butonlar */}
               <div className="flex items-center gap-3">
