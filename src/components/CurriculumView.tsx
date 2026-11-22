@@ -19,10 +19,12 @@ interface CurriculumViewProps {
 export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartCurriculumActivity, initialPlan, preFillData }) => {
     const {
         step, loading, isSaving, curriculum, isSaved, isShareModalOpen, isPrinting,
-        formData, planDuration, diagnosisContext, existingPlans, isLoadingPlans,
+        formData, planDuration, planType, selectedKazanimlar, diagnosisContext, existingPlans, isLoadingPlans,
+        viewMode, setViewMode, searchQuery, setSearchQuery, statusFilter, setStatusFilter, domainFilter, setDomainFilter,
+        filteredSchedule, analytics,
         editingGoal, tempGoal, isAddingGoal, newGoalText, isEditingNote, tempNote,
         editingDay, tempFocus, changingActivityDay, students,
-        setStep, setFormData, setPlanDuration,
+        setStep, setFormData, setPlanDuration, setPlanType, setSelectedKazanimlar,
         setEditingDay, setTempFocus, setEditingGoal, setTempGoal, setIsAddingGoal, setNewGoalText,
         setIsEditingNote, setTempNote, setChangingActivityDay, setIsShareModalOpen,
         handleStudentSelect, handleGenerate, handleSave, handleShareCurriculum,
@@ -36,13 +38,13 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
             return (
                 <BrandedLoadingAnimation
                     size="large"
-                    title="Nöro-Pedagogik Analiz Yapılıyor"
+                    title="Nöro-Pedagojik ve MEB Analizi Yapılıyor"
                     messages={[
-                        'Öğrenme profili analiz ediliyor...',
-                        'Zayıf yönler sarmal öğrenme modeliyle eşleştiriliyor...',
-                        `${planDuration} günlük rota oluşturuluyor...`,
-                        'Sinaptik bağlantılar inşa ediliyor...',
-                        'BEP hedefleri SMART formatına dönüştürülüyor...',
+                        'Öğrenme profili ve bilişsel ihtiyaçlar taranıyor...',
+                        'MEB 2024-2025 müfredat kazanımları haritalandırılıyor...',
+                        `${planDuration} günlük sarmal öğrenme (Spiral Learning) rotası kurgulanıyor...`,
+                        'ZPD eşiğine göre zorluk seviyeleri dengeleniyor...',
+                        'SMART formatında bireysel hedefler inşa ediliyor...',
                     ]}
                 />
             );
@@ -56,6 +58,8 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
                         setFormData={setFormData}
                         planDuration={planDuration}
                         setPlanDuration={setPlanDuration}
+                        planType={planType}
+                        setPlanType={setPlanType}
                         setStep={setStep}
                         students={students}
                         existingPlans={existingPlans}
@@ -72,6 +76,9 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
                         diagnosisContext={diagnosisContext}
                         setStep={setStep}
                         handleGenerate={handleGenerate}
+                        planType={planType}
+                        selectedKazanimlar={selectedKazanimlar}
+                        setSelectedKazanimlar={setSelectedKazanimlar}
                     />
                 );
             case 4:
@@ -108,6 +115,16 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
                         setTempNote={setTempNote}
                         changingActivityDay={changingActivityDay}
                         setChangingActivityDay={setChangingActivityDay}
+                        viewMode={viewMode}
+                        setViewMode={setViewMode}
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        statusFilter={statusFilter}
+                        setStatusFilter={setStatusFilter}
+                        domainFilter={domainFilter}
+                        setDomainFilter={setDomainFilter}
+                        filteredSchedule={filteredSchedule}
+                        analytics={analytics}
                     />
                 ) : null;
             default: return null;
@@ -137,7 +154,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
                 isOpen={isShareModalOpen}
                 onClose={() => setIsShareModalOpen(false)}
                 onShare={handleShareCurriculum}
-                worksheetTitle={curriculum?.studentName ? `${curriculum.studentName} — Eğitim Planı` : 'Eğitim Planı'}
+                worksheetTitle={curriculum?.studentName ? `${curriculum.studentName} — Akıllı Müfredat Planı` : 'Akıllı Müfredat Planı'}
                 showPermissionSelector
             />
         </div>

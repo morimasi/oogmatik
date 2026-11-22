@@ -589,19 +589,28 @@ ScreeningAssessment/
 
 ---
 
-### 5.7 CurriculumView — Müfredat Görünümü
+### 5.7 CurriculumView — Akıllı Müfredat Stüdyosu (Ultra-Premium v2.0)
 
 **Dosya Konumu**: `components/CurriculumView.tsx`
 
-**Amaç**: MEB müfredatına göre aktiviteleri listeleme.
+**Amaç**: MEB 2024-2025 müfredatı ve özel eğitim BEP hedeflerini sarmal öğrenme (Spiral Learning) ve Yakınsal Gelişim Alanı (ZPD) prensipleriyle birleştiren AI destekli kişiselleştirilmiş eğitim planlama stüdyosu.
 
 **İşlevler**:
-1. **Sınıf Seçimi**: 1-8. sınıflar
-2. **Ders Seçimi**: Matematik, Türkçe, Fen, Sosyal
-3. **Kazanım Listesi**: MEB kazanımlarına göre aktiviteler
-4. **Hızlı Üretim**: Kazanıma göre aktivite üretme
+1. **Sınıf & Model Seçimi**: 1-8. sınıflar, Okul Öncesi; Hibrit (MEB + BEP), MEB Kazanım Odaklı veya Klinik Destek modelleri.
+2. **MEB 2024-2025 Kazanım Matrisi**: Ünite ve kazanım bazında doğrudan müfredat kodları (`M.1.1.1.1` vb.) ile aktivite eşleme.
+3. **4 Çoklu Görünüm Modu**:
+   - **Kartlar Görünümü**: Bilişsel alan rozetleri, zorluk seviyesi ('Kolay', 'Orta', 'Zor'), bağımsız öğretmen gözlem notu (`day.notes`) ve anında aktivite başlatıcı.
+   - **Yol Haritası (Timeline Görünümü)**: Kronolojik gün adımları ve dönüm noktaları.
+   - **MEB Matrisi**: Resmi BEP ve MEB dokümantasyonu için tablo formatında kazanım dökümü.
+   - **Bilişsel Analitik**: Bilişsel alan dağılımı (Matematik, Okuma, Görsel, Dikkat), tahmini süre ve zorluk dengesi.
+4. **Çoklu Arama ve Filtreleme**: Duruma göre (Tamamlanan / Bekleyen), bilişsel alana göre ve serbest metin araması.
+5. **Cross-Studio Entegrasyonu**:
+   - `onStartCurriculumActivity` ile tek tıkla ilgili jeneratöre geçiş, üretilen materyali otomatik tamamlama ve plana işleme.
+   - `Fasikül Stüdyosu` entegrasyonu: Tek tıkla tüm planı çok sayfalı fasiküle dönüştürme (`useFascicleStore`).
+   - `Profile / PlansModule` ve `Student / AcademicPlanModule` ile çift yönlü Firestore + LocalStorage senkronizasyonu.
+6. **A4 Baskı & PDF Standardı**: MEB BEP birimi onay alanı, öğretmen imza bloğu ve sayfa düzeni korumalı export.
 
-**Service Entegrasyonu**: `services/curriculumService.ts`
+**Service Entegrasyonu**: `services/curriculumService.ts` (TypeScript strict, sıfır `any`, offline önbellekleme, Türkçe zorluk eşleme).
 
 ---
 

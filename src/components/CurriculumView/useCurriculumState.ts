@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { curriculumService } from '../../services/curriculumService';
-import { Curriculum, Student, CurriculumActivityStatus } from '../../types';
+import { useState, useEffect, useMemo } from 'react';
+import { curriculumService, getActivityDomain } from '../../services/curriculumService';
+import { Curriculum, Student, CurriculumActivityStatus, CurriculumActivity, CurriculumDay } from '../../types';
 import { printService } from '../../utils/printService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
@@ -14,6 +14,8 @@ interface UseCurriculumStateParams {
     initialPlan?: Curriculum | null;
     preFillData?: { name: string; age: number; weaknesses: string[], diagnosisContext?: string } | null;
 }
+
+export type CurriculumViewMode = 'cards' | 'timeline' | 'meb-matrix' | 'analytics';
 
 export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumStateParams) {
     const { user } = useAuthStore();
@@ -31,9 +33,20 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
         name: '', age: 8, grade: '2. Sınıf', diagnosis: [], interests: [], weaknesses: []
     });
     const [planDuration, setPlanDuration] = useState(7);
+    const [planType, setPlanType] = useState<'clinical' | 'meb' | 'hybrid'>('hybrid');
+    const [selectedSubject, setSelectedSubject] = useState<string>('Matematik');
+    const [selectedKazanimlar, setSelectedKazanimlar] = useState<string[]>([]);
     const [diagnosisContext, setDiagnosisContext] = useState<string>('');
     const [existingPlans, setExistingPlans] = useState<Curriculum[]>([]);
     const [isLoadingPlans, setIsLoadingPlans] = useState(false);
+    
+    // UI Görünüm ve Filtre State'leri
+    const [viewMode, setViewMode] = useState<CurriculumViewMode>('cards');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed'>('all');
+    const [domainFilter, setDomainFilter] = useState<'all' | 'math' | 'reading' | 'visual' | 'attention'>('all');
+
+    // Düzenleme state'leri
     const [editingGoal, setEditingGoal] = useState<number | null>(null);
     const [tempGoal, setTempGoal] = useState('');
     const [isAddingGoal, setIsAddingGoal] = useState(false);
@@ -57,6 +70,9 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
                 weaknesses: initialPlan.weaknesses
             });
             setPlanDuration(initialPlan.durationDays);
+            if (initialPlan.planType) setPlanType(initialPlan.planType);
+            if (initialPlan.selectedKazanimlar) setSelectedKazanimlar(initialPlan.selectedKazanimlar);
+            if (initialPlan.subject) setSelectedSubject(initialPlan.subject);
         } else if (preFillData) {
             setFormData({
                 name: preFillData.name,
@@ -102,10 +118,15 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
             if (diagnosisContext) {
                 studentData.notes = `KLİNİK TANI BAĞLAMI:\n${diagnosisContext}\n\n${studentData.notes || ''}`;
             }
-            const plan = await curriculumService.generatePlan(studentData, planDuration);
+            const plan = await curriculumService.generatePlan(studentData, planDuration, {
+                planType,
+                selectedKazanimlar,
+                subject: selectedSubject
+            });
             setCurriculum(plan);
             setStep(4);
             setIsSaved(false);
+            toast.success('Akıllı Müfredat Planı başarıyla oluşturuldu!');
         } catch {
             toast.error('Plan oluşturulurken bir hata oluştu.');
         } finally {
@@ -128,7 +149,10 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
                     schedule: curriculum.schedule,
                     note: curriculum.note,
                     interests: curriculum.interests,
-                    weaknesses: curriculum.weaknesses
+                    weaknesses: curriculum.weaknesses,
+                    planType: curriculum.planType,
+                    selectedKazanimlar: curriculum.selectedKazanimlar,
+                    subject: curriculum.subject
                 });
             } else {
                 let sId = curriculum.studentId;
@@ -155,7 +179,7 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
             setIsSaved(true);
             const updated = await curriculumService.getUserCurriculums(user.id);
             setExistingPlans(updated);
-            toast.success(isExisting ? 'Plan güncellendi.' : 'Plan kaydedildi.');
+            toast.success(isExisting ? 'Plan güncellendi.' : 'Plan başarıyla arşive kaydedildi.');
         } catch {
             toast.error('Kaydetme hatası.');
         } finally {
@@ -217,10 +241,11 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
     const handlePrint = async (action: 'print' | 'download') => {
         setIsPrinting(true);
         try {
-            await new Promise(resolve => setTimeout(resolve, 50));
-            await printService.generatePdf('.curriculum-plan-content', `${formData.name}-EgitimPlani`, { action });
+            await new Promise(resolve => setTimeout(resolve, 100));
+            await printService.generatePdf('.curriculum-plan-content', `${formData.name || 'Ogrenci'}-Akilli-Mufredat-Plani`, { action });
         } catch (e: unknown) {
             logError(e as AppError);
+            toast.error('PDF üretilirken bir sorun oluştu.');
         } finally {
             setIsPrinting(false);
         }
@@ -233,7 +258,9 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
         const newStatus: CurriculumActivityStatus = currentStatus === 'completed' ? 'pending' : 'completed';
 
         try {
-            if (isSaved) await curriculumService.updateActivityStatus(curriculum.id, day, actId, newStatus);
+            if (isSaved && curriculum.id) {
+                await curriculumService.updateActivityStatus(curriculum.id, day, actId, newStatus);
+            }
             setCurriculum(prev => {
                 if (!prev) return null;
                 return {
@@ -247,14 +274,30 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
                     })
                 };
             });
-        } catch { toast.error('Durum güncellenemedi.'); }
+        } catch {
+            toast.error('Durum güncellenemedi.');
+        }
     };
 
+    // Günlük Öğretmen Gözlem Notunu Kaydet (day.notes alanına kaydedilir, day.focus'u BOZMAZ!)
     const handleSaveDayNote = async (dayNum: number, note: string) => {
-        if (!curriculum || !isSaved) return;
-        const newSchedule = curriculum.schedule.map(d => d.day === dayNum ? { ...d, focus: note } : d);
+        if (!curriculum) return;
+        const newSchedule = curriculum.schedule.map(d => d.day === dayNum ? { ...d, notes: note } : d);
         setCurriculum({ ...curriculum, schedule: newSchedule });
-        await curriculumService.updateCurriculum(curriculum.id, { schedule: newSchedule });
+        if (isSaved && curriculum.id) {
+            await curriculumService.updateDayNote(curriculum.id, dayNum, note);
+        }
+    };
+
+    // Günün Başlığını / Odak Konusunu Kaydet (day.focus alanına kaydedilir)
+    const handleSaveDayFocusEdit = async (dayNum: number) => {
+        if (!curriculum) return;
+        const newSchedule = curriculum.schedule.map(d => d.day === dayNum ? { ...d, focus: tempFocus } : d);
+        setCurriculum({ ...curriculum, schedule: newSchedule });
+        setEditingDay(null);
+        if (isSaved && curriculum.id) {
+            await curriculumService.updateDayFocus(curriculum.id, dayNum, tempFocus);
+        }
     };
 
     const handleLoadPlan = (plan: Curriculum) => {
@@ -269,6 +312,9 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
             weaknesses: plan.weaknesses
         });
         setPlanDuration(plan.durationDays);
+        if (plan.planType) setPlanType(plan.planType);
+        if (plan.selectedKazanimlar) setSelectedKazanimlar(plan.selectedKazanimlar);
+        if (plan.subject) setSelectedSubject(plan.subject);
     };
 
     const handleSaveGoal = async (idx: number) => {
@@ -290,54 +336,42 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
     };
 
     const handleAddGoal = async () => {
-        if (!curriculum || !newGoalText.trim() || !curriculum.id) return;
+        if (!curriculum || !newGoalText.trim()) return;
         const updatedGoals = [...(curriculum.goals || []), newGoalText.trim()];
         setCurriculum({ ...curriculum, goals: updatedGoals });
         setNewGoalText('');
         setIsAddingGoal(false);
-        if (isSaved) {
+        if (isSaved && curriculum.id && user) {
             await curriculumService.updateCurriculum(curriculum.id, { goals: updatedGoals });
-            const updated = await curriculumService.getUserCurriculums(user!.id);
+            const updated = await curriculumService.getUserCurriculums(user.id);
             setExistingPlans(updated);
         }
     };
 
     const handleDeleteGoal = async (idx: number) => {
-        if (!curriculum || !curriculum.id) return;
+        if (!curriculum) return;
         const updatedGoals = curriculum.goals.filter((_, i) => i !== idx);
         setCurriculum({ ...curriculum, goals: updatedGoals });
-        if (isSaved) {
+        if (isSaved && curriculum.id && user) {
             await curriculumService.updateCurriculum(curriculum.id, { goals: updatedGoals });
-            const updated = await curriculumService.getUserCurriculums(user!.id);
+            const updated = await curriculumService.getUserCurriculums(user.id);
             setExistingPlans(updated);
         }
     };
 
     const handleSaveNoteEdit = async () => {
-        if (!curriculum || !curriculum.id) return;
+        if (!curriculum) return;
         setCurriculum({ ...curriculum, note: tempNote });
         setIsEditingNote(false);
-        if (isSaved) {
+        if (isSaved && curriculum.id && user) {
             await curriculumService.updateCurriculum(curriculum.id, { note: tempNote });
-            const updated = await curriculumService.getUserCurriculums(user!.id);
-            setExistingPlans(updated);
-        }
-    };
-
-    const handleSaveDayFocusEdit = async (dayNum: number) => {
-        if (!curriculum || !curriculum.id) return;
-        const newSchedule = curriculum.schedule.map(d => d.day === dayNum ? { ...d, focus: tempFocus } : d);
-        setCurriculum({ ...curriculum, schedule: newSchedule });
-        setEditingDay(null);
-        if (isSaved) {
-            await curriculumService.updateCurriculum(curriculum.id, { schedule: newSchedule });
-            const updated = await curriculumService.getUserCurriculums(user!.id);
+            const updated = await curriculumService.getUserCurriculums(user.id);
             setExistingPlans(updated);
         }
     };
 
     const handleReplaceActivity = async (dayNum: number, activityId: string) => {
-        if (!curriculum || !curriculum.id) return;
+        if (!curriculum) return;
         const act = ACTIVITIES.find(a => a.id === activityId);
         if (!act) return;
         const newSchedule = curriculum.schedule.map(d => {
@@ -347,11 +381,13 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
                     focus: `${act.title} Çalışması`,
                     activities: [{
                         ...d.activities[0],
-                        id: d.activities[0]?.id || Math.random().toString(36).substr(2, 9),
+                        id: d.activities[0]?.id || Math.random().toString(36).substring(2, 9),
                         activityId: act.id,
                         title: act.title,
                         status: 'pending' as const,
-                        goal: `${act.title} aktivitesi ile gelişim hedeflenmektedir.`
+                        goal: `${act.title} aktivitesi ile bireysel bilişsel becerilerin güçlendirilmesi.`,
+                        difficultyLevel: d.activities[0]?.difficultyLevel || 'Orta',
+                        domain: getActivityDomain(act.id)
                     }],
                     isCompleted: false
                 };
@@ -360,23 +396,91 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
         });
         setCurriculum({ ...curriculum, schedule: newSchedule });
         setChangingActivityDay(null);
-        if (isSaved) {
+        if (isSaved && curriculum.id && user) {
             await curriculumService.updateCurriculum(curriculum.id, { schedule: newSchedule });
-            toast.success(`Gün ${dayNum} aktivitesi "${act.title}" olarak değiştirildi.`);
-            const updated = await curriculumService.getUserCurriculums(user!.id);
+            toast.success(`Gün ${dayNum} aktivitesi "${act.title}" olarak güncellendi.`);
+            const updated = await curriculumService.getUserCurriculums(user.id);
             setExistingPlans(updated);
         }
     };
 
+    // Filtrelenmiş Günler
+    const filteredSchedule = useMemo(() => {
+        if (!curriculum) return [];
+        return curriculum.schedule.filter((day: CurriculumDay) => {
+            // Durum Filtresi
+            if (statusFilter === 'completed' && !day.isCompleted && !day.activities.every(a => a.status === 'completed')) return false;
+            if (statusFilter === 'pending' && (day.isCompleted || (day.activities.length > 0 && day.activities.every(a => a.status === 'completed')))) return false;
+
+            // Alan Filtresi
+            if (domainFilter !== 'all') {
+                const hasDomain = day.activities.some(a => a.domain === domainFilter);
+                if (!hasDomain) return false;
+            }
+
+            // Arama Sorgusu
+            if (searchQuery.trim()) {
+                const q = searchQuery.toLowerCase();
+                const matchFocus = day.focus.toLowerCase().includes(q);
+                const matchAct = day.activities.some(a => a.title.toLowerCase().includes(q) || a.goal.toLowerCase().includes(q));
+                const matchKazanim = day.kazanimKod?.toLowerCase().includes(q) || day.activities.some(a => a.kazanimKod?.toLowerCase().includes(q));
+                if (!matchFocus && !matchAct && !matchKazanim) return false;
+            }
+
+            return true;
+        });
+    }, [curriculum, statusFilter, domainFilter, searchQuery]);
+
+    // Bilişsel İstatistikler ve Dağılım
+    const analytics = useMemo(() => {
+        if (!curriculum) return null;
+        let totalActivities = 0;
+        let completedActivities = 0;
+        let totalMinutes = 0;
+        let completedMinutes = 0;
+        const domainCounts = { math: 0, reading: 0, visual: 0, attention: 0, general: 0 };
+        const difficultyCounts = { Kolay: 0, Orta: 0, Zor: 0 };
+
+        for (const day of curriculum.schedule) {
+            for (const act of day.activities) {
+                totalActivities++;
+                totalMinutes += act.duration || 15;
+                if (act.status === 'completed') {
+                    completedActivities++;
+                    completedMinutes += act.duration || 15;
+                }
+                const dom = act.domain || getActivityDomain(act.activityId);
+                domainCounts[dom] = (domainCounts[dom] || 0) + 1;
+                difficultyCounts[act.difficultyLevel || 'Orta'] = (difficultyCounts[act.difficultyLevel || 'Orta'] || 0) + 1;
+            }
+        }
+
+        const progressPercent = totalActivities > 0 ? Math.round((completedActivities / totalActivities) * 100) : 0;
+
+        return {
+            totalActivities,
+            completedActivities,
+            totalMinutes,
+            completedMinutes,
+            progressPercent,
+            domainCounts,
+            difficultyCounts
+        };
+    }, [curriculum]);
+
     return {
         user, students,
         step, loading, isSaving, curriculum, isSaved, isShareModalOpen, isPrinting,
-        formData, planDuration, diagnosisContext, existingPlans, isLoadingPlans,
+        formData, planDuration, planType, selectedSubject, selectedKazanimlar,
+        diagnosisContext, existingPlans, isLoadingPlans,
+        viewMode, setViewMode, searchQuery, setSearchQuery, statusFilter, setStatusFilter, domainFilter, setDomainFilter,
+        filteredSchedule, analytics,
         editingGoal, tempGoal, isAddingGoal, newGoalText, isEditingNote, tempNote,
         editingDay, tempFocus, changingActivityDay,
-        setStep, setFormData, setPlanDuration, setDiagnosisContext, setExistingPlans,
+        setStep, setFormData, setPlanDuration, setPlanType, setSelectedSubject, setSelectedKazanimlar,
+        setDiagnosisContext, setExistingPlans,
         setEditingDay, setTempFocus, setEditingGoal, setTempGoal, setIsAddingGoal, setNewGoalText,
-        setIsEditingNote, setTempNote,         setChangingActivityDay, setIsShareModalOpen,
+        setIsEditingNote, setTempNote, setChangingActivityDay, setIsShareModalOpen,
         handleStudentSelect, handleGenerate, handleSave, handleShareCurriculum,
         handleDeletePlan, handlePrint, handleToggleActivity, handleSaveDayNote,
         handleLoadPlan, handleSaveGoal, handleStartEditingGoal, handleAddGoal,

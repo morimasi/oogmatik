@@ -596,6 +596,10 @@ export interface CurriculumDay {
   focus: string;
   activities: CurriculumActivity[];
   isCompleted: boolean;
+  notes?: string;
+  kazanimKod?: string;
+  theme?: string;
+  date?: string;
 }
 
 export type CurriculumActivityStatus = 'pending' | 'completed' | 'skipped';
@@ -608,6 +612,9 @@ export interface CurriculumActivity {
   goal: string;
   difficultyLevel: Difficulty;
   status: CurriculumActivityStatus;
+  domain?: 'reading' | 'math' | 'visual' | 'attention' | 'general';
+  kazanimKod?: string;
+  kazanimDesc?: string;
 }
 
 export interface Curriculum {
@@ -627,6 +634,9 @@ export interface Curriculum {
   progress?: number;
   status?: 'draft' | 'active' | 'completed' | 'archived';
   bepGoals?: string[];
+  planType?: 'clinical' | 'meb' | 'hybrid';
+  selectedKazanimlar?: string[];
+  subject?: string;
 }
 
 export type OCRDetectedType =
