@@ -53,6 +53,7 @@ interface SidebarProps {
   onOpenInfographicStudio?: () => void;
   onOpenActivityStudio?: () => void;
   onOpenScreening?: () => void;
+  onOpenAssessment?: () => void;
   onOpenSinavStudyosu?: () => void;
   onOpenMatSinavStudyosu?: () => void;
   onOpenMatProblemStudyosu?: () => void;
@@ -82,6 +83,7 @@ const Sidebar = ({
   onOpenReadingStudio,
   onOpenMathStudio,
   onOpenScreening,
+  onOpenAssessment,
   onOpenSuperTurkce,
   onOpenInfographicStudio,
   onOpenActivityStudio,
@@ -109,6 +111,7 @@ const Sidebar = ({
 
   const studioGroups = useMemo(() => {
     const callbackMap: Record<string, () => void> = {
+      'assessment': () => typeof onOpenAssessment === 'function' && onOpenAssessment(),
       'screening': () => typeof onOpenScreening === 'function' && onOpenScreening(),
       'curriculum': () => typeof onOpenCurriculum === 'function' && onOpenCurriculum(),
       'ai-okuma-studio': () => typeof onOpenAiOkumaStudio === 'function' && onOpenAiOkumaStudio(),
@@ -126,6 +129,7 @@ const Sidebar = ({
     };
 
     const idToModuleMap: Record<string, PermissionModule> = {
+      'assessment': 'evaluation',
       'screening': 'screening',
       'curriculum': 'curriculum',
       'ai-okuma-studio': 'ai-okuma',
@@ -164,7 +168,7 @@ const Sidebar = ({
         } as StudioItem))
     })).filter(group => group.items.length > 0);
   }, [
-    onOpenScreening, onOpenCurriculum, onOpenReadingStudio, onOpenMathStudio,
+    onOpenAssessment, onOpenScreening, onOpenCurriculum, onOpenReadingStudio, onOpenMathStudio,
     onOpenSuperTurkce, onOpenSinavStudyosu, onOpenMatSinavStudyosu,
     onOpenActivityStudio, onOpenInfographicStudio, onOpenSariKitapStudio,
     onOpenKelimeCumleStudio, onOpenFascicleStudio

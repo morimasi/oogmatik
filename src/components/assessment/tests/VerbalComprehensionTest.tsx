@@ -24,7 +24,7 @@ const FALLBACK_PROFILE: CognitiveProfileMetrics = {
 const mapAiToVerbalItems = (ai: AIGeneratedTestItems): VerbalItem[] | null => {
     try {
         const items: VerbalItem[] = [];
-        ai.items.forEach((raw: any) => {
+        ai.items.forEach((raw: Record<string, unknown>) => {
             if (!raw || typeof raw.word !== 'string' || !Array.isArray(raw.options) || typeof raw.correct !== 'string') return;
             const options = Array.from(new Set<string>(raw.options.map(String)));
             if (options.length < 3 || !options.includes(raw.correct)) return;

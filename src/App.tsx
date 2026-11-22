@@ -551,7 +551,8 @@ const AppContent = () => {
             onOpenMathStudio={() => handleOpenStudio('math-studio')}
             onOpenSuperTurkce={() => handleOpenStudio('super-turkce')}
             onOpenActivityStudio={() => handleOpenStudio('activity-studio')}
-            onOpenScreening={() => handleOpenStudio('screening')}
+            onOpenAssessment={() => handleOpenStudio('assessment')}
+              onOpenScreening={() => handleOpenStudio('screening')}
             onOpenSinavStudyosu={() => handleOpenStudio('sinav-studyosu')}
             onOpenMatSinavStudyosu={() => handleOpenStudio('mat-sinav-studyosu')}
             onOpenMatProblemStudyosu={() => handleOpenStudio('mat-problem-studyosu')}

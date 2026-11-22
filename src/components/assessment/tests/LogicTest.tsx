@@ -23,7 +23,7 @@ const FALLBACK_PROFILE: CognitiveProfileMetrics = {
 const mapAiToLogicItems = (ai: AIGeneratedTestItems): LogicItem[] | null => {
     try {
         const items: LogicItem[] = [];
-        ai.items.forEach((raw: any, idx: number) => {
+        ai.items.forEach((raw: Record<string, unknown>, idx: number) => {
             if (!raw || !Array.isArray(raw.grid) || !Array.isArray(raw.options) || typeof raw.answer !== 'string') return;
             const options: string[] = raw.options.map(String);
             if (!options.includes(raw.answer)) return;

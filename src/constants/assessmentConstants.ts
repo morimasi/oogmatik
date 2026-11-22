@@ -55,3 +55,60 @@ export const DOMAIN_ACTIVITY_MAP: Record<CognitiveDomain, ActivityType[]> = {
     visual_motor_integration: [ActivityType.GRID_DRAWING, ActivityType.DOT_PAINTING],
     verbal_comprehension: [ActivityType.READING_COMPREHENSION, ActivityType.SYNONYM_ANTONYM_MATCH]
 };
+
+export interface AssessmentBatteryPreset {
+    id: string;
+    title: string;
+    desc: string;
+    icon: string;
+    badge: string;
+    domains: CognitiveDomain[];
+}
+
+export const ASSESSMENT_BATTERY_PRESETS: AssessmentBatteryPreset[] = [
+    {
+        id: 'express',
+        title: 'Hızlı Tarama',
+        desc: 'Dikkat, bellek ve işlem hızı odaklı ekspres ön değerlendirme.',
+        icon: 'fa-bolt',
+        badge: '3 Test · ~8 dk',
+        domains: ['selective_attention', 'visual_spatial_memory', 'processing_speed'],
+    },
+    {
+        id: 'dyslexia',
+        title: 'Disleksi & Dil Odaklı',
+        desc: 'Fonolojik farkındalık, hızlı isimlendirme, işitsel işleme ve sözel kavrama.',
+        icon: 'fa-book-open-reader',
+        badge: '5 Test · ~15 dk',
+        domains: ['phonological_loop', 'processing_speed', 'verbal_comprehension', 'auditory_processing', 'working_memory'],
+    },
+    {
+        id: 'adhd',
+        title: 'DEHB & Yürütücü İşlev',
+        desc: 'Dürtü kontrolü, görsel arama, planlama ve çalışma belleği.',
+        icon: 'fa-crosshairs',
+        badge: '5 Test · ~19 dk',
+        domains: ['selective_attention', 'visual_search', 'planning', 'working_memory', 'logical_reasoning'],
+    },
+    {
+        id: 'dyscalculia',
+        title: 'Diskalkuli & Mantık',
+        desc: 'Akışkan zeka, örüntü tamamlama, uzamsal bellek ve planlama.',
+        icon: 'fa-calculator',
+        badge: '4 Test · ~16 dk',
+        domains: ['logical_reasoning', 'planning', 'visual_spatial_memory', 'visual_motor_integration'],
+    },
+    {
+        id: 'full_battery',
+        title: 'Tam Klinik Batarya',
+        desc: '11 bilişsel alanın tümünü kapsayan derinlemesine nöropsikolojik profil.',
+        icon: 'fa-brain',
+        badge: '11 Test · ~37 dk',
+        domains: [
+            'visual_spatial_memory', 'processing_speed', 'selective_attention',
+            'phonological_loop', 'logical_reasoning', 'visual_search',
+            'working_memory', 'planning', 'auditory_processing',
+            'visual_motor_integration', 'verbal_comprehension'
+        ],
+    },
+];

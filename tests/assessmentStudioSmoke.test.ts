@@ -113,6 +113,18 @@ describe('Assessment Studio — Comprehensive Smoke Tests', () => {
         expect(DOMAIN_ICON_COLORS).toHaveProperty(d.color);
       });
     });
+
+    it('defines rich cognitive battery presets with valid domain subsets', async () => {
+      const { ASSESSMENT_BATTERY_PRESETS, DOMAINS } = await import(
+        '../src/constants/assessmentConstants'
+      );
+      const allDomainIds = new Set(DOMAINS.map(d => d.id));
+      expect(ASSESSMENT_BATTERY_PRESETS.length).toBeGreaterThanOrEqual(5);
+      ASSESSMENT_BATTERY_PRESETS.forEach(preset => {
+        expect(preset.domains.length).toBeGreaterThan(0);
+        preset.domains.forEach(d => expect(allDomainIds.has(d)).toBe(true));
+      });
+    });
   });
 
   describe('assessmentService', () => {

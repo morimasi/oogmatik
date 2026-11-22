@@ -22,6 +22,13 @@ export const STUDIO_GROUPS: StudioGroup[] = [
         title: 'Değerlendirme & Plan',
         items: [
             {
+                id: 'assessment',
+                label: 'Bilişsel Değerlendirme',
+                icon: 'fa-brain',
+                color: 'text-indigo-500',
+                actionType: 'callback'
+            },
+            {
                 id: 'screening',
                 label: 'Tarama & Analiz',
                 icon: 'fa-clipboard-question',

@@ -26,9 +26,10 @@ const SEQUENCE_TYPES: SequenceType[] = ['syllable', 'word', 'digit', 'reverse', 
 const mapAiToSequences = (ai: AIGeneratedTestItems): PhonologicalSequence[] | null => {
     try {
         const sequences: PhonologicalSequence[] = [];
-        ai.items.forEach((raw: any, idx: number) => {
+        ai.items.forEach((raw: Record<string, unknown>, idx: number) => {
             if (!raw || !Array.isArray(raw.items) || raw.items.length < 2) return;
-            const type: SequenceType = SEQUENCE_TYPES.includes(raw.type) ? raw.type : 'word';
+            const rawType = raw.type as SequenceType;
+            const type: SequenceType = SEQUENCE_TYPES.includes(rawType) ? rawType : 'word';
             sequences.push({
                 items: raw.items.map(String),
                 level: typeof raw.level === 'number' ? raw.level : idx + 1,

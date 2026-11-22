@@ -19,7 +19,7 @@ interface AssessmentModuleProps {
     onAutoGenerateWorkbook?: (report: AssessmentReport) => void;
 }
 
-import { DOMAINS, DOMAIN_COLORS, DOMAIN_ICON_COLORS, DOMAIN_ACTIVITY_MAP } from '../constants/assessmentConstants';
+import { DOMAINS, DOMAIN_COLORS, DOMAIN_ICON_COLORS, DOMAIN_ACTIVITY_MAP, ASSESSMENT_BATTERY_PRESETS } from '../constants/assessmentConstants';
 
 export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkbook }: AssessmentModuleProps) => {
     const { user } = useAuthStore();
@@ -321,10 +321,48 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
                         </div>
 
                         <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-                            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                                <i className="fa-solid fa-layer-group text-purple-500"></i> Uygulanacak Testler
-                                <span className="ml-auto text-xs font-bold text-zinc-400">{selectedDomains.length}/11 seçili</span>
-                            </h3>
+                            <div className="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 className="text-lg font-bold flex items-center gap-2">
+                                        <i className="fa-solid fa-layer-group text-purple-500"></i> Uygulanacak Testler
+                                    </h3>
+                                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                        Hedefe uygun akıllı bataryayı seçin veya alanları özelleştirin.
+                                    </p>
+                                </div>
+                                <span className="text-xs font-bold px-3 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">
+                                    {selectedDomains.length}/11 alan seçili
+                                </span>
+                            </div>
+
+                            {/* Akıllı Paket Presets */}
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 mb-6">
+                                {ASSESSMENT_BATTERY_PRESETS.map((preset) => {
+                                    const isPresetActive = preset.domains.length === selectedDomains.length &&
+                                        preset.domains.every(d => selectedDomains.includes(d));
+                                    return (
+                                        <button
+                                            key={preset.id}
+                                            type="button"
+                                            onClick={() => setSelectedDomains(preset.domains)}
+                                            className={`p-2.5 rounded-xl border text-left transition-all duration-200 flex flex-col justify-between ${
+                                                isPresetActive
+                                                    ? 'border-indigo-500 bg-indigo-50/80 dark:bg-indigo-900/30 shadow-sm ring-1 ring-indigo-500'
+                                                    : 'border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 bg-zinc-50/50 dark:bg-zinc-900/50'
+                                            }`}
+                                        >
+                                            <div className="flex items-center gap-2 mb-1.5">
+                                                <i className={`fa-solid ${preset.icon} text-xs ${isPresetActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-500'}`} />
+                                                <span className="text-xs font-black truncate">{preset.title}</span>
+                                            </div>
+                                            <span className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500">
+                                                {preset.badge}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
                             <div className="space-y-2">
                                 {DOMAINS.map(domain => {
                                     const isSelected = selectedDomains.includes(domain.id);

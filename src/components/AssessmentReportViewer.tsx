@@ -151,46 +151,57 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
-            <div className="bg-white w-full max-w-4xl max-h-[92vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative" onClick={e => e.stopPropagation()}>
+            <div className="bg-white dark:bg-zinc-900 w-full max-w-4xl max-h-[92vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col relative border border-zinc-200 dark:border-zinc-700" onClick={e => e.stopPropagation()}>
 
                 {/* Header */}
-                <header className="p-4 bg-zinc-100 border-b border-zinc-200 flex justify-between items-center flex-shrink-0">
+                <header className="p-4 bg-zinc-100 dark:bg-zinc-800 border-b border-zinc-200 dark:border-zinc-700 flex justify-between items-center flex-shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center">
-                            <i className="fa-solid fa-file-medical text-indigo-600"></i>
+                        <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center">
+                            <i className="fa-solid fa-file-medical text-indigo-600 dark:text-indigo-400"></i>
                         </div>
                         <div>
-                            <h3 className="font-bold text-base text-zinc-900">{assessment.studentName} — Değerlendirme Raporu</h3>
-                            <p className="text-xs text-zinc-500">
+                            <h3 className="font-bold text-base text-zinc-900 dark:text-white">{assessment.studentName} — Değerlendirme Raporu</h3>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
                                 {new Date(assessment.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
                                 {professionalData?.duration ? ` · ${Math.round(professionalData.duration / 60)} dk` : ''}
                             </p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="w-8 h-8 rounded-full hover:bg-zinc-200 flex items-center justify-center text-zinc-600 transition-colors">
+                    <button onClick={onClose} className="w-8 h-8 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-300 transition-colors">
                         <i className="fa-solid fa-times"></i>
                     </button>
                 </header>
 
-{/* Toolbar */}
-                <div className="flex justify-end items-center gap-2 p-3 bg-zinc-50 border-b border-zinc-200 flex-wrap flex-shrink-0">
+                {/* Toolbar */}
+                <div className="flex justify-end items-center gap-2 p-3 bg-zinc-50 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-700 flex-wrap flex-shrink-0">
                     <button onClick={() => handleAction('download')} disabled={isPrinting}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-bold hover:bg-red-200 disabled:opacity-50 transition-colors">
+                        className="flex items-center gap-2 px-3 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-xs font-bold hover:bg-red-200 dark:hover:bg-red-900/50 disabled:opacity-50 transition-colors">
                         {isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}
                         PDF İndir
                     </button>
                     <button onClick={() => handleAction('print')} disabled={isPrinting}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-zinc-200 text-zinc-700 rounded-lg text-xs font-bold hover:bg-zinc-300 disabled:opacity-50 transition-colors">
+                        className="flex items-center gap-2 px-3 py-1.5 bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-lg text-xs font-bold hover:bg-zinc-300 dark:hover:bg-zinc-600 disabled:opacity-50 transition-colors">
                         <i className="fa-solid fa-print"></i> Yazdır
                     </button>
                     <button onClick={() => setIsShareModalOpen(true)}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold hover:bg-blue-200 transition-colors">
+                        className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg text-xs font-bold hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors">
                         <i className="fa-solid fa-share-nodes"></i> Paylaş
                     </button>
-                    <div className="h-6 w-px bg-zinc-300 mx-1"></div>
+                    <button
+                        onClick={() => {
+                            const event = new CustomEvent('openStudio', { detail: 'fascicle-studio' });
+                            window.dispatchEvent(event);
+                            onClose();
+                        }}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded-lg text-xs font-bold hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors"
+                        title="Bu rapordaki gelişim alanlarına yönelik fasikül tasarla"
+                    >
+                        <i className="fa-solid fa-book-bookmark"></i> Fasikül Stüdyosu
+                    </button>
+                    <div className="h-6 w-px bg-zinc-300 dark:bg-zinc-700 mx-1"></div>
                     {onAutoGenerateWorkbook && (
                         <button onClick={() => onAutoGenerateWorkbook(report)}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-xs font-bold hover:bg-indigo-200 transition-colors">
+                            className="flex items-center gap-2 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg text-xs font-bold hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors">
                             <i className="fa-solid fa-wand-magic-sparkles"></i> Kitapçık Oluştur
                         </button>
                     )}
