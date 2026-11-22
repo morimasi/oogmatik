@@ -2,6 +2,8 @@
  * BDMIND - AI Canlı Okuma Hikaye Üretim Servisi (AI Reading Story Service)
  * Öğrencinin yaşına, sınıfına, hece/fonoloji odağına ve ilgi alanına göre
  * Gemini AI ile anında benzersiz, disleksi dostu okuma metinleri üretir.
+ * Sunucu veya ağ kesintisi durumunda 8 tema ve 6 fonolojik odaklı zengin
+ * çevrimdışı pedagojik hikaye kataloğuna anında kesintisiz düşer (Zero Failure).
  * 
  * Liderler: Dr. Deniz Yılmaz (Kıdemli İçerik Yazarı) & Elif Yıldız (Pedagoji Direktörü) & Selin Arslan (AI Mimarisi)
  */
@@ -26,7 +28,7 @@ export interface AIStoryConfig {
   mascotTone?: 'baykus' | 'kedi' | 'robot';
 }
 
-const PHONOLOGICAL_LABELS: Record<string, string> = {
+export const PHONOLOGICAL_LABELS: Record<string, string> = {
   mirror_letters: 'b - d - p Ayna Harf Farkındalığı & Yön Algısı',
   simple_syllables: 'Temel Açık Hece & 2 Heceli Akıcı Sözcükler',
   blend_syllables: 'Ünsüz Kümeleri & Ters Heceler (sp, tr, kr vb.)',
@@ -39,6 +41,195 @@ const LENGTH_WORD_COUNTS: Record<string, { min: number; max: number; desc: strin
   kisa: { min: 16, max: 28, desc: '16-28 kelimelik kısa, özgüven artırıcı metin' },
   orta: { min: 35, max: 50, desc: '35-50 kelimelik dengeli ve sürükleyici seans metni' },
   uzun: { min: 60, max: 85, desc: '60-85 kelimelik ileri düzey akıcı okuma metni' },
+};
+
+// ============================================================================
+// ÇEVRİMDIŞI ZENGİN PEDAGOJİK HİKAYE KATALOĞU (Dr. Deniz Yılmaz & Elif Yıldız)
+// ============================================================================
+interface OfflineStoryTemplate {
+  title: string;
+  text: string;
+  targetSkill: string;
+  questions: ComprehensionQuestion[];
+}
+
+const OFFLINE_STORY_CATALOG: Record<string, OfflineStoryTemplate> = {
+  // 1. Hayvanlar & Orman
+  animal: {
+    title: 'Sevimli Tavşan Pıtırcık ve Bilge Baykuş',
+    text: 'Bilge baykuş Bora ile sevimli tavşan Pıtırcık bahçede buluştu. Dalgalı yaprakların altındaki parlak bal kovanına baktılar. Pıtırcık pıt pıt zıplayarak çitlerin altından geçti. Bora büyük kanatlarını açtı ve ona taze turuncu bir havuç uzattı. Birlikte ormanda çok neşeli bir gün geçirdiler.',
+    targetSkill: 'b - d - p Ayna Harf Farkındalığı & Ritmik Okuma',
+    questions: [
+      {
+        id: 'q-animal-1',
+        question: 'Pıtırcık ile Bora nerede buluştu?',
+        options: ['Okul bahçesinde', 'Ormandaki bahçede', 'Göl kenarında', 'Kalede'],
+        correctIndex: 1,
+        explanation: 'Metinde Bora ile Pıtırcık\'ın bahçede buluştuğu belirtilmiştir.',
+      },
+      {
+        id: 'q-animal-2',
+        question: 'Bora büyük kanatlarını açıp Pıtırcık\'a ne uzattı?',
+        options: ['Kırmızı bir elma', 'Taze turuncu bir havuç', 'Sarı bir armut', 'Ceviz'],
+        correctIndex: 1,
+        explanation: 'Bora ona taze turuncu bir havuç uzatmıştır.',
+      },
+    ],
+  },
+  // 2. Uzay & Gezegenler
+  space: {
+    title: 'Kaptan Burak ve Mavi Gezegen Yolculuğu',
+    text: 'Parlak beyaz bir roket derin uzayda hızla yol aldı. Kaptan Burak uzay gemisinin penceresinden parıldayan yıldızlara baktı. Büyük mavi bir gezegenin etrafında döndü. Küçük uydusuna dostça sinyaller gönderdi. Görevini başarıyla tamamlayıp güvenle üssüne döndü.',
+    targetSkill: 'Uzamsal Sözcükler & b-d Fonem Ayırt Etme',
+    questions: [
+      {
+        id: 'q-space-1',
+        question: 'Kaptan Burak uzayda neyin etrafında döndü?',
+        options: ['Kırmızı bir ayın', 'Büyük mavi bir gezegenin', 'Güneşin', 'Bir kara deliğin'],
+        correctIndex: 1,
+        explanation: 'Kaptan Burak büyük mavi bir gezegenin etrafında dönmüştür.',
+      },
+      {
+        id: 'q-space-2',
+        question: 'Burak görevini tamamlayınca nereye döndü?',
+        options: ['Üssüne', 'Ormana', 'Başka bir galaksiye', 'Parka'],
+        correctIndex: 0,
+        explanation: 'Metinde güvenle üssüne döndüğü yazmaktadır.',
+      },
+    ],
+  },
+  // 3. Robotlar & Küçük Mucit
+  robot: {
+    title: 'Küçük Mucit Can ve Akıllı Robot Bip',
+    text: 'Küçük mucit Can atölyesinde harika bir robot tasarladı. Robotun adı Bip idi. Bip parlak mavi düğmelerine bastığında neşeyle ışıklar saçıyordu. Birlikte odadaki dağınık blokları düzenlediler ve sağlam bir köprü kurdular. Can dostuna teşekkür edip gülümsedi.',
+    targetSkill: 'Akıcı Okuma & Sebep-Sonuç İlişkisi Kurma',
+    questions: [
+      {
+        id: 'q-robot-1',
+        question: 'Robot Bip düğmelerine basıldığında ne yapıyordu?',
+        options: ['Korkup kaçıyordu', 'Neşeyle ışıklar saçıyordu', 'Sessizce bekliyordu', 'Uyuyordu'],
+        correctIndex: 1,
+        explanation: 'Bip parlak düğmelerine bastığında neşeyle ışıklar saçıyordu.',
+      },
+      {
+        id: 'q-robot-2',
+        question: 'Can ve Bip bloklarla ne inşa ettiler?',
+        options: ['Büyük bir kale', 'Sağlam bir köprü', 'Hızlı bir araba', 'Uçak'],
+        correctIndex: 1,
+        explanation: 'Birlikte sağlam bir köprü kurmuşlardır.',
+      },
+    ],
+  },
+  // 4. Denizaltı & Okyanus
+  ocean: {
+    title: 'Mavi Yunus Derin ve Parlak İnci',
+    text: 'Deniz derin ve masmavi bir göldü. Mavi yunus Derin berrak suların altında neşeyle yüzdü. Dalgalar kıyıya doğru tatlı bir melodiyle vurdu. Derin yosunların arasında pırıl pırıl parlayan bir inci buldu. Sevimli deniz kaplumbağası ona dostça el salladı.',
+    targetSkill: 'Görsel Canlandırma & Betimleyici Sözcük Dağarcığı',
+    questions: [
+      {
+        id: 'q-ocean-1',
+        question: 'Mavi yunus Derin yosunların arasında ne buldu?',
+        options: ['Eski bir pusula', 'Pırıl pırıl parlayan bir inci', 'Yeşil bir deniz kabuğu', 'Balık'],
+        correctIndex: 1,
+        explanation: 'Derin yosunların arasında parıldayan bir inci bulmuştur.',
+      },
+      {
+        id: 'q-ocean-2',
+        question: 'Derin\'e dostça el sallayan deniz canlısı hangisiydi?',
+        options: ['Köpek balığı', 'Sevimli deniz kaplumbağası', 'Ahtapot', 'Denizanası'],
+        correctIndex: 1,
+        explanation: 'Metinde sevimli deniz kaplumbağasının el salladığı belirtilmiştir.',
+      },
+    ],
+  },
+  // 5. Park & Neşeli Spor
+  park: {
+    title: 'Parkta Dostluk ve Renkli Salıncak',
+    text: 'Güneş pırıl pırıl parlıyordu. Kerem ile Zeynep yemyeşil parkta buluştu. Birlikte renkli salıncaklarda gökyüzüne doğru yükseldiler. Kaydıraktan kayarken neşeli kahkahaları tüm parka yayıldı. Parktaki sokak kedisine biraz su verip eve döndüler.',
+    targetSkill: 'Günlük Yaşam Diyalogları & Akıcı Okuma',
+    questions: [
+      {
+        id: 'q-park-1',
+        question: 'Kerem ile Zeynep parkta hangi oyuncağa bindiler?',
+        options: ['Dönme dolap', 'Renkli salıncaklar ve kaydırak', 'Çarpışan araba', 'Atlıkarınca'],
+        correctIndex: 1,
+        explanation: 'Çocuklar salıncakta sallanmış ve kaydıraktan kaymışlardır.',
+      },
+      {
+        id: 'q-park-2',
+        question: 'Eve dönmeden önce kime su verdiler?',
+        options: ['Kuşlara', 'Parktaki sokak kedisine', 'Köpeğe', 'Çiçeklere'],
+        correctIndex: 1,
+        explanation: 'Parktaki sokak kedisine su vermişlerdir.',
+      },
+    ],
+  },
+  // 6. Dinozorlar Çağı
+  dino: {
+    title: 'Minik Dinozor Dino ve Tatlı Meyveler',
+    text: 'Yemyeşil vadide minik bir yavru dinozor yaşardı. Adı Dino idi. Dino sabah erkenden uyandı ve dostlarına taze yeşil yapraklar topladı. Uzun boyunlu dostu Poti ona tatlı mor meyveler ikram etti. Güneş batarken mağaralarına huzurla çekildiler.',
+    targetSkill: 'Fonolojik Farkındalık & Hece Akıcılığı',
+    questions: [
+      {
+        id: 'q-dino-1',
+        question: 'Minik dinozorun adı neydi?',
+        options: ['Dino', 'Poti', 'Bora', 'Can'],
+        correctIndex: 0,
+        explanation: 'Metinde minik yavru dinozorun adının Dino olduğu yazmaktadır.',
+      },
+      {
+        id: 'q-dino-2',
+        question: 'Uzun boyunlu Poti Dino\'ya ne ikram etti?',
+        options: ['Taze su', 'Tatlı mor meyveler', 'Çiçek', 'Balık'],
+        correctIndex: 1,
+        explanation: 'Poti ona tatlı mor meyveler ikram etmiştir.',
+      },
+    ],
+  },
+  // 7. Gizemli Kale & Dostluk
+  castle: {
+    title: 'Gizemli Taş Kale ve Altın Pusula',
+    text: 'Tepedeki eski taş kalenin bahçesinde gizemli ahşap bir sandık vardı. Ali sandığı dikkatle açtığında parıldayan altın bir pusula gördü. Pusula yönleri değil, sevgiyi ve yardımlaşmayı gösteriyordu. Arkadaşlarına bu güzel haberi sevinçle anlattı.',
+    targetSkill: 'Soyut Kavram Farkındalığı & Okuduğunu Anlama',
+    questions: [
+      {
+        id: 'q-castle-1',
+        question: 'Ali eski kalenin bahçesinde ne buldu?',
+        options: ['Gümüş bir anahtar', 'Gizemli ahşap bir sandık', 'Eski bir harita', 'Kılıç'],
+        correctIndex: 1,
+        explanation: 'Ali ahşap bir sandık bulmuştur.',
+      },
+      {
+        id: 'q-castle-2',
+        question: 'Altın pusula neyi gösteriyordu?',
+        options: ['Kuzeyi', 'Sevgiyi ve yardımlaşmayı', 'Defineyi', 'Güneşi'],
+        correctIndex: 1,
+        explanation: 'Pusula sevgiyi ve yardımlaşmayı göstermektedir.',
+      },
+    ],
+  },
+  // 8. Renkli Boyalar & Sihirli Fırça
+  art: {
+    title: 'Ressam Elif ve Sihirli Fırça',
+    text: 'Ressam Elif eline sihirli fırçasını aldı. Beyaz tuvale masmavi bir gökyüzü ve sapsarı sıcacık bir güneş çizdi. Çizdiği kuşlar bir anda kanat çırparak tuvalin üzerinde neşeyle cıvıldamaya başladı. Elif bu büyüleyici manzarayı mutlulukla seyretti.',
+    targetSkill: 'Zengin Betimleme & Yaratıcı İmgelem Okuması',
+    questions: [
+      {
+        id: 'q-art-1',
+        question: 'Ressam Elif tuvale önce neleri çizdi?',
+        options: ['Büyük bir orman', 'Masmavi gökyüzü ve sapsarı güneş', 'Deniz ve balıklar', 'Ev'],
+        correctIndex: 1,
+        explanation: 'Elif tuvale masmavi bir gökyüzü ve sapsarı bir güneş çizmiştir.',
+      },
+      {
+        id: 'q-art-2',
+        question: 'Tuvaldeki kuşlar ne yaptı?',
+        options: ['Uçup uzaklaştı', 'Kanat çırparak cıvıldamaya başladı', 'Sessizce durdu', 'Yok oldu'],
+        correctIndex: 1,
+        explanation: 'Kuşlar kanat çırparak tuvalin üzerinde neşeyle cıvıldamıştır.',
+      },
+    ],
+  },
 };
 
 export class AIReadingStoryService {
@@ -123,8 +314,8 @@ NÖROPEDAGOJİK DİSLEKSİ KURALLARI:
         : `${chosenTheme} Macerası`;
 
       let text = parsedData.text || '';
-      if (!text || text === 'test string' || text.split(/\s+/).length < 3) {
-        text = 'Güneş pırıl pırıl parlıyordu. Sevimli minik dostumuz neşeyle yola koyuldu ve arkadaşlarına el salladı.';
+      if (!text || text === 'test string' || text.split(/\s+/).length < 5) {
+        throw new Error('AI yanıtı yetersiz veya boş');
       }
       const words = text.trim().split(/\s+/).filter(Boolean);
       const syllabifiedWords = words.map((w) => syllabifyTurkishWord(w));
@@ -143,42 +334,50 @@ NÖROPEDAGOJİK DİSLEKSİ KURALLARI:
       };
     } catch (err: unknown) {
       logError(err instanceof Error ? err : String(err), { context: 'AIReadingStoryService.generateCustomStory' });
-      // Çevrimdışı / Hata anında akıllı yedek şablon (Graceful degradation)
+      // Çevrimdışı / Hata / Kota anında zengin pedagojik kataloğa düş (Zero Failure)
       return this.generateOfflineFallbackStory(config);
     }
   }
 
   /**
-   * Çevrimdışı veya ağ kesintisi durumunda anında devreye giren zengin pedagojik şablon
+   * Çevrimdışı, kota dolumu veya sunucu hatası anında seçilen temaya göre
+   * zengin ve hedeflenmiş pedagojik okuma metnini anında devreye alır.
    */
-  private static generateOfflineFallbackStory(config: AIStoryConfig): ReadingPassage {
-    const topic = config.customTopic?.trim() || config.theme || 'Dostluk ve Doğa';
-    const fallbackText = config.phonologicalFocus === 'mirror_letters'
-      ? 'Deniz derin ve maviydi. Minik balık suyun dibinde bir inci buldu. Dalgalar kıyıya vurdu ve balık neşeyle yüzdü.'
-      : `Güneş ışıl ışıl açmıştı. ${topic} için harika bir gündü. Küçük dostumuz adımlarını hızlandırdı ve rengarenk çiçeklerin arasından geçti. Herkes ona sevgiyle gülümsedi.`;
+  public static generateOfflineFallbackStory(config: AIStoryConfig): ReadingPassage {
+    const rawTheme = (config.customTopic || config.theme || '').toLowerCase();
+    
+    // Tema eşleştirici
+    let selectedTemplate = OFFLINE_STORY_CATALOG.animal;
+    if (rawTheme.includes('uzay') || rawTheme.includes('yıldız') || rawTheme.includes('gezegen')) {
+      selectedTemplate = OFFLINE_STORY_CATALOG.space;
+    } else if (rawTheme.includes('robot') || rawTheme.includes('mucit')) {
+      selectedTemplate = OFFLINE_STORY_CATALOG.robot;
+    } else if (rawTheme.includes('deniz') || rawTheme.includes('okyanus') || rawTheme.includes('yunus') || rawTheme.includes('su')) {
+      selectedTemplate = OFFLINE_STORY_CATALOG.ocean;
+    } else if (rawTheme.includes('park') || rawTheme.includes('spor') || rawTheme.includes('oyun')) {
+      selectedTemplate = OFFLINE_STORY_CATALOG.park;
+    } else if (rawTheme.includes('dino')) {
+      selectedTemplate = OFFLINE_STORY_CATALOG.dino;
+    } else if (rawTheme.includes('kale') || rawTheme.includes('şato')) {
+      selectedTemplate = OFFLINE_STORY_CATALOG.castle;
+    } else if (rawTheme.includes('boya') || rawTheme.includes('fırça') || rawTheme.includes('sanat') || rawTheme.includes('resim')) {
+      selectedTemplate = OFFLINE_STORY_CATALOG.art;
+    }
 
-    const words = fallbackText.trim().split(/\s+/).filter(Boolean);
+    const words = selectedTemplate.text.trim().split(/\s+/).filter(Boolean);
     const syllabifiedWords = words.map((w) => syllabifyTurkishWord(w));
 
     return {
-      id: `fallback-story-${Date.now()}`,
-      title: `${topic} ve Neşeli Gün`,
-      level: config.gradeLevel === '1' ? 'kolay' : 'orta',
-      targetSkill: PHONOLOGICAL_LABELS[config.phonologicalFocus] || 'Temel Akıcı Okuma',
+      id: `story-catalog-${Date.now()}`,
+      title: selectedTemplate.title,
+      level: config.gradeLevel === '1' ? 'kolay' : (config.gradeLevel === '2' || config.gradeLevel === '3') ? 'orta' : 'ileri',
+      targetSkill: PHONOLOGICAL_LABELS[config.phonologicalFocus] || selectedTemplate.targetSkill,
       ageGroup: `${config.ageGroup} Yaş (${config.gradeLevel}. Sınıf)`,
-      text: fallbackText,
+      text: selectedTemplate.text,
       words,
       syllabifiedWords,
-      difficultyRating: config.gradeLevel === '1' ? 1 : 2,
-      comprehensionQuestions: [
-        {
-          id: 'fb-q1',
-          question: 'Metinde hava nasıldı?',
-          options: ['Yağmurlu ve soğuk', 'Güneş ışıl ışıl açmıştı', 'Rüzgarlı ve karanlık', 'Karlı'],
-          correctIndex: 1,
-          explanation: 'Metnin ilk cümlesinde havanın güneşli olduğu belirtilmiştir.',
-        },
-      ],
+      difficultyRating: config.gradeLevel === '1' ? 1 : config.gradeLevel === '2' ? 2 : 3,
+      comprehensionQuestions: selectedTemplate.questions,
     };
   }
 }

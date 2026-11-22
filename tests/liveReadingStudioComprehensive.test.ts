@@ -217,4 +217,50 @@ describe('LiveReadingStudio — Comprehensive Architectural Tests', () => {
       expect(validTints).toContain('rose');
     });
   });
+
+  describe('AIReadingStoryService — Zero-Failure Pedagogical Fallback Catalog', () => {
+    it('generates a rich, fully syllabified reading passage with comprehension questions for space theme', async () => {
+      const { AIReadingStoryService } = await import('../src/services/aiReadingStoryService');
+
+      const passage = AIReadingStoryService.generateOfflineFallbackStory({
+        ageGroup: '7-9',
+        gradeLevel: '2',
+        phonologicalFocus: 'mirror_letters',
+        length: 'orta',
+        theme: '🚀 Uzay, Gezegenler & Yıldızlar',
+      });
+
+      expect(passage.title).toContain('Kaptan Burak');
+      expect(passage.words.length).toBeGreaterThan(15);
+      expect(passage.syllabifiedWords.length).toBe(passage.words.length);
+      expect(passage.comprehensionQuestions && passage.comprehensionQuestions.length).toBe(2);
+      expect(passage.comprehensionQuestions?.[0].options.length).toBe(4);
+    });
+
+    it('adapts to robot and animal themes accurately', async () => {
+      const { AIReadingStoryService } = await import('../src/services/aiReadingStoryService');
+
+      const robotPassage = AIReadingStoryService.generateOfflineFallbackStory({
+        ageGroup: '9-11',
+        gradeLevel: '3',
+        phonologicalFocus: 'simple_syllables',
+        length: 'orta',
+        theme: '🤖 Küçük Mucit Can & Robotlar',
+      });
+
+      expect(robotPassage.title).toContain('Robot');
+      expect(robotPassage.level).toBe('orta');
+
+      const animalPassage = AIReadingStoryService.generateOfflineFallbackStory({
+        ageGroup: '5-7',
+        gradeLevel: '1',
+        phonologicalFocus: 'mirror_letters',
+        length: 'kisa',
+        theme: '🐾 Sevimli Hayvanlar & Orman',
+      });
+
+      expect(animalPassage.level).toBe('kolay');
+      expect(animalPassage.words.length).toBeGreaterThan(10);
+    });
+  });
 });

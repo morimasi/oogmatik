@@ -285,29 +285,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const errJson = await response.json().catch(() => ({}));
           const errorMsg = errJson.error?.message || response.statusText;
 
-          // 403 Forbidden / Project Denied / Quota dolumu: Bu anahtar kullanılamaz!
-          if (response.status === 403 || errorMsg.includes('denied access')) {
+          // 403 / 429 / Depleted Credits / Quota dolumu: Bu anahtar kullanılamaz, rotasyonu tetikle!
+          const isDepletedOrQuota =
+            response.status === 403 ||
+            response.status === 429 ||
+            errorMsg.includes('denied access') ||
+            errorMsg.includes('depleted') ||
+            errorMsg.includes('prepayment') ||
+            errorMsg.includes('billing') ||
+            errorMsg.includes('credit') ||
+            errorMsg.includes('quota') ||
+            errorMsg.includes('Quota') ||
+            errorMsg.includes('RESOURCE_EXHAUSTED');
+
+          if (isDepletedOrQuota) {
             // Eğer hala elimizde denenebilecek başka bir API key varsa sıradakine geç
             if (currentKeyIndex < apiKeys.length - 1) {
               currentKeyIndex++;
-              throw new InternalServerError(`[ROTATION] API Key ${currentKeyIndex} tükendi, bir sonrakine geçiliyor.`);
+              throw new InternalServerError(`[ROTATION] API Key ${currentKeyIndex - 1} tükendi/hata verdi (${errorMsg}), ${currentKeyIndex}. yedek anahtara geçiliyor.`);
             }
-            // Tüm havuz denendi ve hepsi bittiyse kalıcı hata fırlat
+            // Tüm havuz denendi ve hepsi bittiyse kalıcı kota/kredi hatası fırlat
             throw new QuotaExceededError(
-              `Tüm yedek AI sistemleri API kotasını aştı (${errorMsg}). Lütfen teknik ekibe başvurun.`
-            );
-          }
-
-          // Klasik 429 Rate Limit
-          if (response.status === 429 || errorMsg.includes('quota') || errorMsg.includes('Quota')) {
-            // Eğer rate limit yediysek de beklemek yerine sıradaki anahtara geçmeyi deneyebiliriz.
-            if (currentKeyIndex < apiKeys.length - 1) {
-              currentKeyIndex++;
-              throw new InternalServerError(`[ROTATION] Rate limit yendi, sıradaki API Key'e geçiliyor.`);
-            }
-            throw new RateLimitError(
-              `Gemini API Kotası Dolu: ${errorMsg}. Lütfen birkaç saniye sonra yeniden deneyin.`,
-              { retryAfter: 60 }
+              `AI servis kotası veya kredisi tükendi (${errorMsg}). Lütfen yedek anahtarları güncelleyin.`
             );
           }
 

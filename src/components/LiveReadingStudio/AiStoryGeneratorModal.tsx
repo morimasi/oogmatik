@@ -5,6 +5,7 @@ import { AIStoryConfig, AIReadingStoryService } from '../../services/aiReadingSt
 import { ReadingPassage } from './sampleStories';
 import { MascotType } from './EduMascot';
 import { useStudentStore } from '../../store/useStudentStore';
+import { useToastStore } from '../../store/useToastStore';
 
 interface AiStoryGeneratorModalProps {
   isOpen: boolean;
@@ -68,6 +69,7 @@ export const AiStoryGeneratorModal: React.FC<AiStoryGeneratorModalProps> = ({
     }
   }, [activeStudent, currentMascot, isOpen]);
 
+  const toast = useToastStore();
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGenerate = async () => {
@@ -75,9 +77,18 @@ export const AiStoryGeneratorModal: React.FC<AiStoryGeneratorModalProps> = ({
     try {
       const generatedPassage = await AIReadingStoryService.generateCustomStory(config);
       onStoryGenerated(generatedPassage);
+      if (generatedPassage.id.startsWith('story-catalog-') || generatedPassage.id.startsWith('fallback-')) {
+        toast.info('Okuma metniniz zengin pedagojik kütüphaneden hazırlandı!');
+      } else {
+        toast.success('Öğrenciye özel AI hikayesi başarıyla üretildi!');
+      }
       onClose();
     } catch {
       // Hata durumunda dahi AIReadingStoryService fallback döndürür
+      const fallbackPassage = AIReadingStoryService.generateOfflineFallbackStory(config);
+      onStoryGenerated(fallbackPassage);
+      toast.info('Okuma metniniz zengin pedagojik kütüphaneden hazırlandı!');
+      onClose();
     } finally {
       setIsGenerating(false);
     }
