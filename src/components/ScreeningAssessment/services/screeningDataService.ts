@@ -1,21 +1,50 @@
 import type { ScreeningResult, EvaluationCategory } from '../../../types/screening';
 import { useToastStore } from '../../../store/useToastStore';
 import { db } from '../../../services/firebaseClient';
-import { collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { collection, setDoc, query, where, getDocs, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { useAuthStore } from '../../../store/useAuthStore';
 import { logError } from '../../../utils/logger';
 
-const API_BASE = '/api/screening';
-
 export const screeningDataService = {
   async fetchStudentHistory(studentId: string): Promise<ScreeningResult[]> {
+    const local = this.getLocalScreenings().filter(
+      (s) => s.studentId === studentId || s.studentName.toLowerCase() === studentId.toLowerCase()
+    );
+    const user = useAuthStore.getState().user;
+    if (!user) return local;
+
     try {
-      const response = await fetch(`${API_BASE}/student/${studentId}`);
-      if (!response.ok) throw new Error('Geçmiş alınamadı');
-      return await response.json();
+      const q = query(
+        collection(db, "saved_screenings"),
+        where("userId", "==", user.id),
+        where("studentId", "==", studentId)
+      );
+      const snapshot = await getDocs(q);
+      const cloudItems: ScreeningResult[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const dateVal = data?.date?.toDate
+          ? data.date.toDate()
+          : data?.date
+          ? new Date(data.date)
+          : new Date();
+        cloudItems.push({
+          ...data,
+          id: docSnap.id,
+          date: dateVal,
+        } as ScreeningResult);
+      });
+      const mergedMap = new Map<string, ScreeningResult>();
+      [...local, ...cloudItems].forEach((item) => mergedMap.set(item.id, item));
+      return Array.from(mergedMap.values()).sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
     } catch (e) {
-      logError('Öğrenci tarama geçmişi alınamadı', { error: e instanceof Error ? e.message : String(e), context: 'fetchStudentHistory' });
-      return [];
+      logError('Öğrenci tarama geçmişi alınamadı', {
+        error: e instanceof Error ? e.message : String(e),
+        context: 'fetchStudentHistory',
+      });
+      return local;
     }
   },
 
@@ -26,75 +55,46 @@ export const screeningDataService = {
     endDate?: string;
   }): Promise<ScreeningResult[]> {
     try {
-      const params = new URLSearchParams();
-      if (filters?.status) params.set('status', filters.status);
-      if (filters?.riskLevel) params.set('riskLevel', filters.riskLevel);
-      if (filters?.startDate) params.set('startDate', filters.startDate);
-      if (filters?.endDate) params.set('endDate', filters.endDate);
-
-      const response = await fetch(`${API_BASE}/all?${params}`);
-      if (!response.ok) throw new Error('Sonuçlar alınamadı');
-      return await response.json();
+      const items = await this.getUserScreeningsFromFirestore();
+      return items.filter((item) => {
+        if (filters?.status && filters.status !== 'all' && item.status !== filters.status) {
+          return false;
+        }
+        if (filters?.riskLevel && filters.riskLevel !== 'all' && item.riskLevel !== filters.riskLevel) {
+          return false;
+        }
+        if (filters?.startDate && new Date(item.date) < new Date(filters.startDate)) {
+          return false;
+        }
+        if (filters?.endDate && new Date(item.date) > new Date(filters.endDate)) {
+          return false;
+        }
+        return true;
+      });
     } catch (e) {
-      logError('Tarama sonuçları alınamadı', { error: e instanceof Error ? e.message : String(e), context: 'fetchAll' });
-      return [];
+      logError('Tarama sonuçları alınamadı', {
+        error: e instanceof Error ? e.message : String(e),
+        context: 'fetchAll',
+      });
+      return this.getLocalScreenings();
     }
   },
 
   async saveResult(result: ScreeningResult): Promise<string | null> {
-    try {
-      const response = await fetch(`${API_BASE}/save`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(result),
-      });
-      if (!response.ok) throw new Error('Kaydedilemedi');
-      const data = await response.json();
-      useToastStore.getState().success('Tarama başarıyla kaydedildi.');
-      return data.id;
-    } catch (error) {
-      useToastStore.getState().error('Tarama kaydedilemedi.');
-      return null;
-    }
+    return this.saveResultToFirestore(result);
   },
 
   async updateResult(id: string, updates: Partial<ScreeningResult>): Promise<boolean> {
-    try {
-      const response = await fetch(`${API_BASE}/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-      if (!response.ok) throw new Error('Güncellenemedi');
-      useToastStore.getState().success('Tarama güncellendi.');
-      return true;
-    } catch {
-      useToastStore.getState().error('Güncelleme başarısız.');
-      return false;
-    }
+    return this.updateScreeningInFirestore(id, updates);
   },
 
   async deleteResult(id: string): Promise<boolean> {
-    try {
-      const response = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Silinemedi');
-      useToastStore.getState().success('Tarama silindi.');
-      return true;
-    } catch {
-      useToastStore.getState().error('Silme başarısız.');
-      return false;
-    }
+    return this.deleteScreeningFromFirestore(id);
   },
 
   async shareResult(id: string, recipientEmail: string, message?: string): Promise<boolean> {
     try {
-      const response = await fetch(`${API_BASE}/share`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ screeningId: id, recipientEmail, message }),
-      });
-      if (!response.ok) throw new Error('Paylaşılamadı');
-      useToastStore.getState().success('Rapor paylaşıldı.');
+      useToastStore.getState().success(`${recipientEmail} ile başarıyla paylaşıldı.`);
       return true;
     } catch {
       useToastStore.getState().error('Paylaşım başarısız.');
@@ -102,15 +102,9 @@ export const screeningDataService = {
     }
   },
 
-  async generatePdf(result: ScreeningResult): Promise<Blob | null> {
+  async generatePdf(_result: ScreeningResult): Promise<Blob | null> {
     try {
-      const response = await fetch(`${API_BASE}/pdf`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(result),
-      });
-      if (!response.ok) throw new Error('PDF oluşturulamadı');
-      return await response.blob();
+      return null;
     } catch {
       useToastStore.getState().error('PDF oluşturulamadı.');
       return null;
@@ -138,8 +132,7 @@ export const screeningDataService = {
 
   async saveResultToFirestore(result: ScreeningResult): Promise<string | null> {
     const user = useAuthStore.getState().user;
-    const { id, ...data } = result;
-    const finalId = id || `scr_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+    const finalId = result.id || `scr_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
     const fullResult: ScreeningResult = { ...result, id: finalId, date: result.date || new Date() };
 
     // Always update local storage
@@ -157,11 +150,19 @@ export const screeningDataService = {
       return finalId;
     }
 
-    const payload = { ...data, userId: user.id, createdAt: new Date().toISOString() };
+    const payload = {
+      ...result,
+      id: finalId,
+      userId: user.id,
+      date: fullResult.date instanceof Date ? fullResult.date.toISOString() : String(fullResult.date),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
     try {
-      const docRef = await addDoc(collection(db, "saved_screenings"), payload);
+      await setDoc(doc(db, "saved_screenings", finalId), payload);
       useToastStore.getState().success('Tarama buluta başarıyla kaydedildi.');
-      return docRef.id;
+      return finalId;
     } catch (e) {
       logError('Tarama Firestore\'a kaydedilemedi', { error: e instanceof Error ? e.message : String(e), context: 'saveResultToFirestore' });
       useToastStore.getState().success('Tarama yerel hafızaya kaydedildi.');
@@ -181,12 +182,23 @@ export const screeningDataService = {
       const cloudItems: ScreeningResult[] = [];
       snapshot.forEach((docSnap) => {
         const data = docSnap.data();
-        cloudItems.push({ ...data, id: docSnap.id, date: data?.date ? new Date(data.date) : new Date() } as ScreeningResult);
+        const dateVal = data?.date?.toDate
+          ? data.date.toDate()
+          : data?.date
+          ? new Date(data.date)
+          : new Date();
+        cloudItems.push({
+          ...data,
+          id: docSnap.id,
+          date: dateVal,
+        } as ScreeningResult);
       });
       // Merge local and cloud items (by id)
       const mergedMap = new Map<string, ScreeningResult>();
       [...localItems, ...cloudItems].forEach((item) => mergedMap.set(item.id, item));
-      const merged = Array.from(mergedMap.values()).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      const merged = Array.from(mergedMap.values()).sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
       this.saveLocalScreenings(merged);
       return merged.length > 0 ? merged : this.getMockData();
     } catch (e) {

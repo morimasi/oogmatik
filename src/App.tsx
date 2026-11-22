@@ -705,6 +705,8 @@ const AppContent = () => {
                           onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
                             handleGeneratePlanFromScreening(n, a, w, c)
                           }
+                          onSelectActivity={(id) => handleSelectActivity(id as ActivityType)}
+                          onOpenStudio={(s) => handleOpenStudio(s as View)}
                         />
                       </ProtectedRoute>
                     )}
@@ -979,6 +981,8 @@ const AppContent = () => {
           onClose={() => setIsAdvancedScreeningOpen(false)}
           userRole={(user?.role === 'admin' || user?.role === 'superadmin') ? 'admin' : (user?.role === 'teacher' ? 'teacher' : 'parent')}
           onGeneratePlan={handleGeneratePlanFromScreening}
+          onSelectActivity={(id) => { handleSelectActivity(id as ActivityType); setIsAdvancedScreeningOpen(false); }}
+          onOpenStudio={(s) => { handleOpenStudio(s as View); setIsAdvancedScreeningOpen(false); }}
         />
       )}
     </div>

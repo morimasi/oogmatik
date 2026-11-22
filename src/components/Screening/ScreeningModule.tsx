@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ScreeningProfile, ScreeningResult } from '../../types/screening';
 import { ScreeningIntro } from './ScreeningIntro';
@@ -44,9 +43,9 @@ export const ScreeningModule: React.FC<ScreeningModuleProps> = ({ onBack, onSele
                     <div>
                         <h2 className="font-black text-lg text-[var(--text-primary)] flex items-center gap-2">
                             <i className="fa-solid fa-clipboard-question text-[var(--accent-color)]"></i>
-                            Çocuğum Disleksi mi?
+                            Bilişsel Tarama & Gelişim Analizi
                         </h2>
-                        <p className="text-xs text-[var(--text-secondary)] font-medium">Bilişsel Tarama Envanteri</p>
+                        <p className="text-xs text-[var(--text-secondary)] font-medium">Bilişsel Destek & Pedagojik Profil Envanteri</p>
                     </div>
                 </div>
                 {view !== 'intro' && (

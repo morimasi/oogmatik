@@ -13,6 +13,7 @@ import { ReportActions } from './components/shared/ReportActions';
 import { screeningDataService } from './services/screeningDataService';
 import { CognitiveTestPanel } from './components/CognitiveTests/CognitiveTestPanel';
 import { convertSubTestsToScreeningResult } from './services/cognitiveBatteryAdapter';
+import { useAuthStore } from '../../store/useAuthStore';
 import { useToastStore } from '../../store/useToastStore';
 import type { ScreeningResult } from '../../types/screening';
 import type { SubTestResult } from '../../types';
@@ -21,15 +22,19 @@ import { PrintableScreeningReport } from './components/shared/PrintableScreening
 
 interface ScreeningAssessmentProps {
   onClose: () => void;
-  userRole: 'teacher' | 'admin' | 'parent';
+  userRole?: 'teacher' | 'admin' | 'parent';
   studentId?: string;
   onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
+  onSelectActivity?: (activityId: string) => void;
+  onOpenStudio?: (studioId: string) => void;
 }
 
 export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
   onClose,
   userRole,
   onGeneratePlan,
+  onSelectActivity,
+  onOpenStudio,
 }) => {
   const {
     activeView,
@@ -44,6 +49,8 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
     selectedStudentConcerns,
   } = useScreeningStore();
   const toast = useToastStore();
+  const authUser = useAuthStore((s) => s.user);
+  const effectiveRole = userRole || (authUser?.role as 'teacher' | 'admin' | 'parent') || 'teacher';
   const { currentScreening, screeningData, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleShareScreeningResult } =
     useScreeningAssessment();
 
@@ -160,6 +167,10 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
                   {activeView === 'result-detail' && (
                     <ResultDetailPanel
                       onGeneratePlan={handleGeneratePlanWithAutoSave}
+                      onSelectActivity={onSelectActivity}
+                      onOpenStudio={onOpenStudio}
+                      userRole={effectiveRole}
+                      onCloseModal={onClose}
                     />
                   )}
                 </motion.div>
@@ -213,7 +224,7 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
             <span className="text-[9px] text-[var(--text-muted)]">AI Destekli Analiz</span>
           </div>
           <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
-            {userRole === 'admin' ? 'Yönetici' : userRole === 'teacher' ? 'Öğretmen' : 'Veli'}
+            {effectiveRole === 'admin' ? 'Yönetici' : effectiveRole === 'teacher' ? 'Öğretmen' : 'Veli'}
           </span>
         </div>
       </motion.div>
