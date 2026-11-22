@@ -120,6 +120,7 @@ import { CapsuleGameSheet } from './sheets/math/CapsuleGameSheet';
 import { ApartmentLogicSheet } from './sheets/math/ApartmentLogicSheet';
 import { FinancialMarketSheet } from './sheets/math/FinancialMarketSheet';
 import { BoxMathSheet } from './sheets/math/BoxMathSheet';
+import { CurriculumSheet } from './sheets/CurriculumSheet';
 
 import { UnifiedContentRenderer } from './SheetRenderer/UnifiedContentRenderer';
 import { renderLegacySheet } from './SheetRenderer/LegacyRenderer';
@@ -259,6 +260,11 @@ export const SheetRenderer = React.memo(
     if (activityType === ActivityType.MAT_PROBLEM) {
       const MatProblemRendererLazy = lazy(() => import('./sheet-renderers/MatProblemRenderer').then(m => ({ default: m.MatProblemRenderer })));
       return withWrapper(<MatProblemRendererLazy data={resolvedData} settings={settings} />);
+    }
+
+    if (activityType === ActivityType.CURRICULUM && resolvedData) {
+      const curData = (resolvedData as Record<string, unknown>).curriculum || resolvedData;
+      return withWrapper(<CurriculumSheet data={curData as any} />);
     }
 
     if (activityType === ActivityType.KELIME_CUMLE && resolvedData) {

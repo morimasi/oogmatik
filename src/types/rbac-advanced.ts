@@ -274,6 +274,64 @@ export const buildDefaultRBAC = (): RBACSettings => {
           canExportData: true,
           maxDailyGenerations: 200
         }
+      },
+      {
+        role: 'editor',
+        modules: allTeacherModules.map(m => buildModulePerm(m, ['view', 'create', 'edit', 'export'] as PermissionAction[], true)),
+        globalSettings: {
+          canAccessAdmin: false,
+          canManageUsers: false,
+          canViewAnalytics: true,
+          canExportData: true,
+          maxDailyGenerations: 200
+        }
+      },
+      {
+        role: 'parent',
+        modules: [
+          buildModulePerm('curriculum', ['view', 'export'] as PermissionAction[]),
+          buildModulePerm('students', ['view'] as PermissionAction[]),
+          buildModulePerm('shared-materials', ['view'] as PermissionAction[]),
+          buildModulePerm('activity-history', ['view'] as PermissionAction[]),
+          buildModulePerm('reports', ['view', 'export'] as PermissionAction[])
+        ],
+        globalSettings: {
+          canAccessAdmin: false,
+          canManageUsers: false,
+          canViewAnalytics: false,
+          canExportData: true,
+          maxDailyGenerations: 50
+        }
+      },
+      {
+        role: 'student',
+        modules: [
+          buildModulePerm('curriculum', ['view'] as PermissionAction[]),
+          buildModulePerm('shared-materials', ['view'] as PermissionAction[]),
+          buildModulePerm('activity-history', ['view'] as PermissionAction[])
+        ],
+        globalSettings: {
+          canAccessAdmin: false,
+          canManageUsers: false,
+          canViewAnalytics: false,
+          canExportData: false,
+          maxDailyGenerations: 20
+        }
+      },
+      {
+        role: 'user',
+        modules: [
+          buildModulePerm('curriculum', ['view'] as PermissionAction[]),
+          buildModulePerm('shared-materials', ['view'] as PermissionAction[]),
+          buildModulePerm('activity-history', ['view'] as PermissionAction[])
+        ],
+        globalSettings: {
+          canAccessAdmin: false,
+          canManageUsers: false,
+          canViewAnalytics: false,
+          canExportData: false,
+          maxDailyGenerations: 20
+        }
       }
     ],
     globalSettings: {

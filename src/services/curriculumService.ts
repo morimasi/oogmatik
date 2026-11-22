@@ -52,6 +52,11 @@ const normalizeDifficulty = (val: unknown): Difficulty => {
     return 'Orta';
 };
 
+const sanitizeForFirestore = <T extends Record<string, unknown>>(data: T): Record<string, unknown> => {
+    // Firestore undefined değer kabul etmez; JSON serialization ile undefined anahtarlar temizlenir
+    return JSON.parse(JSON.stringify(data, (_, value) => (value === undefined ? null : value)));
+};
+
 // Yerel depolama yardımcıları (offline desteği)
 const getLocalCurriculums = (): Curriculum[] => {
     try {
@@ -239,7 +244,8 @@ export const curriculumService = {
         const { id, ...dataToSave } = payload;
 
         try {
-            const docRef = await addDoc(collection(db, "saved_curriculums"), dataToSave);
+            const cleanData = sanitizeForFirestore(dataToSave as Record<string, unknown>);
+            const docRef = await addDoc(collection(db, "saved_curriculums"), cleanData);
             const savedWithId: Curriculum = { ...curriculum, id: docRef.id, userId };
             upsertLocalCurriculum(savedWithId);
             return docRef.id;
@@ -263,7 +269,8 @@ export const curriculumService = {
 
         try {
             const planRef = doc(db, "saved_curriculums", curriculumId);
-            await updateDoc(planRef, updates);
+            const cleanUpdates = sanitizeForFirestore(updates as Record<string, unknown>);
+            await updateDoc(planRef, cleanUpdates);
         } catch (_e) {
             logError('Firestore güncelleme hatası (yerelde güncellendi)', { error: _e instanceof Error ? _e.message : String(_e) });
         }

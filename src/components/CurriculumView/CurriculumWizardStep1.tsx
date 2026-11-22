@@ -19,7 +19,6 @@ export const CurriculumWizardStep1: React.FC<CurriculumWizardStep1Props> = ({
     diagnosisContext,
     setStep,
     handleGenerate,
-    planType = 'hybrid',
     selectedKazanimlar = [],
     setSelectedKazanimlar
 }) => {
@@ -49,38 +48,38 @@ export const CurriculumWizardStep1: React.FC<CurriculumWizardStep1Props> = ({
     return (
         <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4">
             <div className="text-center">
-                <span className="px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-black text-[10px] uppercase tracking-widest border border-indigo-200 dark:border-indigo-800">
+                <span className="px-3 py-1 rounded-full bg-[var(--bg-secondary)] text-[var(--accent-color)] font-black text-[10px] uppercase tracking-widest border border-[var(--border-color)]">
                     ADIM 2 • AKADEMİK VE KLİNİK YAPILANDIRMA
                 </span>
-                <h2 className="text-3xl font-black text-zinc-900 dark:text-white mt-2 tracking-tight">
+                <h2 className="text-3xl font-black text-[var(--text-primary)] mt-2 tracking-tight">
                     {formData.name} İçin Hedef ve Kazanım Matrisi
                 </h2>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-xl mx-auto">
+                <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-xl mx-auto">
                     Öğrencinin güçlü/destek gerektiren bilişsel alanlarını ve MEB 2024-2025 müfredat hedeflerini seçin.
                 </p>
             </div>
 
             {/* DIAGNOSIS CONTEXT DISPLAY */}
             {diagnosisContext && (
-                <div className="bg-indigo-50/80 dark:bg-indigo-950/20 p-5 rounded-3xl border border-indigo-200/60 dark:border-indigo-800/40">
-                    <h4 className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                <div className="bg-[var(--bg-secondary)] p-5 rounded-3xl border border-[var(--border-color)]">
+                    <h4 className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-widest mb-1.5 flex items-center gap-2">
                         <i className="fa-solid fa-clipboard-check"></i> KLİNİK VE BİLİŞSEL TARAMA BULGULARI
                     </h4>
-                    <p className="text-xs text-zinc-700 dark:text-zinc-300 italic leading-relaxed whitespace-pre-line font-medium">
+                    <p className="text-xs text-[var(--text-primary)] italic leading-relaxed whitespace-pre-line font-medium">
                         {diagnosisContext}
                     </p>
                 </div>
             )}
 
-            {/* TABS */}
-            <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1.5 rounded-2xl max-w-md mx-auto border border-zinc-200 dark:border-zinc-700">
+            {/* TABS (Theme Compliant) */}
+            <div className="flex bg-[var(--bg-inset)] p-1.5 rounded-2xl max-w-md mx-auto border border-[var(--border-color)]">
                 <button
                     type="button"
                     onClick={() => setActiveTab('bep')}
                     className={`flex-1 py-2 text-xs font-black uppercase rounded-xl transition-all flex items-center justify-center gap-2 ${
                         activeTab === 'bep'
-                            ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-white shadow-md'
-                            : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
+                            ? 'bg-[var(--accent-color)] text-white shadow-md'
+                            : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                 >
                     <i className="fa-solid fa-brain"></i>
@@ -91,8 +90,8 @@ export const CurriculumWizardStep1: React.FC<CurriculumWizardStep1Props> = ({
                     onClick={() => setActiveTab('meb')}
                     className={`flex-1 py-2 text-xs font-black uppercase rounded-xl transition-all flex items-center justify-center gap-2 ${
                         activeTab === 'meb'
-                            ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-white shadow-md'
-                            : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
+                            ? 'bg-[var(--accent-color)] text-white shadow-md'
+                            : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                     }`}
                 >
                     <i className="fa-solid fa-landmark"></i>
@@ -100,13 +99,13 @@ export const CurriculumWizardStep1: React.FC<CurriculumWizardStep1Props> = ({
                 </button>
             </div>
 
-            <div className="bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl p-8 rounded-[2.5rem] border border-zinc-200/70 dark:border-zinc-700/70 shadow-xl space-y-6">
+            <div className="bg-[var(--bg-paper)]/85 backdrop-blur-xl p-8 rounded-[2.5rem] border border-[var(--border-color)] shadow-xl space-y-6">
 
                 {activeTab === 'bep' ? (
                     <>
                         {/* Interests */}
                         <div>
-                            <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <label className="block text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-3 flex items-center gap-2">
                                 <i className="fa-solid fa-star text-amber-500"></i> Öğrencinin İlgi Alanları (AI Motivasyon Temaları)
                             </label>
                             <div className="flex flex-wrap gap-2">
@@ -120,10 +119,10 @@ export const CurriculumWizardStep1: React.FC<CurriculumWizardStep1Props> = ({
                                                 ? prev.interests.filter(t => t !== tag)
                                                 : [...(prev.interests || []), tag]
                                         }))}
-                                        className={`px-4 py-2 rounded-xl font-bold text-xs border-2 transition-all ${
+                                        className={`px-4 py-2 rounded-xl font-bold text-xs border transition-all ${
                                             formData.interests?.includes(tag)
-                                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20'
-                                                : 'bg-zinc-50 dark:bg-zinc-700/50 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-600 hover:border-indigo-300'
+                                                ? 'bg-[var(--accent-color)] text-white border-[var(--accent-color)] shadow-md shadow-[var(--accent-color)]/25'
+                                                : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border-color)] hover:border-[var(--accent-color)]/50'
                                         }`}
                                     >
                                         {tag}
@@ -134,7 +133,7 @@ export const CurriculumWizardStep1: React.FC<CurriculumWizardStep1Props> = ({
 
                         {/* Weaknesses / Clinical Targets */}
                         <div>
-                            <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <label className="block text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-3 flex items-center gap-2">
                                 <i className="fa-solid fa-bullseye text-rose-500"></i> Öncelikli Destek Alanları (Özel Öğrenme İhtiyaçları)
                             </label>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -166,8 +165,8 @@ export const CurriculumWizardStep1: React.FC<CurriculumWizardStep1Props> = ({
                                             key={item}
                                             className={`flex items-center gap-3 p-3.5 rounded-2xl border-2 transition-all cursor-pointer ${
                                                 isSelected
-                                                    ? 'bg-rose-50/70 dark:bg-rose-950/20 border-rose-400 dark:border-rose-700 text-rose-950 dark:text-rose-200 shadow-sm'
-                                                    : 'bg-zinc-50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300'
+                                                    ? 'bg-rose-500/15 border-rose-500 text-[var(--text-primary)] shadow-sm'
+                                                    : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--border-color)]/80'
                                             }`}
                                         >
                                             <input
@@ -184,7 +183,7 @@ export const CurriculumWizardStep1: React.FC<CurriculumWizardStep1Props> = ({
                                             <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center shrink-0 transition-colors ${
                                                 isSelected
                                                     ? 'bg-rose-500 border-rose-500 text-white'
-                                                    : 'border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700'
+                                                    : 'border-[var(--border-color)] bg-[var(--bg-inset)]'
                                             }`}>
                                                 <i className="fa-solid fa-check text-[10px]"></i>
                                             </div>
@@ -198,17 +197,17 @@ export const CurriculumWizardStep1: React.FC<CurriculumWizardStep1Props> = ({
                 ) : (
                     /* MEB KAZANIM TAB */
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-700 pb-3">
+                        <div className="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
                             <div>
-                                <h4 className="font-black text-sm text-zinc-900 dark:text-white flex items-center gap-2">
-                                    <i className="fa-solid fa-graduation-cap text-indigo-500"></i>
+                                <h4 className="font-black text-sm text-[var(--text-primary)] flex items-center gap-2">
+                                    <i className="fa-solid fa-graduation-cap text-[var(--accent-color)]"></i>
                                     {gradeNum}. Sınıf MEB Matematik ve Dil Müfredatı
                                 </h4>
-                                <p className="text-[10px] text-zinc-400 mt-0.5">
+                                <p className="text-[10px] text-[var(--text-muted)] mt-0.5">
                                     Öğrencinin bu planda pekiştirmesini istediğiniz MEB kazanımlarını işaretleyin.
                                 </p>
                             </div>
-                            <span className="px-3 py-1 rounded-xl bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 font-mono text-xs font-black">
+                            <span className="px-3 py-1 rounded-xl bg-[var(--bg-secondary)] text-[var(--accent-color)] font-mono text-xs font-black border border-[var(--border-color)]">
                                 {selectedKazanimlar.length} Seçili
                             </span>
                         </div>
@@ -222,8 +221,8 @@ export const CurriculumWizardStep1: React.FC<CurriculumWizardStep1Props> = ({
                                     onClick={() => setSelectedMebUnitId(u.id)}
                                     className={`px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
                                         (selectedMebUnitId === u.id || (!selectedMebUnitId && currentUnit?.id === u.id))
-                                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
-                                            : 'bg-zinc-50 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-600'
+                                            ? 'bg-[var(--accent-color)] text-white border-[var(--accent-color)] shadow-md'
+                                            : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] border-[var(--border-color)] hover:border-[var(--accent-color)]/50'
                                     }`}
                                 >
                                     {u.baslik}
@@ -241,22 +240,22 @@ export const CurriculumWizardStep1: React.FC<CurriculumWizardStep1Props> = ({
                                         onClick={() => toggleKazanim(k.kod, k.tanim)}
                                         className={`p-3 rounded-2xl border-2 transition-all cursor-pointer flex items-start gap-3 ${
                                             selected
-                                                ? 'bg-indigo-50/70 dark:bg-indigo-950/30 border-indigo-400 dark:border-indigo-700 text-indigo-950 dark:text-indigo-100'
-                                                : 'bg-zinc-50 dark:bg-zinc-800/40 border-zinc-200 dark:border-zinc-700 hover:border-zinc-300'
+                                                ? 'bg-[var(--accent-color)]/10 border-[var(--accent-color)] text-[var(--text-primary)]'
+                                                : 'bg-[var(--bg-secondary)] border-[var(--border-color)] hover:border-[var(--border-color)]/80 text-[var(--text-secondary)]'
                                         }`}
                                     >
                                         <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center shrink-0 mt-0.5 ${
-                                            selected ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-zinc-300 dark:border-zinc-600'
+                                            selected ? 'bg-[var(--accent-color)] border-[var(--accent-color)] text-white' : 'border-[var(--border-color)] bg-[var(--bg-inset)]'
                                         }`}>
                                             <i className="fa-solid fa-check text-[10px]"></i>
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-0.5">
-                                                <span className="font-mono text-[10px] font-black text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 rounded">
+                                                <span className="font-mono text-[10px] font-black text-[var(--accent-color)] px-1.5 py-0.5 bg-[var(--bg-inset)] border border-[var(--border-color)] rounded">
                                                     {k.kod}
                                                 </span>
                                             </div>
-                                            <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200 leading-snug">
+                                            <p className="text-xs font-bold text-[var(--text-primary)] leading-snug">
                                                 {k.tanim}
                                             </p>
                                         </div>
@@ -268,18 +267,18 @@ export const CurriculumWizardStep1: React.FC<CurriculumWizardStep1Props> = ({
                 )}
 
                 {/* Bottom Navigation */}
-                <div className="flex justify-between items-center pt-4 border-t border-zinc-100 dark:border-zinc-700">
+                <div className="flex justify-between items-center pt-4 border-t border-[var(--border-color)]">
                     <button
                         type="button"
                         onClick={() => setStep(0)}
-                        className="text-xs font-black uppercase text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 flex items-center gap-2 px-4 py-2 rounded-xl transition-colors"
+                        className="text-xs font-black uppercase text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-2 px-4 py-2 rounded-xl transition-colors"
                     >
                         <i className="fa-solid fa-arrow-left"></i> Geri Dön
                     </button>
                     <button
                         type="button"
                         onClick={handleGenerate}
-                        className="px-8 py-3.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/25 hover:shadow-2xl hover:scale-[1.02] transition-all active:scale-[0.98] uppercase tracking-widest text-xs flex items-center gap-2"
+                        className="px-8 py-3.5 bg-gradient-to-r from-[var(--accent-color)] via-purple-600 to-[var(--accent-hover)] text-white font-black rounded-2xl shadow-xl shadow-[var(--accent-color)]/25 hover:shadow-2xl hover:scale-[1.02] transition-all active:scale-[0.98] uppercase tracking-widest text-xs flex items-center gap-2"
                     >
                         <span>AKILLI PLANI OLUŞTUR</span>
                         <i className="fa-solid fa-wand-magic-sparkles"></i>

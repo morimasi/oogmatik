@@ -21,7 +21,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
         step, loading, isSaving, curriculum, isSaved, isShareModalOpen, isPrinting,
         formData, planDuration, planType, selectedKazanimlar, diagnosisContext, existingPlans, isLoadingPlans,
         viewMode, setViewMode, searchQuery, setSearchQuery, statusFilter, setStatusFilter, domainFilter, setDomainFilter,
-        filteredSchedule, analytics,
+        filteredSchedule, analytics, canEdit, canDelete, canCreate, isStudentOrParent,
         editingGoal, tempGoal, isAddingGoal, newGoalText, isEditingNote, tempNote,
         editingDay, tempFocus, changingActivityDay, students,
         setStep, setFormData, setPlanDuration, setPlanType, setSelectedKazanimlar,
@@ -66,6 +66,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
                         isLoadingPlans={isLoadingPlans}
                         handleLoadPlan={handleLoadPlan}
                         handleStudentSelect={handleStudentSelect}
+                        canCreate={canCreate}
                     />
                 );
             case 1:
@@ -125,6 +126,9 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
                         setDomainFilter={setDomainFilter}
                         filteredSchedule={filteredSchedule}
                         analytics={analytics}
+                        canEdit={canEdit}
+                        canDelete={canDelete}
+                        isStudentOrParent={isStudentOrParent}
                     />
                 ) : null;
             default: return null;

@@ -259,11 +259,12 @@ export function normalizeFascicleContent(
     }
 
     // ─── CURRICULUM ───────────────────────────────────────
-    // Stores: { curriculum }
-    // Falls through to UnifiedContentRenderer / LegacyRenderer
+    // Stores: { curriculum } or Curriculum
+    // SheetRenderer routes to CurriculumSheet
     case ActivityType.CURRICULUM: {
+      const cur = (raw as Record<string, unknown>).curriculum || raw;
       return {
-        data: raw as unknown as SingleWorksheetData,
+        data: cur as unknown as SingleWorksheetData,
         activityType: type,
         pageCount: 1,
       };

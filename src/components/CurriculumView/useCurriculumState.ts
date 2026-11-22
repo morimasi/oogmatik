@@ -7,6 +7,7 @@ import { useStudentStore } from '../../store/useStudentStore';
 import { logError } from '../../utils/logger.js';
 import { AppError } from '../../utils/AppError';
 import { useToastStore } from '../../store/useToastStore';
+import { useRBAC } from '../../hooks/useRBAC';
 import { ACTIVITIES } from '../../constants';
 import { profileShareService } from '../../services/profileShareService';
 
@@ -19,8 +20,15 @@ export type CurriculumViewMode = 'cards' | 'timeline' | 'meb-matrix' | 'analytic
 
 export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumStateParams) {
     const { user } = useAuthStore();
+    const { canAccess, hasPermission, role, isAdmin, isSuperAdmin } = useRBAC();
     const { students, setActiveStudent, addStudent } = useStudentStore();
     const toast = useToastStore();
+
+    // RBAC yetki kontrolleri
+    const canEdit = isSuperAdmin || isAdmin || hasPermission('curriculum', 'edit');
+    const canDelete = isSuperAdmin || isAdmin || hasPermission('curriculum', 'delete');
+    const canCreate = isSuperAdmin || isAdmin || hasPermission('curriculum', 'create');
+    const isStudentOrParent = role === 'student' || role === 'parent';
 
     const [step, setStep] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -469,7 +477,7 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
     }, [curriculum]);
 
     return {
-        user, students,
+        user, students, role, canEdit, canDelete, canCreate, isStudentOrParent,
         step, loading, isSaving, curriculum, isSaved, isShareModalOpen, isPrinting,
         formData, planDuration, planType, selectedSubject, selectedKazanimlar,
         diagnosisContext, existingPlans, isLoadingPlans,
