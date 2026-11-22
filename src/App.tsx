@@ -113,6 +113,9 @@ const KelimeCumleStudio = lazy(() =>
 const FascicleStudio = lazy(() =>
   import('./components/FascicleStudio').then((module) => ({ default: module.default }))
 );
+const AssessmentModule = lazy(() =>
+  import('./components/AssessmentModule').then((module) => ({ default: module.AssessmentModule }))
+);
 const LiveReadingStudio = lazy(() =>
   import('./components/LiveReadingStudio').then((module) => ({ default: module.LiveReadingStudio }))
 );
@@ -695,6 +698,15 @@ const AppContent = () => {
                     {currentView === 'admin' && (
                       <ProtectedRoute module="admin" onBack={handleGoBack}>
                         <AdminDashboard onBack={handleGoBack} />
+                      </ProtectedRoute>
+                    )}
+                                        {currentView === 'assessment' && (
+                      <ProtectedRoute module="evaluation" onBack={handleGoBack}>
+                        <AssessmentModule
+                          onBack={handleGoBack}
+                          onSelectActivity={(id) => handleSelectActivity(id as ActivityType)}
+                          onAutoGenerateWorkbook={(_report) => { /* fasikül entegrasyonu planlanıyor */ }}
+                        />
                       </ProtectedRoute>
                     )}
                     {currentView === 'screening' && (

@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ActivityType, SavedAssessment, ProfessionalAssessmentReport, SubTestResult, CognitiveDomain, ClinicalObservation, AssessmentRoadmapItem } from '../types';
+import { ActivityType, SavedAssessment, AssessmentReport, ProfessionalAssessmentReport, SubTestResult, CognitiveDomain, ClinicalObservation, AssessmentRoadmapItem } from '../types';
 import { useAuthStore } from '../store/useAuthStore';
 import { useStudentStore } from '../store/useStudentStore';
+import type { Student } from '../types/student';
 import { AssessmentEngine } from './assessment/AssessmentEngine';
 import { AssessmentReportViewer } from './AssessmentReportViewer';
 import { assessmentService } from '../services/assessmentService';
@@ -15,7 +16,7 @@ import { BrandedLoadingAnimation } from './shared/BrandedLoadingAnimation';
 interface AssessmentModuleProps {
     onBack: () => void;
     onSelectActivity: (id: ActivityType) => void;
-    onAutoGenerateWorkbook?: (report: any) => void;
+    onAutoGenerateWorkbook?: (report: AssessmentReport) => void;
 }
 
 import { DOMAINS, DOMAIN_COLORS, DOMAIN_ICON_COLORS, DOMAIN_ACTIVITY_MAP } from '../constants/assessmentConstants';
@@ -63,7 +64,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
     }, [activeStudent, view]);
 
     const handleSelectExisting = (sid: string) => {
-        const s = students.find((x: any) => x.id === sid);
+        const s = students.find((x: Student) => x.id === sid);
         if (s) {
             setStudentId(s.id);
             setStudentName(s.name);
@@ -192,7 +193,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
             aiReport = null;
         }
 
-        const fullReport: any = {
+        const fullReport: AssessmentReport = {
             professionalData,
             overallSummary: aiReport?.overallSummary || professionalData.overallRiskAnalysis.summary,
             scores: {
@@ -231,7 +232,8 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
             try {
                 await assessmentService.saveAssessment(
                     user.id, studentName, studentGender, studentAge,
-                    activeStudent?.grade || '1. Sınıf', fullReport, studentId
+                    activeStudent?.grade || '1. Sınıf', fullReport, studentId,
+                    completedResults
                 );
             } catch (e) {
                 logError('Değerlendirme kaydedilemedi', { error: e as unknown as Error });
@@ -276,7 +278,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
                                         className="w-full p-3 bg-white dark:bg-zinc-800 border border-indigo-200 dark:border-indigo-700 rounded-xl text-sm font-bold outline-none cursor-pointer"
                                     >
                                         <option value="">Yeni / Misafir Öğrenci</option>
-                                        {students.map((s: any) => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
+                                        {students.map((s: Student) => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
                                     </select>
                                 </div>
                             )}

@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
-import { SavedAssessment, AssessmentReport, ActivityType, ClinicalObservation } from '../types';
+import { SavedAssessment, AssessmentReport, ActivityType, ClinicalObservation, AssessmentRoadmapItem } from '../types';
+import type { Activity } from '../types/activity';
 import { RadarChart } from './RadarChart';
 import { ACTIVITIES } from '../constants';
 import { ShareModal } from './ShareModal';
 import { assessmentService } from '../services/assessmentService';
 import { printService } from '../utils/printService';
-
 import { logError } from '../utils/logger.js';
+
+interface AuthUser {
+    id: string;
+    name?: string;
+    role?: string;
+}
+
 interface AssessmentReportViewerProps {
     assessment: SavedAssessment | null;
     onClose: () => void;
-    user?: any;
+    user?: AuthUser | null;
     onManualSave?: () => Promise<void>;
     isSaving?: boolean;
     isSaved?: boolean;
@@ -112,7 +119,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
     const handleShareReport = async (receiverIds: string[]) => {
         if (!assessment || !user) return;
         try {
-            await Promise.all(receiverIds.map((receiverId) => assessmentService.shareAssessment(assessment, user.id, user.name, receiverId)));
+            await Promise.all(receiverIds.map((receiverId) => assessmentService.shareAssessment(assessment, user.id, user.name || 'Anonim', receiverId)));
             alert('Rapor başarıyla paylaşıldı.');
             setIsShareModalOpen(false);
         } catch (e) {
@@ -341,8 +348,8 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                                 <i className="fa-solid fa-road"></i> Kişiselleştirilmiş Eğitim Rotası
                             </h4>
                             <div className="space-y-4">
-                                {roadmap.map((item: any, idx: number) => {
-                                    const activityDef = ACTIVITIES.find((a: any) => a.id === item.activityId);
+                                {roadmap.map((item: { activityId: string; reason: string; frequency: string; title?: string; priority?: string }, idx: number) => {
+                                    const activityDef = ACTIVITIES.find((a: Activity) => a.id === item.activityId);
                                     const title = activityDef?.title || item.activityId;
                                     return (
                                         <div key={idx} className="bg-zinc-800 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border border-zinc-700 hover:border-zinc-500 transition-colors">

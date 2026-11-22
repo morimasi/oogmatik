@@ -6,7 +6,7 @@ export interface AIGeneratedTestItems {
     studentName: string;
     adaptiveDifficultyLabel: string;
     pedagogicalGuidance: string;
-    items: any[];
+    items: Record<string, unknown>[];
 }
 
 /**
