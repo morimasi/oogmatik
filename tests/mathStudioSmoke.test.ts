@@ -120,4 +120,42 @@ describe('MathStudio Ultra-Premium v3 Smoke Tests', () => {
             });
         });
     });
+
+    it('İşlem Atölyesi (Drill) eldeli ve eldesiz kurallara tam uymalı', async () => {
+        const { generateMathDrillSet } = await import('../src/services/offlineGenerators/mathStudio');
+        
+        // Eldesiz toplama testi
+        const noCarryDrills = generateMathDrillSet(10, ['add'], {
+            digit1: 2,
+            digit2: 2,
+            allowCarry: false,
+            allowBorrow: false,
+            allowRemainder: false,
+            allowNegative: false,
+        });
+
+        expect(noCarryDrills.length).toBe(10);
+        noCarryDrills.forEach(d => {
+            expect(d.answer).toBe(d.num1 + d.num2);
+            // Elde olmamalı: birler basamakları toplamı < 10
+            const unit1 = d.num1 % 10;
+            const unit2 = d.num2 % 10;
+            expect(unit1 + unit2).toBeLessThan(10);
+        });
+
+        // Pozitif çıkarma testi (allowNegative: false)
+        const noNegativeDrills = generateMathDrillSet(10, ['sub'], {
+            digit1: 2,
+            digit2: 2,
+            allowCarry: false,
+            allowBorrow: true,
+            allowRemainder: false,
+            allowNegative: false,
+        });
+
+        noNegativeDrills.forEach(d => {
+            expect(d.answer).toBeGreaterThanOrEqual(0);
+            expect(d.num1).toBeGreaterThanOrEqual(d.num2);
+        });
+    });
 });

@@ -87,6 +87,8 @@ export const DrillCanvas: React.FC<DrillCanvasProps> = ({
                                         themeConfig={themeConfig}
                                         index={pageIdx * perPage + i}
                                         showAnswer={drillConfig.showAnswer}
+                                        showCarryBoxes={drillConfig.showCarryBoxes}
+                                        showGridGuides={drillConfig.showGridGuides}
                                       />
                                     : <OperationCardHorizontal
                                         op={op}
@@ -96,6 +98,8 @@ export const DrillCanvas: React.FC<DrillCanvasProps> = ({
                                         themeConfig={themeConfig}
                                         index={pageIdx * perPage + i}
                                         showAnswer={drillConfig.showAnswer}
+                                        showCarryBoxes={drillConfig.showCarryBoxes}
+                                        showGridGuides={drillConfig.showGridGuides}
                                       />
                                 }
                             </div>

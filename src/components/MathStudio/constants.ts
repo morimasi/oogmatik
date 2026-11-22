@@ -43,6 +43,8 @@ export const DEFAULT_DRILL_CONFIG = {
   orientation: 'vertical' as const,
   showAnswer: false, // Answers strictly hidden by default
   fontSize: 28, // Slighly larger premium default
+  showCarryBoxes: false,
+  showGridGuides: false,
 };
 
 // Default problem config

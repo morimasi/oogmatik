@@ -248,6 +248,8 @@ export interface MathDrillConfig {
   learningProfile?: string;
   estimatedTimeMinutes?: number;
   visualSupport?: boolean;
+  showCarryBoxes?: boolean;
+  showGridGuides?: boolean;
   ageGroup?: string;
   difficulty?: string;
 }
@@ -303,6 +305,8 @@ export interface MathProblemConfig {
   learningProfile?: string;
   estimatedTimeMinutes?: number;
   visualSupport?: boolean;
+  showCarryBoxes?: boolean;
+  showGridGuides?: boolean;
 }
 
 export interface LogicGridPuzzleData extends BaseActivityData {

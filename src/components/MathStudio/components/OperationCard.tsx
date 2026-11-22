@@ -1,4 +1,4 @@
-// Math Studio — Operation Cards (Vertical + Horizontal)
+// Math Studio — Operation Cards (Vertical + Horizontal) with Regrouping Boxes & Guides
 
 import React from 'react';
 import { MathOperation } from '../../../types/math';
@@ -14,6 +14,8 @@ interface OperationCardProps {
   themeConfig: ThemeConfig;
   index: number;
   showAnswer?: boolean;
+  showCarryBoxes?: boolean;
+  showGridGuides?: boolean;
 }
 
 const getCardStyle = (themeConfig: ThemeConfig, borderStyle: BorderStyle) => {
@@ -37,32 +39,20 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
   themeConfig,
   index,
   showAnswer = false,
+  showCarryBoxes = false,
+  showGridGuides = false,
 }) => {
   const paper = PAPER_THEMES[themeConfig.paperTheme];
   const numStr = NUMBERING_STYLES[themeConfig.numberingStyle].format(index + 1);
 
   if (op.symbol === '÷' || op.symbol === '/') {
     // ── Türk klasik bölme algoritması — taşmayan + BASKI DOSTU yerleşim ──
-    // Taşma çözümü: çizgi uzunluğu = içerik genişliği (ch birimi), kart
-    // max-w-full + overflow-hidden, rozet içeride.
-    // Baskı çözümü (kök nedenler):
-    //  1) Dikey ayraç eskiden background-div idi → print CSS'i tüm
-    //     background'ları transparent yapar, çizgi baskıda yok olurdu.
-    //     Artık gerçek BORDER (sağ sütunun border-left'i).
-    //  2) Yatay ayraç ayrı boş div idi → artık bölen sayısının border-bottom'ı
-    //     (içerikli elemanın border'ı yükseklik çökmesinden etkilenmez).
-    //  3) Bölüm yazma alanı çerçevesiz boş alandır (kesik çizgi yok) + nbsp
-    //     içerik (height:auto olsa bile alan çökmez, hizalama korunur).
-    //  4) Kalan ipucu öğrenci kartında gösterilmez (cevabı sızdırır);
-    //     kalan bilgisi yalnızca Cevap Anahtarı sayfasındadır.
-    //  5) Karttaki `group` class'ı PrintLock tarafından display:block'e
-    //     çevrilip flex düzeni bozuyordu → kaldırıldı.
     const { leftCh, rightCh, effFontSize, leftWidthEm, rightWidthEm } =
       getDivisionCardLayout(op.num1, op.num2, op.answer, fontSize);
 
     return (
       <div
-        className="math-division-card flex font-mono font-bold break-inside-avoid relative items-start"
+        className="math-division-card flex font-mono font-bold break-inside-avoid relative items-start hover:scale-[1.01] transition-transform"
         style={{
           fontSize: `${effFontSize}px`,
           fontWeight: fontWeight,
@@ -96,21 +86,17 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
           style={{ width: `${leftWidthEm}em`, maxWidth: '55%' }}
         >
           <div style={{ color: paper.text }}>{op.num1}</div>
-          {/* Kısa çalışma çizgisi — border tabanlı, baskıda yaşar */}
           <div
             className="border-b-2 border-dashed mt-1 opacity-40"
             style={{ borderColor: paper.text, width: `${leftCh * 0.62}em`, maxWidth: '100%' }}
           />
-          {/* NOT: kalan ipucu öğrenci sayfasında gösterilmez (cevabı sızdırır).
-             Kalan bilgisi yalnızca Cevap Anahtarı sayfasındadır. */}
         </div>
 
-        {/* SAĞ: bölen / bölüm — DİKEY AYRAÇ = border-left (background yok) */}
+        {/* SAĞ: bölen / bölüm — DİKEY AYRAÇ = border-left */}
         <div
           className="flex flex-col pl-2 pt-1 min-w-0 shrink-0"
           style={{ maxWidth: '45%', borderLeft: `2px solid ${paper.border}` }}
         >
-          {/* YATAY AYRAÇ = bölenin border-bottom'ı (ayrı boş div yok) */}
           <div
             className="div-divisor text-center"
             style={{
@@ -124,8 +110,6 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
           >
             {op.num2}
           </div>
-          {/* Bölüm yazma alanı — çerçevesiz boş alan (kesik çizgi yok).
-             Boyut korunur (hizalama bozulmaz), nbsp baskıda çökmeyi engeller. */}
           <div
             className="div-answer-box min-h-[1.3em] flex items-center justify-center"
             style={{
@@ -140,12 +124,20 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
     );
   }
 
-  const isMultiplication = op.symbol === '×' || op.symbol === 'x';
+  const isMultiplication = op.symbol === '×' || op.symbol === 'x' || op.symbol === '*';
   const isMultiDigitMultiplication = isMultiplication && op.num2 >= 10;
+  const isAddOrSub = op.symbol === '+' || op.symbol === '-';
+
+  // Elde kutusu hesaplama (en uzun basamak sayısı kadar kutucuk)
+  const maxDigits = Math.max(
+    String(op.num1).length,
+    String(op.num2).length,
+    op.num3 !== undefined ? String(op.num3).length : 0
+  );
 
   return (
     <div
-      className="flex flex-col items-end font-mono font-bold leading-none break-inside-avoid relative min-w-0"
+      className={`flex flex-col items-end font-mono font-bold leading-none break-inside-avoid relative min-w-0 hover:scale-[1.01] transition-transform ${showGridGuides ? 'px-2' : ''}`}
       style={{
         fontSize: `${fontSize}px`,
         maxWidth: '100%',
@@ -157,17 +149,34 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
       {themeConfig.numberingStyle !== 'none' && (
         <div
           className="absolute -left-2 -top-3 flex items-center justify-center w-7 h-7 rounded-full text-[0.35em] font-sans font-black shadow-sm"
-            style={{
-              backgroundColor: paper.secondary,
-              color: paper.text,
-              border: `1.5px solid ${paper.accent}`,
-              boxShadow: `0 3px 6px ${paper.accent}15`
-            }}
+          style={{
+            backgroundColor: paper.secondary,
+            color: paper.text,
+            border: `1.5px solid ${paper.accent}`,
+            boxShadow: `0 3px 6px ${paper.accent}15`
+          }}
         >
           {numStr}
         </div>
       )}
 
+      {/* REGROUPING / CARRY BOXES (Elde / Onluk Bozma Kutucukları) */}
+      {showCarryBoxes && isAddOrSub && (
+        <div className="flex gap-1.5 justify-end mb-1.5 opacity-80 animate-in fade-in">
+          {Array.from({ length: maxDigits }).map((_, i) => (
+            <div
+              key={i}
+              className="w-4 h-4 rounded border border-dashed flex items-center justify-center text-[0.35em] font-sans font-normal"
+              style={{ borderColor: paper.accent, color: paper.accent }}
+              title="Elde / Onluk Kutusu"
+            >
+              {'\u00A0'}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 1. Sayı */}
       <div className="flex items-center gap-2">
         <span style={{ color: paper.text }}>{op.num1}</span>
         {showText && (
@@ -177,8 +186,7 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
         )}
       </div>
 
-      {/* 2. satır: 3. sayı varsa işaretsiz (tek işaret kuralı — işaret yalnızca
-         en alttaki işlem satırında gösterilir) */}
+      {/* 2. Sayı + İşlem Sembolü */}
       <div className="flex items-center gap-2 w-full justify-end relative">
         {op.num3 === undefined && (
           <span className="absolute left-0 transform -translate-x-1/2" style={{ color: paper.accent }}>
@@ -193,6 +201,7 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
         )}
       </div>
 
+      {/* 3. Sayı (Zincir İşlem) */}
       {op.num3 !== undefined && (
         <div className="flex items-center gap-2 w-full justify-end relative">
           <span className="absolute left-0 transform -translate-x-1/2" style={{ color: paper.accent }}>
@@ -202,8 +211,10 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
         </div>
       )}
 
+      {/* Çizgi */}
       <div className="w-full border-b-4 mb-2 mt-1" style={{ borderColor: paper.border }}></div>
 
+      {/* Çok basamaklı çarpma ara çizgileri */}
       {isMultiDigitMultiplication && (
         <div className="w-full flex flex-col items-end gap-2 mb-2">
           <div className="h-[1.1em] w-3/4 border-b-2 border-dashed" style={{ borderColor: paper.text }}></div>
@@ -212,10 +223,15 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
         </div>
       )}
 
-      <div className="div-answer-box w-full min-h-[1.3em] border-2 border-dashed rounded-lg flex items-center justify-end px-2" style={{ borderColor: paper.accent, backgroundColor: paper.secondary }}>
+      {/* Cevap Kutusu */}
+      <div
+        className="div-answer-box w-full min-h-[1.3em] border-2 border-dashed rounded-lg flex items-center justify-end px-2"
+        style={{ borderColor: paper.accent, backgroundColor: paper.secondary }}
+      >
         {showAnswer ? <span className="text-zinc-900">{op.answer}</span> : '\u00A0'}
       </div>
 
+      {/* Kalan (Bölme durumunda) */}
       {op.remainder !== undefined && op.remainder > 0 && (
         <span className="text-[0.4em] opacity-50 mt-1 font-sans font-bold" style={{ color: paper.accent }}>
           Kalan: {op.remainder}
@@ -240,7 +256,7 @@ export const OperationCardHorizontal: React.FC<OperationCardProps> = ({
 
   return (
     <div
-      className="flex flex-wrap items-center gap-3 font-mono font-bold break-inside-avoid relative"
+      className="flex flex-wrap items-center gap-3 font-mono font-bold break-inside-avoid relative hover:scale-[1.01] transition-transform"
       style={{
         fontSize: `${fontSize}px`,
         fontWeight: fontWeight,
@@ -286,11 +302,9 @@ export const OperationCardHorizontal: React.FC<OperationCardProps> = ({
       )}
 
       <span style={{ color: paper.accent }}>=</span>
-      <span className="min-w-[60px] border-b-4 border-dashed min-h-[1.1em] inline-flex items-center justify-center" style={{ borderColor: paper.accent }}>
+      <span className="min-w-[60px] border-b-4 border-dashed min-h-[1.1em] inline-flex items-center justify-center px-2" style={{ borderColor: paper.accent }}>
         {showAnswer ? <span style={{ color: paper.text }}>{op.answer}</span> : '\u00A0'}
       </span>
-      {/* NOT: kalan ipucu öğrenci sayfasında gösterilmez (cevabı sızdırır).
-         Kalan bilgisi yalnızca Cevap Anahtarı sayfasındadır. */}
     </div>
   );
 };
