@@ -6,9 +6,10 @@
  */
 
 import type { MatOgrenmeAlani, MatKazanim, MatUnite, MatSinifMufredati, GrafikVerisi, MatZorluk } from './matSinav';
+import type { LearningDisabilityProfile, AgeGroup } from './creativeStudio';
 
 // Re-export ortak tipleri (müfredat yapısı aynı kalır)
-export type { MatOgrenmeAlani, MatKazanim, MatUnite, MatSinifMufredati, GrafikVerisi, MatZorluk };
+export type { MatOgrenmeAlani, MatKazanim, MatUnite, MatSinifMufredati, GrafikVerisi, MatZorluk, LearningDisabilityProfile, AgeGroup };
 
 // ─── Problem Kategorisi ───────────────────────────────────────
 export type ProblemKategorisi =
@@ -83,6 +84,10 @@ export interface MatProblemSeti {
     olusturanKullanici: string;
     cevapAnahtari: MatProblemCevapAnahtari;
     dizgiAyarlari: ProblemDizgiAyarlari;
+    pedagogicalNote?: string;
+    atananOgrenciler?: string[];
+    ogrenciProfili?: LearningDisabilityProfile;
+    yasGrubu?: AgeGroup;
 }
 
 // ─── Problem Ayarları (UI State) ──────────────────────────────
@@ -98,6 +103,8 @@ export interface MatProblemAyarlari {
     verilenlerGosterilsinMi: boolean;
     cozumKutusuGosterilsinMi: boolean;
     isLgsMode?: boolean;
+    ogrenciProfili?: LearningDisabilityProfile;
+    yasGrubu?: AgeGroup;
 }
 
 // ─── API Response ─────────────────────────────────────────────

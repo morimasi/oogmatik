@@ -21,6 +21,7 @@ export const MatProblemKazanimPicker: React.FC<MatProblemKazanimPickerProps> = (
     onSinifChange, onUniteChange, onKazanimChange,
 }) => {
     const [expandedUnite, setExpandedUnite] = useState<string | null>(null);
+    const [filterQuery, setFilterQuery] = useState('');
 
     const uniteler: MebUnite[] = useMemo(() => {
         if (!sinif) return [];
@@ -31,6 +32,22 @@ export const MatProblemKazanimPicker: React.FC<MatProblemKazanimPickerProps> = (
             return [];
         }
     }, [sinif]);
+
+    const filteredUniteler = useMemo(() => {
+        if (!filterQuery.trim()) return uniteler;
+        const q = filterQuery.toLowerCase();
+        return uniteler.map(u => {
+            const matchesUnite = u.baslik.toLowerCase().includes(q);
+            const matchingKazanimlar = u.kazanimlar.filter(k =>
+                k.kod.toLowerCase().includes(q) || k.tanim.toLowerCase().includes(q)
+            );
+            if (matchesUnite) return u;
+            if (matchingKazanimlar.length > 0) {
+                return { ...u, kazanimlar: matchingKazanimlar };
+            }
+            return null;
+        }).filter(Boolean) as MebUnite[];
+    }, [uniteler, filterQuery]);
 
     const toggleUnite = (uniteId: string) => {
         const set = new Set(secilenUniteler);
@@ -101,12 +118,26 @@ export const MatProblemKazanimPicker: React.FC<MatProblemKazanimPickerProps> = (
             {/* Ünite ve Kazanım Seçimi */}
             {sinif && uniteler.length > 0 && (
                 <div>
-                    <label className="block text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">
-                        Üniteler ve MEB Kazanımları ({uniteler.length} Ünite)
-                    </label>
-                    <div className="space-y-1.5 max-h-[260px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-700">
-                        {uniteler.map((unite) => {
-                            const isOpen = expandedUnite === unite.id;
+                    <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+                            Üniteler ve MEB Kazanımları ({uniteler.length} Ünite)
+                        </label>
+                    </div>
+
+                    {/* Hızlı Filtre Arama */}
+                    <div className="mb-2">
+                        <input
+                            type="text"
+                            value={filterQuery}
+                            onChange={(e) => setFilterQuery(e.target.value)}
+                            placeholder="Ünite veya kazanım ara (Ör: Kesir, Yüzde)..."
+                            className="w-full bg-[var(--bg-secondary)] text-[var(--text-primary)] text-xs rounded-xl px-2.5 py-1.5 border border-[var(--border-color)] outline-none focus:border-cyan-500 placeholder:text-[var(--text-muted)]"
+                        />
+                    </div>
+
+                    <div className="space-y-1.5 max-h-[260px] overflow-y-auto pr-1 custom-scrollbar">
+                        {filteredUniteler.map((unite) => {
+                            const isOpen = expandedUnite === unite.id || filterQuery.trim().length > 0;
                             const isUniteChecked = secilenUniteler.includes(unite.id);
                             const selectedCount = unite.kazanimlar.filter(k => secilenKazanimlar.includes(k.kod)).length;
 
@@ -114,7 +145,7 @@ export const MatProblemKazanimPicker: React.FC<MatProblemKazanimPickerProps> = (
                                 <div
                                     key={unite.id}
                                     className={`rounded-xl border transition-all ${isUniteChecked
-                                            ? 'border-cyan-500/50 bg-cyan-950/20'
+                                            ? 'border-cyan-500/50 bg-cyan-500/10 dark:bg-cyan-950/30'
                                             : 'border-[var(--border-color)] bg-[var(--bg-secondary)]/50'
                                         }`}
                                 >

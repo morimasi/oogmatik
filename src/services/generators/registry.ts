@@ -3,7 +3,8 @@ import { GeneratorOptions } from '../../types/core';
 import * as aiGenerators from './index';
 import * as offlineGenerators from '../offlineGenerators/index';
 import { generateMatProblemSeti } from '../matProblemService';
-import type { MatProblemSeti } from '../../types/matProblem';
+import { generateOfflineMatProblemSeti } from '../offlineGenerators/mathProblemOffline';
+import type { MatProblemSeti, MatProblemAyarlari } from '../../types/matProblem';
 
 
 import { generateSemanticLinkerAI, generateSemanticLinkerOffline } from '../../modules/activities/semantic-linker/generators';
@@ -480,7 +481,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.MAT_PROBLEM]: {
     ai: aiGenerators.generateMatProblemFromAI,
-    offline: generateMatProblemSeti as unknown as (options: GeneratorOptions) => Promise<MatProblemSeti>,
+    offline: async (options: GeneratorOptions) => generateOfflineMatProblemSeti(options as unknown as MatProblemAyarlari),
   },
   [ActivityType.REAL_LIFE_MATH_PROBLEMS]: {
     ai: aiGenerators.generateRealLifeMathProblemsFromAI,

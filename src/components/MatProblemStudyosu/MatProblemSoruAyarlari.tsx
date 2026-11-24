@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import type { MatProblemAyarlari, ProblemDizgiAyarlari, ProblemKategorisi, ProblemFontAilesi } from '../../types/matProblem';
+import type { MatProblemAyarlari, ProblemDizgiAyarlari, ProblemKategorisi, ProblemFontAilesi, LearningDisabilityProfile, AgeGroup } from '../../types/matProblem';
 
 interface MatProblemSoruAyarlariProps {
     ayarlar: MatProblemAyarlari;
@@ -12,6 +12,20 @@ interface MatProblemSoruAyarlariProps {
     dizgiAyarlari?: ProblemDizgiAyarlari;
     onDizgiAyarlariChange?: (partial: Partial<ProblemDizgiAyarlari>) => void;
 }
+
+const profiller: { value: LearningDisabilityProfile; label: string; icon: string; desc: string }[] = [
+    { value: 'dyscalculia', label: 'Diskalkuli Desteği', icon: '🧮', desc: 'Dost sayılar, adım adım parçalanmış işlem' },
+    { value: 'dyslexia', label: 'Disleksi Desteği', icon: '📖', desc: 'Kısa, duru cümleler, net fonolojik yapı' },
+    { value: 'adhd', label: 'DEHB Desteği', icon: '⚡', desc: 'Dinamik, motive edici mikro hedefler' },
+    { value: 'mixed', label: 'Karma / Genel', icon: '🌟', desc: 'Dengeli bilişsel ergonomi' },
+];
+
+const yasGruplari: { value: AgeGroup; label: string }[] = [
+    { value: '5-7', label: '5-7 Yaş' },
+    { value: '8-10', label: '8-10 Yaş' },
+    { value: '11-13', label: '11-13 Yaş' },
+    { value: '14+', label: '14+ Yaş' },
+];
 
 const kategoriler: { value: ProblemKategorisi; label: string; icon: string }[] = [
     { value: 'gercek-yasam', label: 'Gerçek Yaşam Senaryosu', icon: '🛒' },
@@ -123,6 +137,65 @@ export const MatProblemSoruAyarlari: React.FC<MatProblemSoruAyarlariProps> = ({
                             </button>
                         );
                     })}
+                </div>
+            </div>
+
+            {/* Öğrenci Destek Profili & Yaş Grubu (ZPD ve Pedagojik Uyum) */}
+            <div className="bg-[var(--bg-secondary)]/50 p-2.5 rounded-xl border border-[var(--border-color)] space-y-2">
+                <div className="flex justify-between items-center mb-1">
+                    <label className="text-[9px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+                        Öğrenci Destek Profili & Yaş
+                    </label>
+                    <span className="text-[9px] font-bold text-cyan-400">ZPD Uyarlaması</span>
+                </div>
+
+                {/* Profil Seçimi */}
+                <div className="grid grid-cols-2 gap-1.5">
+                    {profiller.map((p) => {
+                        const isSelected = (ayarlar.ogrenciProfili || 'mixed') === p.value;
+                        return (
+                            <button
+                                key={p.value}
+                                onClick={() => onAyarlarChange({ ogrenciProfili: p.value })}
+                                className={`p-2 rounded-xl text-left border transition-all ${isSelected
+                                    ? 'bg-cyan-600/20 border-cyan-500/60 text-cyan-400 font-bold shadow-xs'
+                                    : 'bg-[var(--bg-paper)]/70 border-[var(--border-color)] text-[var(--text-secondary)] hover:border-cyan-500/30'
+                                }`}
+                            >
+                                <div className="flex items-center gap-1.5 text-xs font-extrabold text-[var(--text-primary)]">
+                                    <span>{p.icon}</span>
+                                    <span>{p.label}</span>
+                                </div>
+                                <p className="text-[8px] text-[var(--text-muted)] mt-0.5 leading-tight font-medium">
+                                    {p.desc}
+                                </p>
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {/* Yaş Grubu Seçimi */}
+                <div className="pt-1 border-t border-[var(--border-color)]/50">
+                    <label className="block text-[8px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">
+                        Gelişim Düzeyi / Yaş Grubu
+                    </label>
+                    <div className="grid grid-cols-4 gap-1">
+                        {yasGruplari.map((yg) => {
+                            const isSelected = (ayarlar.yasGrubu || '8-10') === yg.value;
+                            return (
+                                <button
+                                    key={yg.value}
+                                    onClick={() => onAyarlarChange({ yasGrubu: yg.value })}
+                                    className={`py-1 rounded-lg text-[10px] font-bold transition-all border text-center ${isSelected
+                                        ? 'bg-cyan-600 border-cyan-500 text-white shadow-xs'
+                                        : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                                    }`}
+                                >
+                                    {yg.label}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
 

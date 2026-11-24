@@ -26,6 +26,13 @@ const fontSizeMap: Record<string, string> = { '9pt': '9px', '10pt': '10px', '11p
 const lineHeightMap: Record<string, string> = { siki: '1.3', normal: '1.6', ayrik: '2.0' };
 const paddingMap: Record<string, string> = { dar: '12mm', orta: '18mm', genis: '25mm' };
 
+const profileLabels: Record<string, string> = {
+    dyscalculia: '🧮 Diskalkuli Destekli',
+    dyslexia: '📖 Disleksi Destekli',
+    adhd: '⚡ DEHB Destekli',
+    mixed: '🌟 Bilişsel Ergonomik',
+};
+
 export const MatProblemOnizleme: React.FC<MatProblemOnizlemeProps> = ({
     problemSeti,
     dizgiAyarlari,
@@ -80,11 +87,21 @@ export const MatProblemOnizleme: React.FC<MatProblemOnizlemeProps> = ({
                     <h1 style={{ fontSize: '16px', fontWeight: 800, color: '#0e7490', margin: 0 }}>
                         {problemSeti.baslik}
                     </h1>
-                    <div style={{ fontSize: '10px', color: '#6b7280', marginTop: '4px', display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+                    <div style={{ fontSize: '10px', color: '#6b7280', marginTop: '4px', display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
                         <span>📅 Tarih: ___/___/______</span>
                         <span>👤 Ad Soyad: _________________</span>
-                        <span>📐 {problemSeti.problemler.length} Problem • Toplam {problemSeti.toplamPuan} Puan</span>
+                        <span>📐 {problemSeti.problemler.length} Problem • {problemSeti.toplamPuan} Puan</span>
+                        {(problemSeti.ogrenciProfili || ayarlar?.ogrenciProfili) && (
+                            <span style={{ background: '#ecfeff', color: '#0e7490', border: '1px solid #a5f3fc', padding: '1px 8px', borderRadius: '8px', fontWeight: 700 }}>
+                                {profileLabels[problemSeti.ogrenciProfili || ayarlar?.ogrenciProfili || 'mixed']}
+                            </span>
+                        )}
                     </div>
+                    {problemSeti.pedagogicalNote && !isPrinting && (
+                        <div style={{ marginTop: '6px', fontSize: '9px', color: '#0369a1', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '6px', padding: '4px 8px', textAlign: 'left' }}>
+                            <strong>💡 Pedagojik Not (Öğretmen Rehberi):</strong> {problemSeti.pedagogicalNote}
+                        </div>
+                    )}
                 </div>
 
                 {/* Problemler */}

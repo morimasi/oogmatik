@@ -9,7 +9,7 @@ interface MatProblemLoadingOverlayProps {
 const LOADING_STEPS = [
     { text: 'MEB 2024-2025 Müfredatı & Sınıf Kazanımları İnceleniyor...', subText: 'Pedagojik ZPD seviyesi ve ders kitabı standartları haritalanıyor.' },
     { text: 'LGS & Beceri Temelli Açık Uçlu Senaryo Kurgulanıyor...', subText: 'Disleksi dostu anlaşılır dil ve gerçek yaşam bağlamı oluşturuluyor.' },
-    { text: 'Vektörel SVG Şemalar & Grafik Verileri Çiziliyor...', subText: 'Çetele, sııklık, abaküs, geometri ve LGS görselleri hazırlanıyor.' },
+    { text: 'Gerçek Yaşam Senaryosu & Bilişsel Kurgu Hazırlanıyor...', subText: 'ZPD seviyesine uygun açık uçlu akıl yürütme kurgusu yapılandırılıyor.' },
     { text: 'Çözüm Adımları & Cevap Anahtarı Hesaplanıyor...', subText: 'Adım adım açıklayıcı çözümler ve puanlama anahtarı kuruluyor.' },
     { text: 'Lexend Tipografisi & A4 Dizgisi Tamamlanıyor...', subText: 'Sayfa formatı baskıya ve dijital önizlemeye hazır getiriliyor.' },
 ];

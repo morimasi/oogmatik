@@ -20,14 +20,16 @@ import { printService } from '../../utils/printService';
 import { db } from '../../services/firebaseClient';
 import { collection, addDoc } from 'firebase/firestore';
 import type { MatProblemSeti, ProblemDizgiAyarlari } from '../../types/matProblem';
-import type { User, Student } from '../../types';
+import type { User, Student, SingleWorksheetData, StudentProfile } from '../../types';
+import { ActivityType } from '../../types/activity';
+import type { FascicleItem, FascicleDifficulty } from '../../types/fascicle';
 
 type TabType = 'ayarlar' | 'onizleme' | 'cevap' | 'gecmis';
 
 const MATH_LOADING_MESSAGES = [
     'MEB 2024-2025 Müfredatı & Sınıf Kazanımları Analiz Ediliyor...',
     'LGS & Beceri Temelli Açık Uçlu Senaryo Kurgulanıyor...',
-    'Vektörel SVG Şemalar & Grafik Verileri Çiziliyor...',
+    'Gerçek Yaşam Senaryosu & ZPD Kurgusu Hazırlanıyor...',
     'Çözüm Adımları & Cevap Anahtarı Hesaplanıyor...',
     'Lexend Tipografisi & A4 Dizgisi Uygulanıyor...',
 ];
@@ -50,7 +52,7 @@ export interface MatProblemStudyosuProps {
     onBack?: () => void;
 }
 
-export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialData: _initialData, onBack }) => {
+export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialData, onBack }) => {
     const {
         ayarlar, dizgiAyarlari, aktifProblemSeti, isGenerating,
         setAyarlar, setDizgiAyarlari, setAktifProblemSeti, setIsGenerating,
@@ -74,6 +76,33 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
     const [showShareModal, setShowShareModal] = useState(false);
     const [showStudentSelector, setShowStudentSelector] = useState(false);
     const [savedWorksheetId, setSavedWorksheetId] = useState<string | null>(null);
+    const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+    const [previewScale, setPreviewScale] = useState<number>(100);
+
+    // InitialData entegrasyonu (dış stüdyolardan ve kayıtlı etkinliklerden doğrudan yükleme)
+    useEffect(() => {
+        if (!initialData) return;
+        try {
+            let dataObj: unknown = initialData;
+            if (typeof dataObj === 'string') {
+                try { dataObj = JSON.parse(dataObj); } catch { /* noop */ }
+            }
+            if (Array.isArray(dataObj)) {
+                dataObj = dataObj[0];
+            }
+            const record = dataObj as Record<string, unknown> | null;
+            const candidate = (record?.data || record?.content || record) as Partial<MatProblemSeti> | null;
+            if (candidate && Array.isArray(candidate.problemler) && candidate.problemler.length > 0) {
+                setAktifProblemSeti(candidate as MatProblemSeti);
+                setActiveTab('onizleme');
+                if (typeof candidate.sinif === 'number') {
+                    setAyarlar({ sinif: candidate.sinif });
+                }
+            }
+        } catch (err) {
+            console.warn('MatProblemStudyosu initialData yükleme hatası:', err);
+        }
+    }, [initialData, setAktifProblemSeti, setAyarlar]);
 
     // Öğrenci Atama State'leri
     const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
@@ -125,27 +154,48 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
     // ─── Yazdır ───────────────────────────────────────────────────
     const handlePrint = () => {
         if (!aktifProblemSeti) return;
-        printService.generatePdf('#mat-problem-print-inner', aktifProblemSeti.baslik, { action: 'print' });
+        printService.generatePdf(
+            '#mat-problem-print-inner',
+            aktifProblemSeti.baslik,
+            { action: 'print', paperSize: 'A4' }
+        );
+    };
+
+    // ─── PDF İndir (Gerçek Yüksek Kalite A4 PDF) ─────────────────
+    const handleDownloadPdf = async () => {
+        if (!aktifProblemSeti) return;
+        setIsDownloadingPdf(true);
+        try {
+            await printService.generatePdf(
+                '#mat-problem-print-inner',
+                aktifProblemSeti.baslik,
+                { action: 'download', paperSize: 'A4', quality: 'high' }
+            );
+            showSuccess(`"${aktifProblemSeti.baslik}" PDF olarak başarıyla indirildi!`);
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Bilinmeyen hata';
+            showError(`PDF indirilemedi: ${msg}`);
+        } finally {
+            setIsDownloadingPdf(false);
+        }
     };
 
     // ─── Fasiküle Ekle ────────────────────────────────────────────
     const handleAddToFascicle = () => {
         if (!aktifProblemSeti) { showError('Önce bir problem seti oluşturun.'); return; }
         try {
-            const fascicleStore = useFascicleStore.getState() as any;
-            const newItem = {
+            const fascicleStore = useFascicleStore.getState();
+            const newItem: FascicleItem = {
                 id: crypto.randomUUID(),
+                originalActivityId: aktifProblemSeti.id,
                 type: 'mat-problem',
-                title: aktifProblemSeti.baslik,
                 content: aktifProblemSeti,
-                pageCount: Math.ceil(aktifProblemSeti.problemler.length / 3),
+                pageCount: Math.max(1, Math.ceil(aktifProblemSeti.problemler.length / 3)),
+                difficulty: (ayarlar.zorlukSeviyesi as FascicleDifficulty) || 'Orta',
+                order: fascicleStore.items.length,
             };
 
-            if (typeof fascicleStore.addItem === 'function') {
-                fascicleStore.addItem(newItem);
-            } else if (typeof fascicleStore.addContent === 'function') {
-                fascicleStore.addContent(newItem);
-            }
+            fascicleStore.addItem(newItem);
             showSuccess(`"${aktifProblemSeti.baslik}" tüm problemleri ve çözümleriyle Kitapçık Modülüne eklendi!`);
         } catch {
             showError('Kitapçığa eklenirken bir sorun oluştu.');
@@ -157,17 +207,17 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
         if (!aktifProblemSeti) { showError('Önce bir problem seti oluşturun.'); return null; }
         try {
             const userId = user?.id || 'anonymous';
-            const atananIsimler = (aktifProblemSeti as any).atananOgrenciler || [];
+            const atananIsimler = aktifProblemSeti.atananOgrenciler || [];
 
             const saved = await worksheetService.saveWorksheet(
                 userId,
                 aktifProblemSeti.baslik,
-                'mat-problem' as any,
-                [aktifProblemSeti as any],
+                ActivityType.MAT_PROBLEM,
+                [aktifProblemSeti as unknown as SingleWorksheetData],
                 '📐',
                 { id: 'math-logic', title: 'Matematik & Mantık' },
                 undefined,
-                atananIsimler.length > 0 ? { name: atananIsimler.join(', '), grade: `${aktifProblemSeti.sinif}. Sınıf` } as any : undefined,
+                atananIsimler.length > 0 ? ({ name: atananIsimler.join(', '), grade: `${aktifProblemSeti.sinif}. Sınıf` } as unknown as StudentProfile) : undefined,
                 undefined,
                 atananIsimler.join(', ')
             );
@@ -175,8 +225,9 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
             setSavedWorksheetId(saved.id);
             showSuccess(`"${aktifProblemSeti.baslik}" başarıyla Dijital Arşive kaydedildi!`);
             return saved.id;
-        } catch (e: any) {
-            showError(`Kayıt başarısız: ${e.message || 'Hata'}`);
+        } catch (e: unknown) {
+            const msg = e instanceof Error ? e.message : 'Hata';
+            showError(`Kayıt başarısız: ${msg}`);
             return null;
         }
     };
@@ -206,17 +257,18 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
             }
 
             // 2. Aktif Problem Seti Meta Verisini Güncelle
-            const updated = {
+            const updated: MatProblemSeti = {
                 ...aktifProblemSeti,
                 atananOgrenciler: studentNames,
             };
-            setAktifProblemSeti(updated as any);
+            setAktifProblemSeti(updated);
 
             showSuccess(`Problem seti "${studentNames.join(', ')}" isimli öğrencilere başarıyla atandı ve ekranlarına gönderildi!`);
             setShowStudentSelector(false);
             setSelectedStudentIds([]);
-        } catch (err: any) {
-            showError(`Atama sırasında hata oluştu: ${err.message || 'Bilinmeyen hata'}`);
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Bilinmeyen hata';
+            showError(`Atama sırasında hata oluştu: ${msg}`);
         } finally {
             setIsAssigning(false);
         }
@@ -242,11 +294,20 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
             } else {
                 showError('Paylaşım öncesi kayıt yapılamadı.');
             }
-        } catch (err: any) {
-            showError(`Paylaşım başarısız: ${err.message || 'Hata'}`);
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Hata';
+            showError(`Paylaşım başarısız: ${msg}`);
         } finally {
             setIsSharing(false);
         }
+    };
+
+    const handleOpenShareModal = async () => {
+        if (!aktifProblemSeti) return;
+        if (!savedWorksheetId) {
+            await handleSave();
+        }
+        setShowShareModal(true);
     };
 
     const handleCopyShareLink = () => {
@@ -315,10 +376,11 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                     <FmtBtn active={activeTab === 'gecmis'} onClick={() => setActiveTab('gecmis')} title="Geçmiş">📋 Geçmiş ({problemGecmisi.length})</FmtBtn>
                     <div className="w-px h-5 bg-[var(--border-color)] mx-1 flex-shrink-0" />
                     <FmtBtn onClick={handleSave} title="Kaydet">💾 Kaydet</FmtBtn>
-                    <FmtBtn onClick={() => aktifProblemSeti && setShowShareModal(true)} title="Paylaş">🔗 Paylaş</FmtBtn>
+                    <FmtBtn onClick={handleOpenShareModal} title="Paylaş">🔗 Paylaş</FmtBtn>
                     <FmtBtn onClick={() => aktifProblemSeti && setShowStudentSelector(true)} title="Öğrenciye Ata">👤 Öğrenciye Ata</FmtBtn>
                     <FmtBtn onClick={handleAddToFascicle} title="Kitapçığa Ekle">📚 Kitapçığa Ekle</FmtBtn>
-                    <FmtBtn onClick={handlePrint} title="PDF Yazdır">🖨️ PDF Yazdır</FmtBtn>
+                    <FmtBtn onClick={handlePrint} title="A4 Sayfa Olarak Doğrudan Yazdır">🖨️ Yazdır</FmtBtn>
+                    <FmtBtn onClick={handleDownloadPdf} title="A4 Yüksek Kalite PDF İndir">{isDownloadingPdf ? '⏳ İndiriliyor...' : '📥 PDF İndir'}</FmtBtn>
                 </div>
             </div>
 
@@ -462,6 +524,18 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                         {([{ k: 'siki' as const, l: 'Sıkı' }, { k: 'normal' as const, l: 'Normal' }, { k: 'ayrik' as const, l: 'Ayrık' }]).map((s) => (
                             <FmtBtn key={s.k} active={dizgiAyarlari.satirAraligi === s.k} onClick={() => updateDizgi('satirAraligi', s.k)}>{s.l}</FmtBtn>
                         ))}
+                        <div className="w-px h-4 bg-[var(--border-color)]" />
+                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Ölçek</span>
+                        {[75, 100, 125].map((scale) => (
+                            <FmtBtn
+                                key={scale}
+                                active={previewScale === scale}
+                                onClick={() => setPreviewScale(scale)}
+                                title={`Sayfa Ölçeği %${scale}`}
+                            >
+                                %{scale}
+                            </FmtBtn>
+                        ))}
                     </div>
 
                     {/* Önizleme Alanı */}
@@ -475,7 +549,14 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                                 />
                             </div>
                         ) : aktifProblemSeti ? (
-                            <div id="mat-problem-print-target">
+                            <div
+                                id="mat-problem-print-target"
+                                style={{
+                                    transform: previewScale !== 100 ? `scale(${previewScale / 100})` : undefined,
+                                    transformOrigin: 'top center',
+                                    transition: 'transform 0.2s ease',
+                                }}
+                            >
                                 <div id="mat-problem-print-inner">
                                     <MatProblemOnizleme
                                         problemSeti={aktifProblemSeti}

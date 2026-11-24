@@ -32,6 +32,8 @@ export const MatProblemRenderer: React.FC<MatProblemRendererProps> = ({ data, se
               kategori: 'gercek-yasam',
               verilenlerGosterilsinMi: ayarlarFromSettings.verilenlerGosterilsinMi ?? true,
               cozumKutusuGosterilsinMi: ayarlarFromSettings.cozumKutusuGosterilsinMi ?? true,
+              ogrenciProfili: ayarlarFromSettings.ogrenciProfili ?? problemSetiObj.ogrenciProfili,
+              yasGrubu: ayarlarFromSettings.yasGrubu ?? problemSetiObj.yasGrubu,
           }
         : undefined;
 

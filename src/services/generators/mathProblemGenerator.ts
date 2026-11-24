@@ -49,6 +49,12 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
         (kazanimDetaylari ? '\n🎯 KAZANIM KISITI (%100 BİREBİR KAZANIM UYUMU ZORUNLUDUR):\n' + kazanimDetaylari + '\nÜretilecek her problem SADECE VE SADECE yukarıdaki kazanımların matematiksel mantığına, işlem seviyesine ve soru tipine dayalı olmalıdır.\n\n' : '\n') +
         '- Problem Kategorisi: "' + settings.kategori + '"\n' +
         '- Zorluk Seviyesi: "' + settings.zorlukSeviyesi + '"\n' +
+        (settings.ogrenciProfili ? '- Öğrenci Özel Destek Profili: "' + settings.ogrenciProfili + '" (Pedagojik uyarlama zorunludur: ' +
+            (settings.ogrenciProfili === 'dyscalculia' ? 'Diskalkuli desteği: Sayılar dostça ve sade olmalı, işlem basamakları net bölünmeli, görselleştirilebilir somut senaryolar seçilmeli.' :
+             settings.ogrenciProfili === 'dyslexia' ? 'Disleksi desteği: Cümleler kısa, duru ve net olmalı; fonolojik ve hecesel karmaşa oluşturabilecek ağır kelimelerden kaçınılmalı.' :
+             settings.ogrenciProfili === 'adhd' ? 'DEHB desteği: Dikkat dağıtıcı gereksiz ayrıntılardan arındırılmış, dinamik, motive edici mikro hedefler içeren senaryolar olmalı.' :
+             'Özel öğrenme gereksinimlerine duyarlı, sıfır bilişsel yüklü ve anlaşılır anlatım olmalı.') + ')\n' : '') +
+        (settings.yasGrubu ? '- Hedef Yaş Grubu: "' + settings.yasGrubu + '" (ZPD - Yakınsal Gelişim Alanına uygun bilişsel ve dil düzeyi)\n' : '') +
         '- Verilenler/İstenenler Kutusu: ' + (settings.verilenlerGosterilsinMi ? 'EVET (Doldurulacak)' : 'HAYIR') + '\n' +
         '- Çözüm Kutusu: ' + (settings.cozumKutusuGosterilsinMi ? 'EVET' : 'HAYIR') + '\n' +
         '- LGS Yeni Nesil Modu: ' + (settings.isLgsMode ? 'AKTİF (PISA/LGS Mantık Sorusu)' : 'PASİF') + '\n\n' +
@@ -151,6 +157,7 @@ export const generateMathProblems = async (settings: MatProblemAyarlari): Promis
 
     const parsed = typeof result === 'string' ? JSON.parse(result) : result;
     const rawProblemler = parsed?.problemler || parsed?.data?.problemler || [];
+    const pedagogicalNote = (parsed?.pedagogicalNote as string) || (parsed?.data?.pedagogicalNote as string) || 'Öğrencinin yakınsal gelişim alanını (ZPD) ve problem çözme becerisini destekleyen gerçek yaşam senaryoları.';
 
     const problemler: MatProblem[] = rawProblemler.map((p: Record<string, unknown>, i: number) => {
         // ─── Otomatik Cevap Birleştirici ─────────────────────────────
@@ -220,6 +227,9 @@ export const generateMathProblems = async (settings: MatProblemAyarlari): Promis
         olusturmaTarihi: new Date().toISOString(),
         olusturanKullanici: 'AI Generator',
         cevapAnahtari,
+        pedagogicalNote,
+        ogrenciProfili: settings.ogrenciProfili,
+        yasGrubu: settings.yasGrubu,
         dizgiAyarlari: {
             fontAilesi: 'Lexend',
             fontBoyutu: '11pt',
@@ -249,6 +259,8 @@ export const generateMatProblemFromOptions = async (options: Record<string, unkn
         verilenlerGosterilsinMi: typeof options.verilenlerGosterilsinMi === 'boolean' ? options.verilenlerGosterilsinMi : true,
         cozumKutusuGosterilsinMi: typeof options.cozumKutusuGosterilsinMi === 'boolean' ? options.cozumKutusuGosterilsinMi : true,
         isLgsMode: typeof options.isLgsMode === 'boolean' ? options.isLgsMode : false,
+        ogrenciProfili: typeof options.ogrenciProfili === 'string' ? options.ogrenciProfili as MatProblemAyarlari['ogrenciProfili'] : (typeof options.profile === 'string' ? options.profile as MatProblemAyarlari['ogrenciProfili'] : undefined),
+        yasGrubu: typeof options.yasGrubu === 'string' ? options.yasGrubu as MatProblemAyarlari['yasGrubu'] : (typeof options.ageGroup === 'string' ? options.ageGroup as MatProblemAyarlari['yasGrubu'] : undefined),
     };
 
     return generateMathProblems(settings);

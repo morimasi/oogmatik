@@ -53,6 +53,8 @@ const defaultAyarlar: MatProblemAyarlari = {
     verilenlerGosterilsinMi: true,
     cozumKutusuGosterilsinMi: true,
     isLgsMode: false,
+    ogrenciProfili: 'mixed',
+    yasGrubu: '8-10',
 };
 
 const defaultDizgiAyarlari: ProblemDizgiAyarlari = {
@@ -93,14 +95,18 @@ export const useMatProblemStore = create<MatProblemStoreState>((set, get) => ({
         set((s) => ({ ayarlar: { ...s.ayarlar, ...partial } })),
 
     setSinif: (sinif: number) =>
-        set((s) => ({
-            ayarlar: {
-                ...s.ayarlar,
-                sinif,
-                secilenUniteler: [],
-                secilenKazanimlar: [],
-            },
-        })),
+        set((s) => {
+            const autoAge = sinif <= 2 ? '5-7' : sinif <= 4 ? '8-10' : sinif <= 7 ? '11-13' : '14+';
+            return {
+                ayarlar: {
+                    ...s.ayarlar,
+                    sinif,
+                    yasGrubu: autoAge,
+                    secilenUniteler: [],
+                    secilenKazanimlar: [],
+                },
+            };
+        }),
 
     setSecilenUniteler: (uniteler: string[]) =>
         set((s) => ({ ayarlar: { ...s.ayarlar, secilenUniteler: uniteler } })),
