@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, ArrowLeft, Layers, Trash2, Eye, ChevronDown, Filter, FileText,
   Share2, AlertTriangle, ArrowUpDown,
-  Calendar, Type, ExternalLink, Grid3X3, Sparkles, Printer, X
+  Calendar, Type, ExternalLink, Grid3X3, Sparkles, Printer, X, Download, Copy, BookPlus
 } from 'lucide-react';
 import { SavedWorksheet, SavedAssessment, Curriculum } from '../types';
 import type { GeneratedActivity } from '../types/visionStudio';
@@ -13,9 +13,12 @@ import { useReactToPrint } from 'react-to-print';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToastStore } from '../store/useToastStore';
+import { useFascicleStore } from '../store/useFascicleStore';
+import { useRBAC } from '../hooks/useRBAC';
 import { worksheetService } from '../services/worksheetService';
 import { assessmentService } from '../services/assessmentService';
 import { curriculumService } from '../services/curriculumService';
+import { printService } from '../utils/printService';
 import { ShareModal } from './ShareModal';
 import { FeedbackModal } from './FeedbackModal';
 import { cn } from '../utils/tailwindUtils';
@@ -102,7 +105,37 @@ const GlassCard = ({
     </motion.div>
 );
 
-const MaterialCard = ({ item, onLoad, onDelete, onShare, onReport, onPrint, isReadOnly }: any) => {
+interface MaterialCardProps {
+    item: SavedWorksheet;
+    onLoad: (item: SavedWorksheet) => void;
+    onDelete?: (id: string) => void;
+    onShare?: (item: SavedWorksheet) => void;
+    onReport?: (item: SavedWorksheet) => void;
+    onPrint?: (item: SavedWorksheet) => void;
+    onDownloadPdf?: (item: SavedWorksheet) => void;
+    onDuplicate?: (item: SavedWorksheet) => void;
+    onAddToFascicle?: (item: SavedWorksheet) => void;
+    isReadOnly: boolean;
+    canDelete: boolean;
+    canExport: boolean;
+    canCreate: boolean;
+}
+
+const MaterialCard: React.FC<MaterialCardProps> = ({
+    item,
+    onLoad,
+    onDelete,
+    onShare,
+    onReport,
+    onPrint,
+    onDownloadPdf,
+    onDuplicate,
+    onAddToFascicle,
+    isReadOnly,
+    canDelete,
+    canExport,
+    canCreate,
+}) => {
     const [showActions, setShowActions] = useState(false);
     if (!item || !item.id) return null;
     
@@ -112,6 +145,7 @@ const MaterialCard = ({ item, onLoad, onDelete, onShare, onReport, onPrint, isRe
 
     const getGlowColor = () => categoryGlowGradient(cid);
     const iconFa = activityDef?.icon || item.icon || 'fa-solid fa-file-lines';
+    const pageCount = Array.isArray(item.worksheetData) ? item.worksheetData.length : 1;
 
     const handleActionClick = (e: React.MouseEvent, action: () => void) => {
         e.stopPropagation();
@@ -129,16 +163,22 @@ const MaterialCard = ({ item, onLoad, onDelete, onShare, onReport, onPrint, isRe
                 <motion.div 
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => onLoad?.(item)}
+                    onClick={() => onLoad(item)}
                     className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--accent-color)] shadow-inner transition-all group-hover:border-[var(--accent-color)]/40 group-hover:shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)]"
                 >
                     <i className={cn(iconFa, 'text-xl leading-none')} aria-hidden />
                 </motion.div>
                 
-                <div className="relative">
+                <div className="relative flex items-center gap-1.5">
+                    {item.studentProfile?.grade && (
+                        <span className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-secondary)] px-2 py-0.5 text-[9px] font-bold text-[var(--text-secondary)]">
+                            {item.studentProfile.grade}
+                        </span>
+                    )}
                     <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); setShowActions(!showActions); }}
+                        aria-label="Materyal İşlemleri"
                         className={cn(
                             "flex h-9 w-9 items-center justify-center rounded-xl border border-transparent text-[var(--text-muted)] transition-all hover:bg-[var(--bg-secondary)] hover:border-[var(--border-color)] hover:text-[var(--text-primary)]",
                             showActions && "bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)] shadow-sm"
@@ -161,38 +201,68 @@ const MaterialCard = ({ item, onLoad, onDelete, onShare, onReport, onPrint, isRe
                                     initial={{ opacity: 0, scale: 0.95, y: -10, x: 10 }}
                                     animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
                                     exit={{ opacity: 0, scale: 0.95, y: -10, x: 10 }}
-                                    className="absolute right-0 top-11 z-50 w-52 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-paper)]/95 p-1.5 shadow-2xl backdrop-blur-2xl ring-1 ring-black/[0.05]"
+                                    className="absolute right-0 top-11 z-50 w-56 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-paper)]/95 p-1.5 shadow-2xl backdrop-blur-2xl ring-1 ring-black/[0.05]"
                                 >
                                     <div className="px-3 py-2 mb-1 border-b border-[var(--border-color)]/50">
                                         <p className="text-[9px] font-black uppercase tracking-[0.15em] text-[var(--text-muted)]">Materyal İşlemleri</p>
                                     </div>
-                                    <button onClick={(e) => handleActionClick(e, () => onLoad?.(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-[var(--text-primary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all group/btn">
+                                    <button type="button" onClick={(e) => handleActionClick(e, () => onLoad(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[11px] font-bold text-[var(--text-primary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all group/btn">
                                         <div className="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center group-hover/btn:bg-[var(--accent-color)] group-hover/btn:text-white transition-colors">
                                             <ExternalLink className="w-3.5 h-3.5" />
                                         </div>
-                                        Modülde Aç
+                                        Stüdyoda Aç & Düzenle
                                     </button>
-                                    <button onClick={(e) => handleActionClick(e, () => onLoad?.(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-[var(--text-primary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all group/btn">
-                                        <div className="w-6 h-6 rounded-lg bg-zinc-500/10 flex items-center justify-center group-hover/btn:bg-[var(--accent-color)] group-hover/btn:text-white transition-colors">
-                                            <Eye className="w-3.5 h-3.5" />
-                                        </div>
-                                        İncele & Düzenle
-                                    </button>
-                                    <button onClick={(e) => handleActionClick(e, () => onShare?.(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-[var(--text-primary)] hover:bg-sky-500/10 hover:text-sky-600 transition-all group/btn">
-                                        <div className="w-6 h-6 rounded-lg bg-sky-500/10 flex items-center justify-center group-hover/btn:bg-sky-500 group-hover/btn:text-white transition-colors">
-                                            <Share2 className="w-3.5 h-3.5" />
-                                        </div>
-                                        Paylaş (Link/Öğrenci)
-                                    </button>
-                                    <div className="my-1.5 h-px bg-[var(--border-color)]/60" />
-                                    <button onClick={(e) => handleActionClick(e, () => onReport?.(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-amber-600 hover:bg-amber-500/10 transition-all group/btn">
-                                        <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center group-hover/btn:bg-amber-500 group-hover/btn:text-white transition-colors">
-                                            <AlertTriangle className="w-3.5 h-3.5" />
-                                        </div>
-                                        Sorun Bildir
-                                    </button>
-                                    {!isReadOnly && (
-                                        <button onClick={(e) => handleActionClick(e, () => onDelete?.(item.id))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-rose-600 hover:bg-rose-500/10 transition-all group/btn">
+                                    {canExport && onPrint && (
+                                        <button type="button" onClick={(e) => handleActionClick(e, () => onPrint(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[11px] font-bold text-[var(--text-primary)] hover:bg-emerald-500/10 hover:text-emerald-600 transition-all group/btn">
+                                            <div className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover/btn:bg-emerald-500 group-hover/btn:text-white transition-colors">
+                                                <Printer className="w-3.5 h-3.5" />
+                                            </div>
+                                            Yazdır
+                                        </button>
+                                    )}
+                                    {canExport && onDownloadPdf && (
+                                        <button type="button" onClick={(e) => handleActionClick(e, () => onDownloadPdf(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[11px] font-bold text-[var(--text-primary)] hover:bg-teal-500/10 hover:text-teal-600 transition-all group/btn">
+                                            <div className="w-6 h-6 rounded-lg bg-teal-500/10 flex items-center justify-center group-hover/btn:bg-teal-500 group-hover/btn:text-white transition-colors">
+                                                <Download className="w-3.5 h-3.5" />
+                                            </div>
+                                            PDF İndir
+                                        </button>
+                                    )}
+                                    {!isReadOnly && canCreate && onAddToFascicle && (
+                                        <button type="button" onClick={(e) => handleActionClick(e, () => onAddToFascicle(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[11px] font-bold text-[var(--text-primary)] hover:bg-purple-500/10 hover:text-purple-600 transition-all group/btn">
+                                            <div className="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center group-hover/btn:bg-purple-500 group-hover/btn:text-white transition-colors">
+                                                <BookPlus className="w-3.5 h-3.5" />
+                                            </div>
+                                            Fasiküle Ekle
+                                        </button>
+                                    )}
+                                    {!isReadOnly && canCreate && onDuplicate && (
+                                        <button type="button" onClick={(e) => handleActionClick(e, () => onDuplicate(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[11px] font-bold text-[var(--text-primary)] hover:bg-amber-500/10 hover:text-amber-600 transition-all group/btn">
+                                            <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center group-hover/btn:bg-amber-500 group-hover/btn:text-white transition-colors">
+                                                <Copy className="w-3.5 h-3.5" />
+                                            </div>
+                                            Çoğalt (Kopyala)
+                                        </button>
+                                    )}
+                                    {!isReadOnly && onShare && (
+                                        <button type="button" onClick={(e) => handleActionClick(e, () => onShare(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[11px] font-bold text-[var(--text-primary)] hover:bg-sky-500/10 hover:text-sky-600 transition-all group/btn">
+                                            <div className="w-6 h-6 rounded-lg bg-sky-500/10 flex items-center justify-center group-hover/btn:bg-sky-500 group-hover/btn:text-white transition-colors">
+                                                <Share2 className="w-3.5 h-3.5" />
+                                            </div>
+                                            Paylaş (Link/Kişi)
+                                        </button>
+                                    )}
+                                    <div className="my-1 h-px bg-[var(--border-color)]/60" />
+                                    {onReport && (
+                                        <button type="button" onClick={(e) => handleActionClick(e, () => onReport(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[11px] font-bold text-amber-600 hover:bg-amber-500/10 transition-all group/btn">
+                                            <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center group-hover/btn:bg-amber-500 group-hover/btn:text-white transition-colors">
+                                                <AlertTriangle className="w-3.5 h-3.5" />
+                                            </div>
+                                            Sorun Bildir
+                                        </button>
+                                    )}
+                                    {!isReadOnly && canDelete && onDelete && (
+                                        <button type="button" onClick={(e) => handleActionClick(e, () => onDelete(item.id))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-[11px] font-bold text-rose-600 hover:bg-rose-500/10 transition-all group/btn">
                                             <div className="w-6 h-6 rounded-lg bg-rose-500/10 flex items-center justify-center group-hover/btn:bg-rose-500 group-hover/btn:text-white transition-colors">
                                                 <Trash2 className="w-3.5 h-3.5" />
                                             </div>
@@ -207,39 +277,42 @@ const MaterialCard = ({ item, onLoad, onDelete, onShare, onReport, onPrint, isRe
             </div>
 
             <div 
-                onClick={() => onLoad?.(item)}
+                onClick={() => onLoad(item)}
                 className="relative z-10 flex flex-1 flex-col cursor-pointer"
             >
                 <div className="flex items-center gap-2 mb-1.5">
                     <span className={cn('h-1.5 w-1.5 rounded-full', categoryDotClass(cid))}></span>
-                    <span className="font-lexend text-[9px] font-black uppercase tracking-[0.18em] text-[var(--accent-color)] opacity-85">
+                    <span className="font-lexend text-[9px] font-black uppercase tracking-[0.18em] text-[var(--accent-color)] opacity-85 truncate">
                         {item.category?.id === 'workbook' || item.activityType === 'WORKBOOK'
                         ? 'Çalışma Kitapçığı'
                         : categoryDef?.title || item.category?.title || 'Genel materyal'}
                     </span>
                     {item.activityType && (
-                      <span className="ml-auto flex items-center gap-1 rounded-lg border border-[var(--accent-color)]/15 bg-[var(--accent-muted)] px-2 py-0.5 text-[8px] font-bold text-[var(--accent-color)] opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="ml-auto flex items-center gap-1 rounded-lg border border-[var(--accent-color)]/15 bg-[var(--accent-muted)] px-2 py-0.5 text-[8px] font-bold text-[var(--accent-color)] opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                         <ExternalLink className="h-2.5 w-2.5" />
                         Aç
                       </span>
                     )}
                 </div>
-                <h3 className="font-lexend mb-2 line-clamp-2 text-[15px] font-black leading-snug text-[var(--text-primary)] group-hover:text-[var(--accent-color)] transition-colors">
+                <h3 className="font-lexend mb-1.5 line-clamp-2 text-[15px] font-black leading-snug text-[var(--text-primary)] group-hover:text-[var(--accent-color)] transition-colors">
                     {item.name}
                 </h3>
+                {activityDef?.title && (
+                    <p className="text-[10px] font-semibold text-[var(--text-muted)] truncate mb-1">
+                        {activityDef.title}
+                    </p>
+                )}
                 
-                <div className="font-lexend mt-auto pt-4 border-t border-[var(--border-color)]/40 flex items-center justify-between text-[10px] font-bold text-[var(--text-muted)]">
+                <div className="font-lexend mt-auto pt-3 border-t border-[var(--border-color)]/40 flex items-center justify-between text-[10px] font-bold text-[var(--text-muted)]">
                     <div className="flex items-center gap-1.5 bg-[var(--bg-secondary)]/50 px-2.5 py-1 rounded-full border border-[var(--border-color)]/30">
                         <i className="fa-regular fa-calendar-check opacity-70"></i>
                         {item.createdAt ? new Date(item.createdAt).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' }) : '—'}
                     </div>
                     
-                    {item.pageCount && (
-                         <div className="flex items-center gap-1.5">
-                            <i className="fa-solid fa-file-invoice opacity-50"></i>
-                            <span>{item.pageCount} Sayfa</span>
-                         </div>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                        <i className="fa-solid fa-file-invoice opacity-50"></i>
+                        <span>{pageCount} Sayfa</span>
+                    </div>
 
                     <div className="flex items-center gap-1 text-emerald-500">
                         <i className="fa-solid fa-cloud-arrow-up opacity-70"></i>
@@ -251,7 +324,15 @@ const MaterialCard = ({ item, onLoad, onDelete, onShare, onReport, onPrint, isRe
     );
 };
 
-const ReportCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
+interface ReportCardProps {
+    item: SavedAssessment;
+    onLoad: (item: SavedAssessment) => void;
+    onDelete?: (id: string) => void;
+    isReadOnly: boolean;
+    canDelete: boolean;
+}
+
+const ReportCard: React.FC<ReportCardProps> = ({ item, onLoad, onDelete, isReadOnly, canDelete }) => {
     if (!item || !item.id) return null;
     return (
         <GlassCard className="flex h-72 cursor-default flex-col p-6 hover:translate-y-0">
@@ -262,10 +343,10 @@ const ReportCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
                     <i className="fa-solid fa-clipboard-list text-xl text-[var(--accent-color)] mb-0.5"></i>
                     <span className="text-[9px] font-black uppercase tracking-tighter text-[var(--text-muted)]">Rapor</span>
                 </div>
-                {!isReadOnly && (
+                {!isReadOnly && canDelete && onDelete && (
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); onDelete?.(item.id); }}
+                      onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
                       className="rounded-lg p-2 text-[var(--text-muted)] transition-colors hover:bg-red-500/10 hover:text-red-500"
                       aria-label="Sil"
                     >
@@ -295,7 +376,7 @@ const ReportCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
 
             <button
                 type="button"
-                onClick={() => onLoad?.(item)}
+                onClick={() => onLoad(item)}
                 className="font-lexend mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] py-2.5 text-xs font-bold text-[var(--text-primary)] transition-all hover:border-[var(--accent-color)]/35 hover:bg-[var(--accent-muted)]"
             >
                 <Eye className="h-3.5 w-3.5 shrink-0" aria-hidden /> Raporu aç
@@ -304,10 +385,18 @@ const ReportCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
     );
 };
 
-const PlanCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
+interface PlanCardProps {
+    item: Curriculum;
+    onLoad: (item: Curriculum) => void;
+    onDelete?: (id: string) => void;
+    isReadOnly: boolean;
+    canDelete: boolean;
+}
+
+const PlanCard: React.FC<PlanCardProps> = ({ item, onLoad, onDelete, isReadOnly, canDelete }) => {
     if (!item || !item.id) return null;
     return (
-        <GlassCard onClick={() => onLoad?.(item)} className="relative flex h-64 flex-col overflow-hidden p-6">
+        <GlassCard onClick={() => onLoad(item)} className="relative flex h-64 flex-col overflow-hidden p-6">
             <div className="absolute -right-4 -top-4 p-8 text-[var(--accent-color)] opacity-[0.07]">
                 <i className="fa-solid fa-user-graduate text-[120px]"></i>
             </div>
@@ -317,10 +406,10 @@ const PlanCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
                     <div className="rounded-lg border border-[var(--accent-color)]/25 bg-[var(--accent-muted)] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--accent-color)]">
                         {item.durationDays} günlük plan
                     </div>
-                    {!isReadOnly && (
+                    {!isReadOnly && canDelete && onDelete && (
                          <button
                             type="button"
-                            onClick={(e) => { e.stopPropagation(); onDelete?.(item.id); }}
+                            onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
                             className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-muted)] transition-colors hover:bg-red-500/10 hover:text-red-500"
                             aria-label="Sil"
                         >
@@ -536,6 +625,10 @@ const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, confirmLab
 export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad, onBack, targetUserId }) => {
     const toast = useToastStore();
     const { user } = useAuthStore();
+    const { hasPermission } = useRBAC();
+    const canDelete = hasPermission('archive', 'delete');
+    const canExport = hasPermission('archive', 'export');
+    const canCreate = hasPermission('archive', 'create');
     const [activeTab, setActiveTab] = useState<'materials' | 'reports' | 'plans' | 'vision'>('materials');
     const [activeCategory, setActiveCategory] = useState<string>('all');
 
@@ -638,6 +731,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                 if (!effectiveUserId) return;
                 await worksheetService.deleteWorksheet(id, effectiveUserId);
                 setWorksheets(prev => prev.filter(i => i.id !== id));
+                setMaterialsTotal(prev => Math.max(0, prev - 1));
             } else if (type === 'plans') {
                 await curriculumService.deleteCurriculum(id);
                 setPlans(prev => prev.filter(i => i.id !== id));
@@ -656,30 +750,69 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
         }
     };
 
+    const handlePrintOrDownload = (item: SavedWorksheet, action: 'print' | 'download') => {
+        onLoad(item);
+        toast.info(action === 'download' ? 'PDF hazırlanıyor...' : 'Yazdırma önizlemesi hazırlanıyor...');
+        setTimeout(() => {
+            const targetSelector = '#print-container, #print-target, #worksheet-preview-root, .worksheet-page, #math-canvas-container .math-canvas-page, #sinav-print-target, #mat-sinav-print-inner';
+            printService.generatePdf(targetSelector, item.name || 'bdmind_Materyal', { action }).catch((err) => {
+                logError(err instanceof Error ? err : String(err));
+            });
+        }, 900);
+    };
+
+    const handleDuplicateWorksheet = async (item: SavedWorksheet) => {
+        if (!user || isReadOnly) return;
+        try {
+            const cloned = await worksheetService.duplicateWorksheet(item.id, user.id);
+            setWorksheets(prev => [cloned, ...prev]);
+            setMaterialsTotal(prev => prev + 1);
+            toast.success(`"${cloned.name}" arşivinize kopyalandı.`);
+        } catch (err) {
+            logError(err instanceof Error ? err : String(err));
+            toast.error('Materyal kopyalanırken bir hata oluştu.');
+        }
+    };
+
+    const handleAddToFascicle = (item: SavedWorksheet) => {
+        const { addItem, items } = useFascicleStore.getState();
+        addItem({
+            id: crypto.randomUUID(),
+            type: item.activityType,
+            difficulty: 'Orta',
+            pageCount: Array.isArray(item.worksheetData) ? item.worksheetData.length : 1,
+            order: items.length,
+            content: item.worksheetData,
+        });
+        toast.success(`"${item.name}" Fasikül & Kitapçık stüdyosuna eklendi!`);
+    };
+
     const filteredItems = useMemo(() => {
         const query = debouncedSearchQuery.toLowerCase();
-        let items: any[];
+        const dir = sortDir === 'desc' ? -1 : 1;
+        type SortableItem = { createdAt?: string; name?: string; studentName?: string; title?: string };
+        const sortFn = <T extends SortableItem>(arr: T[]): T[] =>
+            [...arr].sort((a, b) => {
+                const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                const nameA = (a.name || a.studentName || a.title || '').toLowerCase();
+                const nameB = (b.name || b.studentName || b.title || '').toLowerCase();
+                if (sortBy === 'date') return (dateA - dateB) * dir;
+                return nameA.localeCompare(nameB) * dir;
+            });
+
         if (activeTab === 'materials') {
-            items = worksheets.filter(item => item && (item.name || '').toLowerCase().includes(query));
-        } else if (activeTab === 'reports') {
-            items = assessments.filter(item => item && (item.studentName || '').toLowerCase().includes(query));
-        } else if (activeTab === 'plans') {
-            items = plans.filter(item => item && (item.studentName || '').toLowerCase().includes(query));
-        } else {
-            items = visionActivities.filter((item) =>
-                item &&
-                (`${item.title || ''} ${item.subject || ''}`).toLowerCase().includes(query)
-            );
+            return sortFn(worksheets.filter(item => item && (item.name || '').toLowerCase().includes(query)));
         }
-        return items.sort((a, b) => {
-            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-            const nameA = (a.name || a.studentName || a.title || '').toLowerCase();
-            const nameB = (b.name || b.studentName || b.title || '').toLowerCase();
-            const dir = sortDir === 'desc' ? -1 : 1;
-            if (sortBy === 'date') return (dateA - dateB) * dir;
-            return nameA.localeCompare(nameB) * dir;
-        });
+        if (activeTab === 'reports') {
+            return sortFn(assessments.filter(item => item && (item.studentName || '').toLowerCase().includes(query)));
+        }
+        if (activeTab === 'plans') {
+            return sortFn(plans.filter(item => item && (item.studentName || '').toLowerCase().includes(query)));
+        }
+        return sortFn(
+            visionActivities.filter(item => item && `${item.title || ''} ${item.subject || ''}`.toLowerCase().includes(query))
+        );
     }, [activeTab, debouncedSearchQuery, worksheets, assessments, plans, visionActivities, sortBy, sortDir]);
 
     const tabs = [
@@ -950,37 +1083,45 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                                 className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
                             >
                                 <AnimatePresence mode='popLayout'>
-                                    {activeTab === 'materials' && filteredItems.map((item: any) => (
+                                    {activeTab === 'materials' && (filteredItems as SavedWorksheet[]).map((item) => (
                                         <MaterialCard 
                                             key={item.id} 
                                             item={item} 
                                             onLoad={onLoad} 
                                             onDelete={(id: string) => setConfirmDelete({ id, type: 'materials' })} 
-                                            onShare={(item: any) => setShareModal({ isOpen: true, item })}
-                                            onReport={(item: any) => setFeedbackModal({ isOpen: true, item })}
-                                            onPrint={(item: any) => window.open(`/api/print/${item.id}`, '_blank') || onLoad(item)}
-                                            isReadOnly={isReadOnly} 
+                                            onShare={(ws) => setShareModal({ isOpen: true, item: ws })}
+                                            onReport={(ws) => setFeedbackModal({ isOpen: true, item: ws })}
+                                            onPrint={(ws) => handlePrintOrDownload(ws, 'print')}
+                                            onDownloadPdf={(ws) => handlePrintOrDownload(ws, 'download')}
+                                            onDuplicate={handleDuplicateWorksheet}
+                                            onAddToFascicle={handleAddToFascicle}
+                                            isReadOnly={isReadOnly}
+                                            canDelete={canDelete}
+                                            canExport={canExport}
+                                            canCreate={canCreate}
                                         />
                                     ))}
-                                    {activeTab === 'reports' && filteredItems.map((item: any) => (
+                                    {activeTab === 'reports' && (filteredItems as SavedAssessment[]).map((item) => (
                                         <ReportCard 
                                             key={item.id} 
                                             item={item} 
                                             onLoad={onLoad} 
                                             onDelete={(id: string) => setConfirmDelete({ id, type: 'reports' })} 
-                                            isReadOnly={isReadOnly} 
+                                            isReadOnly={isReadOnly}
+                                            canDelete={canDelete}
                                         />
                                     ))}
-                                    {activeTab === 'plans' && filteredItems.map((item: any) => (
+                                    {activeTab === 'plans' && (filteredItems as Curriculum[]).map((item) => (
                                         <PlanCard 
                                             key={item.id} 
                                             item={item} 
                                             onLoad={onLoad} 
                                             onDelete={(id: string) => setConfirmDelete({ id, type: 'plans' })} 
-                                            isReadOnly={isReadOnly} 
+                                            isReadOnly={isReadOnly}
+                                            canDelete={canDelete}
                                         />
                                     ))}
-                                    {activeTab === 'vision' && filteredItems.map((item: GeneratedActivity) => (
+                                    {activeTab === 'vision' && (filteredItems as GeneratedActivity[]).map((item) => (
                                         <VisionMaterialCard
                                             key={item.id}
                                             item={item}

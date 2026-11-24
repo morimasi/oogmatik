@@ -217,7 +217,21 @@ export const ShareModal = ({ isOpen, onClose, onShare, worksheetId, worksheetTit
                                 <h4 className="font-bold text-zinc-800 dark:text-zinc-100">Akıllı QR Kod</h4>
                                 <p className="text-sm text-zinc-500 mt-1">Mobil cihazın kamerasından okutarak doğrudan açın.</p>
                             </div>
-                            <button className="flex items-center gap-2 px-6 py-2 bg-zinc-100 dark:bg-zinc-700/50 rounded-full text-zinc-600 dark:text-zinc-300 text-sm font-bold hover:bg-zinc-200 transition-all">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const url = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(worksheetId ? `${window.location.origin}?share=${worksheetId}` : window.location.origin)}`;
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = `${(worksheetTitle || 'etkinlik').replace(/\s+/g, '_')}_qr.png`;
+                                    a.target = '_blank';
+                                    a.rel = 'noopener noreferrer';
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    document.body.removeChild(a);
+                                }}
+                                className="flex items-center gap-2 px-6 py-2 bg-zinc-100 dark:bg-zinc-700/50 rounded-full text-zinc-600 dark:text-zinc-300 text-sm font-bold hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-all"
+                            >
                                 <i className="fa-solid fa-download"></i> Kaydet
                             </button>
                         </div>

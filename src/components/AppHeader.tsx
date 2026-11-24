@@ -403,10 +403,18 @@ export const AppHeader = ({
                         <div className="w-px self-stretch min-h-[1rem] max-h-[1.5rem] bg-[var(--border-color)] mx-1 opacity-45" aria-hidden />
 
                         <HeaderDropdown label="KİTAPLIK" icon="fa-shapes" colorClass="text-[var(--accent-color)]">
-                            <DropdownItem icon="fa-star" label="Favori Etkinliklerim" onClick={() => { setIsSidebarOpen(false); navigateTo('favorites'); }} />
-                            <DropdownItem icon="fa-box-archive" label="Dijital Arşiv" onClick={() => { setIsSidebarOpen(false); navigateTo('savedList'); }} />
-                            <DropdownItem icon="fa-share-nodes" label="Paylaşılan Materyaller" onClick={() => { setIsSidebarOpen(false); navigateTo('shared'); }} />
-                            <DropdownItem icon="fa-clock-rotate-left" label="İşlem Geçmişi" onClick={() => { setIsSidebarOpen(false); onOpenModal('history'); }} />
+                            {canAccess('favorites') && (
+                                <DropdownItem icon="fa-star" label="Favori Etkinliklerim" onClick={() => { setIsSidebarOpen(false); navigateTo('favorites'); }} />
+                            )}
+                            {canAccess('archive') && (
+                                <DropdownItem icon="fa-box-archive" label="Dijital Arşiv" onClick={() => { setIsSidebarOpen(false); navigateTo('savedList'); }} />
+                            )}
+                            {canAccess('shared-materials') && (
+                                <DropdownItem icon="fa-share-nodes" label="Paylaşılan Materyaller" onClick={() => { setIsSidebarOpen(false); navigateTo('shared'); }} />
+                            )}
+                            {canAccess('activity-history') && (
+                                <DropdownItem icon="fa-clock-rotate-left" label="İşlem Geçmişi" onClick={() => { setIsSidebarOpen(false); onOpenModal('history'); }} />
+                            )}
                         </HeaderDropdown>
 
                         <HeaderDropdown label="DESTEK" icon="fa-headset" menuVariant="supportCompact">

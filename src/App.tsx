@@ -827,14 +827,16 @@ const AppContent = () => {
         onClose={() => setOpenModal(null)}
         title="İşlem Geçmişi"
       >
-        <HistoryView
-          historyItems={historyItems}
-          onRestore={handleRestoreFromHistory}
-          onSaveToArchive={handleSaveHistoryItem}
-          onDelete={deleteHistoryItem}
-          onClearAll={clearHistory}
-          onClose={() => setOpenModal(null)}
-        />
+        <ProtectedRoute module="activity-history" onBack={() => setOpenModal(null)}>
+          <HistoryView
+            historyItems={historyItems}
+            onRestore={handleRestoreFromHistory}
+            onSaveToArchive={handleSaveHistoryItem}
+            onDelete={deleteHistoryItem}
+            onClearAll={clearHistory}
+            onClose={() => setOpenModal(null)}
+          />
+        </ProtectedRoute>
       </Modal>
       <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda & Vizyon" maxWidth="max-w-4xl">
         <div className="space-y-12">

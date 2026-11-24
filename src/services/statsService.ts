@@ -122,21 +122,41 @@ export const statsService = {
     getFavorites: (): ActivityType[] => {
         try {
             if (typeof window === 'undefined') return [];
-            return JSON.parse(localStorage.getItem('user_favorites') || '[]');
+            const raw = localStorage.getItem('user_favorites');
+            const parsed = raw ? JSON.parse(raw) : [];
+            return Array.isArray(parsed) ? (parsed as ActivityType[]) : [];
         } catch { return []; }
     },
 
-    toggleFavorite: (id: ActivityType) => {
+    syncFavorites: (remoteFavorites?: ActivityType[]): ActivityType[] => {
+        try {
+            const local = statsService.getFavorites();
+            if (!remoteFavorites || !Array.isArray(remoteFavorites)) return local;
+            const merged = Array.from(new Set([...local, ...remoteFavorites])) as ActivityType[];
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('user_favorites', JSON.stringify(merged));
+            }
+            return merged;
+        } catch {
+            return statsService.getFavorites();
+        }
+    },
+
+    toggleFavorite: (id: ActivityType): ActivityType[] => {
         try {
             const favs = statsService.getFavorites();
             const newFavs = favs.includes(id) ? favs.filter(f => f !== id) : [...favs, id];
-            localStorage.setItem('user_favorites', JSON.stringify(newFavs));
-
-            // Sync with Firebase if user is logged in
-            const currentUser = auth.currentUser;
-            if (currentUser) {
-                authService.updateProfile(currentUser.uid, { favorites: newFavs }).catch(console.error);
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('user_favorites', JSON.stringify(newFavs));
             }
+
+            // Sync with Firebase if user is logged in (isolated so auth errors never break local favorites)
+            try {
+                const currentUser = auth?.currentUser;
+                if (currentUser) {
+                    authService.updateProfile(currentUser.uid, { favorites: newFavs }).catch(console.error);
+                }
+            } catch { /* ignore firebase sync error in offline/test env */ }
 
             return newFavs;
         } catch { return []; }

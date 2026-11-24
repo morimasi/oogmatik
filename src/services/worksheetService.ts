@@ -285,14 +285,17 @@ export const worksheetService = {
                 collection(db, "saved_worksheets"),
                 where("sharedWith", "array-contains", userId),
                 orderBy("createdAt", "desc"),
-                limit(pageSize)
+                limit(200)
             );
             const querySnapshot = await getDocs(q);
-            const items: SavedWorksheet[] = [];
+            const allItems: SavedWorksheet[] = [];
             querySnapshot.forEach((doc: firestore.QueryDocumentSnapshot<firestore.DocumentData>) => {
-                items.push(mapDbToWorksheet(doc.data(), doc.id));
+                allItems.push(mapDbToWorksheet(doc.data(), doc.id));
             });
-            return { items, count: null };
+            return {
+                items: allItems.slice(page * pageSize, (page + 1) * pageSize),
+                count: allItems.length
+            };
         } catch (error) {
             logWarn("Firestore Shared Query Error", { error });
             // Fallback for missing index
@@ -311,6 +314,66 @@ export const worksheetService = {
             items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return { items: items.slice(page * pageSize, (page + 1) * pageSize), count: items.length };
         }
+    },
+
+    /**
+     * Remove current user from a shared worksheet's sharedWith list (recipient-safe unshare)
+     */
+    removeFromSharedWithMe: async (worksheetId: string, userId: string): Promise<void> => {
+        try {
+            const docRef = doc(db, "saved_worksheets", worksheetId);
+            const docSnap = await getDoc(docRef);
+
+            if (!docSnap.exists()) {
+                throw new NotFoundError('Paylaşılan çalışma sayfası bulunamadı');
+            }
+
+            const data = docSnap.data() as firestore.DocumentData;
+            const currentSharedWith = data.sharedWith as string | string[] | undefined;
+
+            const isRecipient = currentSharedWith === userId ||
+                (Array.isArray(currentSharedWith) && currentSharedWith.includes(userId));
+
+            if (!isRecipient && data.userId !== userId) {
+                throw new AuthorizationError('Bu paylaşımı kaldırma izniniz yok');
+            }
+
+            const updatedSharedWith = Array.isArray(currentSharedWith)
+                ? currentSharedWith.filter((id) => id !== userId)
+                : [];
+
+            await retryWithBackoff(
+                () => updateDoc(docRef, {
+                    sharedWith: updatedSharedWith,
+                    updatedAt: new Date().toISOString()
+                }),
+                { maxRetries: 3 }
+            );
+        } catch (error) {
+            if (error instanceof AppError) throw error;
+            const appError = toAppError(error);
+            logError(appError, { context: 'removeFromSharedWithMe', worksheetId, userId });
+            throw appError;
+        }
+    },
+
+    /**
+     * Duplicate an existing or shared worksheet into the user's own archive
+     */
+    duplicateWorksheet: async (worksheetId: string, userId: string, customName?: string): Promise<SavedWorksheet> => {
+        const source = await worksheetService.getWorksheetById(worksheetId, userId);
+        return worksheetService.saveWorksheet(
+            userId,
+            customName || `${source.name} (Kopya)`,
+            source.activityType,
+            source.worksheetData,
+            source.icon,
+            source.category,
+            source.styleSettings,
+            source.studentProfile,
+            source.studentId,
+            source.studentName
+        );
     },
 
     shareWorksheet: async (worksheetId: string, senderId: string, senderName: string, receiverIds: string | string[]): Promise<void> => {
