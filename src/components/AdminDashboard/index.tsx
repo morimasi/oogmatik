@@ -296,7 +296,15 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
                 />
               )}
               {activeTab === 'static_content' && <AdminStaticContent />}
-              {activeTab === 'feedbacks' && <AdminFeedback />}
+              {activeTab === 'feedbacks' && (
+                <AdminFeedback
+                  onOpenPrompt={(actId) => {
+                    setPromptTargetActivityId(actId);
+                    setActiveTab('prompts');
+                  }}
+                  onOpenActivities={() => setActiveTab('activities')}
+                />
+              )}
               {activeTab === 'users' && <AdminUserManagement />}
               {activeTab === 'teachers' && <TeacherManagement />}
               {activeTab === 'students' && <AdminStudentManagement />}
