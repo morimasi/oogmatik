@@ -1,5 +1,5 @@
 import React from 'react';
-import { KelimeCumleActivityType } from '../../types/kelimeCumle';
+import { KelimeCumleActivityType, KelimeCumleGeneratedContent, KelimeCumleConfig } from '../../types/kelimeCumle';
 import { 
     BoslukDoldurmaRenderer, 
     TestRenderer, 
@@ -8,13 +8,15 @@ import {
     ZitAnlamRenderer 
 } from './modules';
 
-export const KELIME_CUMLE_REGISTRY: Record<KelimeCumleActivityType, {
+export interface KelimeCumleRegistryItem {
     title: string;
     description: string;
     icon: string;
-    renderer: React.FC<any>;
-    defaultConfig: any;
-}> = {
+    renderer: React.FC<{ content: KelimeCumleGeneratedContent; showAnswers?: boolean }>;
+    defaultConfig: Partial<KelimeCumleConfig>;
+}
+
+export const KELIME_CUMLE_REGISTRY: Record<KelimeCumleActivityType, KelimeCumleRegistryItem> = {
     bosluk_doldurma: {
         title: 'Boşluk Doldurma',
         description: 'Cümledeki eksik kelimeyi tamamlama.',

@@ -20,11 +20,17 @@ export interface KelimeCumleConfig {
     showPredicate?: boolean;
     customInstructions?: string;
     topics: string[];
-    // Tasarım Standartları (Yeni)
+    // Tasarım Standartları
     fontSize?: number;
     wordSpacing?: number;
     dotSize?: number;
     itemsPerPage?: number;
+    // Nöro-Pedagojik ve Öğrenci Profili (Yeni)
+    learningProfile?: string;
+    studentId?: string;
+    studentName?: string;
+    bepGoals?: string[];
+    paperTheme?: 'classic' | 'pastel-yellow' | 'pastel-blue' | 'sepia' | 'karne';
 }
 
 export interface BoslukDoldurmaItem {
@@ -57,6 +63,8 @@ export interface ZitAnlamItem {
 export interface KelimeCumleGeneratedContent {
     title: string;
     instructions: string;
+    pedagogicalNote?: string; // Öğretmen/Veli için nöro-pedagojik not (Zorunlu standart)
+    targetSkills?: string[];
 
     items: any[]; // Modüle göre tipi değişir
     activityType: KelimeCumleActivityType;
