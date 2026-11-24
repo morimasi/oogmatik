@@ -174,7 +174,10 @@ const collectSourcePages = (selector: string): HTMLElement[] => {
     }
   });
 
-  return pages;
+  // İç içe geçmiş alt sayfaları tekilleştir
+  return pages.filter((page, index) => {
+    return !pages.some((otherPage, otherIndex) => otherIndex !== index && otherPage.contains(page));
+  });
 };
 
 /**

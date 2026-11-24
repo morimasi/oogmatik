@@ -204,8 +204,12 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
     document.head.appendChild(styleEl);
   }
 
+  const baseSize =
+    paperSize === 'Extreme_Dikey' || paperSize === 'Extreme_Yatay' ? 'A4' : paperSize;
+  const orientation = paperSize === 'Extreme_Yatay' || isLandscape ? 'landscape' : 'portrait';
+
   styleEl.textContent = `
-    @page { size: ${paperSize} ${isLandscape ? 'landscape' : 'portrait'}; margin: 8mm !important; }
+    @page { size: ${baseSize} ${orientation}; margin: 8mm !important; }
     @media print {
       body > *:not(#print-overlay) {
         display: none !important;
@@ -234,7 +238,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
          tablo ve grid konteynerlarını (kullanıcı isteğiyle) koruyoruz.
       */
       .bdmind-print-wrapper, 
-      .bdmind-print-wrapper *:not(.block-table-container):not(.block-grid-container):not(table):not(.grid) {
+      .bdmind-print-wrapper *:not(.block-table-container):not(.block-grid-container):not(table):not(.grid):not(.worksheet-item):not(.activity-card):not(.question-container):not(.problem-card):not(.operation-card):not(.logic-card):not([data-keep-together="true"]):not(svg) {
         page-break-inside: auto !important;
         break-inside: auto !important;
         page-break-before: auto !important;
@@ -242,6 +246,11 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         overflow: visible !important;
         height: auto !important;
         min-height: 0 !important;
+      }
+
+      .worksheet-item, .activity-card, .question-container, .problem-card, .operation-card, .logic-card, [data-keep-together="true"] {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
       }
 
       /* Reading Studio Bileşenlerinin Yazdırmada Dikey Sıralı Akışı - Sayfa Akışına İzin Ver */
@@ -280,7 +289,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
 
       @page { 
         margin: 8mm !important; 
-        size: A4 portrait;
+        size: ${baseSize} ${orientation};
       }
       
       html, body {
@@ -308,12 +317,16 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         min-height: auto !important;
       }
       .bdmind-print-wrapper {
-        page-break-after: auto !important;
-        break-after: auto !important;
+        page-break-after: always !important;
+        break-after: page !important;
       }
       .bdmind-print-wrapper:last-child {
         page-break-after: auto !important;
         break-after: auto !important;
+      }
+
+      body.print-ink-saver #print-overlay {
+        filter: grayscale(100%) contrast(1.15) !important;
       }
       .print-exact {
         margin: 0 !important;

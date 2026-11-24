@@ -138,7 +138,11 @@
   .worksheet-item,
   .activity-card,
   .worksheet-section,
-  .question-container {
+  .question-container,
+  .problem-card,
+  .operation-card,
+  .logic-card,
+  [data-keep-together='true'] {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }

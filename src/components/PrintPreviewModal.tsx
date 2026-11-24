@@ -3,11 +3,11 @@ import { printService } from '../utils/printService';
 import { snapshotService } from '../utils/snapshotService';
 import { renderAllPagesPreview } from '../utils/print/PreviewRenderer';
 import type { WorksheetData, StyleSettings } from '../types';
-import type { PaperSize } from '../utils/print/types';
+import type { PaperSize, PdfQuality } from '../utils/print/types';
 import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { ExportProgressModal } from './ExportProgressModal';
-
 import { logError, logWarn } from '../utils/logger.js';
+
 interface PrintPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -15,6 +15,19 @@ interface PrintPreviewModalProps {
   title?: string;
   settings?: StyleSettings;
 }
+
+const PAPER_OPTIONS: { id: PaperSize; label: string }[] = [
+  { id: 'Extreme_Dikey', label: 'A4 Dikey' },
+  { id: 'Extreme_Yatay', label: 'A4 Yatay' },
+  { id: 'Letter', label: 'Letter' },
+  { id: 'Legal', label: 'Legal' },
+];
+
+const QUALITY_OPTIONS: { id: PdfQuality; label: string }[] = [
+  { id: 'standard', label: 'Hızlı (1.5x)' },
+  { id: 'high', label: 'Yüksek (2x)' },
+  { id: 'print', label: 'Baskı (3x)' },
+];
 
 export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
   isOpen,
@@ -26,18 +39,18 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [quality, setQuality] = useState<PdfQuality>('print');
+  const [grayscale, setGrayscale] = useState(false);
   const [exportProgress, setExportProgress] = useState({ open: false, percent: 0, message: '' });
   const [previewReady, setPreviewReady] = useState(false);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const cleanupRef = useRef<{ cleanup: () => void; scrollToPage: (i: number) => void } | null>(null);
   const { paperSize, setPaperSize } = usePaperSizeStore();
 
-  // Canlı önizleme render
   const renderPreview = useCallback(() => {
     const container = previewContainerRef.current;
     if (!container) return;
 
-    // Önceki preview'ı temizle
     if (cleanupRef.current) {
       cleanupRef.current.cleanup();
       cleanupRef.current = null;
@@ -64,14 +77,12 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
     }
   }, [paperSize]);
 
-  // Modal açıldığında preview render et
   useEffect(() => {
     if (!isOpen) {
       setPreviewReady(false);
       return;
     }
 
-    // DOM'un render olması için kısa gecikme
     const timer = setTimeout(() => {
       renderPreview();
     }, 150);
@@ -85,23 +96,24 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
     };
   }, [isOpen, renderPreview]);
 
-  // Kağıt boyutu değiştiğinde yeniden render
   useEffect(() => {
     if (isOpen && previewReady) {
       renderPreview();
     }
   }, [paperSize]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sayfa navigasyonu
-  const handlePageChange = useCallback((direction: 'prev' | 'next') => {
-    setCurrentPage((prev) => {
-      const newPage = direction === 'prev' ? Math.max(1, prev - 1) : Math.min(totalPages, prev + 1);
-      if (cleanupRef.current) {
-        cleanupRef.current.scrollToPage(newPage - 1); // 0-indexed
-      }
-      return newPage;
-    });
-  }, [totalPages]);
+  const handlePageChange = useCallback(
+    (direction: 'prev' | 'next') => {
+      setCurrentPage((prev) => {
+        const newPage = direction === 'prev' ? Math.max(1, prev - 1) : Math.min(totalPages, prev + 1);
+        if (cleanupRef.current) {
+          cleanupRef.current.scrollToPage(newPage - 1);
+        }
+        return newPage;
+      });
+    },
+    [totalPages]
+  );
 
   if (!isOpen) return null;
 
@@ -118,12 +130,14 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
         await printService.generatePdf(targetSelector, title, {
           action: 'print',
           paperSize: paperSize as unknown as PaperSize,
+          grayscale,
         });
       } else if (action === 'pdf') {
         setExportProgress({ open: true, percent: 0, message: 'PDF Hazırlanıyor...' });
         await printService.generateRealPdf(targetSelector, title, {
           paperSize: paperSize as unknown as PaperSize,
-          quality: 'print',
+          quality,
+          grayscale,
           onProgress: (percent, msg) => setExportProgress({ open: true, percent, message: msg }),
         });
       } else if (action === 'zip') {
@@ -140,96 +154,127 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-900/90 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-        <div className="bg-white dark:bg-zinc-900 w-full max-w-5xl h-[85vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row relative outline outline-1 outline-white/10">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-200 font-lexend">
+        <div className="bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] w-full max-w-5xl h-[88vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row relative">
           {/* Sol Panel: Ayarlar ve Eylemler */}
-          <div className="w-full md:w-80 bg-zinc-50 dark:bg-zinc-900/50 flex flex-col border-r border-zinc-200 dark:border-zinc-800">
-            <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+          <div className="w-full md:w-80 bg-[var(--bg-secondary)]/70 flex flex-col border-r border-[var(--border-color)]">
+            <div className="p-6 border-b border-[var(--border-color)] flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-black text-zinc-900 dark:text-white flex items-center gap-2">
-                  <i className="fa-solid fa-print text-indigo-500"></i> Dışa Aktar
+                <h2 className="text-xl font-black text-[var(--text-primary)] flex items-center gap-2">
+                  <i className="fa-solid fa-print text-[var(--accent-color)]"></i> Dışa Aktar
                 </h2>
-                <p className="text-xs text-zinc-500 mt-1 dark:text-zinc-400 font-medium">
+                <p className="text-xs text-[var(--text-muted)] mt-1 font-medium">
                   Platform Baskı Merkezi
                 </p>
               </div>
               <button
+                type="button"
                 onClick={onClose}
-                className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors"
+                aria-label="Kapat"
+                className="w-8 h-8 rounded-full bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <i className="fa-solid fa-xmark"></i>
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-              <div className="space-y-3">
-                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider block">
-                  Kağıt Yönü
+            <div className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
+              {/* Kağıt Boyutu & Yön */}
+              <div className="space-y-2.5">
+                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block">
+                  Kağıt Boyutu & Yön
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {(['Extreme_Dikey', 'Extreme_Yatay'] as const).map((p) => (
+                  {PAPER_OPTIONS.map((p) => (
                     <button
-                      key={p}
-                      onClick={() => setPaperSize(p)}
-                      className={`py-2 px-3 rounded-lg border text-sm font-semibold transition-all ${
-                        paperSize === p
-                          ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-500/10 dark:border-indigo-500/30 dark:text-indigo-300 shadow-sm'
-                          : 'bg-white border-zinc-200 text-zinc-600 hover:border-zinc-300 dark:bg-zinc-800/80 dark:border-zinc-700 dark:text-zinc-300'
+                      type="button"
+                      key={p.id}
+                      onClick={() => setPaperSize(p.id)}
+                      className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
+                        paperSize === p.id
+                          ? 'bg-[var(--accent-muted)] border-[var(--accent-color)] text-[var(--accent-color)] shadow-sm'
+                          : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-secondary)] hover:border-[var(--accent-color)]/40'
                       }`}
                     >
-                      {p === 'Extreme_Dikey' ? 'Dikey' : 'Yatay'}
+                      {p.label}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider block">
-                  Baskı Ayarları
+              {/* PDF Kalitesi */}
+              <div className="space-y-2.5">
+                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block">
+                  PDF Çözünürlüğü
                 </label>
-                <div className="bg-white dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 rounded-xl p-4 space-y-4 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                      Yüksek Kalite (3x)
-                    </span>
-                    <i className="fa-solid fa-check-circle text-emerald-500"></i>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                      Arka Plan Renkleri
-                    </span>
-                    <i className="fa-solid fa-check-circle text-emerald-500"></i>
-                  </div>
-                  <div className="flex items-center justify-between opacity-50 cursor-not-allowed">
-                    <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                      Siyah/Beyaz
-                    </span>
-                    <i className="fa-solid fa-circle-xmark text-zinc-400"></i>
-                  </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {QUALITY_OPTIONS.map((q) => (
+                    <button
+                      type="button"
+                      key={q.id}
+                      onClick={() => setQuality(q.id)}
+                      className={`py-2 px-2 rounded-xl border text-[11px] font-bold transition-all ${
+                        quality === q.id
+                          ? 'bg-[var(--accent-muted)] border-[var(--accent-color)] text-[var(--accent-color)]'
+                          : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                      }`}
+                    >
+                      {q.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-4 border border-emerald-100 dark:border-emerald-800/50">
+              {/* Baskı Ayarları */}
+              <div className="space-y-2.5">
+                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block">
+                  Baskı Modu
+                </label>
+                <div className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-2xl p-4 space-y-3 shadow-sm">
+                  <button
+                    type="button"
+                    onClick={() => setGrayscale((prev) => !prev)}
+                    className="w-full flex items-center justify-between text-left"
+                  >
+                    <div>
+                      <span className="text-xs font-bold text-[var(--text-primary)] block">
+                        Siyah / Beyaz (Mürekkep Tasarrufu)
+                      </span>
+                      <span className="text-[10px] text-[var(--text-muted)]">
+                        Yüksek kontrastlı ekonomik çıktı
+                      </span>
+                    </div>
+                    <span
+                      className={`w-10 h-5 rounded-full transition-colors flex items-center px-0.5 ${
+                        grayscale ? 'bg-[var(--accent-color)] justify-end' : 'bg-[var(--bg-secondary)] border border-[var(--border-color)] justify-start'
+                      }`}
+                    >
+                      <span className="w-4 h-4 rounded-full bg-white shadow"></span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-emerald-500/10 rounded-2xl p-4 border border-emerald-500/20">
                 <div className="flex items-start gap-3">
-                  <i className="fa-solid fa-circle-info text-emerald-600 dark:text-emerald-400 mt-0.5"></i>
+                  <i className="fa-solid fa-circle-info text-emerald-500 mt-0.5"></i>
                   <div>
-                    <h4 className="text-xs font-bold text-emerald-900 dark:text-emerald-300 mb-1">
-                      Mizanpaj İpucu
+                    <h4 className="text-xs font-bold text-[var(--text-primary)] mb-1">
+                      Akıllı Mizanpaj Koruması
                     </h4>
-                    <p className="text-[11px] text-emerald-700 dark:text-emerald-400 leading-relaxed">
-                      Uzun içerikler otomatik olarak sonraki sayfalara bölünür. Etkinliğin hiçbir
-                      parçası kesilmez.
+                    <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                      Izgaralar ve etkinlik kartları satır bütünlüğü korunarak sayfalara yerleştirilir; taşan uzun içerikler otomatik dilimlenir.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="p-6 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 space-y-3">
+            <div className="p-6 border-t border-[var(--border-color)] bg-[var(--bg-paper)] space-y-3">
               <button
+                type="button"
                 onClick={() => handleAction('pdf')}
                 disabled={isProcessing}
-                className="w-full py-3.5 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-black rounded-xl shadow-lg shadow-red-500/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-70"
+                className="w-full py-3.5 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-black rounded-xl shadow-lg shadow-red-500/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-70 text-xs uppercase tracking-wider"
               >
                 <i className="fa-solid fa-file-pdf"></i>
                 PREMIUM PDF İNDİR
@@ -237,63 +282,67 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <button
+                  type="button"
                   onClick={() => handleAction('print')}
                   disabled={isProcessing}
-                  className="w-full py-2.5 bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:hover:bg-white text-white dark:text-black font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-70 text-sm"
+                  className="w-full py-2.5 bg-[var(--accent-color)] hover:opacity-90 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-70 text-xs"
                 >
                   <i className="fa-solid fa-print"></i>
                   Yazdır
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleAction('zip')}
                   disabled={isProcessing}
-                  className="w-full py-2.5 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-bold rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-70 text-sm"
+                  className="w-full py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] hover:border-[var(--accent-color)]/40 text-[var(--text-primary)] font-bold rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-70 text-xs"
                 >
                   <i className="fa-solid fa-file-zipper"></i>
-                  Tümünü İndir (ZIP)
+                  ZIP İndir
                 </button>
               </div>
             </div>
           </div>
 
           {/* Sağ Panel: Canlı Önizleme Alanı */}
-          <div className="flex-1 bg-zinc-200/50 dark:bg-black/50 overflow-hidden flex flex-col relative">
+          <div className="flex-1 bg-[var(--bg-primary)] overflow-hidden flex flex-col relative">
             {/* Önizleme Araç Çubuğu */}
-            <div className="h-14 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between px-6 z-10">
-              <div className="flex items-center gap-2 text-sm font-bold text-zinc-600 dark:text-zinc-300">
-                <i className="fa-regular fa-file-lines text-indigo-500"></i>
+            <div className="h-14 bg-[var(--bg-paper)]/90 backdrop-blur-md border-b border-[var(--border-color)] flex items-center justify-between px-6 z-10">
+              <div className="flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)]">
+                <i className="fa-regular fa-file-lines text-[var(--accent-color)]"></i>
                 {previewReady ? (
                   <span>Toplam {totalPages} Sayfa</span>
                 ) : (
-                  <span className="text-zinc-400">Yükleniyor...</span>
+                  <span className="text-[var(--text-muted)]">Yükleniyor...</span>
                 )}
               </div>
               <div className="flex items-center gap-1">
-                {/* Yenile butonu */}
                 <button
+                  type="button"
                   onClick={renderPreview}
-                  className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
+                  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--bg-secondary)] text-[var(--text-muted)] transition-colors"
                   title="Önizlemeyi Yenile"
                 >
                   <i className="fa-solid fa-arrows-rotate text-xs"></i>
                 </button>
-                <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1 ml-1">
+                <div className="flex items-center gap-1 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl p-1 ml-1">
                   <button
+                    type="button"
                     onClick={() => handlePageChange('prev')}
                     disabled={currentPage <= 1}
-                    className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-40 transition-colors shadow-sm"
+                    className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[var(--bg-paper)] disabled:opacity-40 transition-colors"
                   >
-                    <i className="fa-solid fa-chevron-left"></i>
+                    <i className="fa-solid fa-chevron-left text-xs"></i>
                   </button>
-                  <span className="text-xs font-mono font-bold px-2 text-zinc-700 dark:text-zinc-300">
+                  <span className="text-xs font-mono font-bold px-2 text-[var(--text-primary)]">
                     {currentPage} / {totalPages}
                   </span>
                   <button
+                    type="button"
                     onClick={() => handlePageChange('next')}
                     disabled={currentPage >= totalPages}
-                    className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-40 transition-colors shadow-sm"
+                    className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-[var(--bg-paper)] disabled:opacity-40 transition-colors"
                   >
-                    <i className="fa-solid fa-chevron-right"></i>
+                    <i className="fa-solid fa-chevron-right text-xs"></i>
                   </button>
                 </div>
               </div>
@@ -301,31 +350,29 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
 
             {/* Canlı Önizleme İçeriği */}
             <div
-              className="flex-1 overflow-auto p-4 custom-scrollbar relative"
+              className={`flex-1 overflow-auto p-4 custom-scrollbar relative transition-all ${grayscale ? 'grayscale contrast-125' : ''}`}
               ref={previewContainerRef}
             >
-              {/* Container boşken yükleme göstergesi */}
               {!previewReady && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 z-20">
-                  <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-500 flex items-center justify-center mb-4 animate-pulse">
+                  <div className="w-16 h-16 rounded-full bg-[var(--accent-muted)] text-[var(--accent-color)] flex items-center justify-center mb-4 animate-pulse">
                     <i className="fa-solid fa-spinner fa-spin text-2xl"></i>
                   </div>
-                  <h3 className="text-lg font-black text-zinc-900 dark:text-white mb-2">
+                  <h3 className="text-lg font-black text-[var(--text-primary)] mb-2">
                     Önizleme Hazırlanıyor
                   </h3>
-                  <p className="text-sm text-zinc-500 max-w-[280px]">
+                  <p className="text-sm text-[var(--text-muted)] max-w-[280px]">
                     Sayfa içeriği klonlanıyor ve ölçekleniyor...
                   </p>
                 </div>
               )}
             </div>
 
-            {/* Loading Overlay */}
             {isProcessing && (
-              <div className="absolute inset-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
-                <i className="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-500 mb-4"></i>
-                <div className="text-lg font-bold text-zinc-800 dark:text-white">İşleniyor...</div>
-                <div className="text-sm text-zinc-500 mt-1">
+              <div className="absolute inset-0 bg-[var(--bg-paper)]/85 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+                <i className="fa-solid fa-circle-notch fa-spin text-4xl text-[var(--accent-color)] mb-4"></i>
+                <div className="text-lg font-bold text-[var(--text-primary)]">İşleniyor...</div>
+                <div className="text-sm text-[var(--text-muted)] mt-1">
                   Lütfen bekleyin, yüksek kalite render uzun sürebilir.
                 </div>
               </div>

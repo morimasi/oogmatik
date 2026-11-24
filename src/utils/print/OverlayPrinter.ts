@@ -92,7 +92,8 @@ const buildCapturedPrintOverlay = (
  */
 export const print = async (
   elementSelector: string = '.worksheet-page',
-  paperSize: PaperSize = 'A4'
+  paperSize: PaperSize = 'A4',
+  grayscale: boolean = false
 ): Promise<void> => {
   if (typeof window === 'undefined') return;
 
@@ -171,7 +172,7 @@ export const print = async (
   wrapperContainer.className = 'print-pages-container';
   overlay.appendChild(wrapperContainer);
 
-  const isLandscape = roots.some(r => r.classList.contains('orientation-landscape')) ?? false;
+  const isLandscape = paperSize === 'Extreme_Yatay' || (roots.some(r => r.classList.contains('orientation-landscape')) ?? false);
 
   // Print Lock CSS enjeksiyonu
   injectPrintLockCSS(paperSize, isLandscape);
@@ -249,6 +250,7 @@ export const print = async (
 
   // 5. Native Render Stabilizasyonu (Font Ready + Layout Sync)
   document.body.classList.add('printing-mode');
+  document.body.classList.toggle('print-ink-saver', grayscale);
 
   const prevTheme = document.documentElement.className;
   document.documentElement.className = 'theme-light';
@@ -265,7 +267,7 @@ export const print = async (
     // Yazdırma bittiğinde veya iptal edildiğinde temizlik yap
     const cleanup = () => {
       document.documentElement.className = prevTheme;
-      document.body.classList.remove('printing-mode');
+      document.body.classList.remove('printing-mode', 'print-ink-saver');
       if (overlay) overlay.style.display = 'none';
       window.removeEventListener('afterprint', cleanup);
     };
@@ -275,11 +277,11 @@ export const print = async (
     window.print();
 
     // Browser afterprint'i desteklemiyorsa fallback temizlik
-    setTimeout(cleanup, 2000);
+    setTimeout(cleanup, 60000);
   } catch (err: unknown) {
     logError('Print trigger failed:', { error: err instanceof Error ? err.message : String(err) });
     document.documentElement.className = prevTheme;
-    document.body.classList.remove('printing-mode');
+    document.body.classList.remove('printing-mode', 'print-ink-saver');
     if (overlay) overlay.style.display = 'none';
   }
 };
@@ -294,7 +296,8 @@ export const captureAndPrint = async (
   rootSelector: string,
   title: string = 'EduMind_Etkinlik',
   action: 'print' | 'download' = 'print',
-  paperSize: PaperSize = 'A4'
+  paperSize: PaperSize = 'A4',
+  grayscale: boolean = false
 ): Promise<void> => {
   await forceRenderAllPages();
   try {
@@ -391,6 +394,7 @@ export const captureAndPrint = async (
     });
 
     document.body.classList.add('printing-mode');
+  document.body.classList.toggle('print-ink-saver', grayscale);
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     document.body.offsetHeight;
 
@@ -404,7 +408,7 @@ export const captureAndPrint = async (
         logError('Capture print failed', { error: e instanceof Error ? e.message : String(e) });
       } finally {
         document.documentElement.className = prevTheme;
-        document.body.classList.remove('printing-mode');
+        document.body.classList.remove('printing-mode', 'print-ink-saver');
         if (overlay) overlay.innerHTML = '';
       }
     }, 120);
@@ -415,7 +419,7 @@ export const captureAndPrint = async (
       setTimeout(async () => {
         if (document.body.classList.contains('printing-mode')) {
           document.documentElement.className = prevTheme;
-          document.body.classList.remove('printing-mode');
+          document.body.classList.remove('printing-mode', 'print-ink-saver');
           if (overlay) {
             overlay.innerHTML = '';
             overlay.style.display = 'none';
@@ -447,7 +451,7 @@ export const registerCleanupListeners = (): void => {
   if (typeof window === 'undefined') return;
 
   const cleanup = () => {
-    document.body.classList.remove('printing-mode');
+    document.body.classList.remove('printing-mode', 'print-ink-saver');
     const overlay = document.getElementById('print-overlay');
     if (overlay) {
       overlay.innerHTML = '';

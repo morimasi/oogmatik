@@ -14,11 +14,14 @@ import {
 } from './CaptureEngine';
 import { forceRenderAllPages, clearRenderAllPagesFlag } from './CSSInjector';
 import { useStudentStore } from '../../store/useStudentStore.js';
+import { useToastStore } from '../../store/useToastStore.js';
 
 import { logError, logWarn } from '../../utils/logger.js';
 export interface RealPdfOptions {
   paperSize?: PaperSize;
   quality?: PdfQuality;
+  grayscale?: boolean;
+  selectedPages?: number[];
   onProgress?: (percent: number, message: string) => void;
 }
 
@@ -36,17 +39,21 @@ export const generateRealPdf = async (
   try {
     const paperSize = options?.paperSize ?? 'A4';
     const quality = options?.quality ?? 'high';
+    const grayscale = options?.grayscale ?? false;
+    const selectedPages = options?.selectedPages;
     const onProgress = options?.onProgress;
     const captureScale = QUALITY_SCALE_MAP[quality];
 
-    // Detecting landscape from container class
-    const isLandscape = document.querySelector(rootSelector)?.classList.contains('orientation-landscape') ?? false;
+    // Detecting landscape from paperSize or container class
+    const isLandscape =
+      paperSize === 'Extreme_Yatay' ||
+      (document.querySelector(rootSelector)?.classList.contains('orientation-landscape') ?? false);
 
     // Kağıt boyutları (mm) - Fallback ekle
     const dims = PAPER_DIMENSIONS[paperSize] || PAPER_DIMENSIONS.A4;
     let pageW = parseFloat(dims?.width || '210mm');
     let pageH = parseFloat(dims?.height || '297mm');
-    if (isLandscape) {
+    if (isLandscape && pageW < pageH) {
       [pageW, pageH] = [pageH, pageW];
     }
 
@@ -57,18 +64,22 @@ export const generateRealPdf = async (
     if (roots.length === 0) {
       logError(`[PDFGenerator] HATA: "${rootSelector}" bulunamadı.`);
       onProgress?.(0, 'İçerik bulunamadı');
-      alert('Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+      useToastStore.getState().error('Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
       return null;
     }
 
     if (!hasRenderableContent(roots)) {
       logError(`[PDFGenerator] HATA: "${rootSelector}" bulundu ama içerik boş.`);
       onProgress?.(0, 'İçerik boş');
-      alert('Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+      useToastStore.getState().error('Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
       return null;
     }
 
-    const pages = collectPages(rootSelector);
+    let pages = collectPages(rootSelector);
+    if (selectedPages && selectedPages.length > 0) {
+      const allowed = new Set(selectedPages);
+      pages = pages.filter((_, idx) => allowed.has(idx + 1));
+    }
     if (pages.length === 0) {
       logWarn('[PDFGenerator] Sayfa bulunamadı');
       return null;
@@ -121,29 +132,76 @@ export const generateRealPdf = async (
     // UI öğelerini geçici olarak gizle
     const restoreUI = hideUIElements();
 
+    let addedFirstPage = false;
+
     try {
       for (let i = 0; i < pages.length; i++) {
         const page = pages[i];
         const progressPercent = 10 + Math.round((i / pages.length) * 80);
         onProgress?.(progressPercent, `Sayfa ${i + 1}/${pages.length} işleniyor...`);
 
-        // Arka plan garantisi
         const origBg = page.style.backgroundColor;
         page.style.backgroundColor = '#ffffff';
 
-        const canvas = await capturePage(page, captureScale);
+        const rawCanvas = await capturePage(page, captureScale);
         page.style.backgroundColor = origBg;
 
-        // Canvas → JPEG data URL (PNG'den daha küçük PDF boyutu)
-        const imgData = canvas.toDataURL('image/jpeg', 0.92);
-
-        // İlk sayfa zaten oluşturuldu, sonrakiler için yeni sayfa ekle
-        if (i > 0) {
-          pdf.addPage([pageW, pageH], pdfOrientation);
+        let workingCanvas = rawCanvas;
+        if (grayscale && rawCanvas.width > 0 && rawCanvas.height > 0) {
+          const grayCanvas = document.createElement('canvas');
+          grayCanvas.width = rawCanvas.width;
+          grayCanvas.height = rawCanvas.height;
+          const gCtx = grayCanvas.getContext('2d');
+          if (gCtx) {
+            gCtx.filter = 'grayscale(100%) contrast(1.1)';
+            gCtx.drawImage(rawCanvas, 0, 0);
+            workingCanvas = grayCanvas;
+          }
         }
 
-        // Görüntüyü tam sayfa olarak ekle
-        pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH, undefined, 'FAST');
+        const renderedHeightMm = (workingCanvas.height * pageW) / Math.max(1, workingCanvas.width);
+
+        if (renderedHeightMm <= pageH * 1.04) {
+          if (addedFirstPage) pdf.addPage([pageW, pageH], pdfOrientation);
+          addedFirstPage = true;
+          const imgData = workingCanvas.toDataURL('image/jpeg', 0.92);
+          const fitH = Math.min(pageH, renderedHeightMm);
+          pdf.addImage(imgData, 'JPEG', 0, 0, pageW, fitH, undefined, 'FAST');
+        } else {
+          // Uzun sayfayı en-boy oranını bozmadan dikey A4 dilimlerine böl
+          const sliceHeightPx = Math.max(100, Math.floor((pageH * workingCanvas.width) / pageW));
+          for (let offsetY = 0; offsetY < workingCanvas.height; offsetY += sliceHeightPx) {
+            const currentSliceH = Math.min(sliceHeightPx, workingCanvas.height - offsetY);
+            if (currentSliceH < 24) break; // İhmal edilebilir boş kuyruk dilimini atla
+
+            const sliceCanvas = document.createElement('canvas');
+            sliceCanvas.width = workingCanvas.width;
+            sliceCanvas.height = currentSliceH;
+            const sCtx = sliceCanvas.getContext('2d');
+            if (sCtx) {
+              sCtx.fillStyle = '#ffffff';
+              sCtx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+              sCtx.drawImage(
+                workingCanvas,
+                0,
+                offsetY,
+                workingCanvas.width,
+                currentSliceH,
+                0,
+                0,
+                workingCanvas.width,
+                currentSliceH
+              );
+            }
+
+            if (addedFirstPage) pdf.addPage([pageW, pageH], pdfOrientation);
+            addedFirstPage = true;
+
+            const sliceImgData = sliceCanvas.toDataURL('image/jpeg', 0.92);
+            const sliceHeightMm = (currentSliceH * pageW) / workingCanvas.width;
+            pdf.addImage(sliceImgData, 'JPEG', 0, 0, pageW, Math.min(pageH, sliceHeightMm), undefined, 'FAST');
+          }
+        }
       }
     } finally {
       restoreUI();
