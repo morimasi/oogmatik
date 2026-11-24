@@ -828,9 +828,11 @@ const buildMathExamPrompt = (settings: MatSinavAyarlari): string => {
     '   - "not": (İsteğe bağlı) Grafik altında gösterilecek not.\n\n' +
     '2. GEOMETRİ ŞEKİLLERİ VE KAVRAMLARI:\n' +
     '   - "tip": \'ucgen\', \'dik_ucgen\', \'dikdortgen\', \'kare\', \'cokgen\', \'daire\', \'kup\', \'silindir\', \'koni\', \'piramit\', \'dikdortgenler_prizmasi\', \'dogru_parcasi\', \'isin\', \'dogru\', \'paralel_dogrular\', \'kesisen_dogrular\', \'dik_kesisen_dogrular\'.\n' +
-    '   - "baslik": Şekil/kavram için bir başlık (örn: "ABC Üçgeni").\n' +
-    '   - "veri": Bir dizi (array) olmalıdır. Her eleman şeklin bir özelliğini tanımlar.\n' +
-    '     **ÖNEMLİ TUTARLILIK KURALI: "soru_metni" içinde bahsedilen harf/isimler (örn: AB doğru parçası) ile "grafik_verisi" içindeki etiketler (örn: "A Köşesi") BİREBİR AYNI OLMALIDIR.**\n' +
+    '   - "baslik": Şekil/kavram için açıklayıcı bir başlık (örn: "Antrenman Sahası ve Minder Planı", "ABC Üçgeni").\n' +
+    '   - "ozellikler.kenarlar": Kenar uzunlukları dizisi. SAYISAL VEYA CEBİRSEL İFADE OLABİLİR (örn: ["(4x + 8)", "(x + 2)"] veya ["12", "8"]). ASLA null GÖNDERME! Soru metnindeki cebirsel ifadeleri aynen string olarak yaz.\n' +
+    '   - "ozellikler.icSekil": Eğer soru içinde bir minder, havuz, taralı bölge gibi iç şekil varsa mutlaka tanımla (örn: {"tip": "kare", "etiket": "Minder", "kenarlar": ["(x + 2)"]}).\n' +
+    '   - "veri": Bir dizi (array) olmalıdır. Her eleman şeklin bir özelliğini tanımlar. "deger" alanı sayı veya cebirsel string (örn: "(4x + 8)") olabilir, ASLA null gönderme!\n' +
+    '     **ÖNEMLİ TUTARLILIK KURALI: "soru_metni" içinde bahsedilen harf/isimler ve kenar değerleri ile "grafik_verisi" içindeki veriler BİREBİR AYNI OLMALIDIR.**\n' +
     '   - "not": (İsteğe bağlı) Şekille ilgili ek bilgi.\n\n' +
     '3. KOORDİNAT DÖNÜŞÜM GRAFİĞİ (Yansıma / Öteleme / Döndürme):\n' +
     '   - "tip": \'koordinat_donusum\'\n' +
@@ -911,6 +913,44 @@ const buildMathExamPrompt = (settings: MatSinavAyarlari): string => {
   return promptParts.join('\n');
 };
 
+// ─── Grafik Verisi Sanitizasyonu ──────────────────────────────
+function sanitizeGrafikVerisi(grafik?: MatSoru['grafik_verisi']): MatSoru['grafik_verisi'] {
+  if (!grafik) return undefined;
+
+  const isNullish = (v: unknown): boolean =>
+    v === null ||
+    v === undefined ||
+    String(v).trim() === '' ||
+    String(v).trim().toLowerCase() === 'null' ||
+    String(v).trim().toLowerCase() === 'undefined' ||
+    String(v).trim() === 'NaN';
+
+  const cleanVeri = Array.isArray(grafik.veri)
+    ? grafik.veri.map((v) => ({
+        ...v,
+        deger: isNullish(v.deger) ? undefined : v.deger,
+      }))
+    : [];
+
+  const cleanKenarlar = Array.isArray(grafik.ozellikler?.kenarlar)
+    ? grafik.ozellikler.kenarlar.filter((k) => !isNullish(k))
+    : undefined;
+
+  const cleanYaricap = isNullish(grafik.ozellikler?.yaricap) ? undefined : grafik.ozellikler?.yaricap;
+
+  return {
+    ...grafik,
+    veri: cleanVeri,
+    ozellikler: grafik.ozellikler
+      ? {
+          ...grafik.ozellikler,
+          kenarlar: cleanKenarlar && cleanKenarlar.length > 0 ? cleanKenarlar : undefined,
+          yaricap: cleanYaricap,
+        }
+      : undefined,
+  };
+}
+
 // ─── Response Schema ──────────────────────────────────────────
 const MATH_EXAM_SCHEMA = {
   type: 'OBJECT',
@@ -979,8 +1019,8 @@ const MATH_EXAM_SCHEMA = {
                       description: "Veri noktasının etiketi (örn: 'Elma', 'AB Kenarı', 'A', \"A'\", \"A''\").",
                     },
                     deger: {
-                      type: 'NUMBER',
-                      description: 'Sayısal değer (örn: 12, 90).',
+                      type: 'STRING',
+                      description: "Sayısal değer veya cebirsel ifade (örn: '12', '(4x + 8)', '90'). Asla null gönderme.",
                       nullable: true,
                     },
                     nesne: {
@@ -1031,11 +1071,31 @@ const MATH_EXAM_SCHEMA = {
                     },
                     nullable: true,
                   },
-                  kenarlar: { type: 'ARRAY', items: { type: 'NUMBER' }, nullable: true },
+                  kenarlar: {
+                    type: 'ARRAY',
+                    items: { type: 'STRING' },
+                    description: "Kenar uzunlukları veya cebirsel ifadeler (örn: ['(4x + 8)', '(x + 2)'] veya ['12', '8']). Asla null gönderme.",
+                    nullable: true,
+                  },
                   acilar: { type: 'ARRAY', items: { type: 'NUMBER' }, nullable: true },
+                  yaricap: {
+                    type: 'STRING',
+                    description: "Yarıçap değeri veya cebirsel ifade (örn: '5', '2x').",
+                    nullable: true,
+                  },
                   etiketler: { type: 'ARRAY', items: { type: 'STRING' }, nullable: true },
                   birim: { type: 'STRING', nullable: true },
                   renk: { type: 'STRING', nullable: true },
+                  icSekil: {
+                    type: 'OBJECT',
+                    description: 'İçerideki minder, havuz veya taralı bölge gibi alt şekil planı.',
+                    properties: {
+                      tip: { type: 'STRING', description: "'kare' veya 'dikdortgen'" },
+                      etiket: { type: 'STRING', description: "Alt şeklin adı (örn: 'Minder', 'Havuz')" },
+                      kenarlar: { type: 'ARRAY', items: { type: 'STRING' }, nullable: true },
+                    },
+                    nullable: true,
+                  },
                 },
                 nullable: true,
               },
@@ -1142,7 +1202,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
         yanlis_secenek_tipleri: Array.isArray(question.yanlis_secenek_tipleri)
           ? (question.yanlis_secenek_tipleri.filter((item): item is string => typeof item === 'string'))
           : undefined,
-        grafik_verisi: (question.grafik_verisi as MatSoru['grafik_verisi']) || undefined,
+        grafik_verisi: sanitizeGrafikVerisi(question.grafik_verisi as MatSoru['grafik_verisi']),
       };
     });
 
@@ -1323,7 +1383,7 @@ export const regenerateSingleQuestion = async (
     yanlis_secenek_tipleri: Array.isArray(rawResult.yanlis_secenek_tipleri)
       ? (rawResult.yanlis_secenek_tipleri.filter((item): item is string => typeof item === 'string'))
       : undefined,
-    grafik_verisi: (rawResult.grafik_verisi as MatSoru['grafik_verisi']) || undefined,
+    grafik_verisi: sanitizeGrafikVerisi(rawResult.grafik_verisi as MatSoru['grafik_verisi']),
   };
   return result;
 };

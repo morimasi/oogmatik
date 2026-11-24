@@ -61,7 +61,7 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
 
             {soru.grafik_verisi && (
                 <div className="mb-1">
-                     <GraphicRenderer grafik={soru.grafik_verisi} />
+                     <GraphicRenderer grafik={soru.grafik_verisi} soruMetni={soru.soruMetni || soru.soru_metni} />
                 </div>
             )}
 
@@ -215,7 +215,7 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
       )}
 
       {/* Grafik Verisi */}
-      {soru.grafik_verisi && <GraphicRenderer grafik={soru.grafik_verisi} />}
+      {soru.grafik_verisi && <GraphicRenderer grafik={soru.grafik_verisi} soruMetni={soru.soruMetni || soru.soru_metni} />}
 
       {/* Seçenekler — Çoktan Seçmeli */}
       {soru.tip === 'coktan_secmeli' && soru.secenekler && (

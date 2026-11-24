@@ -214,6 +214,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                     <div className="mt-2 flex justify-center rounded-xl overflow-hidden bg-slate-700/30 p-2">
                       <GraphicRenderer
                         grafik={variation.grafikVeri as unknown as GrafikVerisi}
+                        soruMetni={typeof variation.soruMetni === 'string' ? variation.soruMetni : undefined}
                         className="w-full"
                       />
                     </div>

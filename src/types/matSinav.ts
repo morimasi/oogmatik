@@ -53,7 +53,7 @@ export type GrafikVeriTipi =
 // ─── Grafik Veri Ögesi ────────────────────────────────────────
 export interface GrafikVeriOgesi {
   etiket: string;
-  deger?: number;
+  deger?: number | string;
   nesne?: string;
   birim?: string;
   x?: number;
@@ -70,13 +70,18 @@ export interface GrafikVerisi {
   y?: number;
   /** Geometrik şekiller için ek özellikler */
   ozellikler?: {
-    kenarlar?: number[];
-    acilar?: number[];
-    yaricap?: number;
+    kenarlar?: (number | string)[];
+    acilar?: (number | string)[];
+    yaricap?: number | string;
     birim?: string;
     renk?: string;
     kenarSayisi?: number;
     etiketler?: string[];
+    icSekil?: {
+      tip: string;
+      etiket?: string;
+      kenarlar?: (number | string)[];
+    };
     /** koordinat_donusum: Yansıma ekseni — 'x' | 'y' | 'y=x' vb. */
     yansimaEkseni?: string;
     /** koordinat_donusum: Öteleme vektörü { dx, dy } */

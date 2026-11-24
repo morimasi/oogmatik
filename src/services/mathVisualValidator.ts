@@ -68,7 +68,7 @@ export function validateQuestionVisualConsistency(soru: MatSoru): ValidationResu
 
             // Soru metnindeki sayıların görselde olup olmadığını kontrol et
             for (const kenar of gorselKenarlar) {
-                if (!soruSayilari.includes(kenar)) {
+                if (typeof kenar === 'number' && !soruSayilari.includes(kenar)) {
                     warnings.push(
                         `Görselde kenar değeri ${kenar} var ama soru metninde geçmiyor. ` +
                             `Soru metni: "${soruMetni.substring(0, 100)}..."`
@@ -110,7 +110,7 @@ export function validateQuestionVisualConsistency(soru: MatSoru): ValidationResu
 
             // Üçgen: İç açılar toplamı 180°
             if ((tip === 'ucgen' || tip === 'dik_ucgen') && gorselAcilar.length === 3) {
-                const toplam = gorselAcilar.reduce((sum, aci) => sum + aci, 0);
+                const toplam = gorselAcilar.reduce<number>((sum, aci) => sum + (typeof aci === 'number' ? aci : parseFloat(String(aci)) || 0), 0);
                 if (Math.abs(toplam - 180) > 1) {
                     errors.push(`Üçgen iç açıları toplamı 180° olmalı. Mevcut toplam: ${toplam}°`);
                     pedagogicalScore -= 20;
@@ -119,7 +119,7 @@ export function validateQuestionVisualConsistency(soru: MatSoru): ValidationResu
 
             // Dik üçgen: Bir açı 90° olmalı
             if (tip === 'dik_ucgen') {
-                const dikAciVar = gorselAcilar.some((aci) => Math.abs(aci - 90) < 1);
+                const dikAciVar = gorselAcilar.some((aci) => Math.abs((typeof aci === 'number' ? aci : parseFloat(String(aci)) || 0) - 90) < 1);
                 if (!dikAciVar) {
                     errors.push(`Dik üçgende bir açı 90° olmalı. Mevcut açılar: [${gorselAcilar.join('°, ')}°]`);
                 }
@@ -128,9 +128,10 @@ export function validateQuestionVisualConsistency(soru: MatSoru): ValidationResu
 
         // Daire: Yarıçap kontrolü
         if (tip === 'daire' && ozellikler?.yaricap) {
-            if (!soruSayilari.includes(ozellikler.yaricap)) {
+            const numYaricap = typeof ozellikler.yaricap === 'number' ? ozellikler.yaricap : parseFloat(String(ozellikler.yaricap));
+            if (!isNaN(numYaricap) && !soruSayilari.includes(numYaricap)) {
                 // Çap belirtilmiş olabilir (çap = 2r)
-                const cap = ozellikler.yaricap * 2;
+                const cap = numYaricap * 2;
                 if (!soruSayilari.includes(cap)) {
                     warnings.push(
                         `Dairede yarıçap ${ozellikler.yaricap} veya çap ${cap} soru metninde bulunamadı.`
@@ -144,7 +145,8 @@ export function validateQuestionVisualConsistency(soru: MatSoru): ValidationResu
     // ─── 2. DİK ÜÇGEN: Pisagor Teoremi Tutarlılığı ────────────────
 
     if (tip === 'dik_ucgen' && ozellikler?.kenarlar && ozellikler.kenarlar.length === 3) {
-        const kenarlar = [...ozellikler.kenarlar].sort((a, b) => a - b);
+        const kenarlar = ozellikler.kenarlar.map((k) => (typeof k === 'number' ? k : /^\d+(\.\d+)?$/.test(String(k).trim()) ? Number(k) : NaN)).filter((n) => !isNaN(n)).sort((a, b) => a - b);
+        if (kenarlar.length === 3) {
         const [a, b, c] = kenarlar; // c en büyük (hipotenüs)
         const pisagorHatasi = Math.abs(a * a + b * b - c * c);
 
@@ -178,6 +180,8 @@ export function validateQuestionVisualConsistency(soru: MatSoru): ValidationResu
                 },
             };
         }
+    }
+
     }
 
     // ─── 3. VERİ GRAFİKLERİ: Değer Tutarlılığı ───────────────────

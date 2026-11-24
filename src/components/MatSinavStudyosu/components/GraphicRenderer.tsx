@@ -25,25 +25,25 @@ import type { GrafikVerisi, GrafikVeriOgesi } from '../../../types/matSinav';
 
 interface ParsedGeometry {
     vertexLabels: string[];   // ["A","B","C"]
-    edgeLengths: number[];    // [8, 6, 10]
+    edgeLengths: (number | string)[];    // [8, 6, 10] veya ["(4x + 8)", "(x + 2)"]
     edgeLabels: string[];     // ["AB","BC","AC"]
-    angles: number[];         // [90, 45]
+    angles: (number | string)[];         // [90, 45]
     angleLabels: string[];    // ["B","A"]
     unit: string;             // "cm" | "m" | ""
-    radius?: number;          // yarıçap
+    radius?: number | string; // yarıçap
 }
 
 function parseGeometryVeri(veri: GrafikVeriOgesi[]): ParsedGeometry {
     const vertexLabels: string[] = [];
-    const edgeLengths: number[] = [];
+    const edgeLengths: (number | string)[] = [];
     const edgeLabels: string[] = [];
-    const angles: number[] = [];
+    const angles: (number | string)[] = [];
     const angleLabels: string[] = [];
-    let radius: number | undefined;
+    let radius: number | string | undefined;
     const unitCounts: Record<string, number> = {};
 
     for (const item of veri) {
-        const label = item.etiket;
+        const label = item.etiket || '';
         const labelL = label.toLowerCase();
 
         // Köşe / vertex: "A Köşesi", "B Noktası", "A köşesi" veya tek büyük harf
@@ -54,23 +54,39 @@ function parseGeometryVeri(veri: GrafikVeriOgesi[]): ParsedGeometry {
             if (!vertexLabels.includes(label.trim())) vertexLabels.push(label.trim());
         }
 
-        // Kenar / edge: "AB Kenarı", "BC kenar", "uzunluk"
-        if ((labelL.includes('kenar') || labelL.includes('uzunluk')) && item.deger !== undefined) {
-            edgeLengths.push(item.deger);
+        // Değer kontrolü: null, undefined, "null" vb. ayıkla
+        let resolvedVal: number | string | undefined;
+        if (item.deger !== undefined && item.deger !== null) {
+            const strVal = String(item.deger).trim();
+            if (strVal !== '' && strVal.toLowerCase() !== 'null' && strVal.toLowerCase() !== 'undefined' && strVal !== 'nan') {
+                resolvedVal = item.deger;
+            }
+        }
+        // Eğer deger null veya tanımsızsa, etiketten çıkar (örn: "Uzun Kenar: (4x + 8)" veya "AB = 8")
+        if (resolvedVal === undefined) {
+            const matchVal = label.match(/[:=]\s*(.+)$/)?.[1]?.trim();
+            if (matchVal && matchVal.toLowerCase() !== 'null' && matchVal.toLowerCase() !== 'undefined') {
+                resolvedVal = matchVal;
+            }
+        }
+
+        // Kenar / edge: "AB Kenarı", "BC kenar", "uzunluk", "uzun kenar", "kısa kenar"
+        if ((labelL.includes('kenar') || labelL.includes('uzunluk')) && resolvedVal !== undefined) {
+            edgeLengths.push(resolvedVal);
             const edgeLbl = label.match(/^([A-ZÇĞIİÖŞÜ]{1,3})/)?.[1] || '';
             edgeLabels.push(edgeLbl);
             if (item.birim) unitCounts[item.birim] = (unitCounts[item.birim] ?? 0) + 1;
         }
 
         // Yarıçap: "Yarıçap", "yaricap", "r = 5"
-        if ((labelL.includes('yarıçap') || labelL.includes('yaricap') || /^r\s*=/.test(labelL)) && item.deger !== undefined) {
-            radius = item.deger;
+        if ((labelL.includes('yarıçap') || labelL.includes('yaricap') || /^r\s*[:=]/.test(labelL)) && resolvedVal !== undefined) {
+            radius = resolvedVal;
             if (item.birim) unitCounts[item.birim] = (unitCounts[item.birim] ?? 0) + 1;
         }
 
         // Açı / angle: "B Açısı", "ABC açısı"
-        if ((labelL.includes('açı') || labelL.includes('aci') || labelL.includes('angle')) && item.deger !== undefined) {
-            angles.push(item.deger);
+        if ((labelL.includes('açı') || labelL.includes('aci') || labelL.includes('angle')) && resolvedVal !== undefined) {
+            angles.push(resolvedVal);
             const angleLbl = label.match(/^([A-ZÇĞIİÖŞÜ]+)/)?.[1] || '';
             angleLabels.push(angleLbl);
         }
@@ -94,9 +110,119 @@ function normalizeTip(tip: string): string {
 
 // ── Ortak yardımcılar ────────────────────────────────────────────────────────
 
-/** Kenar/ölçü değerini birimle birlikte formatlar: 8 cm → "8 cm", 8 → "8" */
-function formatWithUnit(value: number | string, unit: string): string {
-    return unit ? `${value} ${unit}` : String(value);
+/**
+ * Kenar/ölçü değerini birimle birlikte formatlar.
+ * 'null', 'undefined', null, undefined veya NaN değerlerini KESİNLİKLE boş dize ('') olarak temizler.
+ */
+function formatWithUnit(value: number | string | null | undefined, unit?: string): string {
+    if (value === null || value === undefined) return '';
+    const s = String(value).trim();
+    if (s === '' || s.toLowerCase() === 'null' || s.toLowerCase() === 'undefined' || s === 'NaN') {
+        return '';
+    }
+    if (!unit) return s;
+    const cleanUnit = unit.trim();
+    if (!cleanUnit) return s;
+    if (s.endsWith(cleanUnit) || s.endsWith(` ${cleanUnit}`) || s.endsWith(`(${cleanUnit})`)) {
+        return s;
+    }
+    return `${s} ${cleanUnit}`;
+}
+
+/**
+ * Soru metninden ve başlığından kenar uzunluklarını ve iç şekil (minder, havuz vb.) bilgilerini ayıklar.
+ * AI kenar değerlerini null döndürdüğünde veya eksik bıraktığında devreye girer.
+ */
+interface ExtractedDimensions {
+    uzunKenar?: string;
+    kisaKenar?: string;
+    kareKenar?: string;
+    yaricap?: string;
+    birim?: string;
+    icSekil?: {
+        tip: 'kare' | 'dikdortgen';
+        etiket: string;
+        kenar?: string;
+    };
+}
+
+function extractDimensionsFromText(text?: string, baslik?: string): ExtractedDimensions {
+    const fullText = `${baslik || ''} ${text || ''}`.trim();
+    if (!fullText) return {};
+
+    const res: ExtractedDimensions = {};
+
+    // 1. Birim çıkarımı
+    const unitMatch = fullText.match(/\b(cm|metre|santimetre|m|birim|mm)\b/i);
+    if (unitMatch) {
+        const u = unitMatch[1].toLowerCase();
+        res.birim = u === 'metre' ? 'm' : u === 'santimetre' ? 'cm' : u;
+    }
+
+    // 2. Uzun kenar çıkarımı (cebirsel veya sayısal): "uzun kenarı (4x + 8) metre" veya "uzun kenarı 12 cm"
+    const uzunMatch = fullText.match(/uzun\s+kenar[ıi]?\s*(?:ise|olan)?\s*[:=]?\s*(\([^\)]+\)|[0-9a-zA-Z\s\+\-\*\/]+?)(?:\s*(?:metre|santimetre|birim|cm|m\b|\,))/i);
+    if (uzunMatch && uzunMatch[1]) {
+        res.uzunKenar = uzunMatch[1].trim();
+    }
+
+    // 3. Kısa kenar çıkarımı: "kısa kenarı ise (x + 2) metredir" veya "kısa kenarı 8 cm"
+    const kisaMatch = fullText.match(/kısa\s+kenar[ıi]?\s*(?:ise|olan)?\s*[:=]?\s*(\([^\)]+\)|[0-9a-zA-Z\s\+\-\*\/]+?)(?:\s*(?:metre|santimetre|birim|cm|m\b|\,))/i);
+    if (kisaMatch && kisaMatch[1]) {
+        res.kisaKenar = kisaMatch[1].trim();
+    }
+
+    // 4. İki kenar birden: "kenarları 12 cm ve 8 cm olan"
+    if (!res.uzunKenar && !res.kisaKenar) {
+        const ikiKenarMatch = fullText.match(/kenarlar[ıi]?\s*(\([^\)]+\)|[0-9a-zA-Z\s\+\-]+?)\s*(?:cm|m)?\s*ve\s*(\([^\)]+\)|[0-9a-zA-Z\s\+\-]+?)\s*(?:cm|m|metre|santimetre|birim)/i);
+        if (ikiKenarMatch) {
+            res.uzunKenar = ikiKenarMatch[1].trim();
+            res.kisaKenar = ikiKenarMatch[2].trim();
+        }
+    }
+
+    // 5. Kare kenarı: "bir kenarı 6 cm olan kare" veya "kenar uzunluğu (2x + 1)"
+    const kareMatch = fullText.match(/(?:bir\s+kenar[ıi]?|kenar\s+uzunluğu)\s*(?:ise|olan)?\s*[:=]?\s*(\([^\)]+\)|[0-9a-zA-Z\s\+\-\*\/]+?)(?:\s*(?:metre|santimetre|birim|cm|m\b|\,))/i);
+    if (kareMatch && kareMatch[1]) {
+        res.kareKenar = kareMatch[1].trim();
+    }
+
+    // 6. Yarıçap: "yarıçapı 5 cm olan"
+    const rMatch = fullText.match(/yarıçap[ıi]?\s*(?:ise|olan)?\s*[:=]?\s*(\([^\)]+\)|[0-9a-zA-Z\s\+\-\*\/]+?)(?:\s*(?:metre|santimetre|birim|cm|m\b|\,))/i);
+    if (rMatch && rMatch[1]) {
+        res.yaricap = rMatch[1].trim();
+    }
+
+    // 7. İç şekil / plan tespiti (Minder, Havuz, Taralı Bölge vb.)
+    const fullLower = fullText.toLowerCase();
+    if (fullLower.includes('minder')) {
+        res.icSekil = {
+            tip: 'kare',
+            etiket: 'Minder',
+            kenar: res.kisaKenar ? `${res.kisaKenar}${res.birim ? ` ${res.birim}` : ''}` : undefined,
+        };
+    } else if (fullLower.includes('havuz')) {
+        res.icSekil = {
+            tip: fullLower.includes('kare') ? 'kare' : 'dikdortgen',
+            etiket: 'Havuz',
+        };
+    } else if (fullLower.includes('taralı')) {
+        res.icSekil = {
+            tip: 'kare',
+            etiket: 'Taralı Bölge',
+        };
+    }
+
+    return res;
+}
+
+/** Sayısal veya string değeri güvenli sayıya çevirir */
+function toNum(v: unknown, fallback = 0): number {
+    if (typeof v === 'number') return isNaN(v) ? fallback : v;
+    if (typeof v === 'string') {
+        const n = parseFloat(v);
+        return isNaN(n) ? fallback : n;
+    }
+    return fallback;
 }
 
 /** Etiket sonundaki "Noktası"/"Köşesi" vb. son eklerini kaldırır */
@@ -160,8 +286,15 @@ const GridLines: React.FC<{ x1: number; x2: number; yValues: number[] }> = ({ x1
 
 // ── Ana bileşen ──────────────────────────────────────────────────────────────
 
-export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: string }> = ({
+export interface GraphicRendererProps {
+    grafik?: GrafikVerisi;
+    soruMetni?: string;
+    className?: string;
+}
+
+export const GraphicRenderer: React.FC<GraphicRendererProps> = ({
     grafik,
+    soruMetni,
     className = '',
 }) => {
     if (!grafik) return null;
@@ -175,7 +308,7 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── SIKLIK TABLOSU ─────────────────────────────────────────────── */
         if (tip === 'siklik_tablosu') {
-            const toplam = veri.reduce((s, v) => s + (v.deger || 0), 0) || 1;
+            const toplam = veri.reduce((s, v) => s + toNum(v.deger), 0) || 1;
             return (
                 <div className="w-full overflow-hidden rounded-xl border border-indigo-100 shadow-sm mt-3">
                     <table className="w-full text-sm">
@@ -198,7 +331,7 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                                         {item.deger}{item.birim ? ` ${item.birim}` : ''}
                                     </td>
                                     <td className="px-4 py-2 text-right text-xs text-gray-500" style={{ fontFamily: FONT }}>
-                                        {Math.round(((item.deger || 0) / toplam) * 100)}%
+                                        {Math.round((toNum(item.deger) / toplam) * 100)}%
                                     </td>
                                 </tr>
                             ))}
@@ -249,7 +382,7 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                             {veri.map((item, idx) => (
                                 <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-emerald-50/30'}>
                                     <td className="px-4 py-2.5 font-semibold text-gray-700" style={{ fontFamily: FONT }}>{item.etiket}</td>
-                                    <td className="px-4 py-3">{renderTally(item.deger || 0)}</td>
+                                    <td className="px-4 py-3">{renderTally(toNum(item.deger))}</td>
                                     <td className="px-4 py-2.5 text-right font-extrabold" style={{ color: '#059669', fontFamily: FONT }}>{item.deger}</td>
                                 </tr>
                             ))}
@@ -261,7 +394,7 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── SÜTUN GRAFİĞİ ──────────────────────────────────────────────── */
         if (tip === 'sutun_grafigi') {
-            const maxVal = Math.max(...veri.map(v => v.deger || 0), 1);
+            const maxVal = Math.max(...veri.map(v => toNum(v.deger)), 1);
             const W = 460, H = 240, PL = 50, PR = 12, PT = 22, PB = 56;
             const cW = W - PL - PR, cH = H - PT - PB;
             const barW = Math.min(52, (cW / veri.length) * 0.58);
@@ -281,7 +414,7 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                         </text>
                     ))}
                     {veri.map((item, idx) => {
-                        const val = item.deger || 0;
+                        const val = toNum(item.deger);
                         const bH = (val / maxVal) * cH;
                         const slotW = cW / veri.length;
                         const bx = PL + slotW * idx + (slotW - barW) / 2;
@@ -309,7 +442,7 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── PASTA GRAFİĞİ ──────────────────────────────────────────────── */
         if (tip === 'pasta_grafigi') {
-            const total = veri.reduce((s, v) => s + (v.deger || 0), 0) || 1;
+            const total = veri.reduce((s, v) => s + toNum(v.deger), 0) || 1;
             const cx = 100, cy = 100, R = 82, Ri = 30;
             let startAngle = -90;
             return (
@@ -318,7 +451,7 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                         style={{ fontFamily: FONT, filter: 'drop-shadow(0 4px 10px #0002)' }}>
                         <SvgDefs id={uid} color={anaRenk} />
                         {veri.map((item, idx) => {
-                            const val = item.deger || 0;
+                            const val = toNum(item.deger);
                             const angle = (val / total) * 360;
                             const endAngle = startAngle + angle;
                             const midAngle = startAngle + angle / 2;
@@ -367,13 +500,13 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── ÇİZGİ GRAFİĞİ ──────────────────────────────────────────────── */
         if (tip === 'cizgi_grafigi') {
-            const maxVal = Math.max(...veri.map(v => v.deger || 0), 1);
+            const maxVal = Math.max(...veri.map(v => toNum(v.deger)), 1);
             const W = 460, H = 240, PL = 50, PR = 16, PT = 22, PB = 56;
             const cW = W - PL - PR, cH = H - PT - PB;
             const stepX = veri.length > 1 ? cW / (veri.length - 1) : cW;
             const pts = veri.map((v, i) => ({
                 x: PL + stepX * i,
-                y: H - PB - ((v.deger || 0) / maxVal) * cH,
+                y: H - PB - (toNum(v.deger) / maxVal) * cH,
             }));
             const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
             const areaPath = pts.length > 1
@@ -424,11 +557,8 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                 : geo.vertexLabels.length >= 3
                     ? geo.vertexLabels
                     : ['A', 'B', 'C'];
-            const sides = ozellikler?.kenarlar?.length
-                ? ozellikler.kenarlar
-                : geo.edgeLengths.length > 0
-                    ? geo.edgeLengths
-                    : undefined;
+            const sides = (ozellikler?.kenarlar?.length ? ozellikler.kenarlar : geo.edgeLengths)
+                ?.filter(k => k !== null && k !== undefined && String(k).trim() !== '' && String(k).toLowerCase() !== 'null');
             const edgeUnit = geo.unit || ozellikler?.birim || '';
             return (
                 <svg viewBox="0 0 240 180" className="w-full max-w-xs mx-auto mt-2"
@@ -518,43 +648,150 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
         /* ── KARE / DİKDÖRTGEN ──────────────────────────────────────────── */
         if (tip === 'kare' || tip === 'dikdortgen') {
             const geo = parseGeometryVeri(veri);
-            const rW = tip === 'kare' ? 130 : 180;
-            const rH = tip === 'kare' ? 130 : 90;
-            const ox = (240 - rW) / 2, oy = (180 - rH) / 2;
-            const sides = ozellikler?.kenarlar?.length
+            const extracted = extractDimensionsFromText(soruMetni, baslik);
+
+            // Kenarları topla ve null, undefined, "null" olanları ayıkla
+            const rawSides = ozellikler?.kenarlar?.length
                 ? ozellikler.kenarlar
                 : geo.edgeLengths.length > 0
                     ? geo.edgeLengths
-                    : undefined;
-            const edgeUnit = geo.unit || ozellikler?.birim || '';
+                    : [];
+            const sanitizedSides = rawSides.filter(
+                (k) => k !== null && k !== undefined && String(k).trim() !== '' && String(k).toLowerCase() !== 'null' && String(k).toLowerCase() !== 'undefined'
+            );
+
+            // Eğer kenarlar boşsa, soru metninden çıkarılanları kullan
+            let sides: (number | string)[] = sanitizedSides;
+            if (sides.length === 0) {
+                if (tip === 'dikdortgen') {
+                    if (extracted.uzunKenar && extracted.kisaKenar) {
+                        sides = [extracted.uzunKenar, extracted.kisaKenar];
+                    } else if (extracted.uzunKenar) {
+                        sides = [extracted.uzunKenar];
+                    }
+                } else if (tip === 'kare') {
+                    if (extracted.kareKenar) {
+                        sides = [extracted.kareKenar];
+                    } else if (extracted.kisaKenar) {
+                        sides = [extracted.kisaKenar];
+                    }
+                }
+            } else if (sides.length === 1 && tip === 'dikdortgen' && extracted.kisaKenar) {
+                sides.push(extracted.kisaKenar);
+            }
+
+            const edgeUnit = geo.unit || ozellikler?.birim || extracted.birim || '';
+
+            // İç şekil (Minder, Havuz, Taralı Alan vb.)
+            const icSekil = ozellikler?.icSekil || extracted.icSekil;
+
+            // Genişletilmiş ViewBox (0 0 290 180): Sağ kenar etiketleri (örn: (x + 2) m) asla kırpılmaz
+            const rW = tip === 'kare' ? 120 : 160;
+            const rH = tip === 'kare' ? 120 : 86;
+            const ox = tip === 'kare' ? 70 : 48;
+            const oy = tip === 'kare' ? 30 : 47;
+
+            // İç şekil boyutları
+            const icW = icSekil ? (icSekil.tip === 'kare' ? Math.round(rH * 0.72) : Math.round(rW * 0.55)) : 0;
+            const icH = icSekil ? (icSekil.tip === 'kare' ? Math.round(rH * 0.72) : Math.round(rH * 0.6)) : 0;
+            const icOx = ox + Math.round((rW - icW) / 2);
+            const icOy = oy + Math.round((rH - icH) / 2);
+
+            const topLabel = sides && sides.length >= 1 ? formatWithUnit(sides[0], edgeUnit) : '';
+            const rightLabel = tip === 'dikdortgen' && sides && sides.length >= 2
+                ? formatWithUnit(sides[1], edgeUnit)
+                : tip === 'kare' && sides && sides.length >= 1
+                    ? formatWithUnit(sides[0], edgeUnit)
+                    : '';
+
             return (
-                <svg viewBox="0 0 240 180" className="w-full max-w-xs mx-auto mt-2"
+                <svg viewBox="0 0 290 180" className="w-full max-w-xs mx-auto mt-2"
                     style={{ fontFamily: FONT, filter: 'drop-shadow(0 3px 6px #0001)' }}>
                     <SvgDefs id={uid} color={anaRenk} />
+                    {/* Dış Alan (Saha / Dikdörtgen) */}
                     <rect x={ox} y={oy} width={rW} height={rH}
-                        fill={`url(#shapeFill-${uid})`} stroke={anaRenk} strokeWidth="2.5" rx="3" />
-                    {/* Right-angle markers */}
-                    <polyline points={`${ox + 11},${oy} ${ox + 11},${oy + 11} ${ox},${oy + 11}`}
-                        fill="none" stroke={anaRenk} strokeWidth="1.5" opacity="0.5" />
-                    <polyline points={`${ox + rW - 11},${oy} ${ox + rW - 11},${oy + 11} ${ox + rW},${oy + 11}`}
-                        fill="none" stroke={anaRenk} strokeWidth="1.5" opacity="0.5" />
-                    {sides && sides.length >= 1 && (
-                        <text x={ox + rW / 2} y={oy - 8} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="middle">
-                            {formatWithUnit(sides[0], edgeUnit)}
+                        fill={`url(#shapeFill-${uid})`} stroke={anaRenk} strokeWidth="2.5" rx="4" />
+
+                    {/* Dik açı işaretleri */}
+                    <polyline points={`${ox + 10},${oy} ${ox + 10},${oy + 10} ${ox},${oy + 10}`}
+                        fill="none" stroke={anaRenk} strokeWidth="1.5" opacity="0.45" />
+                    <polyline points={`${ox + rW - 10},${oy} ${ox + rW - 10},${oy + 10} ${ox + rW},${oy + 10}`}
+                        fill="none" stroke={anaRenk} strokeWidth="1.5" opacity="0.45" />
+
+                    {/* İç Şekil Planı (Minder / Havuz vb.) */}
+                    {icSekil && (
+                        <g>
+                            <rect
+                                x={icOx}
+                                y={icOy}
+                                width={icW}
+                                height={icH}
+                                fill={anaRenk}
+                                fillOpacity="0.16"
+                                stroke={anaRenk}
+                                strokeWidth="2"
+                                strokeDasharray="4 3"
+                                rx="3"
+                            />
+                            <text
+                                x={ox + rW / 2}
+                                y={oy + rH / 2 + 4}
+                                fontSize="11"
+                                fill={anaRenk}
+                                fontWeight="800"
+                                textAnchor="middle"
+                            >
+                                {icSekil.etiket}
+                            </text>
+                            {(() => {
+                                const icKenarVal = 'kenar' in icSekil ? icSekil.kenar : ('kenarlar' in icSekil ? icSekil.kenarlar?.[0] : undefined);
+                                const icKenarText = formatWithUnit(icKenarVal, edgeUnit);
+                                return icKenarText ? (
+                                    <text
+                                        x={ox + rW / 2}
+                                        y={icOy + icH - 6}
+                                        fontSize="9.5"
+                                        fill="#475569"
+                                        fontWeight="700"
+                                        textAnchor="middle"
+                                    >
+                                        {icKenarText}
+                                    </text>
+                                ) : null;
+                            })()}
+                        </g>
+                    )}
+
+                    {/* Üst Kenar Etiketi (örn: (4x + 8) m) */}
+                    {topLabel && (
+                        <text
+                            x={ox + rW / 2}
+                            y={oy - 8}
+                            fontSize={topLabel.length > 8 ? "11.5" : "13"}
+                            fill={anaRenk}
+                            fontWeight="700"
+                            textAnchor="middle"
+                        >
+                            {topLabel}
                         </text>
                     )}
-                    {sides && sides.length >= 2 && tip === 'dikdortgen' && (
-                        <text x={ox + rW + 13} y={oy + rH / 2 + 5} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="start">
-                            {formatWithUnit(sides[1], edgeUnit)}
+
+                    {/* Sağ Kenar Etiketi (örn: (x + 2) m) — 68px genişlik alanı ile kırpılma sıfırlandı */}
+                    {rightLabel && (
+                        <text
+                            x={ox + rW + 10}
+                            y={oy + rH / 2 + 5}
+                            fontSize={rightLabel.length > 8 ? "11.5" : "13"}
+                            fill={anaRenk}
+                            fontWeight="700"
+                            textAnchor="start"
+                        >
+                            {rightLabel}
                         </text>
                     )}
-                    {tip === 'kare' && sides && (
-                        <text x={ox + rW + 13} y={oy + rH / 2 + 5} fontSize="13" fill={anaRenk} fontWeight="700" textAnchor="start">
-                            {formatWithUnit(sides[0], edgeUnit)}
-                        </text>
-                    )}
-                    {/* Equal side tick marks for square */}
-                    {tip === 'kare' && (
+
+                    {/* Kare eşitlik çentikleri (sadece iç şekil yoksa) */}
+                    {tip === 'kare' && !icSekil && (
                         <>
                             {[[ox + rW / 2 - 5, oy + 7, ox + rW / 2 + 5, oy + 7],
                               [ox + rW / 2 - 5, oy + rH - 7, ox + rW / 2 + 5, oy + rH - 7],
@@ -571,7 +808,8 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── PARALEL KENAR ──────────────────────────────────────────────── */
         if (tip === 'paralel_kenar') {
-            const sides = ozellikler?.kenarlar;
+            const geo = parseGeometryVeri(veri);
+            const sides = (ozellikler?.kenarlar ?? geo.edgeLengths)?.filter((k: number | string) => k !== null && k !== undefined && String(k).trim() !== '' && String(k).toLowerCase() !== 'null');
             const skew = 34;
             return (
                 <svg viewBox="0 0 280 165" className="w-full max-w-sm mx-auto mt-2"
@@ -649,7 +887,8 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
         if (tip === 'daire') {
             const r = 72;
             const geo = parseGeometryVeri(veri);
-            const yaricap = ozellikler?.yaricap ?? geo.radius ?? geo.edgeLengths[0];
+            const rawYaricap = ozellikler?.yaricap ?? geo.radius ?? geo.edgeLengths[0];
+            const yaricap = rawYaricap !== null && rawYaricap !== undefined && String(rawYaricap).toLowerCase() !== 'null' ? rawYaricap : undefined;
             const cap = ozellikler?.kenarlar?.[0];
             return (
                 <svg viewBox="0 0 240 200" className="w-full max-w-xs mx-auto mt-2"
@@ -717,7 +956,7 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
         /* ── AÇI ────────────────────────────────────────────────────────── */
         if (tip === 'aci') {
             const geo = parseGeometryVeri(veri);
-            const deg = ozellikler?.acilar?.[0] ?? geo.angles[0] ?? 60;
+            const deg = toNum(ozellikler?.acilar?.[0] ?? geo.angles[0], 60);
             const rad = (deg * Math.PI) / 180;
             const cx = 64, cy = 136, len = 116, arcR = 38;
             const x1 = cx + len, y1 = cy;
@@ -755,8 +994,8 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── KESİR MODELİ ───────────────────────────────────────────────── */
         if (tip === 'kesir_modeli') {
-            const payda = Math.max(2, ozellikler?.kenarlar?.[0] ?? veri.length);
-            const pay = Math.max(0, ozellikler?.kenarlar?.[1] ?? veri.filter(v => v.deger === 1 || v.nesne === 'dolu').length);
+            const payda = Math.max(2, toNum(ozellikler?.kenarlar?.[0], veri.length));
+            const pay = Math.max(0, toNum(ozellikler?.kenarlar?.[1], veri.filter(v => toNum(v.deger) === 1 || v.nesne === 'dolu').length));
             const sliceA = 360 / payda;
             const cx = 100, cy = 100, R = 86;
             return (
@@ -1171,7 +1410,7 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── OLASILIK ÇARKI ─────────────────────────────────────────────── */
         if (tip === 'olaslik_cark') {
-            const total = veri.reduce((s, v) => s + (v.deger || 0), 0) || 1;
+            const total = veri.reduce((s, v) => s + toNum(v.deger), 0) || 1;
             const cx = 110, cy = 110, R = 92;
             let startA = -90;
             return (
@@ -1180,7 +1419,7 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                         style={{ fontFamily: FONT, filter: 'drop-shadow(0 5px 14px #0003)' }}>
                         <SvgDefs id={uid} color={anaRenk} />
                         {veri.map((item, idx) => {
-                            const val = item.deger || 0;
+                            const val = toNum(item.deger);
                             const angle = (val / total) * 360;
                             const endA = startA + angle;
                             const midA = startA + angle / 2;
@@ -1218,7 +1457,7 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
                             <div key={idx} className="flex items-center gap-2">
                                 <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ background: COLORS[idx % COLORS.length] }} />
                                 <span style={{ fontFamily: FONT, color: '#374151' }}>
-                                    {item.etiket}: <strong>{item.deger}</strong> ({Math.round(((item.deger || 0) / total) * 100)}%)
+                                    {item.etiket}: <strong>{item.deger}</strong> ({Math.round((toNum(item.deger) / total) * 100)}%)
                                 </span>
                             </div>
                         ))}
@@ -1319,7 +1558,8 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
             const d = 40; // derinlik
             const ox = 60;
             const oy = 60;
-            const kenarlar = ozellikler?.kenarlar || [];
+            const geo = parseGeometryVeri(veri);
+            const kenarlar = (ozellikler?.kenarlar || geo.edgeLengths).filter((k: number | string) => k !== null && k !== undefined && String(k).trim() !== '' && String(k).toLowerCase() !== 'null');
 
             return (
                 <svg viewBox="0 0 240 220" className="w-full max-w-xs mx-auto mt-2" style={{ fontFamily: FONT, filter: 'drop-shadow(0 4px 10px #0002)' }}>
@@ -1396,13 +1636,13 @@ export const GraphicRenderer: React.FC<{ grafik?: GrafikVerisi; className?: stri
 
         /* ── NESNE GRAFİĞİ (Emoji/İkon Tabanlı) ────────────────────────── */
         if (tip === 'nesne_grafigi') {
-            const maxVal = veri.reduce((max, v) => Math.max(max, v.deger || 0), 1);
+            const maxVal = veri.reduce((max, v) => Math.max(max, toNum(v.deger)), 1);
             const skalaFactor = maxVal > 10 ? Math.ceil(maxVal / 5) : 1;
             return (
                 <div className="w-full mt-3 overflow-x-auto">
                     <div className="flex flex-col gap-2 min-w-[280px]">
                         {veri.map((item, idx) => {
-                            const count = Math.round((item.deger || 0) / skalaFactor);
+                            const count = Math.round(toNum(item.deger) / skalaFactor);
                             const emoji = item.nesne || '⬛';
                             return (
                                 <div key={idx} className="flex items-center gap-2">
