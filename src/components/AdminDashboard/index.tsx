@@ -110,6 +110,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
   const [inspectingUser, setInspectingUser] = useState<User | null>(null);
   const [inspectView, setInspectView] = useState<'profile' | 'archive' | 'favorites'>('profile');
   const [permissionView, setPermissionView] = useState<'ide' | 'matrix'>('ide');
+  const [promptTargetActivityId, setPromptTargetActivityId] = useState<string | null>(null);
 
   useEffect(() => {
     loadBaseData();
@@ -279,9 +280,21 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
           <div className="w-full mx-auto pb-20">
             <React.Suspense fallback={<div className="flex items-center justify-center p-20"><i className="fa-solid fa-spinner fa-spin text-3xl text-indigo-500"></i></div>}>
               {activeTab === 'dashboard' && <AdminAnalytics stats={stats} totalUsers={usersCount} />}
-              {activeTab === 'content_engine' && <AdminContentEngine />}
-              {activeTab === 'activities' && <AdminActivityManager />}
-              {activeTab === 'prompts' && <AdminPromptStudio />}
+              {activeTab === 'content_engine' && <AdminContentEngine onNavigateTab={setActiveTab} />}
+              {activeTab === 'activities' && (
+                <AdminActivityManager
+                  onOpenPrompt={(actId) => {
+                    setPromptTargetActivityId(actId);
+                    setActiveTab('prompts');
+                  }}
+                />
+              )}
+              {activeTab === 'prompts' && (
+                <AdminPromptStudio
+                  initialActivityId={promptTargetActivityId}
+                  onClearInitialActivity={() => setPromptTargetActivityId(null)}
+                />
+              )}
               {activeTab === 'static_content' && <AdminStaticContent />}
               {activeTab === 'feedbacks' && <AdminFeedback />}
               {activeTab === 'users' && <AdminUserManagement />}

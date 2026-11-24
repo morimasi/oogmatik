@@ -5,6 +5,17 @@ import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../../constants';
 import { PromptSimulator } from './PromptSimulator';
 import { useToastStore } from '../../store/useToastStore';
 
+interface AdminPromptStudioProps {
+  initialActivityId?: string | null;
+  onClearInitialActivity?: () => void;
+}
+
+const AVAILABLE_MODELS = [
+  { id: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash (Varsayılan)' },
+  { id: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite (Hızlı)' },
+  { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro (Klinik Derinlik)' },
+];
+
 const CodeEditor = ({
   value,
   onChange,
@@ -24,15 +35,15 @@ const CodeEditor = ({
       .replace(/>/g, '&gt;')
       .replace(
         /(\{\{)(.*?)(\}\})/g,
-        '<span class="text-amber-500 font-bold bg-amber-500/10 px-1 rounded-sm">$1$2$3</span>'
+        '<span class="text-amber-400 font-bold bg-amber-500/15 px-1 rounded-sm">$1$2$3</span>'
       )
       .replace(
         /\[(.*?)\]/g,
-        '<span class="text-emerald-500 font-black tracking-widest uppercase text-[10px] bg-emerald-500/10 px-1">[$1]</span>'
+        '<span class="text-emerald-400 font-black tracking-widest uppercase text-[10px] bg-emerald-500/15 px-1">[$1]</span>'
       )
       .replace(
         /(GÖREV:|ROL:|KURALLAR:|ÇIKTI:|PEDAGOJİ:|HEDEF KİTLE:)/gi,
-        '<span class="text-rose-500 font-black border-b border-rose-500/30">$1</span>'
+        '<span class="text-rose-400 font-black border-b border-rose-500/30">$1</span>'
       )
       .replace(/"(.*?)"/g, '<span class="text-sky-400">"$1"</span>');
   };
@@ -45,8 +56,8 @@ const CodeEditor = ({
   };
 
   return (
-    <div className="relative w-full h-full bg-[#0a0a0a] rounded-xl border border-zinc-800/50 overflow-hidden font-mono text-xs shadow-inner group">
-      <div className="absolute left-0 top-0 bottom-0 w-10 bg-[#050505] border-r border-zinc-800/50 flex flex-col items-center pt-4 text-zinc-700 select-none text-[9px]">
+    <div className="relative w-full h-full min-h-[340px] bg-slate-950 rounded-xl border border-[var(--border-color)] overflow-hidden font-mono text-xs shadow-inner group">
+      <div className="absolute left-0 top-0 bottom-0 w-10 bg-slate-900 border-r border-slate-800 flex flex-col items-center pt-4 text-slate-600 select-none text-[9px]">
         {value.split('\n').map((_, i) => (
           <div key={i} className="h-[22px] leading-[22px]">
             {i + 1}
@@ -55,7 +66,7 @@ const CodeEditor = ({
       </div>
       <pre
         ref={preRef}
-        className="absolute inset-0 left-10 p-4 m-0 pointer-events-none whitespace-pre-wrap break-words leading-[22px] overflow-hidden"
+        className="absolute inset-0 left-10 p-4 m-0 pointer-events-none whitespace-pre-wrap break-words leading-[22px] overflow-hidden text-slate-200"
       >
         <code dangerouslySetInnerHTML={{ __html: highlight(value) }} />
       </pre>
@@ -77,7 +88,10 @@ interface LintWarning {
   text: string;
 }
 
-export const AdminPromptStudio = () => {
+export const AdminPromptStudio: React.FC<AdminPromptStudioProps> = ({
+  initialActivityId,
+  onClearInitialActivity,
+}) => {
   const toast = useToastStore();
   const [prompts, setPrompts] = useState<PromptTemplate[]>([]);
   const [selected, setSelected] = useState<PromptTemplate | null>(null);
@@ -88,12 +102,14 @@ export const AdminPromptStudio = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [saveNote, setSaveNote] = useState('');
-  const [showRestoreModal, setShowRestoreModal] = useState<{ version: number; template: string; systemInstruction?: string } | null>(null);
+  const [showRestoreModal, setShowRestoreModal] = useState<{
+    version: number;
+    template: string;
+    systemInstruction?: string;
+  } | null>(null);
   const [showSnippetModal, setShowSnippetModal] = useState<string | null>(null);
   const [snippetEditValue, setSnippetEditValue] = useState('');
-
-  const [, setSimA] = useState({ result: '' });
-  const [, setSimB] = useState({ result: '' });
+  const [snippetEditLabel, setSnippetEditLabel] = useState('');
 
   useEffect(() => {
     loadData();
@@ -101,75 +117,130 @@ export const AdminPromptStudio = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const [p, s] = await Promise.all([adminService.getAllPrompts(), adminService.getAllSnippets()]);
-    setPrompts(p);
-    setSnippets(s);
-    setLoading(false);
+    try {
+      const [p, s] = await Promise.all([adminService.getAllPrompts(), adminService.getAllSnippets()]);
+      setPrompts(p);
+      setSnippets(s);
+    } catch {
+      toast.error('Prompt verileri yüklenemedi.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleSelect = useCallback(
+    (act: { id: string; title: string }, promptList: PromptTemplate[] = prompts) => {
+      const id = `prompt_${act.id.toLowerCase()}`;
+      let p = promptList.find((x: PromptTemplate) => x.id === id);
+      if (!p) {
+        p = {
+          id,
+          name: `${act.title} Mimarisi`,
+          description: '',
+          category: 'custom',
+          systemInstruction:
+            'Sen bir MÖES (Multisensoriyel Özel Eğitim Sistemi) uzmanısın. Disleksi klinik ilkeleriyle düşünür, ZPD uyumlu kısa ve net hedefler koyarsın. Her çıktıda pedagogicalNote alanını doldurursun.',
+          template: adminService.getInitialPromptForActivity(act.id),
+          variables: [],
+          tags: [],
+          updatedAt: new Date().toISOString(),
+          version: 1,
+          history: [],
+          modelConfig: { temperature: 0.1, modelName: 'gemini-3.8-flash', thinkingBudget: 0 },
+        };
+      }
+      setSelected(p);
+      setActiveTab('editor');
+    },
+    [prompts]
+  );
+
+  // Dışarıdan (Aktivite Yöneticisi vb.) belirli bir aktivite ile açılırsa otomatik seç
+  useEffect(() => {
+    if (!initialActivityId || loading) return;
+    const found = ACTIVITIES.find((a) => a.id === initialActivityId);
+    if (found) {
+      handleSelect(found, prompts);
+    } else {
+      handleSelect({ id: initialActivityId, title: initialActivityId }, prompts);
+    }
+    onClearInitialActivity?.();
+  }, [initialActivityId, loading, prompts, handleSelect, onClearInitialActivity]);
 
   const variables = useMemo(() => {
     if (!selected) return [];
-    const template = selected.template;
-    const matches = template.match(/\{\{(.*?)\}\}/g);
-    return matches ? [...new Set(matches.map((m: string) => m.replace(/\{|\}/g, '')))] : [];
+    const matches = selected.template.match(/\{\{(.*?)\}\}/g);
+    return matches ? [...new Set(matches.map((m: string) => m.replace(/\{|\}/g, '').trim()))] : [];
   }, [selected]);
 
+  // 10 Ordinaryüs Standartlı Pedagojik Linter
   const linter = useMemo(() => {
     if (!selected) return { score: 100, warnings: [] as LintWarning[], tokens: 0 };
-    const full = (selected.template + ' ' + selected.systemInstruction).toLowerCase();
+    const rawFull = `${selected.template} ${selected.systemInstruction}`;
+    const full = rawFull.toLowerCase();
     const warnings: LintWarning[] = [];
 
     if (full.includes('yapma') || full.includes('yasak') || full.includes('hayır')) {
-      warnings.push({ type: 'error', text: 'Negatif yükleme tespit edildi. Dislektik zihin "yapmayı bırak" yönergelerini işlerken belleği zorlar. Daima "şunu yap" şeklinde pozitif komutlar verin.' });
+      warnings.push({
+        type: 'error',
+        text: 'Negatif yükleme tespit edildi. Dislektik zihin "yapma" yönergelerini işlerken belleği zorlar; pozitif komutlar kullanın.',
+      });
+    }
+    if (
+      full.includes('disleksisi var') ||
+      full.includes('hasta') ||
+      full.includes('gerizekalı') ||
+      full.includes('özürlü')
+    ) {
+      warnings.push({
+        type: 'error',
+        text: 'Klinik Kural İhlali (Dr. Ahmet Kaya): Tanı koyucu veya damgalayıcı ifade kesinlikle yasaktır.',
+      });
     }
     if (!full.includes('json')) {
-      warnings.push({ type: 'warning', text: 'Çıktı formatı belirtilmemiş. Uygulama bütünlüğü için JSON dönülmesi zorunlu kılınmalıdır.' });
+      warnings.push({
+        type: 'warning',
+        text: 'Çıktı formatı belirtilmemiş. Uygulama bütünlüğü için JSON formatı zorunlu kılınmalıdır.',
+      });
+    }
+    if (!rawFull.includes('pedagogicalNote') && !full.includes('pedagojik not')) {
+      warnings.push({
+        type: 'warning',
+        text: 'Pedagojik Zorunluluk (Elif Yıldız): Her AI aktivite çıktısında öğretmen için "pedagogicalNote" alanı istenmelidir.',
+      });
     }
     if (full.includes('karmaşık') || full.includes('uzun')) {
-      warnings.push({ type: 'warning', text: 'Bilişsel yük asimetrisi: "Uzun" veya "Karmaşık" metinler okuma güçlüğü çeken öğrencileri hedeften saptırır.' });
+      warnings.push({
+        type: 'warning',
+        text: 'Bilişsel yük asimetrisi: "Uzun" veya "Karmaşık" metinler okuma güçlüğü yaşayan öğrencileri hedeften saptırır.',
+      });
     }
     if (!full.includes('görsel') && !full.includes('imge') && !full.includes('resim')) {
-      warnings.push({ type: 'info', text: 'Multisensoriyel yoksunluk: Etkinlik içerisinde görsel bir referans veya imgelem (imagery) istenmemiş.' });
+      warnings.push({
+        type: 'info',
+        text: 'Multisensoriyel öneri: Görsel destek veya somut imgelem referansı eklenmesi öğrenmeyi güçlendirir.',
+      });
     }
 
     const exactTokens = Math.floor(full.length / 4.2);
-    let score = 100 - warnings.filter(w => w.type === 'error').length * 25 - warnings.filter(w => w.type === 'warning').length * 15;
+    let score =
+      100 -
+      warnings.filter((w) => w.type === 'error').length * 25 -
+      warnings.filter((w) => w.type === 'warning').length * 15;
     if (exactTokens > 1500) score -= 15;
 
     return { score: Math.max(0, score), warnings, tokens: exactTokens };
   }, [selected?.template, selected?.systemInstruction]);
-
-  const handleSelect = async (act: { id: string; title: string }) => {
-    const id = `prompt_${act.id.toLowerCase()}`;
-    let p = prompts.find((x: PromptTemplate) => x.id === id);
-    if (!p) {
-      p = {
-        id,
-        name: `${act.title} Mimarisi`,
-        description: '',
-        category: 'custom',
-        systemInstruction: 'Sen bir MÖES (Multisensoriyel Özel Eğitim Sistemi) uzmanısın. Disleksi klinik ilkeleriyle düşünür, kısa ve net hedefler koyarsın.',
-        template: adminService.getInitialPromptForActivity(act.id),
-        variables: [],
-        tags: [],
-        updatedAt: new Date().toISOString(),
-        version: 1,
-        history: [],
-        modelConfig: { temperature: 0.1, modelName: 'gemini-3.8-flash', thinkingBudget: 0 },
-      };
-    }
-    setSelected(p);
-    setSimA(prev => ({ ...prev, result: '' }));
-    setSimB(prev => ({ ...prev, result: '' }));
-    setActiveTab('editor');
-  };
 
   const handleSaveWithNote = async () => {
     if (!selected || !saveNote.trim()) return;
     setIsSaving(true);
     try {
       const saved = await adminService.savePrompt({ ...selected, variables }, saveNote);
-      setPrompts((prev: PromptTemplate[]) => prev.map((p: PromptTemplate) => p.id === saved.id ? saved : p));
+      setPrompts((prev: PromptTemplate[]) => {
+        const exists = prev.some((p) => p.id === saved.id);
+        return exists ? prev.map((p) => (p.id === saved.id ? saved : p)) : [...prev, saved];
+      });
       setSelected(saved);
       toast.success('Prompt mimarisi başarıyla kaydedildi');
       setShowSaveModal(false);
@@ -188,7 +259,7 @@ export const AdminPromptStudio = () => {
       template: showRestoreModal.template,
       systemInstruction: showRestoreModal.systemInstruction || selected.systemInstruction,
     });
-    toast.success(`DNA v${showRestoreModal.version} geri yüklendi`);
+    toast.success(`DNA v${showRestoreModal.version} geri yüklendi (yayınlamak için kaydedin)`);
     setShowRestoreModal(null);
   };
 
@@ -200,175 +271,349 @@ export const AdminPromptStudio = () => {
     a.href = url;
     a.download = `${selected.id}_v${selected.version}.json`;
     a.click();
+    URL.revokeObjectURL(url);
     toast.success('Prompt dışa aktarıldı');
   }, [selected, toast]);
 
-  const handleImport = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const imported = JSON.parse(event.target?.result as string) as PromptTemplate;
-        setSelected(imported);
-        setPrompts(prev => {
-          const exists = prev.find(p => p.id === imported.id);
-          if (exists) return prev.map(p => p.id === imported.id ? imported : p);
-          return [...prev, imported];
-        });
-        toast.success('Prompt başarıyla içe aktarıldı');
-      } catch {
-        toast.error('Geçersiz JSON dosyası');
-      }
-    };
-    reader.readAsText(file);
-  }, [toast]);
+  const handleImport = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      e.target.value = '';
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target?.result as string) as Partial<PromptTemplate>;
+          if (!imported.id || typeof imported.template !== 'string') {
+            toast.error('Geçersiz Prompt JSON şeması.');
+            return;
+          }
+          const normalized: PromptTemplate = {
+            id: imported.id,
+            name: imported.name || imported.id,
+            description: imported.description || '',
+            category: imported.category || 'custom',
+            systemInstruction: imported.systemInstruction || '',
+            template: imported.template,
+            variables: Array.isArray(imported.variables) ? imported.variables : [],
+            tags: Array.isArray(imported.tags) ? imported.tags : [],
+            updatedAt: new Date().toISOString(),
+            version: imported.version || 1,
+            history: Array.isArray(imported.history) ? imported.history : [],
+            modelConfig: imported.modelConfig || {
+              temperature: 0.1,
+              modelName: 'gemini-3.8-flash',
+              thinkingBudget: 0,
+            },
+          };
+          setSelected(normalized);
+          setPrompts((prev) => {
+            const exists = prev.some((p) => p.id === normalized.id);
+            return exists
+              ? prev.map((p) => (p.id === normalized.id ? normalized : p))
+              : [...prev, normalized];
+          });
+          toast.success('Prompt başarıyla içe aktarıldı');
+        } catch {
+          toast.error('Geçersiz JSON dosyası');
+        }
+      };
+      reader.readAsText(file);
+    },
+    [toast]
+  );
 
   const filteredCategories = useMemo(() => {
     if (!searchQuery) return ACTIVITY_CATEGORIES;
-    return ACTIVITY_CATEGORIES.map(cat => ({
+    return ACTIVITY_CATEGORIES.map((cat) => ({
       ...cat,
-      activities: cat.activities.filter(aId => {
-        const act = ACTIVITIES.find(a => a.id === aId);
-        return act?.title.toLowerCase().includes(searchQuery.toLowerCase());
+      activities: cat.activities.filter((aId) => {
+        const act = ACTIVITIES.find((a) => a.id === aId);
+        return (
+          act?.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          aId.toLowerCase().includes(searchQuery.toLowerCase())
+        );
       }),
-    })).filter(cat => cat.activities.length > 0);
+    })).filter((cat) => cat.activities.length > 0);
   }, [searchQuery]);
 
   return (
-    <div className="h-[calc(100vh-140px)] flex bg-[#030303] rounded-3xl border border-zinc-900 overflow-hidden shadow-2xl font-lexend">
+    <div className="min-h-[680px] lg:h-[calc(100vh-140px)] flex flex-col lg:flex-row bg-[var(--bg-paper)] rounded-3xl border border-[var(--border-color)] overflow-hidden shadow-xl font-lexend">
       {/* L: EXPLORER PANEL */}
-      <div className="w-72 border-r border-zinc-900 bg-[#080808] flex flex-col shrink-0">
-        <div className="p-5 border-b border-zinc-900/50 space-y-3">
+      <div className="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-[var(--border-color)] bg-[var(--bg-secondary)] flex flex-col shrink-0 max-h-64 lg:max-h-none">
+        <div className="p-4 border-b border-[var(--border-color)] space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-[10px] font-black text-amber-500/70 uppercase tracking-[0.2em]">Prompt Engine</span>
-              <h2 className="text-zinc-200 text-sm font-bold">Sinir Ağları</h2>
+              <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em]">
+                Prompt Engine
+              </span>
+              <h2 className="text-[var(--text-primary)] text-sm font-black">
+                Sinir Ağları ({prompts.length} Kayıtlı)
+              </h2>
             </div>
-            <label className="p-2 bg-zinc-900 hover:bg-zinc-800 rounded-xl text-zinc-500 hover:text-amber-500 cursor-pointer transition-all border border-zinc-800">
-              <i className="fa-solid fa-file-import text-xs"></i>
+            <label
+              className="p-2 bg-[var(--bg-paper)] hover:border-[var(--accent-color)] rounded-xl text-[var(--text-muted)] hover:text-amber-500 cursor-pointer transition-all border border-[var(--border-color)]"
+              title="Prompt JSON İçe Aktar"
+            >
+              <i className="fa-solid fa-file-import text-xs" />
               <input type="file" className="hidden" onChange={handleImport} accept=".json" />
             </label>
           </div>
           <div className="relative">
-            <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 text-xs"></i>
+            <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-xs" />
             <input
               type="text"
               placeholder="Aktivite ara..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-zinc-300 outline-none focus:border-amber-500/50 transition-all placeholder:text-zinc-700"
+              className="w-full pl-8 pr-3 py-2 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl text-xs text-[var(--text-primary)] outline-none focus:border-amber-500 transition-all"
             />
           </div>
         </div>
         <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-4">
-          {filteredCategories.map((cat) => (
-            <div key={cat.id}>
-              <div className="px-3 py-1 text-[9px] font-black text-zinc-600 uppercase tracking-tighter mb-1.5 flex items-center gap-2">
-                <i className={cat.icon}></i> {cat.title}
+          {loading ? (
+            <div className="p-6 text-center text-xs text-[var(--text-muted)]">Yükleniyor...</div>
+          ) : (
+            filteredCategories.map((cat) => (
+              <div key={cat.id}>
+                <div className="px-3 py-1 text-[9px] font-black text-[var(--text-muted)] uppercase tracking-wider mb-1 flex items-center gap-2">
+                  <i className={cat.icon} /> {cat.title}
+                </div>
+                <div className="space-y-0.5">
+                  {ACTIVITIES.filter((a) => cat.activities.includes(a.id)).map((act) => {
+                    const promptId = `prompt_${act.id.toLowerCase()}`;
+                    const isSelected = selected?.id === promptId;
+                    const isSavedInDb = prompts.some((p) => p.id === promptId);
+                    return (
+                      <button
+                        key={act.id}
+                        onClick={() => handleSelect(act)}
+                        className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-medium transition-all flex items-center gap-2.5 relative overflow-hidden group ${
+                          isSelected
+                            ? 'bg-[var(--bg-paper)] text-[var(--text-primary)] shadow-sm border border-[var(--border-color)]'
+                            : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-paper)]/60'
+                        }`}
+                      >
+                        {isSelected && <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-500" />}
+                        <i
+                          className={`fa-solid fa-microchip text-[10px] ${
+                            isSelected ? 'text-amber-500' : 'text-[var(--text-muted)]'
+                          }`}
+                        />
+                        <span className="truncate flex-1">{act.title}</span>
+                        {isSavedInDb && (
+                          <span
+                            className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"
+                            title="Firestore'da özelleştirilmiş prompt mevcut"
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="space-y-0.5">
-                {ACTIVITIES.filter((a) => cat.activities.includes(a.id)).map((act) => (
-                  <button
-                    key={act.id}
-                    onClick={() => handleSelect(act)}
-                    className={`w-full text-left px-4 py-2 rounded-xl text-xs font-medium transition-all flex items-center gap-3 relative overflow-hidden group ${selected?.id === `prompt_${act.id.toLowerCase()}` ? 'bg-zinc-800/80 text-white shadow-inner' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50'}`}
-                  >
-                    {selected?.id === `prompt_${act.id.toLowerCase()}` && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
-                    )}
-                    <i className={`fa-solid fa-microchip text-[10px] ${selected?.id === `prompt_${act.id.toLowerCase()}` ? 'text-amber-500' : 'text-zinc-700 group-hover:text-zinc-500'}`}></i>
-                    <span className="truncate">{act.title}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
       {/* C: WORKSPACE */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#050505] relative">
+      <div className="flex-1 flex flex-col min-w-0 bg-[var(--bg-paper)] relative">
         {selected ? (
           <>
-            <div className="h-16 border-b border-zinc-900/80 flex items-center justify-between px-8 bg-[#080808] shrink-0 z-10">
+            <div className="min-h-16 py-2 border-b border-[var(--border-color)] flex flex-wrap items-center justify-between px-4 md:px-8 bg-[var(--bg-secondary)] shrink-0 z-10 gap-3">
               <div className="flex flex-col">
-                <h3 className="font-black text-sm text-zinc-100 uppercase tracking-widest flex items-center gap-3">
+                <h3 className="font-black text-sm text-[var(--text-primary)] uppercase tracking-wider flex items-center gap-2.5">
                   {selected.name}
-                  <span className="px-2 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full text-[9px] font-bold">DNA v{selected.version}</span>
+                  <span className="px-2 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full text-[9px] font-bold">
+                    DNA v{selected.version}
+                  </span>
                 </h3>
-                <p className="text-[10px] text-zinc-600 font-mono mt-0.5" title={linter.warnings.map(w => w.text).join('\n')}>
+                <p
+                  className="text-[10px] text-[var(--text-muted)] font-mono mt-0.5"
+                  title={linter.warnings.map((w) => w.text).join('\n')}
+                >
                   Maliyet: ~{linter.tokens} tkns • Skor:{' '}
-                  <span className={linter.score >= 90 ? 'text-emerald-500' : linter.score >= 50 ? 'text-amber-500' : 'text-red-500'}>{linter.score}/100</span>
+                  <span
+                    className={
+                      linter.score >= 90
+                        ? 'text-emerald-500 font-bold'
+                        : linter.score >= 50
+                          ? 'text-amber-500 font-bold'
+                          : 'text-red-500 font-bold'
+                    }
+                  >
+                    {linter.score}/100
+                  </span>
                 </p>
               </div>
-              <div className="flex items-center gap-3">
-                <button onClick={handleExport} className="px-3 py-1.5 bg-zinc-900/50 border border-zinc-800/50 rounded-xl text-[9px] font-black text-zinc-500 hover:text-amber-500 transition-all uppercase tracking-widest">
-                  <i className="fa-solid fa-download mr-1.5"></i> Dışa Aktar
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={handleExport}
+                  className="px-3 py-1.5 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl text-[10px] font-black text-[var(--text-secondary)] hover:text-amber-500 transition-all uppercase tracking-wider"
+                >
+                  <i className="fa-solid fa-download mr-1.5" /> Dışa Aktar
                 </button>
-                <div className="flex bg-zinc-900/50 p-1.5 rounded-xl border border-zinc-800/50">
+                <div className="flex bg-[var(--bg-paper)] p-1 rounded-xl border border-[var(--border-color)]">
                   {[
-                    { id: 'editor' as const, label: 'Mimarİ', icon: 'fa-layer-group' },
-                    { id: 'simulation' as const, label: 'CANLI SİMÜLASYON', icon: 'fa-flask' },
-                    { id: 'history' as const, label: 'Evrİm Geçmİşİ', icon: 'fa-dna' },
+                    { id: 'editor' as const, label: 'Mimari', icon: 'fa-layer-group' },
+                    { id: 'simulation' as const, label: 'Simülasyon', icon: 'fa-flask' },
+                    { id: 'history' as const, label: 'Geçmiş', icon: 'fa-dna' },
                   ].map((t) => (
                     <button
                       key={t.id}
                       onClick={() => setActiveTab(t.id)}
-                      className={`px-5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-2 ${activeTab === t.id ? 'bg-zinc-700 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'}`}
+                      className={`px-3.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 ${
+                        activeTab === t.id
+                          ? 'bg-[var(--accent-color)] text-white shadow'
+                          : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                      }`}
                     >
-                      <i className={`fa-solid ${t.icon}`}></i> {t.label}
+                      <i className={`fa-solid ${t.icon}`} /> {t.label}
                     </button>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="flex-1 p-6 relative flex flex-col min-h-0 min-w-0">
+            <div className="flex-1 p-4 md:p-6 relative flex flex-col min-h-0 min-w-0 overflow-y-auto lg:overflow-hidden">
               {activeTab === 'editor' && (
-                <div className="flex-1 flex gap-6 min-h-0">
-                  <div className="flex-1 flex flex-col rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)]">
-                    <CodeEditor value={selected.template} onChange={(v) => setSelected({ ...selected, template: v })} />
+                <div className="flex-1 flex flex-col lg:flex-row gap-5 min-h-0">
+                  <div className="flex-1 flex flex-col rounded-2xl overflow-hidden shadow-md">
+                    <CodeEditor
+                      value={selected.template}
+                      onChange={(v) => setSelected({ ...selected, template: v })}
+                    />
                   </div>
-                  <div className="w-80 flex flex-col gap-5 shrink-0">
-                    <div className="h-1/3 bg-[#0a0a0a] rounded-2xl border border-zinc-800/50 p-5 flex flex-col relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 blur-3xl pointer-events-none"></div>
-                      <h4 className="flex items-center gap-2 text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3 z-10">
-                        <i className="fa-solid fa-brain"></i> Persona Modeli (System)
+                  <div className="w-full lg:w-80 flex flex-col gap-4 shrink-0 overflow-y-auto custom-scrollbar">
+                    {/* Model Config */}
+                    <div className="bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] p-4 space-y-3">
+                      <h4 className="flex items-center gap-2 text-[10px] font-black text-[var(--accent-color)] uppercase tracking-widest">
+                        <i className="fa-solid fa-sliders" /> Model Motoru
+                      </h4>
+                      <select
+                        value={selected.modelConfig?.modelName || 'gemini-3.8-flash'}
+                        onChange={(e) =>
+                          setSelected({
+                            ...selected,
+                            modelConfig: { ...selected.modelConfig, modelName: e.target.value },
+                          })
+                        }
+                        className="w-full px-3 py-1.5 rounded-lg bg-[var(--bg-paper)] border border-[var(--border-color)] text-xs text-[var(--text-primary)] outline-none"
+                      >
+                        {AVAILABLE_MODELS.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.label}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[10px] font-bold text-[var(--text-muted)]">
+                          Yaratıcılık (Temp): {(selected.modelConfig?.temperature ?? 0.1).toFixed(1)}
+                        </span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.1"
+                          value={selected.modelConfig?.temperature ?? 0.1}
+                          onChange={(e) =>
+                            setSelected({
+                              ...selected,
+                              modelConfig: {
+                                ...selected.modelConfig,
+                                temperature: parseFloat(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-28 accent-[var(--accent-color)]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* System Instruction */}
+                    <div className="bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] p-4 flex flex-col">
+                      <h4 className="flex items-center gap-2 text-[10px] font-black text-rose-500 uppercase tracking-widest mb-2">
+                        <i className="fa-solid fa-brain" /> Persona Modeli (System)
                       </h4>
                       <textarea
                         value={selected.systemInstruction}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSelected({ ...selected, systemInstruction: e.target.value })}
-                        className="w-full flex-1 bg-transparent text-[11px] font-mono leading-relaxed text-zinc-400 outline-none resize-none custom-scrollbar z-10"
-                        placeholder="Modelin temel rolü ve düşünme biçimi..."
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                          setSelected({ ...selected, systemInstruction: e.target.value })
+                        }
+                        rows={4}
+                        className="w-full bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-2.5 text-[11px] font-mono leading-relaxed text-[var(--text-primary)] outline-none resize-none custom-scrollbar"
+                        placeholder="Modelin temel rolü ve klinik ilkeleri..."
                       />
                     </div>
-                    <div className="flex-1 bg-[#0a0a0a] rounded-2xl border border-zinc-800/50 p-5 flex flex-col relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-3xl pointer-events-none"></div>
-                      <div className="flex items-center justify-between mb-4 z-10">
+
+                    {/* Pedagojik Linter */}
+                    <div className="flex-1 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] p-4 flex flex-col min-h-[160px]">
+                      <div className="flex items-center justify-between mb-3">
                         <h4 className="flex items-center gap-2 text-[10px] font-black text-emerald-500 uppercase tracking-widest">
-                          <i className="fa-solid fa-stethoscope"></i> Pedagojik Linter
+                          <i className="fa-solid fa-stethoscope" /> Pedagojik Linter
                         </h4>
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded shadow-sm border ${linter.score >= 90 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : linter.score >= 70 ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
+                        <span
+                          className={`text-[10px] font-black px-2 py-0.5 rounded border ${
+                            linter.score >= 90
+                              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
+                              : linter.score >= 70
+                                ? 'bg-amber-500/10 border-amber-500/20 text-amber-500'
+                                : 'bg-red-500/10 border-red-500/20 text-red-500'
+                          }`}
+                        >
                           {linter.score}/100
                         </span>
                       </div>
-                      <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2 z-10">
+                      <div className="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1">
                         {linter.warnings.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center h-full text-zinc-600 opacity-50">
-                            <i className="fa-solid fa-check-circle text-emerald-500 text-4xl mb-3 block"></i>
-                            <p className="text-[10px] font-black tracking-widest uppercase">Sıfır Kognitif Yük.</p>
+                          <div className="flex flex-col items-center justify-center py-6 text-[var(--text-muted)]">
+                            <i className="fa-solid fa-check-circle text-emerald-500 text-3xl mb-2" />
+                            <p className="text-[10px] font-black tracking-widest uppercase">
+                              Sıfır Bilişsel Yük Onayı
+                            </p>
                           </div>
                         ) : (
                           linter.warnings.map((w, i) => (
-                            <div key={i} className={`p-3 rounded-lg border flex flex-col gap-1.5 transition-all ${w.type === 'error' ? 'bg-red-500/5 border-red-500/20' : w.type === 'warning' ? 'bg-amber-500/5 border-amber-500/20' : 'bg-sky-500/5 border-sky-500/20'}`}>
-                              <div className="flex items-center gap-2">
-                                <i className={`fa-solid text-[10px] ${w.type === 'error' ? 'fa-triangle-exclamation text-red-500' : w.type === 'warning' ? 'fa-bolt text-amber-500' : 'fa-lightbulb text-sky-500'}`}></i>
-                                <span className={`text-[9px] font-black uppercase ${w.type === 'error' ? 'text-red-500' : w.type === 'warning' ? 'text-amber-500' : 'text-sky-500'}`}>
-                                  {w.type === 'error' ? 'Kritik İhlal' : w.type === 'warning' ? 'Metodoloji İkazu' : 'Tavsiye'}
+                            <div
+                              key={i}
+                              className={`p-2.5 rounded-lg border flex flex-col gap-1 ${
+                                w.type === 'error'
+                                  ? 'bg-red-500/10 border-red-500/20'
+                                  : w.type === 'warning'
+                                    ? 'bg-amber-500/10 border-amber-500/20'
+                                    : 'bg-sky-500/10 border-sky-500/20'
+                              }`}
+                            >
+                              <div className="flex items-center gap-1.5">
+                                <i
+                                  className={`fa-solid text-[10px] ${
+                                    w.type === 'error'
+                                      ? 'fa-triangle-exclamation text-red-500'
+                                      : w.type === 'warning'
+                                        ? 'fa-bolt text-amber-500'
+                                        : 'fa-lightbulb text-sky-500'
+                                  }`}
+                                />
+                                <span
+                                  className={`text-[9px] font-black uppercase ${
+                                    w.type === 'error'
+                                      ? 'text-red-500'
+                                      : w.type === 'warning'
+                                        ? 'text-amber-500'
+                                        : 'text-sky-500'
+                                  }`}
+                                >
+                                  {w.type === 'error'
+                                    ? 'Kritik İhlal'
+                                    : w.type === 'warning'
+                                      ? 'Pedagoji İkazu'
+                                      : 'Öneri'}
                                 </span>
                               </div>
-                              <p className={`text-[10px] leading-relaxed font-medium ${w.type === 'error' ? 'text-red-400/80' : w.type === 'warning' ? 'text-amber-400/80' : 'text-sky-400/80'}`}>{w.text}</p>
+                              <p className="text-[10px] leading-relaxed font-medium text-[var(--text-secondary)]">
+                                {w.text}
+                              </p>
                             </div>
                           ))
                         )}
@@ -379,7 +624,7 @@ export const AdminPromptStudio = () => {
               )}
 
               {activeTab === 'simulation' && (
-                <div className="flex-1 min-h-0 animate-in fade-in duration-300">
+                <div className="flex-1 min-h-0">
                   <PromptSimulator prompt={selected} />
                 </div>
               )}
@@ -387,26 +632,42 @@ export const AdminPromptStudio = () => {
               {activeTab === 'history' && (
                 <div className="h-full space-y-4 overflow-y-auto custom-scrollbar pr-2 max-w-3xl mx-auto w-full">
                   {(selected.history?.length || 0) === 0 && (
-                    <div className="text-center p-32 text-zinc-600 flex flex-col items-center gap-4">
-                      <i className="fa-solid fa-clock-rotate-left text-5xl opacity-20"></i>
-                      <p className="text-[10px] font-black uppercase tracking-widest">Kayıtsız Organizma.</p>
+                    <div className="text-center p-20 text-[var(--text-muted)] flex flex-col items-center gap-3">
+                      <i className="fa-solid fa-clock-rotate-left text-4xl opacity-30" />
+                      <p className="text-xs font-black uppercase tracking-widest">
+                        Henüz Kayıtlı Versiyon Geçmişi Yok
+                      </p>
                     </div>
                   )}
                   {[...(selected.history || [])].reverse().map((h, i) => (
-                    <div key={i} className="p-6 bg-[#0a0a0a] border border-zinc-800/50 rounded-2xl flex justify-between items-center group hover:border-amber-500/50 transition-all shadow-lg relative overflow-hidden">
-                      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-zinc-800 group-hover:bg-amber-500 transition-colors"></div>
-                      <div className="pl-4">
-                        <div className="flex items-center gap-4 mb-3">
-                          <span className="text-[10px] font-black text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 uppercase tracking-widest">DNA V.{h.version}</span>
-                          <span className="text-[9px] text-zinc-600 font-mono tracking-widest">{new Date(h.updatedAt).toLocaleString()}</span>
+                    <div
+                      key={i}
+                      className="p-5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl flex justify-between items-center group hover:border-amber-500/50 transition-all shadow-sm relative overflow-hidden"
+                    >
+                      <div className="pl-2">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-[10px] font-black text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 uppercase">
+                            DNA v{h.version}
+                          </span>
+                          <span className="text-[10px] text-[var(--text-muted)] font-mono">
+                            {new Date(h.updatedAt).toLocaleString('tr-TR')}
+                          </span>
                         </div>
-                        <p className="text-xs text-zinc-300 font-medium italic select-all">&quot;{h.changeLog}&quot;</p>
+                        <p className="text-xs text-[var(--text-primary)] font-medium italic">
+                          &quot;{h.changeLog}&quot;
+                        </p>
                       </div>
                       <button
-                        onClick={() => setShowRestoreModal({ version: h.version, template: h.template, systemInstruction: h.systemInstruction })}
-                        className="px-6 py-2.5 bg-zinc-800 hover:bg-amber-500 hover:text-black text-white text-[10px] font-black rounded-xl opacity-0 group-hover:opacity-100 transition-all transform active:scale-95 shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+                        onClick={() =>
+                          setShowRestoreModal({
+                            version: h.version,
+                            template: h.template,
+                            systemInstruction: h.systemInstruction,
+                          })
+                        }
+                        className="px-4 py-2 bg-[var(--bg-paper)] border border-[var(--border-color)] hover:bg-amber-500 hover:text-black text-[var(--text-primary)] text-[10px] font-black rounded-xl transition-all"
                       >
-                        GERİ YÜKLE & UYGULA
+                        GERİ YÜKLE
                       </button>
                     </div>
                   ))}
@@ -414,46 +675,56 @@ export const AdminPromptStudio = () => {
               )}
             </div>
 
-            <div className="h-20 border-t border-zinc-900/80 bg-[#080808] flex items-center px-8 justify-between shrink-0 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-20">
-              <div className="flex gap-6">
+            <div className="h-16 border-t border-[var(--border-color)] bg-[var(--bg-secondary)] flex items-center px-6 justify-between shrink-0 z-20">
+              <div className="flex items-center gap-6">
                 <div className="flex flex-col">
-                  <span className="text-[8px] text-zinc-600 font-black uppercase mb-0.5 tracking-widest">Aktif Çekirdek</span>
-                  <span className="text-[10px] text-zinc-400 font-mono tracking-wider">{selected.id}</span>
+                  <span className="text-[8px] text-[var(--text-muted)] font-black uppercase tracking-widest">
+                    Aktif Çekirdek
+                  </span>
+                  <span className="text-[10px] text-[var(--text-primary)] font-mono">{selected.id}</span>
                 </div>
-                <div className="w-px h-6 bg-zinc-800"></div>
-                <div className="flex flex-col">
-                  <span className="text-[8px] text-zinc-600 font-black uppercase mb-0.5 tracking-widest">Model Engine</span>
-                  <span className="text-[10px] text-zinc-400 font-mono tracking-wider">{selected.modelConfig?.modelName || 'gemini-2.5-flash'}</span>
+                <div className="hidden sm:block w-px h-6 bg-[var(--border-color)]" />
+                <div className="hidden sm:flex flex-col">
+                  <span className="text-[8px] text-[var(--text-muted)] font-black uppercase tracking-widest">
+                    Model Engine
+                  </span>
+                  <span className="text-[10px] text-[var(--text-primary)] font-mono">
+                    {selected.modelConfig?.modelName || 'gemini-3.8-flash'}
+                  </span>
                 </div>
               </div>
               <button
                 onClick={() => setShowSaveModal(true)}
                 disabled={isSaving || linter.score < 50}
-                className={`px-12 py-3.5 text-black font-black rounded-2xl text-[11px] uppercase tracking-widest transition-all transform active:scale-95 disabled:opacity-30 disabled:pointer-events-none flex items-center gap-3 ${linter.score < 50 ? 'bg-zinc-800 text-zinc-600' : 'bg-amber-500 hover:bg-amber-400 shadow-[0_0_30px_rgba(245,158,11,0.4)] hover:shadow-[0_0_40px_rgba(245,158,11,0.6)]'}`}
+                className={`px-6 md:px-10 py-2.5 font-black rounded-xl text-[11px] uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40 flex items-center gap-2 ${
+                  linter.score < 50
+                    ? 'bg-[var(--bg-paper)] text-[var(--text-muted)] border border-[var(--border-color)]'
+                    : 'bg-amber-500 hover:bg-amber-400 text-black shadow-lg'
+                }`}
               >
                 {isSaving ? (
-                  <><i className="fa-solid fa-dna fa-spin"></i> HÜCRESEL YAZIM</>
+                  <>
+                    <i className="fa-solid fa-dna fa-spin" /> Kaydediliyor
+                  </>
                 ) : (
-                  <><i className="fa-solid fa-bolt"></i> MİMARİYİ ZİHNİNE KAZI</>
+                  <>
+                    <i className="fa-solid fa-bolt" /> Mimariyi Kaydet
+                  </>
                 )}
               </button>
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-zinc-800 p-20 text-center select-none bg-gradient-to-b from-[#050505] to-[#020202]">
-            <div className="relative mb-10 group">
-              <div className="absolute inset-0 bg-amber-500/10 rounded-full blur-3xl group-hover:bg-amber-500/20 transition-all duration-1000"></div>
-              <div className="w-32 h-32 border border-zinc-800/50 rounded-full flex items-center justify-center text-4xl relative z-10 bg-black backdrop-blur-md shadow-[inset_0_0_30px_rgba(0,0,0,0.8)]">
-                <i className="fa-solid fa-fingerprint text-zinc-700 animate-pulse"></i>
-              </div>
-              <svg className="absolute inset-0 w-full h-full text-zinc-800 animate-spin-slow" viewBox="0 0 100 100" style={{ animationDuration: '20s' }}>
-                <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="5, 10" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="10, 20" />
-              </svg>
+          <div className="flex-1 flex flex-col items-center justify-center text-[var(--text-muted)] p-12 text-center select-none">
+            <div className="w-24 h-24 border border-[var(--border-color)] rounded-full flex items-center justify-center text-3xl mb-6 bg-[var(--bg-secondary)] shadow-inner">
+              <i className="fa-solid fa-fingerprint text-amber-500 animate-pulse" />
             </div>
-            <h3 className="text-3xl font-black text-zinc-400 mb-4 tracking-tighter mix-blend-screen">Kognitif Mimari Laboratuvarı</h3>
-            <p className="max-w-md text-[11px] text-zinc-600 leading-relaxed font-medium uppercase tracking-widest">
-              Özel eğitim etkinliklerinin yapay zeka tarafından nasıl düşünüleceğini yapılandırmak için sol havuzdan bir aktivite nöronu seçin.
+            <h3 className="text-2xl font-black text-[var(--text-primary)] mb-2 tracking-tight">
+              Kognitif Mimari Laboratuvarı
+            </h3>
+            <p className="max-w-md text-xs text-[var(--text-secondary)] leading-relaxed">
+              Özel eğitim etkinliklerinin yapay zeka tarafından nasıl üretileceğini yapılandırmak,
+              pedagojik linterden geçirmek ve canlı simüle etmek için sol listeden bir aktivite seçin.
             </p>
           </div>
         )}
@@ -461,48 +732,66 @@ export const AdminPromptStudio = () => {
 
       {/* R: SNIPPETS */}
       {selected && activeTab === 'editor' && (
-        <div className="w-72 border-l border-zinc-900 bg-[#080808] flex flex-col shrink-0 z-10">
-          <div className="p-5 border-b border-zinc-900/50 flex flex-col gap-1">
+        <div className="w-full lg:w-64 border-t lg:border-t-0 lg:border-l border-[var(--border-color)] bg-[var(--bg-secondary)] flex flex-col shrink-0 z-10 max-h-60 lg:max-h-none">
+          <div className="p-4 border-b border-[var(--border-color)] flex flex-col gap-1">
             <div className="flex justify-between items-center">
-              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Kognitif Bloklar</span>
+              <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">
+                Kognitif Bloklar
+              </span>
               <button
                 onClick={() => {
-                  const newSnip: PromptSnippet = { id: `new_${Date.now()}`, label: 'YENİ BLOK', value: '' };
+                  const newSnip: PromptSnippet = {
+                    id: `snip_${Date.now()}`,
+                    label: 'YENİ BLOK',
+                    value: '',
+                  };
                   setSnippets([...snippets, newSnip]);
+                  setSnippetEditLabel('YENİ BLOK');
                   setSnippetEditValue('');
                   setShowSnippetModal(newSnip.id);
                 }}
-                className="text-zinc-600 hover:text-emerald-500 transition-colors"
+                className="text-[var(--text-muted)] hover:text-emerald-500 transition-colors"
+                title="Yeni Blok Ekle"
               >
-                <i className="fa-solid fa-plus-circle"></i>
+                <i className="fa-solid fa-plus-circle" />
               </button>
             </div>
-            <p className="text-[9px] text-zinc-600 font-medium">Sık kullanılan pedagojik parametreler</p>
+            <p className="text-[9px] text-[var(--text-muted)] font-medium">
+              Tıklayarak şablona pedagojik blok ekleyin
+            </p>
           </div>
-          <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 bg-[#050505]">
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2.5 bg-[var(--bg-paper)]">
             {snippets.length === 0 && (
-              <div className="text-center p-10 text-zinc-700 text-[9px] uppercase tracking-widest font-black">Havuz Boş</div>
+              <div className="text-center p-8 text-[var(--text-muted)] text-[10px] uppercase tracking-widest font-bold">
+                Blok Havuzu Boş
+              </div>
             )}
             {snippets.map((s: PromptSnippet) => (
               <div
                 key={s.id}
-                className="group p-4 bg-[#0a0a0a] border border-zinc-800/50 rounded-2xl relative hover:border-emerald-500/40 transition-all cursor-pointer shadow-lg overflow-hidden"
-                onClick={() => selected && setSelected({ ...selected, template: selected.template + '\n\n' + s.value })}
+                className="group p-3.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl relative hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm"
+                onClick={() =>
+                  selected &&
+                  setSelected({ ...selected, template: `${selected.template}\n\n${s.value}` })
+                }
               >
-                <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/5 blur-2xl pointer-events-none"></div>
-                <h5 className="text-[9px] font-black text-zinc-300 mb-2 uppercase pr-6 leading-tight tracking-wider">{s.label}</h5>
-                <p className="text-[9px] text-zinc-500 line-clamp-3 font-mono leading-relaxed relative z-10">&quot;{s.value.substring(0, 100)}...&quot;</p>
+                <h5 className="text-[10px] font-black text-[var(--text-primary)] mb-1 uppercase pr-6 leading-tight">
+                  {s.label}
+                </h5>
+                <p className="text-[9px] text-[var(--text-muted)] line-clamp-3 font-mono leading-relaxed">
+                  {s.value.substring(0, 100)}
+                </p>
                 <button
                   onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
+                    setSnippetEditLabel(s.label);
                     setSnippetEditValue(s.value);
                     setShowSnippetModal(s.id);
                   }}
-                  className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-emerald-500 transition-colors z-20"
+                  className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 text-[var(--text-muted)] hover:text-emerald-500 transition-colors"
                 >
-                  <i className="fa-solid fa-pen text-[9px]"></i>
+                  <i className="fa-solid fa-pen text-[9px]" />
                 </button>
-                <div className="absolute inset-x-0 bottom-0 h-0.5 bg-emerald-500/80 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
               </div>
             ))}
           </div>
@@ -511,21 +800,43 @@ export const AdminPromptStudio = () => {
 
       {/* ── Save Modal ── */}
       {showSaveModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center" onClick={() => setShowSaveModal(false)}>
-          <div className="bg-[#0a0a0a] border border-zinc-800 rounded-3xl p-8 w-full max-w-lg shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-black text-zinc-100 uppercase tracking-wider mb-2">Mimari Evrim Kaydı</h3>
-            <p className="text-[10px] text-zinc-500 font-medium mb-6">Değişiklik logu girin — bu versiyon geçmişine kaydedilecek.</p>
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+          onClick={() => setShowSaveModal(false)}
+        >
+          <div
+            className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-3xl p-8 w-full max-w-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-black text-[var(--text-primary)] uppercase tracking-wider mb-2">
+              Mimari Evrim Kaydı
+            </h3>
+            <p className="text-xs text-[var(--text-muted)] mb-5">
+              Değişiklik notu girin — bu versiyon geçmişine ve Firestore’a kaydedilecektir.
+            </p>
             <textarea
               value={saveNote}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSaveNote(e.target.value)}
-              className="w-full h-24 bg-black border border-zinc-800 rounded-xl p-4 text-sm text-zinc-300 outline-none resize-none focus:border-amber-500/50 transition-all"
-              placeholder="Derinlemesine kognitif optimizasyon..."
+              className="w-full h-24 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl p-4 text-sm text-[var(--text-primary)] outline-none resize-none focus:border-amber-500 transition-all"
+              placeholder="Örn: ZPD yönergesi ve pedagogicalNote şeması güçlendirildi..."
               autoFocus
             />
             <div className="flex gap-3 mt-6">
-              <button onClick={() => { setShowSaveModal(false); setSaveNote(''); }} className="flex-1 py-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">Vazgeç</button>
-              <button onClick={handleSaveWithNote} disabled={!saveNote.trim() || isSaving} className="flex-[2] py-3 bg-amber-500 hover:bg-amber-400 text-black rounded-2xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-30 flex items-center justify-center gap-2">
-                {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-dna"></i>}
+              <button
+                onClick={() => {
+                  setShowSaveModal(false);
+                  setSaveNote('');
+                }}
+                className="flex-1 py-3 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-2xl text-xs font-black uppercase tracking-widest"
+              >
+                Vazgeç
+              </button>
+              <button
+                onClick={handleSaveWithNote}
+                disabled={!saveNote.trim() || isSaving}
+                className="flex-[2] py-3 bg-amber-500 hover:bg-amber-400 text-black rounded-2xl text-xs font-black uppercase tracking-widest transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+              >
+                {isSaving ? <i className="fa-solid fa-spinner fa-spin" /> : <i className="fa-solid fa-dna" />}
                 {isSaving ? 'Kaydediliyor...' : 'Mimariyi Kaydet'}
               </button>
             </div>
@@ -535,13 +846,33 @@ export const AdminPromptStudio = () => {
 
       {/* ── Restore Modal ── */}
       {showRestoreModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center" onClick={() => setShowRestoreModal(null)}>
-          <div className="bg-[#0a0a0a] border border-zinc-800 rounded-3xl p-8 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-black text-zinc-100 uppercase tracking-wider mb-2">DNA Geri Yükleme</h3>
-            <p className="text-sm text-zinc-400 mb-6">Sistemin nöral yolları DNA v{showRestoreModal.version} dizişine döndürülecek. Onaylıyor musunuz?</p>
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+          onClick={() => setShowRestoreModal(null)}
+        >
+          <div
+            className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-3xl p-8 w-full max-w-md shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-black text-[var(--text-primary)] uppercase tracking-wider mb-2">
+              DNA Geri Yükleme
+            </h3>
+            <p className="text-sm text-[var(--text-secondary)] mb-6">
+              Prompt taslağı DNA v{showRestoreModal.version} sürümüne döndürülecek. Onaylıyor musunuz?
+            </p>
             <div className="flex gap-3">
-              <button onClick={() => setShowRestoreModal(null)} className="flex-1 py-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">İptal</button>
-              <button onClick={handleRestore} className="flex-[2] py-3 bg-amber-500 hover:bg-amber-400 text-black rounded-2xl text-xs font-black uppercase tracking-widest transition-all">GERİ YÜKLE & UYGULA</button>
+              <button
+                onClick={() => setShowRestoreModal(null)}
+                className="flex-1 py-3 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-2xl text-xs font-black uppercase"
+              >
+                İptal
+              </button>
+              <button
+                onClick={handleRestore}
+                className="flex-[2] py-3 bg-amber-500 hover:bg-amber-400 text-black rounded-2xl text-xs font-black uppercase"
+              >
+                GERİ YÜKLE
+              </button>
             </div>
           </div>
         </div>
@@ -549,27 +880,57 @@ export const AdminPromptStudio = () => {
 
       {/* ── Snippet Edit Modal ── */}
       {showSnippetModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center" onClick={() => setShowSnippetModal(null)}>
-          <div className="bg-[#0a0a0a] border border-zinc-800 rounded-3xl p-8 w-full max-w-lg shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-black text-zinc-100 uppercase tracking-wider mb-6">Blok Düzenle</h3>
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+          onClick={() => setShowSnippetModal(null)}
+        >
+          <div
+            className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-3xl p-8 w-full max-w-lg shadow-2xl space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-black text-[var(--text-primary)] uppercase tracking-wider">
+              Kognitif Blok Düzenle
+            </h3>
+            <input
+              type="text"
+              value={snippetEditLabel}
+              onChange={(e) => setSnippetEditLabel(e.target.value)}
+              placeholder="Blok başlığı..."
+              className="w-full px-3 py-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] text-xs font-bold text-[var(--text-primary)] outline-none"
+            />
             <textarea
               value={snippetEditValue}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSnippetEditValue(e.target.value)}
-              className="w-full h-32 bg-black border border-zinc-800 rounded-xl p-4 text-sm font-mono text-zinc-300 outline-none resize-none focus:border-emerald-500/50 transition-all"
+              className="w-full h-32 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl p-4 text-sm font-mono text-[var(--text-primary)] outline-none resize-none"
               placeholder="Pedagojik parametreler..."
               autoFocus
             />
-            <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowSnippetModal(null)} className="flex-1 py-3 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">İptal</button>
-              <button onClick={() => {
-                if (showSnippetModal) {
-                  const updated = snippets.map(s => s.id === showSnippetModal ? { ...s, value: snippetEditValue } : s);
-                  setSnippets(updated);
-                  const target = updated.find(s => s.id === showSnippetModal);
-                  if (target) adminService.saveSnippet(target);
-                  setShowSnippetModal(null);
-                }
-              }} className="flex-[2] py-3 bg-emerald-500 hover:bg-emerald-400 text-black rounded-2xl text-xs font-black uppercase tracking-widest transition-all">Kaydet</button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSnippetModal(null)}
+                className="flex-1 py-3 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-2xl text-xs font-black uppercase"
+              >
+                İptal
+              </button>
+              <button
+                onClick={() => {
+                  if (showSnippetModal) {
+                    const updated = snippets.map((s) =>
+                      s.id === showSnippetModal
+                        ? { ...s, label: snippetEditLabel || s.label, value: snippetEditValue }
+                        : s
+                    );
+                    setSnippets(updated);
+                    const target = updated.find((s) => s.id === showSnippetModal);
+                    if (target) adminService.saveSnippet(target);
+                    toast.success('Kognitif blok kaydedildi');
+                    setShowSnippetModal(null);
+                  }
+                }}
+                className="flex-[2] py-3 bg-emerald-500 hover:bg-emerald-400 text-black rounded-2xl text-xs font-black uppercase"
+              >
+                Kaydet
+              </button>
             </div>
           </div>
         </div>
