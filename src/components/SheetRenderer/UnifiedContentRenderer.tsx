@@ -20,7 +20,8 @@ import { recursiveSafeText } from '../../utils/textUtils';
 import { BlockRenderer } from './BlockRenderer';
 import { PedagogicalHeader } from '../sheets/common';
 import { useA4EditorStore } from '../../store/useA4EditorStore';
-import { reorderBlocks } from '../../services/a4EditorService';
+import { getPageBlocks, reorderBlocks } from '../../services/a4EditorService';
+import { buildAnswerKeyPage } from '../../services/a4StudioService';
 import { SortableBlockItem } from './SortableBlockItem';
 
 const getBlockWeight = (block: WorksheetBlock): number => {
@@ -272,7 +273,25 @@ export const UnifiedContentRenderer = ({
     showSafeArea,
     isPrintPreview,
     applyMutation,
+    answerKeyMode,
+    printLayout,
+    cutLines,
+    setDiagnostics,
   } = useA4EditorStore();
+
+  const rootRef = React.useRef<HTMLDivElement>(null);
+
+  // Baskı yardımcıları (N-up, kesme çizgileri) gövde sınıflarıyla CSS'e bağlanır.
+  React.useEffect(() => {
+    if (typeof document === 'undefined') return undefined;
+    const body = document.body;
+    body.classList.toggle('a4-nup-2', printLayout === 'nup2');
+    body.classList.toggle('a4-cut-lines', cutLines);
+    return () => {
+      body.classList.remove('a4-nup-2');
+      body.classList.remove('a4-cut-lines');
+    };
+  }, [printLayout, cutLines]);
 
   const editorChrome = isEditorOpen && !isPrintPreview;
 
@@ -355,8 +374,67 @@ export const UnifiedContentRenderer = ({
         currentWeight += weight;
       }
     });
+    if (answerKeyMode === 'appendix') {
+      const answerPage = buildAnswerKeyPage(
+        Array.isArray(data) ? data : data ? ([data] as SingleWorksheetData[]) : []
+      );
+      if (answerPage) {
+        const answerBlocks = getPageBlocks(answerPage);
+        if (answerBlocks.length) pagesResult.push(answerBlocks);
+      }
+    }
+
     return pagesResult;
-  }, [rawBlocks, settings?.showStudentInfo, isEditorOpen, isPrintPreview]);
+  }, [
+    rawBlocks,
+    settings?.showStudentInfo,
+    settings?.orientation,
+    settings?.contentScale,
+    isEditorOpen,
+    isPrintPreview,
+    answerKeyMode,
+    data,
+  ]);
+
+  // Gerçek ölçüm: bölünen bileşenler ve tek sayfaya sığmayan yükseklikler.
+  React.useEffect(() => {
+    const counts = new Map<string, number>();
+    pages.flat().forEach((block) => {
+      if (block.id) counts.set(block.id, (counts.get(block.id) ?? 0) + 1);
+    });
+    const splitBlockIds = [...counts.entries()]
+      .filter(([, count]) => count > 1)
+      .map(([id]) => id)
+      .sort();
+
+    const overflow = new Set<string>();
+    const root = rootRef.current;
+    if (root) {
+      const isLandscape = settings?.orientation === 'landscape';
+      const pageHeightMm = isLandscape ? 210 : 297;
+      const marginMm = settings?.margin ?? 5;
+      const capaCityPx = pageHeightMm * 3.7795 - marginMm * 2 * 3.7795 - 90;
+      root.querySelectorAll<HTMLElement>('[data-page-idx]').forEach((pageEl) => {
+        const blockEls = Array.from(pageEl.querySelectorAll<HTMLElement>('[data-block-id]'));
+        let total = 0;
+        blockEls.forEach((el) => {
+          const height = el.offsetHeight;
+          total += height;
+          if (height > capaCityPx * 0.92 && el.dataset.blockId) overflow.add(el.dataset.blockId);
+        });
+        if (total > capaCityPx * 1.05) {
+          const tallest = [...blockEls].sort((a, b) => b.offsetHeight - a.offsetHeight)[0];
+          if (tallest?.dataset.blockId) overflow.add(tallest.dataset.blockId);
+        }
+      });
+    }
+
+    setDiagnostics({
+      splitBlockIds,
+      overflowBlockIds: [...overflow].sort(),
+      measuredPages: pages.length,
+    });
+  }, [pages, settings?.orientation, settings?.margin, setDiagnostics]);
 
   if (!data || !isValidData) return null;
 
@@ -558,6 +636,7 @@ export const UnifiedContentRenderer = ({
 
   return (
     <div
+      ref={rootRef}
       className={hideWrapper ? "w-full flex-1 flex flex-col" : "w-full flex flex-col items-center gap-10 no-scrollbar scroll-smooth"}
       id={hideWrapper ? undefined : "print-container"}
       onClick={() => {

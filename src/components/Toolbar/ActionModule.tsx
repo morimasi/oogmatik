@@ -10,6 +10,12 @@ import { useFascicleStore } from '../../store/useFascicleStore';
 import { useA4EditorStore } from '../../store/useA4EditorStore';
 import { logError } from '../../utils/logger.js';
 import { snapshotService } from '../../utils/snapshotService';
+import {
+  collectAnswers,
+  sanitizeFileBaseName,
+  worksheetToHtml,
+} from '../../services/a4StudioService';
+import { copyHtmlToClipboard, downloadTextFile, htmlToPlainText } from '../../utils/a4ExportUtils';
 
 interface ActionModuleProps {
   settings: StyleSettings;
@@ -72,6 +78,39 @@ const ZoomGroup = () => {
   );
 };
 
+const StudioItem = ({
+  icon,
+  label,
+  hint,
+  onClick,
+  active,
+}: {
+  icon: string;
+  label: string;
+  hint?: string;
+  onClick: () => void;
+  active?: boolean;
+}) => (
+  <button
+    type="button"
+    role="menuitem"
+    onClick={onClick}
+    className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition-colors ${
+      active
+        ? 'bg-[var(--accent-muted)] text-[var(--accent-color)]'
+        : 'text-[var(--text-secondary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)]'
+    }`}
+  >
+    <i className={`fa-solid ${icon} w-3.5 text-[10px]`}></i>
+    <span className="min-w-0 flex-1 truncate text-[10px] font-bold">{label}</span>
+    {hint && (
+      <span className="shrink-0 text-[8px] font-black uppercase tracking-wider text-[var(--text-muted)]">
+        {hint}
+      </span>
+    )}
+  </button>
+);
+
 export const ActionModule: React.FC<ActionModuleProps> = ({
   settings,
   onSave,
@@ -83,6 +122,7 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
 }) => {
   const [exportProgress, setExportProgress] = useState({ open: false, percent: 0, message: '' });
   const [snapshotMenuOpen, setSnapshotMenuOpen] = useState(false);
+  const [studioMenuOpen, setStudioMenuOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const paperSizeStore = usePaperSizeStore();
   const toast = useToastStore();
@@ -90,6 +130,9 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
 
   const isEditorOpen = useA4EditorStore((state) => state.isEditorOpen);
   const isPrintPreview = useA4EditorStore((state) => state.isPrintPreview);
+  const answerKeyMode = useA4EditorStore((state) => state.answerKeyMode);
+  const printLayout = useA4EditorStore((state) => state.printLayout);
+  const cutLines = useA4EditorStore((state) => state.cutLines);
   const dirty = useA4EditorStore((state) => state.dirty);
   const canUndo = useA4EditorStore((state) => state.history.length > 0);
   const canRedo = useA4EditorStore((state) => state.future.length > 0);
@@ -158,6 +201,54 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
       toast.error('İşlem sırasında bir hata oluştu.');
     } finally {
       setTimeout(() => setExportProgress({ open: false, percent: 0, message: '' }), 800);
+    }
+  };
+
+  const currentData = (): WorksheetData =>
+    useA4EditorStore.getState().bridge?.get() ?? worksheetData ?? null;
+
+  const handleWordExport = (includeAnswers: boolean) => {
+    const data = currentData();
+    if (!data) {
+      toast.warning('Dışa aktarılacak içerik yok.');
+      return;
+    }
+    const title = data[0]?.title ?? settings.title ?? 'bdmind-etkinlik';
+    const ok = downloadTextFile(
+      worksheetToHtml(data, { title, includeAnswers }),
+      `${sanitizeFileBaseName(title)}${includeAnswers ? '-cevap-anahtari' : ''}.doc`,
+      'application/msword;charset=utf-8'
+    );
+    if (ok) toast.success('Word belgesi indirildi.');
+    else toast.error('Word belgesi oluşturulamadı.');
+  };
+
+  const handleCopyBlocks = async () => {
+    const data = currentData();
+    if (!data) {
+      toast.warning('Kopyalanacak içerik yok.');
+      return;
+    }
+    const selected = useA4EditorStore.getState().selectedBlockIds;
+    const html = worksheetToHtml(data, { onlyBlockIds: selected.length ? selected : undefined });
+    const ok = await copyHtmlToClipboard(html, htmlToPlainText(html));
+    if (ok) toast.success(selected.length ? 'Seçili bileşenler kopyalandı.' : 'Sayfa kopyalandı.');
+    else toast.error('Panoya kopyalama izni verilmedi.');
+  };
+
+  const handleVectorPrint = async () => {
+    try {
+      document.body.classList.add('a4-vector-print');
+      const { forceRenderAllPages, ensurePrintStyle } = await import('../../utils/print/CSSInjector');
+      forceRenderAllPages();
+      ensurePrintStyle(paperSize);
+      await new Promise((resolve) => setTimeout(resolve, 450));
+      window.print();
+    } catch (error) {
+      logError(error as Error);
+      toast.error('Vektörel yazdırma başlatılamadı.');
+    } finally {
+      setTimeout(() => document.body.classList.remove('a4-vector-print'), 900);
     }
   };
 
@@ -276,6 +367,129 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
             </div>
           )}
         </div>
+      </div>
+
+      {/* Stüdyo Grubu — komut paleti, cevap anahtarı, kağıt ekonomisi, dışa aktarma */}
+      <div className="relative">
+        <button
+          type="button"
+          title="Stüdyo araçları — komut paleti, cevap anahtarı, Word, kağıt ekonomisi"
+          aria-haspopup="menu"
+          aria-expanded={studioMenuOpen}
+          onClick={() => setStudioMenuOpen(!studioMenuOpen)}
+          className={`flex items-center gap-1.5 rounded-2xl border px-3 py-2 text-[10px] font-black uppercase tracking-wider transition-all ${
+            studioMenuOpen
+              ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--accent-color)]'
+              : 'border-[var(--border-color)] bg-[var(--surface-glass)]/50 text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+          }`}
+        >
+          <i className="fa-solid fa-wand-magic-sparkles text-xs"></i>
+          <span className="hidden xl:inline">STÜDYO</span>
+          <i className="fa-solid fa-chevron-down text-[8px]"></i>
+        </button>
+        {studioMenuOpen && (
+          <div
+            role="menu"
+            className="absolute right-0 top-full z-50 mt-2 w-[268px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)] p-1.5 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95"
+          >
+            <p className="px-2 pb-1 pt-0.5 text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+              Düzenleme
+            </p>
+            <StudioItem
+              icon="fa-terminal"
+              label="Komut Paleti"
+              hint="Ctrl+K"
+              onClick={() => {
+                setStudioMenuOpen(false);
+                useA4EditorStore.getState().setEditorOpen(true);
+                useA4EditorStore.getState().setCommandPaletteOpen(true);
+              }}
+            />
+            <StudioItem
+              icon="fa-shield-heart"
+              label="Üretim Denetimi"
+              hint={`${collectAnswers(currentData()).length} cevap`}
+              onClick={() => {
+                setStudioMenuOpen(false);
+                useA4EditorStore.getState().setEditorOpen(true);
+                useA4EditorStore.getState().setEditorTab('insights');
+              }}
+            />
+            <div className="my-1 h-px bg-[var(--border-color)]" />
+            <p className="px-2 pb-1 text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+              Nüsha
+            </p>
+            <StudioItem
+              icon="fa-key"
+              label="Cevap Anahtarı"
+              hint={answerKeyMode === 'appendix' ? 'Ayrı sayfa' : answerKeyMode === 'overlay' ? 'Rozet' : 'Kapalı'}
+              active={answerKeyMode !== 'off'}
+              onClick={() => {
+                useA4EditorStore
+                  .getState()
+                  .setAnswerKeyMode(answerKeyMode === 'off' ? 'appendix' : 'off');
+              }}
+            />
+            <StudioItem
+              icon="fa-copy"
+              label="Yaprak Başına 2 Sayfa"
+              hint={printLayout === 'nup2' ? 'Açık' : 'Kapalı'}
+              active={printLayout === 'nup2'}
+              onClick={() =>
+                useA4EditorStore
+                  .getState()
+                  .setPrintLayout(printLayout === 'nup2' ? 'single' : 'nup2')
+              }
+            />
+            <StudioItem
+              icon="fa-scissors"
+              label="Kesme Çizgileri"
+              hint={cutLines ? 'Açık' : 'Kapalı'}
+              active={cutLines}
+              onClick={() => useA4EditorStore.getState().setCutLines(!cutLines)}
+            />
+            <div className="my-1 h-px bg-[var(--border-color)]" />
+            <p className="px-2 pb-1 text-[8px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+              Çıktı
+            </p>
+            <StudioItem
+              icon="fa-file-pdf"
+              label="Vektörel PDF"
+              hint="Metin seçilebilir"
+              onClick={() => {
+                setStudioMenuOpen(false);
+                void handleVectorPrint();
+              }}
+            />
+            <StudioItem
+              icon="fa-file-word"
+              label="Word İndir"
+              hint="Öğrenci nüshası"
+              onClick={() => {
+                setStudioMenuOpen(false);
+                handleWordExport(false);
+              }}
+            />
+            <StudioItem
+              icon="fa-file-circle-check"
+              label="Word — Cevap Anahtarlı"
+              hint="Öğretmen nüshası"
+              onClick={() => {
+                setStudioMenuOpen(false);
+                handleWordExport(true);
+              }}
+            />
+            <StudioItem
+              icon="fa-copy"
+              label="Panoya Kopyala"
+              hint="Seçili bloklar"
+              onClick={() => {
+                setStudioMenuOpen(false);
+                void handleCopyBlocks();
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Kaydetme & Atama Grubu */}

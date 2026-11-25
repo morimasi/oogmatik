@@ -7,6 +7,8 @@ import { ContentPanel } from './ContentPanel';
 import { LayersPanel } from './LayersPanel';
 import { PagePanel } from './PagePanel';
 import { StylePanel } from './StylePanel';
+import { InsightsPanel } from './InsightsPanel';
+import { CommandPalette } from './CommandPalette';
 import { MiniButton } from './controls';
 
 const DRAFT_KEY = 'bdmind.a4draft.v1';
@@ -23,6 +25,7 @@ const TABS: Array<{ id: A4EditorTab; label: string; icon: string; hint: string }
   { id: 'content', label: 'İçerik', icon: 'fa-pen-to-square', hint: 'Seçili bileşenin içeriği' },
   { id: 'styling', label: 'Stil', icon: 'fa-palette', hint: 'Tipografi, renk ve kutu' },
   { id: 'page', label: 'Sayfa', icon: 'fa-file-lines', hint: 'A4 sayfa geneli ayarlar' },
+  { id: 'insights', label: 'Denetim', icon: 'fa-shield-heart', hint: 'Kalite, taşma, sürüm, çıktı' },
 ];
 
 export const A4EditorPanel = ({
@@ -55,6 +58,10 @@ export const A4EditorPanel = ({
     isPrintPreview,
     setPrintPreview,
     markSaved,
+    commandPaletteOpen,
+    setCommandPaletteOpen,
+    diagnostics,
+    editingBlockId,
   } = useA4EditorStore();
 
   const [draft, setDraft] = React.useState<DraftPayload | null>(null);
@@ -139,12 +146,17 @@ export const A4EditorPanel = ({
       const mod = event.ctrlKey || event.metaKey;
       const key = event.key.toLowerCase();
 
+      if (mod && key === 'k') {
+        event.preventDefault();
+        setCommandPaletteOpen(!useA4EditorStore.getState().commandPaletteOpen);
+        return;
+      }
       if (mod && key === 's') {
         event.preventDefault();
         void handleSave();
         return;
       }
-      if (isTyping) return;
+      if (isTyping || editingBlockId) return;
 
       if (mod && key === 'z') {
         event.preventDefault();
@@ -160,6 +172,11 @@ export const A4EditorPanel = ({
       if (mod && key === 'd' && selectedBlockIds.length) {
         event.preventDefault();
         useA4EditorStore.getState().applyBlockAction('duplicate', selectedBlockIds);
+        return;
+      }
+      if (mod && key === 'p') {
+        event.preventDefault();
+        setPrintPreview(!useA4EditorStore.getState().isPrintPreview);
         return;
       }
       if (mod && key === 'a') {
@@ -185,12 +202,14 @@ export const A4EditorPanel = ({
     return () => window.removeEventListener('keydown', handler);
   }, [
     clearSelection,
+    editingBlockId,
     entries,
     handleSave,
     isEditorOpen,
     isPrintPreview,
     redo,
     selectedBlockIds,
+    setCommandPaletteOpen,
     setPrintPreview,
     undo,
   ]);
@@ -220,9 +239,10 @@ export const A4EditorPanel = ({
 
   return (
     <aside
-      className="no-print relative z-40 flex h-full w-[min(92vw,352px)] shrink-0 flex-col border-l border-[var(--border-color)] bg-[var(--bg-paper)] text-[var(--text-primary)] shadow-[-14px_0_40px_rgba(0,0,0,0.18)] animate-in slide-in-from-right duration-300 xl:w-[368px]"
+      className="no-print relative z-40 flex h-full w-[min(92vw,352px)] shrink-0 flex-col border-l border-[var(--border-color)] bg-[var(--bg-paper)] text-[var(--text-primary)] shadow-[-14px_0_40px_rgba(0,0,0,0.18)] animate-in slide-in-from-right duration-300 xl:w-[368px] max-lg:fixed max-lg:inset-x-0 max-lg:bottom-0 max-lg:z-50 max-lg:h-[72vh] max-lg:w-full max-lg:rounded-t-3xl max-lg:border-l-0 max-lg:border-t max-lg:shadow-[0_-18px_50px_rgba(0,0,0,0.28)]"
       aria-label="A4 tasarımcısı paneli"
     >
+      <div className="mx-auto mt-1.5 hidden h-1 w-10 shrink-0 rounded-full bg-[var(--border-color)] max-lg:block" aria-hidden="true" />
       {/* ÜST BAŞLIK */}
       <header className="flex items-center justify-between gap-2 border-b border-[var(--border-color)] bg-[var(--surface-glass)]/50 px-3 py-2.5 backdrop-blur-md">
         <div className="flex min-w-0 items-center gap-2">
@@ -244,6 +264,11 @@ export const A4EditorPanel = ({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
+          <MiniButton
+            icon="fa-terminal"
+            title="Komut paleti (Ctrl+K)"
+            onClick={() => setCommandPaletteOpen(true)}
+          />
           <MiniButton
             icon="fa-rotate-left"
             title="Geri al (Ctrl+Z)"
@@ -276,7 +301,7 @@ export const A4EditorPanel = ({
 
       {/* SEKMELER */}
       <nav
-        className="grid grid-cols-5 border-b border-[var(--border-color)] bg-[var(--bg-paper)]"
+        className="grid grid-cols-6 border-b border-[var(--border-color)] bg-[var(--bg-paper)]"
         role="tablist"
         aria-label="A4 tasarımcısı sekmeleri"
       >
@@ -330,8 +355,10 @@ export const A4EditorPanel = ({
               {selectedBlock
                 ? selectedBlock.locked
                   ? 'Kilitli — sürüklenemez'
-                  : 'Sayfada seçili'
-                : 'Düzenlemek için bir bileşene tıklayın'}
+                  : 'Sayfada seçili • çift tıkla: yerinde düzenle'
+                : diagnostics.overflowBlockIds.length || diagnostics.splitBlockIds.length
+                  ? `${diagnostics.splitBlockIds.length} bölünme • ${diagnostics.overflowBlockIds.length} taşma`
+                  : 'Düzenlemek için bir bileşene tıklayın'}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-1">
@@ -399,13 +426,33 @@ export const A4EditorPanel = ({
             onStyleChange={onStyleChange}
           />
         )}
+        {editorTab === 'insights' && (
+          <InsightsPanel
+            worksheetData={worksheetData}
+            styleSettings={
+              styleSettings ??
+              ({ orientation: 'portrait', margin: 5, columns: 1 } as unknown as StyleSettings)
+            }
+            onStyleChange={onStyleChange}
+            activityType={activityType}
+          />
+        )}
       </div>
+
+      <CommandPalette
+        open={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        worksheetData={worksheetData}
+        activityType={activityType}
+        onOpenTab={setEditorTab}
+        onSave={onSave}
+      />
 
       {/* ALT KISAYOL ŞERİDİ */}
       <footer className="flex items-center justify-between gap-2 border-t border-[var(--border-color)] bg-[var(--surface-glass)]/40 px-3 py-1.5 text-[8px] font-bold uppercase tracking-wider text-[var(--text-muted)]">
-        <span>Ctrl+Z / Ctrl+Shift+Z</span>
+        <span>Ctrl+K komut</span>
         <span>Ctrl+S kaydet</span>
-        <span>Esc seçimi bırak</span>
+        <span>Ctrl+Z geri al</span>
       </footer>
     </aside>
   );

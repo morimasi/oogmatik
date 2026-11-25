@@ -59,6 +59,12 @@ export const PagePanel = ({
   const showSafeArea = useA4EditorStore((state) => state.showSafeArea);
   const setShowSafeArea = useA4EditorStore((state) => state.setShowSafeArea);
   const applyLayout = useA4EditorStore((state) => state.applyLayout);
+  const answerKeyMode = useA4EditorStore((state) => state.answerKeyMode);
+  const setAnswerKeyMode = useA4EditorStore((state) => state.setAnswerKeyMode);
+  const printLayout = useA4EditorStore((state) => state.printLayout);
+  const setPrintLayout = useA4EditorStore((state) => state.setPrintLayout);
+  const cutLines = useA4EditorStore((state) => state.cutLines);
+  const setCutLines = useA4EditorStore((state) => state.setCutLines);
 
   const pages = Array.isArray(worksheetData) ? worksheetData : [];
   const architecture = pages.find((page) => page.layoutArchitecture)?.layoutArchitecture;
@@ -289,6 +295,15 @@ export const PagePanel = ({
             <option value="saman">Saman</option>
           </select>
         </Field>
+        <RangeField
+          label="Güvenli Baskı Sınırı"
+          value={styleSettings.safeMarginMm ?? 12}
+          min={8}
+          max={25}
+          unit="mm"
+          onChange={(safeMarginMm) => update({ safeMarginMm })}
+          onReset={() => update({ safeMarginMm: 12 })}
+        />
         <ColorField
           label="Kenarlık Rengi"
           value={styleSettings.borderColor}
@@ -307,6 +322,39 @@ export const PagePanel = ({
           label="Sayfa Ayarlarını Sıfırla"
           title="Sayfa geneli ayarları varsayılana döndür"
           onClick={() => update(DEFAULT_PAGE_SETTINGS)}
+        />
+      </Section>
+
+      <Section
+        title="Nüsha ve Kağıt Ekonomisi"
+        icon="fa-key"
+        description="Cevap anahtarı öğrenci çıktısına girmez; N-up fotokopi maliyetini yarıya indirir."
+      >
+        <Field label="Cevap Anahtarı">
+          <Segmented
+            ariaLabel="Cevap anahtarı görünümü"
+            value={answerKeyMode}
+            options={[
+              { value: 'off' as const, label: 'Kapalı' },
+              { value: 'overlay' as const, label: 'Rozet' },
+              { value: 'appendix' as const, label: 'Ayrı Sayfa' },
+            ]}
+            onChange={setAnswerKeyMode}
+          />
+        </Field>
+        <ToggleRow
+          label="Yaprak başına 2 sayfa"
+          hint="Baskıda N-up (tasarruf)"
+          icon="fa-copy"
+          checked={printLayout === 'nup2'}
+          onChange={(checked) => setPrintLayout(checked ? 'nup2' : 'single')}
+        />
+        <ToggleRow
+          label="Kesme çizgileri"
+          hint="Kesme/katlama kılavuzu"
+          icon="fa-scissors"
+          checked={cutLines}
+          onChange={setCutLines}
         />
       </Section>
 

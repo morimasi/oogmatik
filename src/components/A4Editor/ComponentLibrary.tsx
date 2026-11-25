@@ -1,16 +1,37 @@
-import { createBlock } from '../../services/a4EditorService';
+import React from 'react';
+import { blockPreview, blockTypeLabel, createBlock, findBlock } from '../../services/a4EditorService';
+import {
+  PAGE_TEMPLATES,
+  applyPageTemplate,
+  cloneBlockForLibrary,
+} from '../../services/a4StudioService';
+import {
+  loadBlockLibrary,
+  removeBlockFromLibrary,
+  saveBlockToLibrary,
+  type A4SavedBlock,
+} from '../../services/a4DraftService';
 import { useA4EditorStore } from '../../store/useA4EditorStore';
+import { useToastStore } from '../../store/useToastStore';
 import { EmptyState, MiniButton, Section } from './controls';
 
-interface ComponentDefinition {
-  type: 'header' | 'text' | 'table' | 'grid' | 'question' | 'logic_card' | 'cloze_test' | 'visual_clue_card';
+export interface ComponentDefinition {
+  type:
+    | 'header'
+    | 'text'
+    | 'table'
+    | 'grid'
+    | 'question'
+    | 'logic_card'
+    | 'cloze_test'
+    | 'visual_clue_card';
   label: string;
   description: string;
   icon: string;
   content: Record<string, unknown>;
 }
 
-const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
+export const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
   {
     type: 'header',
     label: 'Başlık',
@@ -91,6 +112,11 @@ export const ComponentLibrary = ({
   onOpenPage: () => void;
 }) => {
   const addBlock = useA4EditorStore((state) => state.addBlock);
+  const applyMutation = useA4EditorStore((state) => state.applyMutation);
+  const selectedBlockId = useA4EditorStore((state) => state.selectedBlockId);
+  const bridge = useA4EditorStore((state) => state.bridge);
+  const toast = useToastStore();
+  const [library, setLibrary] = React.useState<A4SavedBlock[]>(() => loadBlockLibrary());
 
   if (!canAddBlocks) {
     return (
@@ -107,12 +133,70 @@ export const ComponentLibrary = ({
     );
   }
 
+  const saveSelectionToLibrary = () => {
+    if (!bridge || !selectedBlockId) {
+      toast.info('Önce kütüphaneye kaydetmek istediğiniz bileşeni seçin.');
+      return;
+    }
+    const entry = findBlock(bridge.get(), selectedBlockId);
+    if (!entry) {
+      toast.warning('Bileşen bulunamadı.');
+      return;
+    }
+    const next = saveBlockToLibrary(
+      cloneBlockForLibrary(entry.block),
+      `${blockTypeLabel(entry.block.type)} — ${blockPreview(entry.block) || 'kopya'}`
+    );
+    setLibrary(next);
+    toast.success('Bileşen kişisel kütüphaneye eklendi.');
+  };
+
   return (
     <div className="space-y-3 p-3">
+      <Section
+        title="Hızlı Başlangıç"
+        icon="fa-bolt"
+        description="Profesyonel iskeletler; seçili sayfaya bileşen olarak eklenir ve geri alınabilir."
+      >
+        <div className="grid grid-cols-1 gap-1.5">
+          {PAGE_TEMPLATES.map((template) => (
+            <button
+              key={template.id}
+              type="button"
+              onClick={() => {
+                applyMutation((data) => applyPageTemplate(data, template.id));
+                toast.success(`${template.label} şablonu eklendi.`);
+              }}
+              className="group flex w-full items-center gap-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)] px-2.5 py-2 text-left transition-colors hover:border-[var(--accent-color)] hover:bg-[var(--surface-elevated)]"
+            >
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--accent-color)]/30 bg-[var(--accent-muted)] text-[var(--accent-color)]">
+                <i className={`fa-solid ${template.icon} text-[11px]`}></i>
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[10px] font-black text-[var(--text-primary)]">
+                  {template.label}
+                </span>
+                <span className="block truncate text-[9px] text-[var(--text-muted)]">
+                  {template.description}
+                </span>
+              </span>
+              <i className="fa-solid fa-plus text-[9px] text-[var(--text-muted)] transition-colors group-hover:text-[var(--accent-color)]"></i>
+            </button>
+          ))}
+        </div>
+      </Section>
+
       <Section
         title="Bileşen Kütüphanesi"
         icon="fa-shapes"
         description="Yeni bileşen, seçili bloğun hemen altına eklenir; seçim yoksa sayfanın sonuna eklenir."
+        action={
+          <MiniButton
+            icon="fa-bookmark"
+            title="Seçili bileşeni kişisel kütüphaneye kaydet"
+            onClick={saveSelectionToLibrary}
+          />
+        }
       >
         <div className="grid grid-cols-1 gap-1.5">
           {COMPONENT_DEFINITIONS.map((definition) => (
@@ -137,6 +221,50 @@ export const ComponentLibrary = ({
             </button>
           ))}
         </div>
+      </Section>
+
+      <Section
+        title="Kişisel Kütüphane"
+        icon="fa-book-bookmark"
+        description="Sık kullandığınız bileşenleri kaydedin; her etkinlikte yeniden kurmayın."
+      >
+        {library.length === 0 ? (
+          <p className="text-[9px] leading-relaxed text-[var(--text-muted)]">
+            Henüz kayıtlı bileşen yok. Bir bileşen seçip bu bölümdeki yer imi düğmesine basın.
+          </p>
+        ) : (
+          <ul className="space-y-1.5">
+            {library.map((entry) => (
+              <li
+                key={entry.id}
+                className="flex items-center gap-1.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)] px-2 py-1.5"
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    addBlock(cloneBlockForLibrary(entry.block), afterId ?? null);
+                    toast.success('Kütüphaneden eklendi.');
+                  }}
+                  className="min-w-0 flex-1 text-left"
+                  title="Bu bileşeni sayfaya ekle"
+                >
+                  <span className="block truncate text-[9px] font-black text-[var(--text-primary)]">
+                    {entry.label}
+                  </span>
+                  <span className="block truncate text-[8px] text-[var(--text-muted)]">
+                    {blockTypeLabel(entry.block.type)} • {new Date(entry.createdAt).toLocaleDateString('tr-TR')}
+                  </span>
+                </button>
+                <MiniButton
+                  icon="fa-trash-can"
+                  title="Kütüphaneden sil"
+                  danger
+                  onClick={() => setLibrary(removeBlockFromLibrary(entry.id))}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
       </Section>
 
       <p className="px-1 pb-2 text-[9px] leading-relaxed text-[var(--text-muted)]">

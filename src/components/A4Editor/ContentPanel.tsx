@@ -40,6 +40,7 @@ export const ContentPanel = ({
 }) => {
   const updateBlockContent = useA4EditorStore((state) => state.updateBlockContent);
   const applyBlockAction = useA4EditorStore((state) => state.applyBlockAction);
+  const updateBlockMeta = useA4EditorStore((state) => state.updateBlockMeta);
 
   if (!selectedBlock) {
     return (
@@ -426,6 +427,43 @@ export const ContentPanel = ({
 
       <Section title="İçerik" icon="fa-pen-to-square">
         {renderEditor()}
+      </Section>
+
+      <Section
+        title="Öğretmen Katmanı"
+        icon="fa-user-shield"
+        description="Cevap anahtarı ve inceleme notu yalnızca öğretmen nüshasında görünür."
+      >
+        <Field label="Cevap Anahtarı Metni" hint="öğrenciye gösterilmez">
+          <TextField
+            multiline
+            rows={2}
+            value={selectedBlock.answerText ?? ''}
+            onChange={(answerText) => id && updateBlockMeta(id, { answerText })}
+            placeholder="Örn. Doğru cevap: B — çünkü…"
+          />
+        </Field>
+        <Field label="İnceleme Yorumu" hint="zümre / uzman notu">
+          <TextField
+            multiline
+            rows={2}
+            value={selectedBlock.reviewComment ?? ''}
+            onChange={(reviewComment) =>
+              id && updateBlockMeta(id, { reviewComment, reviewResolved: false })
+            }
+            placeholder="Örn. Bu yönerge 2. sınıf için sadeleştirilmeli."
+          />
+        </Field>
+        {selectedBlock.reviewComment && (
+          <MiniButton
+            icon={selectedBlock.reviewResolved ? 'fa-rotate-left' : 'fa-check'}
+            label={selectedBlock.reviewResolved ? 'Yeniden Aç' : 'Çözüldü İşaretle'}
+            title="İnceleme yorumunun durumunu değiştir"
+            onClick={() =>
+              id && updateBlockMeta(id, { reviewResolved: !selectedBlock.reviewResolved })
+            }
+          />
+        )}
       </Section>
 
       {selectedBlock.pedagogicalNote && (
