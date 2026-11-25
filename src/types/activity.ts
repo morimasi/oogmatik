@@ -331,6 +331,12 @@ export interface WorksheetBlock {
   weight?: number;
   /** Öğretmene yönelik pedagojik gerekçe (blok bazlı etkinliklerde). */
   pedagogicalNote?: string;
+  /** Öğretmen cevap anahtarı metni — öğrenci nüshasında asla gösterilmez. */
+  answerText?: string;
+  /** Zümre/uzman inceleme notu (taslak üzerinde işbirliği). */
+  reviewComment?: string;
+  /** İnceleme notu çözüldü olarak işaretlendi mi? */
+  reviewResolved?: boolean;
   /** A4 tasarımcısı: gizlenen bileşen önizlemede ve baskıda görünmez. */
   hidden?: boolean;
   /** A4 tasarımcısı: kilitli bileşen sürüklenemez, yalnızca panelle düzenlenir. */

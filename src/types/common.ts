@@ -33,6 +33,14 @@ export interface StyleSettings {
     gutter?: number;
     contentScale?: number;
     includeClinicalNotes?: boolean;
+    /** Cevap anahtarı görünümü: kapalı / düzenleme üstünde rozet / ayrı sayfa. */
+    answerKeyMode?: 'off' | 'overlay' | 'appendix';
+    /** Kağıt ekonomisi: tek sayfa veya yaprak başına iki sayfa (N-up). */
+    printLayout?: 'single' | 'nup2';
+    /** Baskıda kesme/katlama çizgileri. */
+    cutLines?: boolean;
+    /** Güvenli kenar boşluğu alt sınırı (mm) — baskı taşmasını önler. */
+    safeMarginMm?: number;
 }
 
 export interface BaseActivityData {

@@ -11,11 +11,19 @@ import {
   resetBlockStyle as resetBlockStyleInData,
   updateBlockContent as updateBlockContentInData,
   updateBlockFlags as updateBlockFlagsInData,
+  updateBlockMeta as updateBlockMetaInData,
+  type BlockMetaPatch,
   updateBlockStyle as updateBlockStyleInData,
   type BlockStylePatch,
 } from '../services/a4EditorService';
 
-export type A4EditorTab = 'library' | 'layers' | 'content' | 'styling' | 'page';
+export type A4EditorTab =
+  | 'library'
+  | 'layers'
+  | 'content'
+  | 'styling'
+  | 'page'
+  | 'insights';
 export type A4BlockAction =
   | 'duplicate'
   | 'delete'
@@ -34,8 +42,43 @@ interface DataBridge {
   set: (data: WorksheetData) => void;
 }
 
+export interface A4Diagnostics {
+  /** Aynı bileşen birden çok A4 sayfasına bölündüyse kimlikleri. */
+  splitBlockIds: string[];
+  /** Tek başına sayfaya sığmayan (ölçülen) bileşen kimlikleri. */
+  overflowBlockIds: string[];
+  /** Ölçüm yapılan sayfa sayısı. */
+  measuredPages: number;
+}
+
+const EMPTY_DIAGNOSTICS: A4Diagnostics = {
+  splitBlockIds: [],
+  overflowBlockIds: [],
+  measuredPages: 0,
+};
+
+const sameIds = (a: string[], b: string[]): boolean =>
+  a.length === b.length && a.every((id, index) => id === b[index]);
+
 const HISTORY_LIMIT = 40;
 const MERGE_WINDOW_MS = 700;
+/** Bellek bütçesi: büyük etkinliklerde 40 JSON anlık görüntüsü tarayıcıyı kilitler. */
+export const HISTORY_BYTE_BUDGET = 4_000_000;
+
+const historyBytesOf = (history: string[]): number =>
+  history.reduce((total, snapshot) => total + snapshot.length * 2, 0);
+
+/** Anlık görüntüyü ekler; adım ve bayt bütçesini aşınca en eskiyi düşürür. */
+const pushSnapshot = (history: string[], snapshot: string): string[] => {
+  if (!snapshot) return history;
+  const next = [...history, snapshot].slice(-HISTORY_LIMIT);
+  let bytes = historyBytesOf(next);
+  while (next.length > 1 && bytes > HISTORY_BYTE_BUDGET) {
+    const removed = next.shift();
+    bytes -= (removed?.length ?? 0) * 2;
+  }
+  return next;
+};
 
 const serialize = (data: WorksheetData): string => {
   try {
@@ -81,6 +124,28 @@ interface A4EditorState {
   isPrintPreview: boolean;
   setPrintPreview: (preview: boolean) => void;
 
+  /** Sayfa üzerinde doğrudan düzenlenen bileşen (inline edit). */
+  editingBlockId: string | null;
+  setEditingBlockId: (id: string | null) => void;
+
+  commandPaletteOpen: boolean;
+  setCommandPaletteOpen: (isOpen: boolean) => void;
+
+  /** Cevap anahtarı görünümü — öğrenci nüshası / öğretmen nüshası. */
+  answerKeyMode: 'off' | 'overlay' | 'appendix';
+  setAnswerKeyMode: (mode: 'off' | 'overlay' | 'appendix') => void;
+
+  /** Kağıt ekonomisi ve baskı yardımcıları. */
+  printLayout: 'single' | 'nup2';
+  setPrintLayout: (layout: 'single' | 'nup2') => void;
+  cutLines: boolean;
+  setCutLines: (enabled: boolean) => void;
+
+  /** Renderer tarafından ölçülen taşma/bölünme tanıları. */
+  diagnostics: A4Diagnostics;
+  setDiagnostics: (diagnostics: A4Diagnostics) => void;
+  historyBytes: number;
+
   copiedStyle: NonNullable<WorksheetBlock['style']> | null;
   setCopiedStyle: (style: NonNullable<WorksheetBlock['style']> | null) => void;
 
@@ -107,6 +172,7 @@ interface A4EditorState {
   updateBlockStyle: (ids: string[], patch: BlockStylePatch, mergeKey?: string) => void;
   updateBlockContent: (id: string, patch: Record<string, unknown>, mergeKey?: string) => void;
   updateBlockFlags: (ids: string[], flags: { hidden?: boolean; locked?: boolean }) => void;
+  updateBlockMeta: (id: string, patch: BlockMetaPatch) => void;
   addBlock: (block: WorksheetBlock, afterId?: string | null) => void;
   applyBlockAction: (action: A4BlockAction, ids: string[]) => void;
   applyLayout: (patch: { cols?: number; gap?: number }) => void;
@@ -166,7 +232,40 @@ export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
   setShowSafeArea: (show: boolean) => set({ showSafeArea: show }),
   isPrintPreview: false,
   setPrintPreview: (preview: boolean) =>
-    set({ isPrintPreview: preview, selectedBlockId: preview ? null : get().selectedBlockId, selectedBlockIds: preview ? [] : get().selectedBlockIds }),
+    set({
+      isPrintPreview: preview,
+      selectedBlockId: preview ? null : get().selectedBlockId,
+      selectedBlockIds: preview ? [] : get().selectedBlockIds,
+      editingBlockId: preview ? null : get().editingBlockId,
+    }),
+
+  editingBlockId: null,
+  setEditingBlockId: (id) => set({ editingBlockId: id }),
+
+  commandPaletteOpen: false,
+  setCommandPaletteOpen: (isOpen) => set({ commandPaletteOpen: isOpen }),
+
+  answerKeyMode: 'off',
+  setAnswerKeyMode: (mode) => set({ answerKeyMode: mode }),
+
+  printLayout: 'single',
+  setPrintLayout: (layout) => set({ printLayout: layout }),
+  cutLines: false,
+  setCutLines: (enabled) => set({ cutLines: enabled }),
+
+  diagnostics: EMPTY_DIAGNOSTICS,
+  setDiagnostics: (diagnostics) => {
+    const current = get().diagnostics;
+    if (
+      current.measuredPages === diagnostics.measuredPages &&
+      sameIds(current.splitBlockIds, diagnostics.splitBlockIds) &&
+      sameIds(current.overflowBlockIds, diagnostics.overflowBlockIds)
+    ) {
+      return;
+    }
+    set({ diagnostics });
+  },
+  historyBytes: 0,
 
   copiedStyle: null,
   setCopiedStyle: (style) => set({ copiedStyle: style }),
@@ -193,9 +292,12 @@ export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
     const canMerge =
       !!mergeKey && mergeKey === currentMergeKey && now - mergeAt < MERGE_WINDOW_MS && history.length > 0;
 
+    const nextHistory = canMerge ? history : pushSnapshot(history, snapshot);
+
     bridge.set(next);
     set({
-      history: canMerge ? history : snapshot ? [...history, snapshot].slice(-HISTORY_LIMIT) : history,
+      history: nextHistory,
+      historyBytes: historyBytesOf(nextHistory),
       future: [],
       mergeKey: mergeKey ?? null,
       mergeAt: now,
@@ -213,10 +315,12 @@ export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
     bridge.set(restored);
     set({
       history: history.slice(0, -1),
+      historyBytes: historyBytesOf(history.slice(0, -1)),
       future: current ? [...future, current].slice(-HISTORY_LIMIT) : future,
       mergeKey: null,
       mergeAt: 0,
       dirty: true,
+      editingBlockId: null,
     });
     return true;
   },
@@ -228,18 +332,22 @@ export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
     const next = future[future.length - 1];
     const restored = revive(next);
     if (!restored) return false;
+    const nextHistory = current ? [...history, current].slice(-HISTORY_LIMIT) : history;
     bridge.set(restored);
     set({
-      history: current ? [...history, current].slice(-HISTORY_LIMIT) : history,
+      history: nextHistory,
+      historyBytes: historyBytesOf(nextHistory),
       future: future.slice(0, -1),
       mergeKey: null,
       mergeAt: 0,
       dirty: true,
+      editingBlockId: null,
     });
     return true;
   },
 
-  clearHistory: () => set({ history: [], future: [], mergeKey: null, mergeAt: 0 }),
+  clearHistory: () =>
+    set({ history: [], future: [], mergeKey: null, mergeAt: 0, historyBytes: 0 }),
 
   markSaved: () => set({ dirty: false, lastSavedAt: Date.now() }),
 
@@ -247,12 +355,15 @@ export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
     set({
       history: [],
       future: [],
+      historyBytes: 0,
       mergeKey: null,
       mergeAt: 0,
       dirty: false,
       copiedStyle: null,
       selectedBlockId: null,
       selectedBlockIds: [],
+      editingBlockId: null,
+      diagnostics: EMPTY_DIAGNOSTICS,
     }),
 
   updateBlockStyle: (ids, patch, mergeKey) =>
@@ -267,6 +378,8 @@ export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
     ),
   updateBlockFlags: (ids, flags) =>
     get().applyMutation((data) => updateBlockFlagsInData(data, ids, flags)),
+  updateBlockMeta: (id, patch) =>
+    get().applyMutation((data) => updateBlockMetaInData(data, id, patch), `meta:${id}`),
   addBlock: (block, afterId) => get().applyMutation((data) => addBlockToData(data, block, afterId)),
   applyLayout: (patch) => get().applyMutation((data) => applyLayoutSettings(data, patch)),
 

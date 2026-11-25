@@ -132,6 +132,29 @@ export const updateBlockContent = (
     })
   );
 
+export type BlockMetaPatch = Pick<
+  WorksheetBlock,
+  'answerText' | 'reviewComment' | 'reviewResolved' | 'pedagogicalNote'
+>;
+
+/**
+ * Blok üst verisini (cevap anahtarı, inceleme notu, pedagojik not) günceller.
+ * İçerik ve stil dokunulmaz; pedagojik not asla silinmez (undefined ile de korunur).
+ */
+export const updateBlockMeta = (
+  data: WorksheetData,
+  blockId: string,
+  patch: BlockMetaPatch
+): WorksheetData => {
+  const safePatch: BlockMetaPatch = { ...patch };
+  if (safePatch.pedagogicalNote === undefined) delete safePatch.pedagogicalNote;
+  if (safePatch.pedagogicalNote === '') delete safePatch.pedagogicalNote;
+
+  return mapBlockPages(data, [blockId], (blocks) =>
+    blocks.map((block) => (block.id === blockId ? { ...block, ...safePatch } : block))
+  );
+};
+
 export const updateBlockFlags = (
   data: WorksheetData,
   ids: string[],
