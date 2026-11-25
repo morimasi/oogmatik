@@ -136,12 +136,16 @@
 **Ana Bileşen**: `A4EditorPanel.tsx`
 
 **Alt Modüller**:
-- `ComponentLibrary.tsx` — Bileşen kütüphanesi (blok desteklemeyen legacy şablonlarda kapalı)
+- `ComponentLibrary.tsx` — Bileşen kütüphanesi + 5 hazır sayfa şablonu + kişisel blok kütüphanesi (blok desteklemeyen legacy şablonlarda kapalı)
 - `LayersPanel.tsx` — Katman listesi: seçim, sıralama, gizle/kilitle/çoğalt/sil
-- `ContentPanel.tsx` — Türe özel içerik formları + JSON yedek editör
+- `ContentPanel.tsx` — Türe özel içerik formları + JSON yedek editör + öğretmen katmanı (cevap anahtarı, inceleme yorumu)
 - `StylePanel.tsx` — Tipografi, aralık, kutu, renk, hızlı stil ön ayarları
-- `PagePanel.tsx` — A4 yönü, kenar boşluğu, kolon, tipografi, baskı, görüntüleme yardımcıları
+- `PagePanel.tsx` — A4 yönü, kenar boşluğu, kolon, tipografi, baskı, nüsha/kağıt ekonomisi, görüntüleme yardımcıları
+- `InsightsPanel.tsx` — Üretim denetimi (WCAG/disleksi), taşma-bölünme, cevap anahtarı, sürümler, yorumlar, dışa aktarma, performans
+- `CommandPalette.tsx` — Ctrl+K komut paleti (bileşen, şablon, sekme, çıktı komutları)
 - `controls.tsx` — Tema token'lı ortak panel kontrolleri
+- `services/a4StudioService.ts` — Denetim, cevap anahtarı türetme, şablonlar, metin bölme, Word/HTML çıktısı (saf)
+- `services/a4DraftService.ts` — Adlandırılmış sürümler + kişisel blok kütüphanesi (localStorage, JSON içe/dışa aktarma)
 
 **İşlevler**:
 1. **Blok Düzenleme**: Akış (flow) düzeninde blok ekleme, sıralama (dnd-kit, kalıcı), çoğaltma, silme
@@ -149,7 +153,16 @@
 3. **Katman Yönetimi**: Gizleme (baskıda da gizli), kilitleme, çoklu seçim (Ctrl/Shift), stil kopyala-yapıştır
 4. **Sayfa Ayarları**: A4 dikey/yatay, kenar boşluğu (mm), kolon sayısı, içerik ölçeği, Lexend punto ölçeği, kağıt dokusu, alt bilgi
 5. **Düzenleme Konforu**: Geri al/yinele (40 adım), otomatik taslak (localStorage), Ctrl+Z/S/D/A/Esc/Del, cetvel, ızgara, güvenli baskı alanı, baskı önizleme modu
-6. **Export**: PDF, PNG, panoya kopyalama, V2 yazdırma (mevcut printService)
+6. **Export**: PDF, PNG, panoya kopyalama, V2 yazdırma (mevcut printService), vektörel PDF (tarayıcı baskı motoru), Word (.doc), seçili blokları panoya kopyalama
+7. **Satır İçi Düzenleme**: Sayfadaki metne çift tıkla → yerinde textarea; Ctrl+Enter uygula, Esc vazgeç (store: `editingBlockId`)
+8. **Üretim Denetimi**: Punto < 14, satır yüksekliği < 1.4, WCAG kontrast < 4.5, alt metinsiz görsel, uzun paragraf, eksik cevap; her bulgu tek tık düzeltme önerir (`auditWorksheet`)
+9. **Cevap Anahtarı**: `off | overlay | appendix`; overlay yalnız düzenlemede rozet, appendix öğretmen nüshasında ayrı A4 sayfası (öğrenci çıktısına girmez)
+10. **Taşma/Bölünme Tanısı**: Renderer `ResizeObserver`/`offsetHeight` ile gerçek yükseklik ölçer, `diagnostics` store'una yazar; bölünen bloklar tüm parçalarıyla vurgulanır
+11. **Kağıt Ekonomisi**: N-up (yaprak başına 2 sayfa, print CSS `zoom`), kesme çizgileri, güvenli kenar boşluğu (mm) uyarısı
+12. **Sürümler**: Etkinlik başına 20 adlandırılmış anlık görüntü, geri yükleme, JSON dışa/içe aktarma (cihazlar arası taşıma); bulut kopyası arşive kaydetme ile
+13. **İnceleme Yorumları**: Blok bazlı `reviewComment` / `reviewResolved`; denetim panelinde açık yorum listesi ve "çözüldü" akışı
+14. **Performans Bütçesi**: Geçmiş 40 adımla sınırlı, ayrıca 4 MB bayt bütçesi aşılırsa en eski anlık görüntü düşer (`HISTORY_BYTE_BUDGET`)
+15. **Tablet/Dokunmatik**: `max-lg` alt sayfa (bottom sheet) paneli, 28 px dokunma hedefleri, araç çubuğu her zaman görünür
 
 **Use Cases**:
 - BEP hedeflerine özel çalışma kâğıdı tasarlama
@@ -912,12 +925,18 @@ bdmind v2 mimarisinde `App.tsx` içerisindeki (God Component) yoğun state yöne
 
 #### 9.1.4 useA4EditorStore
 **Dosya**: `store/useA4EditorStore.ts`
-**Amaç**: A4 editör canvas state
+**Amaç**: A4 Studio panel + araç çubuğu ortak state'i (tek doğruluk kaynağı `ContentArea` prop'larıdır)
 
 **State**:
-- `elements`: CanvasElement[] — Tuval üzerindeki öğeler
-- `selectedElementId`: string | null
-- `tool`: 'select' | 'text' | 'image' | 'shape'
+- `isEditorOpen`, `editorTab` (`library | layers | content | styling | page | insights`)
+- `selectedBlockId`, `selectedBlockIds`, `editingBlockId`
+- `history`, `future`, `historyBytes`, `mergeKey`, `mergeAt`, `dirty`, `lastSavedAt`
+- `bridge` — `ContentArea` tarafından kaydedilen `{ get, set }` veri köprüsü
+- `answerKeyMode`, `printLayout`, `cutLines`, `diagnostics` (`splitBlockIds`, `overflowBlockIds`, `measuredPages`)
+- `commandPaletteOpen`, `src` / `showGrid` / `showRulers` / `showSafeArea` / `isPrintPreview`
+- `copiedStyle`, `excalidrawElements`
+
+**Eylemler**: `applyMutation` (geçmiş + bayt bütçesi), `undo/redo`, `updateBlockStyle/Content/Flags/Meta`, `addBlock`, `applyBlockAction`, `applyLayout`, `registerBridge`, `markSaved`, `setDiagnostics`
 
 #### 9.1.5 useCreativeStore
 **Dosya**: `store/useCreativeStore.ts`

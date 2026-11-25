@@ -339,3 +339,100 @@ paketleri **tek ajan tarafından sırayla** yürütüldü; erişilemeyen ajan ku
 2. Bileşen gruplama ve kılavuz çizgilerine yapışma (mutlak konum gerektirir; ayrı baskı testi ile).
 3. Tasarım taslağının Firestore'a otomatik yedeklenmesi (oturumlar arası sürüm geçmişi).
 4. E2E: panel aç → blok seç → stil değiştir → geri al → kaydet → PDF çıktısı senaryosu.
+
+---
+
+## 20. On Beş Takip Paketi — Uygulama Kaydı (v2 Studio)
+
+Bu bölüm, §19'daki öneriler ile birlikte A4 düzenleme deneyimi için belirlenen **15 maddenin**
+tamamının uygulama kaydıdır. Her madde gerçek koda, saf servise veya teste bağlanmıştır;
+işlevsiz düğme bırakılmamıştır.
+
+### 20.1 Paket tablosu
+
+| # | Paket | Uygulama | Dosya |
+|---|---|---|---|
+| 1 | Sayfa üzerinde doğrudan düzenleme | Çift tık → yerinde textarea; Ctrl+Enter uygula, Esc vazgeç; `inlineTextTarget` yalnız metin taşıyan 7 blok türünde | `SortableBlockItem.tsx`, `a4StudioService.ts` |
+| 2 | Vektörel baskı hattı | Tarayıcı baskı motoruyla `window.print()`; `a4-vector-print` sınıfı, `print-color-adjust: exact`, metin seçilebilir PDF | `ActionModule.tsx`, `InsightsPanel.tsx`, `CommandPalette.tsx`, `tailwind.css` |
+| 3 | Gerçek taşma ölçümü + tek tık düzeltme | Renderer her bloğun `offsetHeight` değerini ölçer, sayfa kapasitesiyle karşılaştırır; "Punto Küçült / İkiye Böl / Sayfayı Sık" eylemleri | `UnifiedContentRenderer.tsx`, `InsightsPanel.tsx`, `a4StudioService.ts` |
+| 4 | Öğrenci sürümü + cevap anahtarı | `answerKeyMode: off / overlay / appendix`; cevap `answerText`, `content.answer`, `[boşluk]` kaynaklarından türetilir; appendix ayrı A4 sayfası | `a4StudioService.ts`, `ContentPanel.tsx`, `PagePanel.tsx`, `InsightsPanel.tsx` |
+| 5 | Adlandırılmış sürümler + taşınabilir yedek | Etkinlik başına 20 sürüm (localStorage), geri yükle/sil, JSON dışa/içe aktarma; bulut kopyası arşive kaydetme | `a4DraftService.ts`, `InsightsPanel.tsx` |
+| 6 | Sayfa şablonları + kişisel blok kütüphanesi | 5 iskelet (yönlendirilmiş alıştırma, okuma+yanıt, iki kolonlu sözcük, boşluk ısınma, öz değerlendirme); seçili bloğu kütüphaneye kaydet (30 sınır) | `ComponentLibrary.tsx`, `a4StudioService.ts` |
+| 7 | Okunabilirlik/erişilebilirlik denetçisi | Punto < 14, satır yüksekliği < 1.4, WCAG kontrast < 4.5, alt metinsiz görsel, > 900 karakter paragraf, eksik cevap, boşluksuz cloze; 0–100 puan | `a4StudioService.ts`, `InsightsPanel.tsx` |
+| 8 | Bölünen blok farkındalığı | Aynı `id` birden çok sayfada → "bölünmüş" rozeti, paylaşılan kimlik sayesinde tüm parçalar birlikte vurgulanır, denetimde listelenir | `UnifiedContentRenderer.tsx`, `SortableBlockItem.tsx` |
+| 9 | Tablet/dokunmatik düzenleme | `max-lg` alt sayfa paneli (72vh, tutamak), 28 px dokunma hedefleri, blok araç çubuğu dokunmatikte kalıcı görünür | `A4EditorPanel.tsx`, `SortableBlockItem.tsx` |
+| 10 | Kağıt ekonomisi | N-up (yaprak başına 2 sayfa, print CSS `zoom: 0.47`), kesme/katlama çizgileri, güvenli kenar boşluğu (12 mm) uyarısı | `PagePanel.tsx`, `InsightsPanel.tsx`, `tailwind.css` |
+| 11 | E2E + görsel regresyon | Playwright senaryosu: seç → yerinde düzenle → geri al → denetim → komut paleti → `toHaveScreenshot` | `tests/e2e/a4-studio.spec.ts` |
+| 12 | Komut paleti | Ctrl+K; 6 sekme, 8 bileşen, 5 şablon, düzenleme, görünüm, cevap anahtarı, kağıt, çıktı komutları; ↑/↓/Enter/Esc | `CommandPalette.tsx` |
+| 13 | Word + panoya kopyalama | `.doc` (Word uyumlu HTML), cevaplı/cevapsız; seçili blokları HTML olarak panoya kopyalama | `a4StudioService.ts`, `a4ExportUtils.ts`, `ActionModule.tsx` |
+| 14 | İnceleme yorumu katmanı | Blok bazlı `reviewComment` / `reviewResolved`; içerik panelinde düzenleme, denetim panelinde açık yorum listesi | `types/activity.ts`, `ContentPanel.tsx`, `InsightsPanel.tsx` |
+| 15 | Performans bütçesi | Geçmiş 40 adım + **4 MB** bayt bütçesi; bütçe aşılırsa en eski anlık görüntü düşer, panelde bellek göstergesi | `useA4EditorStore.ts`, `InsightsPanel.tsx` |
+
+### 20.2 Yeni ve güncellenen dosyalar (bu paket)
+
+**Yeni**
+
+- `src/services/a4StudioService.ts` — satır içi düzenleme hedefleri, cevap türetme/anahtar sayfası,
+  WCAG kontrast + üretim denetimi, 5 sayfa şablonu, metin bölme, Word/HTML çıktısı, dosya adı güvenliği.
+- `src/services/a4DraftService.ts` — sürümler (20) ve kişisel blok kütüphanesi (30), JSON içe/dışa aktarma;
+  depolama kapalıysa `saved: false` döner (yanlış "kaydedildi" bilgisi verilmez).
+- `src/components/A4Editor/InsightsPanel.tsx` — denetim, taşma/bölünme, cevap anahtarı, sürümler,
+  yorumlar, kağıt ekonomisi, dışa aktarma, performans.
+- `src/components/A4Editor/CommandPalette.tsx` — Ctrl+K komut paleti.
+- `src/utils/a4ExportUtils.ts` — dosya indirme ve HTML pano yardımcıları.
+- `tests/a4Studio.test.ts` — 20 test.
+- `tests/e2e/a4-studio.spec.ts` — `A4_E2E=1` ile çalışan Playwright + görsel regresyon senaryosu.
+- `toolbar.md` — bu belgenin `.md` kopyası (kullanıcı isteği).
+
+**Güncellenen**
+
+- `src/types/activity.ts` — `answerText`, `reviewComment`, `reviewResolved`.
+- `src/types/common.ts` — `answerKeyMode`, `printLayout`, `cutLines`, `safeMarginMm`.
+- `src/services/a4EditorService.ts` — `updateBlockMeta` (pedagojik not silinmez).
+- `src/store/useA4EditorStore.ts` — `editingBlockId`, `commandPaletteOpen`, `answerKeyMode`,
+  `printLayout`, `cutLines`, `diagnostics`, `historyBytes`, `HISTORY_BYTE_BUDGET`, `updateBlockMeta`,
+  `insights` sekmesi.
+- `src/components/A4Editor/A4EditorPanel.tsx` — 6 sekme, Ctrl+K/Ctrl+P, alt sayfa (tablet), denetim durumu.
+- `src/components/A4Editor/ComponentLibrary.tsx` — şablonlar, kişisel kütüphane, "seçili bloğu kaydet".
+- `src/components/A4Editor/PagePanel.tsx` — güvenli baskı sınırı, nüsha/kağıt ekonomisi bölümü.
+- `src/components/A4Editor/ContentPanel.tsx` — öğretmen katmanı (cevap anahtarı + yorum).
+- `src/components/SheetRenderer/SortableBlockItem.tsx` — yerinde düzenleme, cevap/bölünme/taşma/yorum
+  rozetleri, dokunmatik hedefler.
+- `src/components/SheetRenderer/UnifiedContentRenderer.tsx` — cevap anahtarı sayfası, gerçek yükseklik
+  ölçümü + `diagnostics`, N-up/kesme çizgisi gövde sınıfları.
+- `src/components/Toolbar/ActionModule.tsx` — **STÜDYO** menüsü (komut paleti, denetim, cevap anahtarı,
+  N-up, kesme, vektörel PDF, Word, panoya kopyala).
+- `src/styles/tailwind.css` — N-up, kesme çizgileri, vektörel baskı, cevap rozeti print kuralları.
+- `.claude/MODULE_KNOWLEDGE.md` — §1.4 ve §9.1.4 güncellendi.
+
+### 20.3 Doğrulama
+
+| Kontrol | Komut | Sonuç |
+|---|---|---|
+| Tip | `npx tsc --noEmit` | 0 hata |
+| Birim testleri | `npx vitest run tests/a4Studio.test.ts tests/a4Editor.test.ts` | 40/40 geçti |
+| Lint | `npx eslint <değişen dosyalar> --quiet` | rapor §20.4 |
+| Derleme | `npm run build` | rapor §20.4 |
+| E2E | `A4_E2E=1 npx playwright test tests/e2e/a4-studio.spec.ts` | **çalıştırılmadı** — oturum açmış kullanıcı + üretilmiş etkinlik gerekir |
+| Görsel kontrol | Tarayıcı turu | **yapılmadı** — bu turda istenmedi; panel görünümü/print çıktısı gözle doğrulanmadı |
+
+### 20.4 Bilinçli sınırlar
+
+- **N-up baskı**: Chromium `zoom` tabanlıdır; farklı yazıcı sürücülerinde ilk denemede doğrulanmalıdır.
+  Alternatif (jsPDF ile 2'li yerleştirme) raster kaliteye düşeceği için tercih edilmedi.
+- **Vektörel PDF**: Tarayıcı "PDF olarak kaydet" ile üretilir; dosya adı/kenar boşluğu kullanıcı
+  yazdırma diyaloğundan gelir. Mevcut `printService` (html2canvas + jsPDF) korunmuştur.
+- **Sürüm yedeği**: Cihazlar arası otomatik senkron yok; JSON içe/dışa aktarma ve arşive kaydetme
+  pratik çözümdür. Firestore tabanlı otomatik senkron ayrı bir altyapı işidir.
+- **Serbest x/y konumlandırma, döndürme, z-index** bilinçli olarak kapsam dışıdır (A4 akışı + baskı
+  bütünlüğü). Panel bunu gerekçesiyle açıklar.
+- **Taşma ölçümü** renderer'ın ölçtüğü piksel yüksekliğine dayanır; yazı tipi yüklenmeden önceki ilk
+  karede geçici olarak eksik/yanlış raporlayabilir, sonraki ölçümde düzelir.
+- **E2E** dosyası depoya eklendi ancak bu ortamda çalıştırılmadı; baseline görseli yoktur.
+
+### 20.5 Takip (bilinçli olarak başlatılmadı)
+
+- N-up için gerçek yazıcı matrisi testi ve kesme çizgisi kalibrasyonu.
+- Sürümlerin Firestore'a otomatik yedeği + iki cihaz çakışma çözümü.
+- E2E baseline'larının CI'da üretilmesi ve görsel regresyon eşiğinin kalibre edilmesi.
+- Denetim kurallarının etkinlik türüne göre profillenmesi (ör. matematikte tablo punto eşiği farklı).
