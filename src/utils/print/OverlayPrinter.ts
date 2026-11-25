@@ -1,12 +1,22 @@
 /**
- * bdmind Print Engine — Overlay Yazdırma Modülü
- * DOM klonlama + overlay oluşturma + window.print() tetikleme.
- * Hem düz DOM klonu hem html2canvas tabanlı yazdırma desteklenir.
+ * bdmind Print Engine — Overlay Yazdırma Modülü (v4.0)
+ *
+ * DOM klonlama + akıllı mizanpaj + overlay + window.print().
+ *
+ * v4.0: Sayfalar artık körlemesine klonlanmıyor. İçerik önce SmartLayout
+ * motoruyla kağıda tam oturan sayfalara bölünür; böylece tarayıcı hiçbir
+ * soruyu/kartı ortadan kesmez, taşan kısım anlamsız biçimde sonraki sayfaya
+ * akmaz. Devam sayfaları "Devam" rozetiyle işaretlenir.
  */
 
 import type { PaperSize } from './types';
 import { PAPER_DIMENSIONS, PAGE_SELECTORS } from './constants';
-import { ensurePrintStyle, injectPrintLockCSS, forceRenderAllPages, clearRenderAllPagesFlag } from './CSSInjector';
+import {
+  ensurePrintStyle,
+  injectPrintLockCSS,
+  forceRenderAllPages,
+  clearRenderAllPagesFlag,
+} from './CSSInjector';
 import {
   preloadFontsForCapture,
   collectPages,
@@ -16,9 +26,12 @@ import {
   pixelLockElement,
   onCloneForCapture,
 } from './CaptureEngine';
+import { buildExportPages, releaseExportStage, DEFAULT_PRINT_MARGIN_MM } from './SmartLayout';
 import { generateRealPdf } from './PDFGenerator';
 
 import { logError } from '../../utils/logger.js';
+import { useToastStore } from '../../store/useToastStore.js';
+
 // ─── Overlay Oluşturma Yardımcıları ────────────────────────────────────────
 
 /**
@@ -86,9 +99,9 @@ const buildCapturedPrintOverlay = (
 // ─── DOM Klon Yazdırma (print) ──────────────────────────────────────────────
 
 /**
- * Premium Yazdırma Motoru v3.0 — (Native Overlay & Scale-to-Fit)
- * Iframe kullanmak yerine ana sayfa üzerinde görünmez bir katman (Overlay) açıp
- * native yazdırma komutunu kullanır. Beyaz sayfa sorununu %100 çözer.
+ * Premium Yazdırma Motoru v4.0 — (Akıllı Mizanpaj & Native Overlay)
+ * Iframe kullanmak yerine ana sayfa üzerinde görünmez bir katman (Overlay) açar
+ * ve native yazdırma komutunu kullanır. İçerik önce sayfalara bölünür.
  */
 export const print = async (
   elementSelector: string = '.worksheet-page',
@@ -98,7 +111,8 @@ export const print = async (
   if (typeof window === 'undefined') return;
 
   ensurePrintStyle(paperSize);
-  if (typeof process === 'undefined' || process.env.NODE_ENV !== 'test') {
+  const isTestEnv = typeof process !== 'undefined' && process.env.NODE_ENV === 'test';
+  if (!isTestEnv) {
     await forceRenderAllPages();
   }
 
@@ -108,8 +122,10 @@ export const print = async (
   const selectorText = PAGE_SELECTORS.join(',');
 
   if (roots.length === 0) {
-    // Fallback: Eğer verilen seçici bulunamadıysa container içindeki tüm print-exact/worksheet-page sayfalarını topla
-    const fallbackRoots = Array.from(document.querySelectorAll('.worksheet-page, .print-exact')) as HTMLElement[];
+    // Fallback: verilen seçici bulunamadıysa bilinen sayfa seçicilerini topla
+    const fallbackRoots = Array.from(
+      document.querySelectorAll('.worksheet-page, .print-exact')
+    ) as HTMLElement[];
     pages.push(...fallbackRoots);
   } else {
     roots.forEach((root) => {
@@ -123,7 +139,7 @@ export const print = async (
     });
   }
 
-  // İç içe geçmiş (nested) sayfa elemanlarını filtrele: Başka bir sayfanın içinde olan alt sayfaları tekilleştir
+  // İç içe geçmiş (nested) sayfa elemanlarını tekilleştir
   const uniquePages = pages.filter((page, index) => {
     return !pages.some((otherPage, otherIndex) => otherIndex !== index && otherPage.contains(page));
   });
@@ -134,19 +150,39 @@ export const print = async (
     try {
       window.print();
     } catch (err: unknown) {
-      logError('Print fallback failed:', { message: err instanceof Error ? err.message : String(err) });
+      logError('Print fallback failed:', {
+        message: err instanceof Error ? err.message : String(err),
+      });
     }
     return;
   }
 
-  // 2. Overlay Hazırlığı
+  const isLandscape =
+    paperSize === 'Extreme_Yatay' ||
+    pages.some(
+      (p) => p.classList.contains('orientation-landscape') || p.classList.contains('landscape')
+    );
+
+  // 2. Akıllı mizanpaj — kağıda tam oturan sayfalar
+  const exportPages = buildExportPages(pages, {
+    paperSize,
+    landscape: isLandscape,
+    marginMm: DEFAULT_PRINT_MARGIN_MM,
+    continuationLabel: 'Devam',
+  });
+
+  const printablePages =
+    exportPages.length > 0
+      ? exportPages.map((p) => p.element)
+      : pages.map((p) => p.cloneNode(true) as HTMLElement);
+
+  // 3. Overlay Hazırlığı
   let overlay = document.getElementById('print-overlay');
   if (overlay) {
     overlay.innerHTML = '';
   } else {
     overlay = document.createElement('div');
     overlay.id = 'print-overlay';
-    // Apply absolute positioning and clear transforms for perfect A4 layout
     overlay.style.position = 'absolute';
     overlay.style.top = '0';
     overlay.style.left = '0';
@@ -159,7 +195,6 @@ export const print = async (
     document.body.appendChild(overlay);
   }
 
-  // 3. Stilleri Uygula
   overlay.style.position = 'absolute';
   overlay.style.top = '0';
   overlay.style.left = '0';
@@ -172,81 +207,43 @@ export const print = async (
   wrapperContainer.className = 'print-pages-container';
   overlay.appendChild(wrapperContainer);
 
-  const isLandscape = paperSize === 'Extreme_Yatay' || (roots.some(r => r.classList.contains('orientation-landscape')) ?? false);
-
   // Print Lock CSS enjeksiyonu
   injectPrintLockCSS(paperSize, isLandscape);
 
-  // 4. İçerikleri Klonla ve Ölçeklendir (Scale-to-Fit Magic)
-  pages.forEach((original) => {
-    const clone = original.cloneNode(true) as HTMLElement;
+  // 4. Sayfaları klonla (export sayfaları zaten kağıt ölçüsünde)
+  printablePages.forEach((page) => {
+    const clone = page.cloneNode(true) as HTMLElement;
 
-    // Klonun görünürlüğünü ve stillerini temizle
     clone.classList.remove('hidden', 'invisible', 'opacity-0', 'd-none');
     clone.style.display = 'block';
     clone.style.visibility = 'visible';
     clone.style.opacity = '1';
     clone.style.transform = 'none';
-    (clone.style as any).scale = 'none';
     clone.style.zoom = '1';
     clone.style.margin = '0 auto';
 
-    // Sabit A4 Referans Değerleri (96 DPI)
-    // 210mm = 794px, 297mm = 1123px
-    const baseWidth = isLandscape ? 1123 : 794;
-    const targetWidth = baseWidth; // @page marjı 0 olduğu için tam genişlik kullanıyoruz
-    
-    // Baskı Ölçeği: İçeriği A4 kağıdına tam sığdıracak oran
-    const printScaleRatio = targetWidth / baseWidth; // Artık 1.0 olacak ama yapı korunmalı
-    
-    // ÖNEMLİ: Klonun genişliğini %100 yap.
-    // Bu, tarayıcının @page marjlarını (5mm) tanımasını ve içeriğin reflow yapmasını sağlar.
-    clone.style.width = '100%';
-    clone.style.minWidth = '100%';
-    clone.style.maxWidth = '100%';
-    clone.style.height = 'auto';
-    clone.style.overflow = 'visible';
-    clone.style.boxSizing = 'border-box';
-    
-    // Zoom uygula (Manual ölçeklemeyi değil, sadece Toolbar ölçeğini korur)
-    (clone.style as any).zoom = '1';
+    // @page marjı (8mm) tarayıcı tarafından uygulanacağı için klon tam genişlik alır
+    clone.style.setProperty('width', '100%', 'important');
+    clone.style.setProperty('min-width', '100%', 'important');
+    clone.style.setProperty('max-width', '100%', 'important');
+    clone.style.setProperty('height', 'auto', 'important');
+    clone.style.setProperty('max-height', 'none', 'important');
+    clone.style.setProperty('min-height', '0', 'important');
+    clone.style.setProperty('overflow', 'visible', 'important');
+    clone.style.setProperty('box-shadow', 'none', 'important');
+    clone.style.setProperty('border', 'none', 'important');
+    clone.style.setProperty('padding', '0', 'important');
+    clone.style.setProperty('box-sizing', 'border-box', 'important');
     clone.style.transformOrigin = 'top left';
 
-    // Input, Select ve Canvas Transferi (Robust Sync)
-    const origCanvases = original.querySelectorAll('canvas');
-    const cloneCanvases = clone.querySelectorAll('canvas');
-    origCanvases.forEach((canvas, i) => {
-      const src = canvas as HTMLCanvasElement;
-      const dest = cloneCanvases[i] as HTMLCanvasElement;
-      
-      if (dest && src && src.width && src.height) {
-        // Boyutları senkronize et (Önemli!)
-        dest.width = src.width;
-        dest.height = src.height;
-        const ctx = dest.getContext('2d');
-        if (ctx) ctx.drawImage(src, 0, 0);
-      }
-    });
-
-    const origInputs = original.querySelectorAll('input, textarea, select');
-    const cloneInputs = clone.querySelectorAll('input, textarea, select');
-    origInputs.forEach((input: Element, i) => {
-      const dest = cloneInputs[i] as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-      const src = input as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-      if (dest && (src.type === 'checkbox' || src.type === 'radio')) {
-        (dest as HTMLInputElement).checked = (src as HTMLInputElement).checked;
-      } else if (dest) {
-        dest.value = src.value;
-      }
-    });
-
-    // Wrapper İçine Al
     const wrapper = document.createElement('div');
     wrapper.className = 'bdmind-print-wrapper';
     wrapper.appendChild(clone);
-
     wrapperContainer.appendChild(wrapper);
   });
+
+  // Export sahnesi artık gerekli değil
+  releaseExportStage();
 
   // 5. Native Render Stabilizasyonu (Font Ready + Layout Sync)
   document.body.classList.add('printing-mode');
@@ -256,16 +253,17 @@ export const print = async (
   document.documentElement.className = 'theme-light';
 
   try {
-    // Fontların yüklendiğinden emin ol
     if ('fonts' in document) {
-      await (document as any).fonts.ready;
+      await (document as Document & { fonts: FontFaceSet }).fonts.ready;
     }
 
     // Layout'un oturması için kısa bir bekleme
     await new Promise((resolve) => setTimeout(resolve, 400));
 
-    // Yazdırma bittiğinde veya iptal edildiğinde temizlik yap
+    let cleanupTimer: ReturnType<typeof setTimeout> | null = null;
+
     const cleanup = () => {
+      if (cleanupTimer) clearTimeout(cleanupTimer);
       document.documentElement.className = prevTheme;
       document.body.classList.remove('printing-mode', 'print-ink-saver');
       if (overlay) overlay.style.display = 'none';
@@ -277,9 +275,11 @@ export const print = async (
     window.print();
 
     // Browser afterprint'i desteklemiyorsa fallback temizlik
-    setTimeout(cleanup, 60000);
+    cleanupTimer = setTimeout(cleanup, 60000);
   } catch (err: unknown) {
-    logError('Print trigger failed:', { error: err instanceof Error ? err.message : String(err) });
+    logError('Print trigger failed:', {
+      error: err instanceof Error ? err.message : String(err),
+    });
     document.documentElement.className = prevTheme;
     document.body.classList.remove('printing-mode', 'print-ink-saver');
     if (overlay) overlay.style.display = 'none';
@@ -304,13 +304,21 @@ export const captureAndPrint = async (
     const roots = Array.from(document.querySelectorAll(rootSelector)) as HTMLElement[];
     if (roots.length === 0) {
       logError(`[OverlayPrinter] HATA: "${rootSelector}" bulunamadı.`);
-      alert('Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+      useToastStore
+        .getState()
+        .error(
+          'Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.'
+        );
       return;
     }
 
     if (!hasRenderableContent(roots)) {
       logError(`[OverlayPrinter] HATA: "${rootSelector}" bulundu ama içerik boş.`);
-      alert('Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+      useToastStore
+        .getState()
+        .error(
+          'Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.'
+        );
       return;
     }
 
@@ -318,7 +326,6 @@ export const captureAndPrint = async (
 
     await preloadFontsForCapture();
 
-    // @ts-ignore
     const html2canvasModule = await import('html2canvas');
     const html2canvas = html2canvasModule.default || html2canvasModule;
     const dataUrls: string[] = [];
@@ -377,7 +384,9 @@ export const captureAndPrint = async (
       dataUrls.forEach((url, i) => {
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${title.replace(/[^a-z0-9ğüşıöçA-Z]/g, '_')}${dataUrls.length > 1 ? `_sayfa_${i + 1}` : ''}.png`;
+        a.download = `${title.replace(/[^a-z0-9ğüşıöçA-Z]/g, '_')}${
+          dataUrls.length > 1 ? `_sayfa_${i + 1}` : ''
+        }.png`;
         a.click();
       });
       return;
@@ -394,7 +403,7 @@ export const captureAndPrint = async (
     });
 
     document.body.classList.add('printing-mode');
-  document.body.classList.toggle('print-ink-saver', grayscale);
+    document.body.classList.toggle('print-ink-saver', grayscale);
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     document.body.offsetHeight;
 
@@ -432,7 +441,9 @@ export const captureAndPrint = async (
               setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
             }
           } catch (fallbackErr: unknown) {
-            logError('Mobile print fallback failed', { error: fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr) });
+            logError('Mobile print fallback failed', {
+              error: fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr),
+            });
           }
         }
       }, 3000);
@@ -445,7 +456,7 @@ export const captureAndPrint = async (
 // ─── afterprint Cleanup Listener ────────────────────────────────────────────
 
 /**
- * Browser afterprint event'i ve focus fallback'i ile cleanup yapır.
+ * Browser afterprint event'i ve focus fallback'i ile cleanup yapar.
  */
 export const registerCleanupListeners = (): void => {
   if (typeof window === 'undefined') return;

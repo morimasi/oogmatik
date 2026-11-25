@@ -1,6 +1,15 @@
 /**
- * bdmind Print Engine — PDF Üretim Modülü
- * html2canvas + jsPDF ile gerçek PDF dosyası üretir.
+ * bdmind Print Engine — PDF Üretim Modülü (v3.0)
+ *
+ * html2canvas + jsPDF ile gerçek PDF üretir.
+ *
+ * v3.0 yenilikleri:
+ *  - Kör piksel dilimleme kaldırıldı. İçerik önce akıllı mizanpaj motoruyla
+ *    (SmartLayout) kağıda tam oturan sayfalara bölünür; böylece bir soru,
+ *    kart, ızgara satırı veya tablo satırı asla ortadan kesilmez.
+ *  - Gerçek kenar boşluğu: içerik 0,0 yerine (margin, margin) hizasına basılır.
+ *  - Çok sayfalı çıktılarda alt bilgi sayfa numarası eklenir.
+ *  - Grayscale + kalite ayarları korunur.
  */
 
 import type { PaperSize, PdfQuality } from './types';
@@ -13,21 +22,53 @@ import {
   capturePage,
 } from './CaptureEngine';
 import { forceRenderAllPages, clearRenderAllPagesFlag } from './CSSInjector';
+import { buildExportPages, releaseExportStage, DEFAULT_PRINT_MARGIN_MM } from './SmartLayout';
 import { useStudentStore } from '../../store/useStudentStore.js';
 import { useToastStore } from '../../store/useToastStore.js';
 
 import { logError, logWarn } from '../../utils/logger.js';
+
 export interface RealPdfOptions {
   paperSize?: PaperSize;
   quality?: PdfQuality;
   grayscale?: boolean;
   selectedPages?: number[];
+  /** Kenar boşluğu (mm). Varsayılan 8mm — @page margin ile aynıdır. */
+  marginMm?: number;
+  /** Sayfa numarası alt bilgisini kapat */
+  hidePageNumbers?: boolean;
   onProgress?: (percent: number, message: string) => void;
 }
 
+type JsPdfLike = {
+  setProperties: (props: Record<string, string>) => void;
+  addPage: (format?: number[], orientation?: string) => void;
+  addImage: (
+    data: string,
+    format: string,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    alias?: string,
+    compression?: string
+  ) => void;
+  setFontSize: (size: number) => void;
+  setTextColor: (r: number, g: number, b: number) => void;
+  text: (text: string, x: number, y: number, options?: { align?: string }) => void;
+  output: (type: 'blob') => Blob;
+};
+
+type JsPdfConstructor = new (options: {
+  orientation: string;
+  unit: string;
+  format: number[];
+  compress: boolean;
+}) => JsPdfLike;
+
 /**
- * GERÇEK PDF MOTORU v2.0
- * html2canvas ile her sayfayı yakalar → jsPDF ile tek PDF dosyasına birleştirir.
+ * GERÇEK PDF MOTORU v3.0
+ * Akıllı mizanpaj → sayfa yakalama → jsPDF birleştirme.
  * Tüm platformlarda çalışır: PC, Tablet, Telefon.
  */
 export const generateRealPdf = async (
@@ -41,15 +82,18 @@ export const generateRealPdf = async (
     const quality = options?.quality ?? 'high';
     const grayscale = options?.grayscale ?? false;
     const selectedPages = options?.selectedPages;
+    const marginMm = options?.marginMm ?? DEFAULT_PRINT_MARGIN_MM;
+    const hidePageNumbers = options?.hidePageNumbers ?? false;
     const onProgress = options?.onProgress;
     const captureScale = QUALITY_SCALE_MAP[quality];
 
-    // Detecting landscape from paperSize or container class
+    // Yataylık: kağıt tipinden veya sayfa sınıfından
     const isLandscape =
       paperSize === 'Extreme_Yatay' ||
-      (document.querySelector(rootSelector)?.classList.contains('orientation-landscape') ?? false);
+      (document.querySelector(rootSelector)?.classList.contains('orientation-landscape') ?? false) ||
+      (document.querySelector(rootSelector)?.classList.contains('landscape') ?? false);
 
-    // Kağıt boyutları (mm) - Fallback ekle
+    // Kağıt boyutları (mm)
     const dims = PAPER_DIMENSIONS[paperSize] || PAPER_DIMENSIONS.A4;
     let pageW = parseFloat(dims?.width || '210mm');
     let pageH = parseFloat(dims?.height || '297mm');
@@ -64,14 +108,18 @@ export const generateRealPdf = async (
     if (roots.length === 0) {
       logError(`[PDFGenerator] HATA: "${rootSelector}" bulunamadı.`);
       onProgress?.(0, 'İçerik bulunamadı');
-      useToastStore.getState().error('Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+      useToastStore
+        .getState()
+        .error('Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
       return null;
     }
 
     if (!hasRenderableContent(roots)) {
       logError(`[PDFGenerator] HATA: "${rootSelector}" bulundu ama içerik boş.`);
       onProgress?.(0, 'İçerik boş');
-      useToastStore.getState().error('Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
+      useToastStore
+        .getState()
+        .error('Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
       return null;
     }
 
@@ -82,144 +130,133 @@ export const generateRealPdf = async (
     }
     if (pages.length === 0) {
       logWarn('[PDFGenerator] Sayfa bulunamadı');
+      onProgress?.(0, 'Seçili sayfa yok');
       return null;
     }
 
-    onProgress?.(10, `${pages.length} sayfa bulundu, hazırlanıyor...`);
+    onProgress?.(10, `${pages.length} sayfa bulundu, akıllı mizanpaj uygulanıyor...`);
 
-    // Fontların yüklenmesini bekle
+    // Fontların yüklenmesini bekle (ölçüm doğruluğu için kritik)
     await preloadFontsForCapture();
 
-    // Dinamik import — kod bölme
-    const jspdfModule = await import('jspdf');
-    const JsPdfCtor = (jspdfModule as any).jsPDF || (jspdfModule as any).default?.jsPDF || (jspdfModule as any).default || jspdfModule;
-    const jsPDF = JsPdfCtor as any;
+    // Akıllı mizanpaj: her sayfa kağıda tam oturacak şekilde bölünür
+    const exportPages = buildExportPages(pages, {
+      paperSize,
+      landscape: isLandscape,
+      marginMm,
+      continuationLabel: 'Devam',
+    });
 
-    // PDF oluştur
+    if (exportPages.length === 0) {
+      logWarn('[PDFGenerator] Mizanpaj sonrası sayfa kalmadı');
+      useToastStore.getState().error('Yazdırılabilir sayfa üretilemedi. Lütfen tekrar deneyin.');
+      return null;
+    }
+
+    onProgress?.(14, `${exportPages.length} yazdırma sayfası hazırlandı`);
+
+    // Dinamik import — kod bölme
+    const jspdfModule = (await import('jspdf')) as unknown as Record<string, unknown>;
+    const moduleDefault = jspdfModule.default as Record<string, unknown> | undefined;
+    const JsPdfCtor = (jspdfModule.jsPDF ?? moduleDefault?.jsPDF ?? moduleDefault ?? jspdfModule) as JsPdfConstructor;
+
     const pdfOrientation = isLandscape ? 'landscape' : 'portrait';
-    const pdf = new jsPDF({
+    const pdf = new JsPdfCtor({
       orientation: pdfOrientation,
       unit: 'mm',
       format: [pageW, pageH],
       compress: true,
     });
 
-    // KVKK Uyumlu Metadata — Öğrenci bilgileri gizli olarak PDF'e eklenir
+    // KVKK Uyumlu Metadata — öğrenci kimliği ve tanı bilgisi yazılmaz
     const activeStudent = useStudentStore.getState().activeStudent;
+    const supportProfile = activeStudent?.diagnosis?.length ? 'ozel-destek-aktif' : 'standart';
+
     pdf.setProperties({
-      title: title,
+      title,
       author: 'bdmind - Bursa Disleksi EduMind',
-      subject: 'Eğitim Materyali',
+      subject: `Eğitim Materyali - Destek Profili: ${supportProfile}`,
       keywords: 'disleksi, özel eğitim, eğitim materyali',
       creator: 'bdmind AI Engine',
     });
 
-    // KVKK: Öğrenci bilgileri PDF metadata'ya anonimleştirilmiş şekilde eklenir
-    // Tanı bilgileri asla doğrudan yazılmaz, sadece "destek ihtiyacı" ifadesi kullanılır
-    if (activeStudent) {
-      const studentMeta = {
-        studentId: activeStudent.id || 'anonim',
-        grade: activeStudent.grade || 'bilinmiyor',
-        supportProfile: activeStudent.diagnosis?.length ? 'ozel-destek-aktif' : 'standart',
-        generatedAt: new Date().toISOString(),
-        kvkkCompliant: true,
-      };
-      pdf.setProperties({
-        subject: `Eğitim Materyali - Destek Profili: ${studentMeta.supportProfile}`,
-      });
-    }
-
     // UI öğelerini geçici olarak gizle
     const restoreUI = hideUIElements();
 
-    let addedFirstPage = false;
+    const contentW = Math.max(10, pageW - marginMm * 2);
+    const contentH = Math.max(10, pageH - marginMm * 2);
 
     try {
-      for (let i = 0; i < pages.length; i++) {
-        const page = pages[i];
-        const progressPercent = 10 + Math.round((i / pages.length) * 80);
-        onProgress?.(progressPercent, `Sayfa ${i + 1}/${pages.length} işleniyor...`);
+      for (let i = 0; i < exportPages.length; i++) {
+        const exportPage = exportPages[i];
+        const progressPercent = 14 + Math.round((i / exportPages.length) * 78);
+        onProgress?.(progressPercent, `Sayfa ${i + 1}/${exportPages.length} işleniyor...`);
 
-        const origBg = page.style.backgroundColor;
-        page.style.backgroundColor = '#ffffff';
+        const canvas = await capturePage(exportPage.element, captureScale);
+        if (!canvas || canvas.width === 0 || canvas.height === 0) {
+          logWarn(`[PDFGenerator] Sayfa ${i + 1} yakalanamadı, atlanıyor.`);
+          continue;
+        }
 
-        const rawCanvas = await capturePage(page, captureScale);
-        page.style.backgroundColor = origBg;
-
-        let workingCanvas = rawCanvas;
-        if (grayscale && rawCanvas.width > 0 && rawCanvas.height > 0) {
+        let workingCanvas = canvas;
+        if (grayscale) {
           const grayCanvas = document.createElement('canvas');
-          grayCanvas.width = rawCanvas.width;
-          grayCanvas.height = rawCanvas.height;
+          grayCanvas.width = canvas.width;
+          grayCanvas.height = canvas.height;
           const gCtx = grayCanvas.getContext('2d');
           if (gCtx) {
             gCtx.filter = 'grayscale(100%) contrast(1.1)';
-            gCtx.drawImage(rawCanvas, 0, 0);
+            gCtx.drawImage(canvas, 0, 0);
             workingCanvas = grayCanvas;
           }
         }
 
-        const renderedHeightMm = (workingCanvas.height * pageW) / Math.max(1, workingCanvas.width);
+        // En-boy oranını koru, içeriği asla kırpma: gerekirse küçült
+        const ratio = contentW / Math.max(1, workingCanvas.width);
+        let drawW = contentW;
+        let drawH = workingCanvas.height * ratio;
+        if (drawH > contentH) {
+          const fit = contentH / drawH;
+          drawH = contentH;
+          drawW = contentW * fit;
+        }
+        const offsetX = marginMm + (contentW - drawW) / 2;
 
-        if (renderedHeightMm <= pageH * 1.04) {
-          if (addedFirstPage) pdf.addPage([pageW, pageH], pdfOrientation);
-          addedFirstPage = true;
-          const imgData = workingCanvas.toDataURL('image/jpeg', 0.92);
-          const fitH = Math.min(pageH, renderedHeightMm);
-          pdf.addImage(imgData, 'JPEG', 0, 0, pageW, fitH, undefined, 'FAST');
-        } else {
-          // Uzun sayfayı en-boy oranını bozmadan dikey A4 dilimlerine böl
-          const sliceHeightPx = Math.max(100, Math.floor((pageH * workingCanvas.width) / pageW));
-          for (let offsetY = 0; offsetY < workingCanvas.height; offsetY += sliceHeightPx) {
-            const currentSliceH = Math.min(sliceHeightPx, workingCanvas.height - offsetY);
-            if (currentSliceH < 24) break; // İhmal edilebilir boş kuyruk dilimini atla
+        if (i > 0) pdf.addPage([pageW, pageH], pdfOrientation);
+        const imgData = workingCanvas.toDataURL('image/jpeg', 0.92);
+        pdf.addImage(imgData, 'JPEG', offsetX, marginMm, drawW, drawH, undefined, 'FAST');
 
-            const sliceCanvas = document.createElement('canvas');
-            sliceCanvas.width = workingCanvas.width;
-            sliceCanvas.height = currentSliceH;
-            const sCtx = sliceCanvas.getContext('2d');
-            if (sCtx) {
-              sCtx.fillStyle = '#ffffff';
-              sCtx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
-              sCtx.drawImage(
-                workingCanvas,
-                0,
-                offsetY,
-                workingCanvas.width,
-                currentSliceH,
-                0,
-                0,
-                workingCanvas.width,
-                currentSliceH
-              );
-            }
-
-            if (addedFirstPage) pdf.addPage([pageW, pageH], pdfOrientation);
-            addedFirstPage = true;
-
-            const sliceImgData = sliceCanvas.toDataURL('image/jpeg', 0.92);
-            const sliceHeightMm = (currentSliceH * pageW) / workingCanvas.width;
-            pdf.addImage(sliceImgData, 'JPEG', 0, 0, pageW, Math.min(pageH, sliceHeightMm), undefined, 'FAST');
-          }
+        if (!hidePageNumbers && exportPages.length > 1) {
+          pdf.setFontSize(8);
+          pdf.setTextColor(120, 120, 120);
+          pdf.text(`${i + 1} / ${exportPages.length}`, pageW / 2, pageH - Math.max(2.5, marginMm / 2), {
+            align: 'center',
+          });
         }
       }
     } finally {
       restoreUI();
+      releaseExportStage();
     }
 
     onProgress?.(95, 'PDF dosyası oluşturuluyor...');
 
-    // PDF blob oluştur
     const pdfBlob = pdf.output('blob');
     const safeName = (title || 'EduMind').replace(/[^a-z0-9ğüşıöçA-ZĞÜŞİÖÇ\s]/g, '_').trim();
 
-    // İndirme — Platform uyumlu
     downloadBlob(pdfBlob, `${safeName}.pdf`);
 
     onProgress?.(100, 'PDF başarıyla indirildi!');
     return pdfBlob;
+  } catch (error: unknown) {
+    logError('[PDFGenerator] PDF üretimi başarısız:', {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    useToastStore.getState().error('PDF oluşturulamadı. Lütfen tekrar deneyin.');
+    return null;
   } finally {
     clearRenderAllPagesFlag();
+    releaseExportStage();
   }
 };
 

@@ -263,6 +263,11 @@ export const paginationService = {
         const isAlreadyProcessed = data.length > 1 && data.every((p) => (p as Record<string, unknown>)._currentPage !== undefined);
         if (isAlreadyProcessed) return data;
 
+        // Yatay (landscape) sayfada kullanılabilir dikey alan daha azdır.
+        // Sabit 1080px varsayımı yatay çıktılarda taşmaya (yarıda kesilmeye) yol açıyordu.
+        const pageWeightLimit =
+            settings?.orientation === 'landscape' ? 760 : MAX_PAGE_WEIGHT;
+
         const pages: Record<string, unknown>[] = [];
         let currentItems: unknown[] = [];
         let currentWeight = 0;
@@ -290,7 +295,7 @@ export const paginationService = {
             if (foundKey && Array.isArray(pRec[foundKey])) {
                 (pRec[foundKey] as unknown[]).forEach((item) => {
                     const weight = getItemWeight(item);
-                    const safeLimit = MAX_PAGE_WEIGHT - CONTINUATION_HEADER_COST;
+                    const safeLimit = pageWeightLimit - CONTINUATION_HEADER_COST;
                     if (foundKey === 'blocks' && weight > safeLimit) {
                         const splitBlocks = splitLargeBlock(item as WorksheetBlock, safeLimit);
                         rawItems.push(...splitBlocks);
@@ -305,7 +310,7 @@ export const paginationService = {
 
         rawItems.forEach((item) => {
             const weight = getItemWeight(item);
-            const limit = pageIndex === 0 ? MAX_PAGE_WEIGHT : MAX_PAGE_WEIGHT - CONTINUATION_HEADER_COST;
+            const limit = pageIndex === 0 ? pageWeightLimit : pageWeightLimit - CONTINUATION_HEADER_COST;
 
             // Akıllı Izgara / Blok Kalan Alan Kontrolü:
             // Eğer blok tek başına sayfaya sığıyor ama mevcut sayfada yer kalmamışsa,
@@ -334,7 +339,7 @@ export const paginationService = {
                         // Kalan parçaları sırayla yerleştir
                         parts.slice(1).forEach((restPart) => {
                             const w = getBlockWeight(restPart);
-                            const nextLimit = MAX_PAGE_WEIGHT - CONTINUATION_HEADER_COST;
+                            const nextLimit = pageWeightLimit - CONTINUATION_HEADER_COST;
                             if (currentWeight + w > nextLimit && currentItems.length > 0) {
                                 pages.push({
                                     ...originalPageTemplate,

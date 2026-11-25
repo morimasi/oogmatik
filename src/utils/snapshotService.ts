@@ -5,10 +5,47 @@
  */
 
 import { AppError } from '../utils/AppError';
-import { captureAllPages } from './print/CaptureEngine';
+import {
+  captureAllPages,
+  capturePage,
+  collectPages,
+  hideUIElements,
+  preloadFontsForCapture,
+} from './print/CaptureEngine';
+import { buildExportPages, releaseExportStage } from './print/SmartLayout';
 
 import { logError } from '../utils/logger.js';
 export type SnapshotAction = 'download' | 'clipboard' | 'share';
+
+/**
+ * Akıllı mizanpajlı yakalama: PNG/ZIP çıktıları da yazdırma ile aynı sayfa
+ * bölünmesini kullanır. Böylece görüntü dosyalarında kart/soru ortadan kesilmez.
+ */
+const capturePaginatedPages = async (
+  elementSelector: string,
+  scale: number
+): Promise<HTMLCanvasElement[]> => {
+  const pages = collectPages(elementSelector);
+  if (pages.length === 0) {
+    throw new Error(`[SnapshotService] "${elementSelector}" bulunamadı.`);
+  }
+
+  await preloadFontsForCapture();
+  const exportPages = buildExportPages(pages, { paperSize: 'A4', continuationLabel: 'Devam' });
+  const restoreUI = hideUIElements();
+
+  try {
+    const canvases: HTMLCanvasElement[] = [];
+    for (const exportPage of exportPages) {
+      const canvas = await capturePage(exportPage.element, scale);
+      if (canvas && canvas.width > 0 && canvas.height > 0) canvases.push(canvas);
+    }
+    return canvases;
+  } finally {
+    restoreUI();
+    releaseExportStage();
+  }
+};
 
 /** Canvas → Blob dönüşümü */
 const canvasToBlob = (
@@ -39,7 +76,7 @@ export const snapshotService = {
   ): Promise<void> => {
     let canvases: HTMLCanvasElement[];
     try {
-      canvases = await captureAllPages(elementSelector, customScale);
+      canvases = await capturePaginatedPages(elementSelector, customScale);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Bilinmeyen hata';
       throw new AppError(message, 'INTERNAL_ERROR', 500);

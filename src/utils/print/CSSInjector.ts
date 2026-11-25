@@ -6,6 +6,7 @@
 
 import type { PaperSize } from './types';
 import { PAPER_DIMENSIONS, PRINT_STYLE_ID, RENDER_ALL_EVENT } from './constants';
+import { PRINT_SAFETY_CSS } from './PrintSafetyCSS';
 
 /**
  * Yazdırma CSS kurallarını DOM'a enjekte eder.
@@ -21,9 +22,13 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
       : paperSize === 'Extreme_Yatay'
         ? 'A4 landscape'
         : paperSize;
-  const dims = PAPER_DIMENSIONS[paperSize];
+  const dims = PAPER_DIMENSIONS[paperSize] ?? PAPER_DIMENSIONS.A4;
   const styleText = `
-    @page { size: ${pageSize}; margin: 8mm !important; width: ${dims?.width ?? '210mm'}; height: ${dims?.height ?? '297mm'}; }
+    :root {
+      --bdmind-paper-width: ${dims.width};
+      --bdmind-paper-height: ${dims.height};
+    }
+    @page { size: ${pageSize}; margin: 8mm !important; }
     @media print {
       html, body {
         width: 100% !important;
@@ -186,7 +191,7 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
     styleEl.id = PRINT_STYLE_ID;
     document.head.appendChild(styleEl);
   }
-  styleEl.textContent = styleText;
+  styleEl.textContent = styleText + PRINT_SAFETY_CSS;
 };
 
 /**
@@ -287,11 +292,6 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       .md\\:flex-row { flex-direction: row !important; }
       .lg\\:flex-row { flex-direction: row !important; }
 
-      @page { 
-        margin: 8mm !important; 
-        size: ${baseSize} ${orientation};
-      }
-      
       html, body {
         margin: 0px !important;
         padding: 0px !important;

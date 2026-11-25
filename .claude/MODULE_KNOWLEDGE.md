@@ -1501,9 +1501,13 @@ Tüm bdmind modülleri/stüdyoları için AI destekli, özelleştirilebilir rekl
 
 **Lider & Direktör**: **Prof. Dr. Zafer Aydın** (Ordinaryüs PDF & Baskı Sistemleri Başmühendisi)
 
-### 15.1 Gerçek PDF Üretim Motoru v2.0 (`PDFGenerator.ts`)
+### 15.1 Gerçek PDF Üretim Motoru v3.0 (`PDFGenerator.ts`)
 **Dosya Konumu**: `src/utils/print/PDFGenerator.ts`
-- **Çalışma Prensibi**: `html2canvas` ile her sayfayı yüksek çözünürlüklü yakalar -> `jsPDF` ile tek bir vektörel/resim PDF dosyasına birleştirir.
+- **Çalışma Prensibi**: Akıllı mizanpaj (`SmartLayout.buildExportPages`) ile içerik kağıda tam oturan sayfalara bölünür -> `html2canvas` her sayfayı yüksek çözünürlüklü yakalar -> `jsPDF` ile tek PDF dosyasına birleştirir.
+- **Kırpma Yok**: Kör piksel dilimleme kaldırıldı; bir soru/kart/ızgara-tablo satırı asla iki sayfaya bölünmez. En-boy oranı korunur, sığmayan içerik küçültülür (asla kırpılmaz).
+- **Gerçek Kenar Boşluğu**: İçerik (0,0) yerine `marginMm` (varsayılan 8mm) hizasına basılır; yazıcının basılamaz kenarına taşma olmaz.
+- **Sayfa Numarası**: Çok sayfalı çıktılarda alt ortada `n / toplam` bilgisi eklenir (`hidePageNumbers` ile kapatılabilir).
+- **KVKK**: PDF metadata'sına öğrenci adı/tanısı yazılmaz; yalnızca `ozel-destek-aktif` / `standart` destek profili eklenir.
 - **Tüm Platformlar**: Masaüstü, tablet ve mobil cihazlarda aynı piksel-mükemmel çıktıyı üretir.
 - **Desteklenen Kâğıt Boyutları**:
   - `A4` (210 x 297 mm) — Standart çalışma kâğıtları ve fasiküller
@@ -1547,11 +1551,27 @@ Tüm bdmind modülleri/stüdyoları için AI destekli, özelleştirilebilir rekl
 - Çoklu çalışma kâğıdını arka planda asenkron işleyerek toplu PDF veya JSON zip paketi oluşturur.
 - İlerleme yüzdesi, iptal desteği ve başarısız sayfaları otomatik yeniden deneme (`retryFailed`) mimarisi.
 
-### 15.6 Yazdırma Teması & Mürekkep Tasarrufu (`theme-print.css`)
+### 15.6 Akıllı Mizanpaj Motoru (`SmartLayout.ts`)
+**Dosya Konumu**: `src/utils/print/SmartLayout.ts`
+- **Amaç**: A4'e sığmayan içeriğin rastgele bir satırdan kesilip anlamsız biçimde sonraki sayfaya akmasını engeller.
+- **Çalışma Prensibi**: Sayfa klonu ekran dışı ölçüm sahnesine (`#bdmind-export-stage`) alınır, gerçek `getBoundingClientRect` ölçümleriyle paketlenir.
+- **Bölme Kuralları**:
+  - Kart / soru / etkinlik birimi → ASLA bölünmez, tamamı sonraki sayfaya taşınır.
+  - CSS Grid → satır bütünlüğünde bölünür (`grid-template-columns` korunur).
+  - Tablo → satır bütünlüğünde bölünür, `thead` her parçada tekrarlanır.
+  - Tek parça görsel/SVG → en fazla %50 küçültülerek tek sayfaya sığdırılır (scale-to-fit).
+- **Dengeleme**: `rebalanceChunks` son sayfada tek öğe kalmasını engeller.
+- **Devam Rozeti**: Sonraki sayfaların başına `Devam · n/toplam` rozeti eklenir.
+- **Sayfa Koruması**: `releaseOversizedMinimumHeights` studyolardaki `minHeight: 297mm` kilidini kaldırarak hayalet boş sayfaları önler.
+- **Saf Çekirdek**: `chunkByHeights`, `rebalanceChunks`, `planBreakOffsets`, `resolvePageBox` DOM'suz test edilebilir (`tests/smartLayout.test.ts`).
+- **Kullananlar**: `PDFGenerator`, `OverlayPrinter.print`, `PaginatedPreview`, `snapshotService` (PNG/ZIP).
+
+### 15.7 Yazdırma Teması & Mürekkep Tasarrufu (`theme-print.css`)
 **Dosya Konumu**: `src/styles/theme-print.css`
 - `@media print` altında tüm glassmorphism arka planları, bulanıklıkları ve renkli kutuları temizler.
 - Yazıcı mürekkebini korumak için saf beyaz arka plan ve net siyah metin (`--text-primary: #000000`) zorlar.
 - Disleksi fontu `Lexend`'i fiziksel kâğıt üzerinde en yüksek optik netlikte tutar.
+- **Baskı Güvenlik CSS'i** (`PrintSafetyCSS.ts`): `orphans/widows: 3`, başlık-içerik ayrılmaması ve kart/tablo satırı `break-inside: avoid` kuralları.
 
 ---
 

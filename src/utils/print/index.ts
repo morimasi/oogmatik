@@ -12,6 +12,7 @@ import type { PaperSize, PrintOptions } from './types';
 import { print, captureAndPrint } from './OverlayPrinter';
 import { generateRealPdf } from './PDFGenerator';
 import { paginateDomContent } from './SmartGridPaginator';
+import { buildExportPages, releaseExportStage } from './SmartLayout';
 
 import { logError } from '../../utils/logger.js';
 import { activityLogService } from '../../services/activityLogService';
@@ -41,6 +42,15 @@ export const printService = {
    * Akıllı DOM & Izgara Sayfalama Motoru
    */
   paginateContent: paginateDomContent,
+
+  /**
+   * Akıllı mizanpaj: kaynak DOM sayfalarını kağıda tam oturan sayfalara böler.
+   * Yazdırma ve PDF ile aynı motoru kullanır.
+   */
+  buildExportPages,
+
+  /** Export ölçüm sahnesini serbest bırakır. */
+  releaseExportStage,
 
   /**
    * Backward compatibility — mevcut bileşenler bu metodu çağırıyor.
@@ -91,3 +101,17 @@ export const printService = {
 export { ensurePrintStyle, forceRenderAllPages, clearRenderAllPagesFlag } from './CSSInjector';
 export { preloadFontsForCapture, onCloneForCapture, captureAllPages, collectPages, hasRenderableContent } from './CaptureEngine';
 export { renderPagePreview, renderAllPagesPreview } from './PreviewRenderer';
+export { renderPaginatedPreview } from './PaginatedPreview';
+export {
+  buildExportPages,
+  releaseExportStage,
+  resolvePageBox,
+  chunkByHeights,
+  rebalanceChunks,
+  planBreakOffsets,
+  DEFAULT_PRINT_MARGIN_MM,
+  type ExportPage,
+  type PageBox,
+  type BlockMeasure,
+  type PaginateOptions,
+} from './SmartLayout';

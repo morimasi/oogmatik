@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { printService } from '../utils/printService';
 import { snapshotService } from '../utils/snapshotService';
-import { renderAllPagesPreview } from '../utils/print/PreviewRenderer';
+import { renderPaginatedPreview } from '../utils/print/PaginatedPreview';
 import type { WorksheetData, StyleSettings } from '../types';
 import type { PaperSize, PdfQuality } from '../utils/print/types';
 import { usePaperSizeStore } from '../store/usePaperSizeStore';
@@ -43,11 +43,12 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
   const [grayscale, setGrayscale] = useState(false);
   const [exportProgress, setExportProgress] = useState({ open: false, percent: 0, message: '' });
   const [previewReady, setPreviewReady] = useState(false);
+  const [previewBusy, setPreviewBusy] = useState(false);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   const cleanupRef = useRef<{ cleanup: () => void; scrollToPage: (i: number) => void } | null>(null);
   const { paperSize, setPaperSize } = usePaperSizeStore();
 
-  const renderPreview = useCallback(() => {
+  const renderPreview = useCallback(async () => {
     const container = previewContainerRef.current;
     if (!container) return;
 
@@ -56,8 +57,11 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
       cleanupRef.current = null;
     }
 
+    setPreviewBusy(true);
     try {
-      const result = renderAllPagesPreview(
+      // Yazdırma/PDF ile AYNI akıllı mizanpaj motoru kullanılır.
+      // Böylece önizlemede görünen sayfa bölünmesi çıktıyla birebir aynıdır.
+      const result = await renderPaginatedPreview(
         container,
         paperSize as unknown as PaperSize,
         '.worksheet-page, .a4-page, .universal-mode-canvas, .print-page'
@@ -74,6 +78,8 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
     } catch (err) {
       logWarn(err instanceof Error ? err.message : String(err));
       setPreviewReady(false);
+    } finally {
+      setPreviewBusy(false);
     }
   }, [paperSize]);
 
@@ -84,7 +90,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
     }
 
     const timer = setTimeout(() => {
-      renderPreview();
+      void renderPreview();
     }, 150);
 
     return () => {
@@ -98,7 +104,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
 
   useEffect(() => {
     if (isOpen && previewReady) {
-      renderPreview();
+      void renderPreview();
     }
   }, [paperSize]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -262,7 +268,8 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
                       Akıllı Mizanpaj Koruması
                     </h4>
                     <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
-                      Izgaralar ve etkinlik kartları satır bütünlüğü korunarak sayfalara yerleştirilir; taşan uzun içerikler otomatik dilimlenir.
+                      Kartlar, sorular, ızgara ve tablo satırları asla ortadan bölünmez. Sığmayan blok
+                      tamamen sonraki sayfaya taşınır; devam sayfaları işaretlenir.
                     </p>
                   </div>
                 </div>
@@ -310,19 +317,25 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
               <div className="flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)]">
                 <i className="fa-regular fa-file-lines text-[var(--accent-color)]"></i>
                 {previewReady ? (
-                  <span>Toplam {totalPages} Sayfa</span>
+                  <span className="flex items-center gap-2">
+                    <i className="fa-solid fa-wand-magic-sparkles text-[10px] text-emerald-500"></i>
+                    Akıllı Mizanpaj · {totalPages} Sayfa
+                  </span>
                 ) : (
-                  <span className="text-[var(--text-muted)]">Yükleniyor...</span>
+                  <span className="text-[var(--text-muted)]">
+                    {previewBusy ? 'Mizanpaj hesaplanıyor...' : 'Yükleniyor...'}
+                  </span>
                 )}
               </div>
               <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  onClick={renderPreview}
-                  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--bg-secondary)] text-[var(--text-muted)] transition-colors"
+                  onClick={() => { void renderPreview(); }}
+                  disabled={previewBusy}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[var(--bg-secondary)] text-[var(--text-muted)] transition-colors disabled:opacity-40"
                   title="Önizlemeyi Yenile"
                 >
-                  <i className="fa-solid fa-arrows-rotate text-xs"></i>
+                  <i className={`fa-solid fa-arrows-rotate text-xs ${previewBusy ? 'fa-spin' : ''}`}></i>
                 </button>
                 <div className="flex items-center gap-1 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl p-1 ml-1">
                   <button
