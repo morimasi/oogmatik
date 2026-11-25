@@ -30,6 +30,7 @@ const ICONS: Record<string, string> = {
   group: '▣',
   sticky: '▤',
   arrow: '→',
+  image: '🖼',
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -46,6 +47,7 @@ const TYPE_LABELS: Record<string, string> = {
   group: 'Grup',
   sticky: 'Yapışkan not',
   arrow: 'Ok',
+  image: 'Görsel',
 };
 
 const NumericField = ({

@@ -175,6 +175,39 @@
 
 ---
 
+### 1.4.1 Hibrit Belge & Vektör Stüdyosu
+
+**Dosya Konumu**: `components/hybrid-editor/` · **Sayfa**: `pages/HybridEditorPage.tsx` · **Görünüm**: `hybrid-studio`
+
+**Amaç**: Word benzeri akan A4 belge, Fabric.js vektör/FreeHand katmanı ve sınırsız tahtayı tek belge şemasında birleştiren üretim editörü. Serbest yerleşimli çalışma kâğıtları, zihin haritaları ve el çizimi destekli materyaller için kullanılır.
+
+**Alt Modüller**:
+- `HybridEditor.tsx` — Kapsayıcı: mod geçişi, sayfa yönetimi, taslak/otomatik kayıt köprüsü, PDF/PNG/DOCX/JSON çıktıları, klavye kısayolları, `HybridEditorExample`
+- `components/TopToolbar.tsx` — Mod, sayfa, zoom, Word biçimlendirme, tablo işlemleri, vektör araçları, görsel ekleme, dışa aktarma menüsü
+- `components/RichTextBlock.tsx` — Tiptap akış metni (başlık, tablo, görsel, hizalama, renk, listeler)
+- `components/VectorCanvas.tsx` — Fabric v6 tuvali: kalem, şekiller, oklar, metin kutuları, yapışkan notlar, görsel, akıllı hizalama, pan/zoom, imperatif katman API'si
+- `components/LayersAndPropertiesPanel.tsx` — Katman ağacı + X/Y/W/H/açı/opaklık/dolgu/çizgi/punto denetimi
+- `hooks/useEditorHistory.ts` — 50 adımlık birleşik undo/redo ve kısayol kancaları
+- `types/editor.types.ts` — `HybridDocumentSchema`, A4/tahta sabitleri, fabrikalar, `VectorCanvasHandle`
+- `utils/exportEngine.ts` — 300 DPI PDF (`PRINT_CAPTURE_MULTIPLIER`), PNG, `.docx`, JSON içe/dışa aktarma
+
+**İşlevler**:
+1. **Üç Yüzey**: A4 belge (794×1123, çok sayfa, kenar boşluğu) + sayfa üstü vektör katmanı; sınırsız tahta (Space+sürükle pan, Ctrl+tekerlek %25–400); her ikisinde FreeHand ve katman paneli
+2. **Word Araçları**: H1–H3, Lexend varsayılan yazı tipi/punto, kalın-italik-altı/üstü çizili, metin ve vurgu rengi, 4 hizalama, listeler, dinamik tablo satır/sütun, görsel
+3. **Vektör Araçları**: Kalem (renk/kalınlık/opaklık), dikdörtgen/elips/üçgen/yıldız/çizgi/tek-çift ok, sürüklenebilir metin kutuları, yapışkan not, görsel; merkez ve nesne kenarlarına mıknatıslı kılavuzlar
+4. **Katman Yönetimi**: Gizle/kilitle, öne/ileri/geri/arkaya, grup/çöz, çoğalt, sil, koordinat-boyut-döndürme-stil düzenleme
+5. **Geçmiş**: Tek `HybridDocumentSchema` anlık görüntü yığını; `Ctrl+Z/Y`, `Ctrl+D`, `Delete`, `Esc`, ok tuşlarıyla 1 px / Shift+10 px kaydırma
+6. **Çıktı**: 300 DPI çok sayfalı PDF, yüksek çözünürlüklü PNG, metin+tablo+görsel içeren gerçek `.docx`, birleşik JSON içe/dışa aktarma
+7. **Taslak**: `services/hybridEditorDraftService.ts` — kullanıcı bazlı localStorage yuvası, 900 ms debounce, 4 MB boyut ve kota koruması, açılışta geri yükleme, "Taslağı sil"
+
+**Erişim**: RBAC `hybrid-studio` modülü (Yaratıcı Atölye Stüdyoları); öğretmen/admin varsayılan olarak yetkili, `ProtectedRoute` ile korunur.
+
+**Test**: `tests/hybridEditor.test.ts` — belge fabrikaları, taslak yazma/okuma/temizleme, kullanıcı izolasyonu, boyut sınırı, bozuk kayıt ve depolama yokluğu.
+
+**Yazılım Mühendisi Notu**: Metin akışı ile vektör katmanı aynı sayfada üst üste durur; "Metin / Çizim" düğmesi tıklama hedefini belirler. Vektör katmanı yalnızca çizim modunda işaretçi alır, böylece akan metin düzenlenebilir kalır. Dışa aktarma etkin sayfanın DOM düğümünden yapılır; ekrandaki zoom baskı kalitesini etkilemez.
+
+---
+
 ### 1.5 UniversalStudio — Evrensel Çalışma Kâğıdı Adaptörü
 
 **Dosya Konumu**: `components/UniversalStudio/`

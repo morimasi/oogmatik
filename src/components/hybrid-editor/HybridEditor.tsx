@@ -174,6 +174,27 @@ export const HybridEditor = ({
     const handler = (event: KeyboardEvent) => {
       if (isTypingTarget(event.target)) return;
       if (event.ctrlKey || event.metaKey || event.altKey) return;
+      if (event.key === 'Escape') {
+        activeHandle()?.clearSelection();
+        setTool('select');
+        return;
+      }
+      const nudge: Record<string, [number, number]> = {
+        ArrowLeft: [-1, 0],
+        ArrowRight: [1, 0],
+        ArrowUp: [0, -1],
+        ArrowDown: [0, 1],
+      };
+      const delta = nudge[event.key];
+      if (delta) {
+        const step = event.shiftKey ? 10 : 1;
+        const handle = activeHandle();
+        if (handle) {
+          event.preventDefault();
+          handle.nudgeSelection(delta[0] * step, delta[1] * step);
+        }
+        return;
+      }
       const nextTool = TOOL_KEYS[event.key.toLowerCase()];
       if (!nextTool) return;
       event.preventDefault();
@@ -182,7 +203,7 @@ export const HybridEditor = ({
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, []);
+  }, [activeHandle]);
 
   /* ------------------------------ Sayfa işlemleri ----------------------------- */
   const addPage = () => {
@@ -272,7 +293,7 @@ export const HybridEditor = ({
         continue;
       }
       try {
-        urls.push(await captureElementToPng(element, 2));
+        urls.push(await captureElementToPng(element));
       } catch {
         urls.push('');
       }
@@ -328,9 +349,7 @@ export const HybridEditor = ({
         return;
       }
       notify(
-        await exportElementToPng(element, `${docRef.current.title}-${activePage.name}`, {
-          multiplier: 2,
-        })
+        await exportElementToPng(element, `${docRef.current.title}-${activePage.name}`)
       );
     } finally {
       setBusy(false);
@@ -349,6 +368,27 @@ export const HybridEditor = ({
 
   const handleExportJson = () => {
     notify(exportHybridJson(docRef.current, docRef.current.title));
+  };
+
+  const handleInsertVectorImage = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setNotice({ kind: 'error', message: 'Yalnızca görsel dosyaları eklenebilir.' });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+      const handle = activeHandle();
+      if (!dataUrl || !handle) {
+        setNotice({ kind: 'error', message: 'Görsel eklenemedi.' });
+        return;
+      }
+      handle.addImage(dataUrl);
+      setVectorEditing(true);
+      setNotice({ kind: 'success', message: 'Görsel vektör katmanına eklendi.' });
+    };
+    reader.onerror = () => setNotice({ kind: 'error', message: 'Dosya okunamadı.' });
+    reader.readAsDataURL(file);
   };
 
   const handleImportJson = async (file: File) => {
@@ -466,6 +506,7 @@ export const HybridEditor = ({
         onExportDocx={() => void handleExportDocx()}
         onExportJson={handleExportJson}
         onImportJson={(file) => void handleImportJson(file)}
+        onInsertVectorImage={handleInsertVectorImage}
       />
 
       <div className="relative flex min-h-0 flex-1">
@@ -662,7 +703,7 @@ export const HybridEditor = ({
             : `${activePage.name} • ${doc.pages.length} sayfa • ${layers.length} katman`}
         </span>
         <span className="flex items-center gap-3">
-          <span>Ctrl+Z geri • Ctrl+Y yinele • Ctrl+D çoğalt • Del sil</span>
+          <span>Ctrl+Z geri • Ctrl+Y yinele • Ctrl+D çoğalt • Del sil • Ok tuşları kaydır</span>
           <span>Space+sürükle pan • Ctrl+tekerlek zoom</span>
           <span>%{Math.round(zoom * 100)}</span>
         </span>

@@ -129,6 +129,13 @@ export const STUDIO_GROUPS: StudioGroup[] = [
                 color: 'text-indigo-500',
                 actionType: 'callback'
             },
+            {
+                id: 'hybrid-studio',
+                label: 'Hibrit Belge & Vektör',
+                icon: 'fa-object-group',
+                color: 'text-sky-500',
+                actionType: 'callback'
+            },
         ],
     },
 ];

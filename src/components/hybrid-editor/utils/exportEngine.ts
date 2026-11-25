@@ -39,6 +39,9 @@ import {
 const PRINT_DPI = 300;
 const CSS_DPI = 96;
 
+/** 96 DPI CSS px → 300 DPI baskı ölçeği (A4 794 px → ~2481 px). */
+export const PRINT_CAPTURE_MULTIPLIER = PRINT_DPI / CSS_DPI;
+
 const safeName = (value: string, fallback: string): string => {
   const cleaned = value
     .trim()
@@ -109,7 +112,7 @@ export const exportElementToPng = async (
 ): Promise<ExportResult> => {
   try {
     const dataUrl = await toPng(element, {
-      pixelRatio: options.multiplier ?? 2,
+      pixelRatio: options.multiplier ?? PRINT_CAPTURE_MULTIPLIER,
       backgroundColor: options.transparent ? undefined : '#ffffff',
       cacheBust: true,
       skipAutoScale: true,
@@ -127,7 +130,7 @@ export const exportElementToPng = async (
 /** Bir DOM düğümünü yüksek çözünürlüklü PNG data URL'ine çevirir. */
 export const captureElementToPng = async (
   element: HTMLElement,
-  multiplier = 2
+  multiplier = PRINT_CAPTURE_MULTIPLIER
 ): Promise<string> => {
   await waitForPaint();
   return toPng(element, {

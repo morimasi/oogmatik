@@ -113,6 +113,7 @@ const KelimeCumleStudio = lazy(() =>
 const FascicleStudio = lazy(() =>
   import('./components/FascicleStudio').then((module) => ({ default: module.default }))
 );
+const HybridEditorPage = lazy(() => import('./pages/HybridEditorPage'));
 const AssessmentModule = lazy(() =>
   import('./components/AssessmentModule').then((module) => ({ default: module.AssessmentModule }))
 );
@@ -561,6 +562,7 @@ const AppContent = () => {
             onOpenKelimeCumleStudio={() => handleOpenStudio('kelime-cumle-studio')}
             onOpenFascicleStudio={() => handleOpenStudio('fascicle-studio')}
             onOpenInfographicStudio={() => handleOpenStudio('infographic-studio')}
+            onOpenHybridStudio={() => handleOpenStudio('hybrid-studio')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
             width={sidebarWidth}
@@ -618,6 +620,7 @@ const AppContent = () => {
               'fascicle-studio',
               'infographic-studio',
               'ai-okuma-studio',
+              'hybrid-studio',
             ].includes(currentView) && (
                 <motion.div
                   key={currentView}
@@ -776,6 +779,13 @@ const AppContent = () => {
                       <ProtectedRoute module="ai-okuma" onBack={handleGoBack}>
                         <React.Suspense fallback={<LoadingPlaceholder />}>
                           <LiveReadingStudio onBack={handleGoBack} />
+                        </React.Suspense>
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'hybrid-studio' && (
+                      <ProtectedRoute module="hybrid-studio" onBack={handleGoBack}>
+                        <React.Suspense fallback={<LoadingPlaceholder />}>
+                          <HybridEditorPage onBack={handleGoBack} />
                         </React.Suspense>
                       </ProtectedRoute>
                     )}

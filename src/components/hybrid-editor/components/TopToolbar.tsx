@@ -15,6 +15,7 @@ import {
   Eraser,
   FileImage,
   FileJson,
+  ImagePlus,
   FileText,
   Italic,
   List,
@@ -153,6 +154,7 @@ export interface TopToolbarProps {
   onExportDocx: () => void;
   onExportJson: () => void;
   onImportJson: (file: File) => void;
+  onInsertVectorImage?: (file: File) => void;
 }
 
 /**
@@ -188,10 +190,12 @@ export const TopToolbar = ({
   onExportDocx,
   onExportJson,
   onImportJson,
+  onInsertVectorImage,
 }: TopToolbarProps) => {
   const [exportOpen, setExportOpen] = React.useState(false);
   const [, forceRender] = React.useState(0);
   const imageInputRef = React.useRef<HTMLInputElement>(null);
+  const vectorImageInputRef = React.useRef<HTMLInputElement>(null);
   const jsonInputRef = React.useRef<HTMLInputElement>(null);
   const [showMargins, setShowMargins] = React.useState(false);
 
@@ -707,6 +711,28 @@ export const TopToolbar = ({
           >
             <Eraser size={14} />
           </ToolButton>
+          {onInsertVectorImage && (
+            <ToolButton
+              label="Vektör katmanına görsel ekle"
+              onClick={() => vectorImageInputRef.current?.click()}
+            >
+              <ImagePlus size={14} />
+            </ToolButton>
+          )}
+          {onInsertVectorImage && (
+            <input
+              ref={vectorImageInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              aria-label="Vektör katmanı için görsel seç"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) onInsertVectorImage(file);
+                event.target.value = '';
+              }}
+            />
+          )}
         </Group>
 
         <Group label="Çizim stili">

@@ -3,6 +3,7 @@ import {
   ActiveSelection,
   Canvas as FabricCanvas,
   Ellipse,
+  FabricImage,
   FabricObject,
   Group,
   IText,
@@ -1152,6 +1153,51 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
           canvas.backgroundColor = previousBackground;
           canvas.requestRenderAll();
           return dataUrl;
+        },
+        addImage: (dataUrl) => {
+          const canvas = canvasRef.current;
+          if (!canvas || !dataUrl) return;
+          void FabricImage.fromURL(dataUrl)
+            .then((image) => {
+              const naturalWidth = image.width ?? 0;
+              const naturalHeight = image.height ?? 0;
+              if (!naturalWidth || !naturalHeight) return;
+              const maxWidth = Math.min(520, canvas.getWidth() * 0.7);
+              const maxHeight = Math.min(420, canvas.getHeight() * 0.7);
+              const scale = Math.min(1, maxWidth / naturalWidth, maxHeight / naturalHeight);
+              image.set({
+                left: canvas.getWidth() / 2 - (naturalWidth * scale) / 2,
+                top: canvas.getHeight() / 2 - (naturalHeight * scale) / 2,
+                scaleX: scale,
+                scaleY: scale,
+                opacity: styleRef.current.opacity,
+              });
+              ensureId(image, 'image');
+              canvas.add(image);
+              canvas.setActiveObject(image);
+              canvas.requestRenderAll();
+              emit();
+            })
+            .catch(() => undefined);
+        },
+        nudgeSelection: (dx, dy) => {
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+          const targets = canvas.getActiveObjects();
+          if (!targets.length) return;
+          targets.forEach((object) => {
+            object.set({ left: (object.left ?? 0) + dx, top: (object.top ?? 0) + dy });
+            object.setCoords();
+          });
+          canvas.requestRenderAll();
+          emit();
+        },
+        clearSelection: () => {
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+          canvas.discardActiveObject();
+          canvas.requestRenderAll();
+          emitSelection();
         },
         clear: () => {
           const canvas = canvasRef.current;

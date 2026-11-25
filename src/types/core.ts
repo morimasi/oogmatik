@@ -405,6 +405,7 @@ export type View =
   | 'messages'
   | 'infographic-studio'
   | 'fascicle-studio'
+  | 'hybrid-studio'
   | 'ai-okuma-studio'
   | 'students';
 

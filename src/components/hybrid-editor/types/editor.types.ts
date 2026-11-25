@@ -120,6 +120,9 @@ export interface VectorCanvasHandle {
   addShape: (tool: VectorTool) => void;
   addText: () => void;
   addSticky: () => void;
+  addImage: (dataUrl: string) => void;
+  nudgeSelection: (dx: number, dy: number) => void;
+  clearSelection: () => void;
   deleteSelection: () => void;
   duplicateSelection: () => void;
   groupSelection: () => void;
