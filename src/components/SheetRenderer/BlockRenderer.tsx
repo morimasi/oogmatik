@@ -9,13 +9,21 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
   const content: any = block.content;
   if (!content) return null;
 
+  const blockTextStyle: React.CSSProperties = {
+    textAlign: (block.style?.textAlign as React.CSSProperties['textAlign']) || undefined,
+    fontWeight: (block.style?.fontWeight as React.CSSProperties['fontWeight']) || undefined,
+    fontStyle: block.style?.fontStyle,
+    lineHeight: block.style?.lineHeight,
+    letterSpacing:
+      block.style?.letterSpacing !== undefined ? `${block.style.letterSpacing}px` : undefined,
+  };
+
   const blockStyle = {
-    textAlign: (block.style?.textAlign as React.CSSProperties['textAlign']) || 'left',
-    fontWeight: (block.style?.fontWeight as React.CSSProperties['fontWeight']) || 'normal',
+    ...blockTextStyle,
     fontSize: block.style?.fontSize ? `${block.style.fontSize}px` : undefined,
-    backgroundColor: block.style?.backgroundColor || 'transparent',
+    backgroundColor: block.style?.backgroundColor || undefined,
     borderRadius: block.style?.borderRadius ? `${block.style.borderRadius}px` : undefined,
-    color: block.style?.color || 'inherit',
+    color: block.style?.color || undefined,
   };
 
   switch (block.type) {
@@ -25,9 +33,14 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
           className="block-header font-black uppercase text-center mb-4 print:mb-2 border-b-4 border-[var(--worksheet-border-color,#000)] pb-2 print:pb-1 break-inside-avoid print:break-inside-avoid"
           style={{
             ...blockStyle,
-            fontSize: 'calc(var(--worksheet-font-size, 16px) * 1.5)',
+            fontSize: block.style?.fontSize
+              ? `${block.style.fontSize}px`
+              : 'calc(var(--worksheet-font-size, 16px) * 1.5)',
             fontFamily: 'var(--worksheet-font-family, Lexend)',
-            letterSpacing: 'var(--worksheet-letter-spacing)',
+            letterSpacing:
+              block.style?.letterSpacing !== undefined
+                ? `${block.style.letterSpacing}px`
+                : 'var(--worksheet-letter-spacing)',
             wordSpacing: 'var(--worksheet-word-spacing)'
           }}
         >
@@ -41,12 +54,23 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
           className="block-text mb-4 print:mb-1 break-inside-avoid print:break-inside-avoid"
           style={{
             ...blockStyle,
-            fontSize: 'var(--worksheet-font-size, 18px)',
+            fontSize: block.style?.fontSize
+              ? `${block.style.fontSize}px`
+              : 'var(--worksheet-font-size, 18px)',
             fontFamily: 'var(--worksheet-font-family, Lexend)',
-            lineHeight: 'var(--worksheet-line-height, 1.6)',
-            letterSpacing: 'var(--worksheet-letter-spacing)',
+            lineHeight:
+              block.style?.lineHeight !== undefined
+                ? block.style.lineHeight
+                : 'var(--worksheet-line-height, 1.6)',
+            letterSpacing:
+              block.style?.letterSpacing !== undefined
+                ? `${block.style.letterSpacing}px`
+                : 'var(--worksheet-letter-spacing)',
             wordSpacing: 'var(--worksheet-word-spacing)',
-            marginBottom: 'var(--worksheet-paragraph-spacing, 20px)'
+            marginBottom:
+              block.style?.paragraphSpacing !== undefined
+                ? `${block.style.paragraphSpacing}px`
+                : 'var(--worksheet-paragraph-spacing, 20px)'
           }}
         >
           <EditableText value={recursiveSafeText(content.text || content)} tag="div" />

@@ -136,16 +136,20 @@
 **Ana Bileşen**: `A4EditorPanel.tsx`
 
 **Alt Modüller**:
-- `ComponentLibrary.tsx` — Sürüklenebilir bileşen kütüphanesi
-- `ContentPanel.tsx` — İçerik paneli
-- `StylePanel.tsx` — Stil düzenleme paneli
+- `ComponentLibrary.tsx` — Bileşen kütüphanesi (blok desteklemeyen legacy şablonlarda kapalı)
+- `LayersPanel.tsx` — Katman listesi: seçim, sıralama, gizle/kilitle/çoğalt/sil
+- `ContentPanel.tsx` — Türe özel içerik formları + JSON yedek editör
+- `StylePanel.tsx` — Tipografi, aralık, kutu, renk, hızlı stil ön ayarları
+- `PagePanel.tsx` — A4 yönü, kenar boşluğu, kolon, tipografi, baskı, görüntüleme yardımcıları
+- `controls.tsx` — Tema token'lı ortak panel kontrolleri
 
 **İşlevler**:
-1. **Sürükle-Bırak Bileşenler**: Metin kutusu, resim, şekiller, tablolar
-2. **Stil Özelleştirme**: Font, boyut, renk, hizalama
-3. **Katman Yönetimi**: Z-index ile öğeleri öne/arkaya alma
-4. **Kâğıt Boyutu Seçimi**: A4, Letter, B5 (DIN standartları)
-5. **Export**: PDF olarak kaydetme
+1. **Blok Düzenleme**: Akış (flow) düzeninde blok ekleme, sıralama (dnd-kit, kalıcı), çoğaltma, silme
+2. **Bileşen Bazlı Stil**: Punto, ağırlık, italik, hizalama, satır/harf/paragraf aralığı, iç-dış boşluk, kenarlık, köşe, arka plan, yazı rengi, saydamlık
+3. **Katman Yönetimi**: Gizleme (baskıda da gizli), kilitleme, çoklu seçim (Ctrl/Shift), stil kopyala-yapıştır
+4. **Sayfa Ayarları**: A4 dikey/yatay, kenar boşluğu (mm), kolon sayısı, içerik ölçeği, Lexend punto ölçeği, kağıt dokusu, alt bilgi
+5. **Düzenleme Konforu**: Geri al/yinele (40 adım), otomatik taslak (localStorage), Ctrl+Z/S/D/A/Esc/Del, cetvel, ızgara, güvenli baskı alanı, baskı önizleme modu
+6. **Export**: PDF, PNG, panoya kopyalama, V2 yazdırma (mevcut printService)
 
 **Use Cases**:
 - BEP hedeflerine özel çalışma kâğıdı tasarlama
@@ -154,7 +158,7 @@
 
 **State Management**: `store/useA4EditorStore.ts`
 
-**Yazılım Mühendisi Notu**: HTML5 Drag-and-Drop API kullanır. Canvas state Zustand ile yönetiliyor.
+**Yazılım Mühendisi Notu**: `@dnd-kit` ile A4 akışı içinde sıralama yapılır; serbest x/y konumlandırma, döndürme ve z-index baskı bütünlüğü nedeniyle bilinçli olarak desteklenmez. Panel ve araç çubuğu aynı Zustand store'u (`useA4EditorStore`) ve `services/a4EditorService.ts` içindeki immutable mutasyonları kullanır; `ContentArea` bir veri köprüsü (`registerBridge`) kaydeder.
 
 ---
 

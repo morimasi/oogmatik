@@ -1,5 +1,13 @@
 import React, { useMemo } from 'react';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, Modifier } from '@dnd-kit/core';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  Modifier,
+  type DragEndEvent,
+} from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import {
   ActivityType,
@@ -12,6 +20,7 @@ import { recursiveSafeText } from '../../utils/textUtils';
 import { BlockRenderer } from './BlockRenderer';
 import { PedagogicalHeader } from '../sheets/common';
 import { useA4EditorStore } from '../../store/useA4EditorStore';
+import { reorderBlocks } from '../../services/a4EditorService';
 import { SortableBlockItem } from './SortableBlockItem';
 
 const getBlockWeight = (block: WorksheetBlock): number => {
@@ -252,8 +261,20 @@ export const UnifiedContentRenderer = ({
   renderNonStandardBlock?: (block: any) => React.ReactNode;
   hideWrapper?: boolean;
 }) => {
-  const { isEditorOpen, selectedBlockId, setSelectedBlockId, snapToGrid, gridSize } =
-    useA4EditorStore();
+  const {
+    isEditorOpen,
+    selectedBlockId,
+    setSelectedBlockId,
+    snapToGrid,
+    gridSize,
+    showGrid,
+    showRulers,
+    showSafeArea,
+    isPrintPreview,
+    applyMutation,
+  } = useA4EditorStore();
+
+  const editorChrome = isEditorOpen && !isPrintPreview;
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
@@ -294,8 +315,12 @@ export const UnifiedContentRenderer = ({
     const HEADER_RESERVE = 150;
     const FOOTER_RESERVE = 60;
 
+    const visibleBlocks = rawBlocks.filter(
+      (block) => !block.hidden || (isEditorOpen && !isPrintPreview)
+    );
+
     const allBlocks: WorksheetBlock[] = [];
-    rawBlocks.forEach((block) => {
+    visibleBlocks.forEach((block) => {
       const weight = getBlockWeight(block);
       if (weight > PAGE_MAX_WEIGHT - HEADER_RESERVE) {
         allBlocks.push(...splitLargeBlock(block, PAGE_MAX_WEIGHT - HEADER_RESERVE));
@@ -331,7 +356,7 @@ export const UnifiedContentRenderer = ({
       }
     });
     return pagesResult;
-  }, [rawBlocks, settings?.showStudentInfo]);
+  }, [rawBlocks, settings?.showStudentInfo, isEditorOpen, isPrintPreview]);
 
   if (!data || !isValidData) return null;
 
@@ -360,9 +385,21 @@ export const UnifiedContentRenderer = ({
           width: hideWrapper ? '100%' : (isLandscape ? '297mm' : '210mm'),
           minHeight: hideWrapper ? 'auto' : (isLandscape ? '210mm' : '297mm'),
           fontFamily: settings?.fontFamily || 'Lexend, sans-serif',
-          fontSize: settings?.fontSize === 'büyük' ? '1.25rem' : settings?.fontSize === 'küçük' ? '0.875rem' : '1rem',
-          lineHeight: (settings as any)?.lineSpacing === 'geniş' ? '2' : (settings as any)?.lineSpacing === 'dar' ? '1.25' : '1.6',
+          fontSize:
+            settings?.fontSize === 'büyük'
+              ? '1.25rem'
+              : settings?.fontSize === 'küçük'
+                ? '0.875rem'
+                : '1rem',
+          lineHeight: settings?.lineHeight ? String(settings.lineHeight) : '1.6',
           '--worksheet-border-color': settings?.borderColor || '#000',
+          '--worksheet-font-size': `${settings?.fontSize === 'büyük' ? 20 : settings?.fontSize === 'küçük' ? 14 : 16}px`,
+          '--worksheet-font-family': settings?.fontFamily || 'Lexend, sans-serif',
+          '--worksheet-line-height': settings?.lineHeight ?? 1.6,
+          '--worksheet-letter-spacing': `${settings?.letterSpacing ?? 0}px`,
+          '--worksheet-word-spacing': `${settings?.wordSpacing ?? 0}px`,
+          '--worksheet-paragraph-spacing': `${settings?.paragraphSpacing ?? 20}px`,
+          '--worksheet-gutter': `${settings?.gutter ?? 20}px`,
         } as unknown as React.CSSProperties}
       >
         {!hideWrapper && <div className="page-indicator-screen no-print" style={{ zIndex: 100 }}>SAYFA {pageIdx + 1}</div>}
@@ -414,7 +451,7 @@ export const UnifiedContentRenderer = ({
             data={data}
           />
 
-          {isEditorOpen && snapToGrid && (
+          {editorChrome && (showGrid || snapToGrid) && (
             <div
               className="absolute inset-0 pointer-events-none z-0 opacity-20 no-print"
               style={{
@@ -424,10 +461,45 @@ export const UnifiedContentRenderer = ({
             />
           )}
 
+          {editorChrome && showSafeArea && (
+            <div
+              className="pointer-events-none absolute inset-[4mm] z-0 rounded-sm border border-dashed border-emerald-500/30 no-print"
+              aria-hidden="true"
+            />
+          )}
+
+          {editorChrome && showRulers && (
+            <>
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 left-0 z-10 w-4 no-print"
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(to bottom, rgba(99,102,241,0.45) 0 1px, transparent 1px 10mm), repeating-linear-gradient(to bottom, rgba(99,102,241,0.9) 0 1px, transparent 1px 50mm)',
+                }}
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 top-0 z-10 h-4 no-print"
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(to right, rgba(99,102,241,0.45) 0 1px, transparent 1px 10mm), repeating-linear-gradient(to right, rgba(99,102,241,0.9) 0 1px, transparent 1px 50mm)',
+                }}
+              />
+            </>
+          )}
+
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
             modifiers={snapToGrid ? [snapModifier] : undefined}
+            onDragEnd={(event: DragEndEvent) => {
+              const { active, over } = event;
+              if (!over || active.id === over.id) return;
+              applyMutation((current) =>
+                reorderBlocks(current, String(active.id), String(over.id))
+              );
+            }}
           >
             <SortableContext
               items={pageBlocks.map((b, idx) => b.id || `block-${idx}`)}
@@ -444,7 +516,7 @@ export const UnifiedContentRenderer = ({
                     : { gap: 'var(--worksheet-gutter, 20px)' }
                 }
               >
-                {pageBlocks.map((block, idx) => {
+                {pageBlocks.filter((block) => !block.hidden || editorChrome).map((block, idx) => {
                   const isStandardBlock = !!block.type;
 
                   return (
@@ -452,7 +524,7 @@ export const UnifiedContentRenderer = ({
                       key={block.id || `b-${pageIdx}-${idx}`}
                       block={block}
                       idx={idx}
-                      isEditorOpen={isEditorOpen}
+                      isEditorOpen={editorChrome}
                       selectedBlockId={selectedBlockId}
                       setSelectedBlockId={setSelectedBlockId}
                     >
@@ -489,7 +561,7 @@ export const UnifiedContentRenderer = ({
       className={hideWrapper ? "w-full flex-1 flex flex-col" : "w-full flex flex-col items-center gap-10 no-scrollbar scroll-smooth"}
       id={hideWrapper ? undefined : "print-container"}
       onClick={() => {
-        if (isEditorOpen) setSelectedBlockId(null);
+        if (editorChrome) setSelectedBlockId(null);
       }}
     >
       {pages.length === 0 ? (

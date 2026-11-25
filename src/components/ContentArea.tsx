@@ -29,6 +29,7 @@ import { useToastStore } from '../store/useToastStore';
 
 import { UniversalWorksheetWrapper } from './UniversalStudio/UniversalWorksheetWrapper';
 import { A4EditorPanel } from './A4Editor/A4EditorPanel';
+import { useA4EditorStore } from '../store/useA4EditorStore';
 import { UniversalPreviewFrame } from './shared/UniversalPreviewFrame';
 
 import { logError } from '../utils/logger.js';
@@ -108,6 +109,29 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   } = useWorksheetStore();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isShareSending, setIsShareSending] = useState(false);
+
+  // A4 Tasarımcısı veri köprüsü: panel ve araç çubuğu (geri al/yinele) aynı
+  // canlı veri üzerinde çalışır. Güncel veri ref üzerinden okunur, böylece
+  // köprü her render'da yeniden kurulmaz.
+  const worksheetDataRef = useRef<WorksheetData>(worksheetData);
+  worksheetDataRef.current = worksheetData;
+
+  useEffect(() => {
+    const store = useA4EditorStore.getState();
+    if (!setWorksheetData) {
+      store.registerBridge(null);
+      return;
+    }
+    store.registerBridge({
+      get: () => worksheetDataRef.current,
+      set: (data) => setWorksheetData(data),
+    });
+    return () => useA4EditorStore.getState().registerBridge(null);
+  }, [setWorksheetData]);
+
+  useEffect(() => {
+    useA4EditorStore.getState().resetSession();
+  }, [activityType]);
 
   // Sharing logic
   const handleShare = async (receiverIds: string[]) => {
@@ -220,7 +244,16 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     }
 
     return safeData;
-  }, [worksheetData, activityType, styleSettings.smartPagination, styleSettings.columns]);
+  }, [
+    worksheetData,
+    activityType,
+    styleSettings.smartPagination,
+    styleSettings.columns,
+    styleSettings.orientation,
+    styleSettings.margin,
+    styleSettings.compact,
+    styleSettings.contentScale,
+  ]);
 
   // Native Wheel Listener to prevent default scroll and strictly zoom
   useEffect(() => {
@@ -409,7 +442,19 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           )}
         </div>
 
-        <A4EditorPanel worksheetData={worksheetData} setWorksheetData={setWorksheetData} />
+        <A4EditorPanel
+          worksheetData={worksheetData}
+          styleSettings={styleSettings}
+          onStyleChange={onStyleChange}
+          onSave={
+            activityType
+              ? async () => {
+                  await onSave(activeWorksheetTitle || 'Etkinlik', activityType, processedData);
+                }
+              : undefined
+          }
+          activityType={activityType ?? undefined}
+        />
       </div>
 
       {currentView === 'assessment' && (

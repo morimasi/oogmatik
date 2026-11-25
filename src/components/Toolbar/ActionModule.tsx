@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSettings, WorksheetData } from '../../types';
+import { ActivityType, StyleSettings, WorksheetData } from '../../types';
 import { IconButton } from './ToolbarShared';
 import { usePaperSizeStore } from '../../store/usePaperSizeStore';
+import { useAppStore } from '../../store/useAppStore';
 import { printService } from '../../utils/printService';
 import { ExportProgressModal } from '../ExportProgressModal';
 import { useToastStore } from '../../store/useToastStore';
@@ -12,13 +13,64 @@ import { snapshotService } from '../../utils/snapshotService';
 
 interface ActionModuleProps {
   settings: StyleSettings;
-  onSave: () => void;
+  onSave: () => void | Promise<void>;
   onAssign?: () => void;
   onShare?: () => void;
   onFeedback?: () => void;
   worksheetData?: WorksheetData;
   activityType?: string;
 }
+
+const ZoomGroup = () => {
+  const zoomScale = useAppStore((state) => state.zoomScale);
+  const setZoomScale = useAppStore((state) => state.setZoomScale);
+  const isEditorOpen = useA4EditorStore((state) => state.isEditorOpen);
+
+  const fitToPage = () => {
+    const page = document.querySelector('.worksheet-page') as HTMLElement | null;
+    const pageWidth = page?.offsetWidth || 794;
+    const available = window.innerWidth - (isEditorOpen ? 440 : 96);
+    setZoomScale(Math.max(0.3, Math.min(1.5, Math.round((available / pageWidth) * 100) / 100)));
+  };
+
+  return (
+    <div
+      className="flex items-center bg-[var(--surface-glass)]/50 border border-[var(--border-color)] rounded-2xl p-1 gap-0.5 shadow-sm backdrop-blur-md"
+      role="group"
+      aria-label="Yakınlaştırma"
+    >
+      <IconButton
+        icon="fa-magnifying-glass-minus"
+        title="Uzaklaştır"
+        onClick={() => setZoomScale(Math.max(0.3, zoomScale - 0.1))}
+        disabled={zoomScale <= 0.3}
+        className="!w-8 !h-8"
+      />
+      <button
+        type="button"
+        onClick={() => setZoomScale(1)}
+        title="Gerçek boyut (%100)"
+        aria-label="Gerçek boyut yüzde yüz"
+        className="min-w-[44px] h-8 px-1 rounded-lg text-[10px] font-black text-[var(--text-primary)] hover:bg-[var(--surface-elevated)] transition-colors"
+      >
+        %{Math.round(zoomScale * 100)}
+      </button>
+      <IconButton
+        icon="fa-magnifying-glass-plus"
+        title="Yakınlaştır"
+        onClick={() => setZoomScale(Math.min(2.5, zoomScale + 0.1))}
+        disabled={zoomScale >= 2.5}
+        className="!w-8 !h-8"
+      />
+      <IconButton
+        icon="fa-expand"
+        title="Sayfaya sığdır"
+        onClick={fitToPage}
+        className="!w-8 !h-8"
+      />
+    </div>
+  );
+};
 
 export const ActionModule: React.FC<ActionModuleProps> = ({
   settings,
@@ -31,9 +83,30 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
 }) => {
   const [exportProgress, setExportProgress] = useState({ open: false, percent: 0, message: '' });
   const [snapshotMenuOpen, setSnapshotMenuOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const paperSizeStore = usePaperSizeStore();
   const toast = useToastStore();
   const paperSize = paperSizeStore.paperSize;
+
+  const isEditorOpen = useA4EditorStore((state) => state.isEditorOpen);
+  const isPrintPreview = useA4EditorStore((state) => state.isPrintPreview);
+  const dirty = useA4EditorStore((state) => state.dirty);
+  const canUndo = useA4EditorStore((state) => state.history.length > 0);
+  const canRedo = useA4EditorStore((state) => state.future.length > 0);
+
+  const handleSave = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
+    try {
+      await onSave();
+      useA4EditorStore.getState().markSaved();
+    } catch (error) {
+      logError(error as Error);
+      toast.error('Kaydetme sırasında bir hata oluştu.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleAddToFascicle = () => {
     if (!worksheetData || !activityType) {
@@ -41,19 +114,17 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
       return;
     }
 
-    // Normalize activityType to match ActivityType enum (UPPERCASE)
     const normalizedType = activityType.toUpperCase().replace(/-/g, '_');
-    
+
     const { addItem, items } = useFascicleStore.getState();
-    const firstPage = Array.isArray(worksheetData) ? worksheetData[0] : worksheetData;
-    
+
     addItem({
       id: crypto.randomUUID(),
-      type: normalizedType as any,
+      type: normalizedType as ActivityType,
       difficulty: 'Orta',
       pageCount: Array.isArray(worksheetData) ? worksheetData.length : 1,
       order: items.length,
-      content: worksheetData, // V1 renderers handle the array or object directly
+      content: worksheetData,
     });
     toast.success('Fasiküle başarıyla eklendi!');
   };
@@ -61,14 +132,16 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
   const handleUnifiedPrint = async (method: 'pdf' | 'print' | 'v2') => {
     try {
       setExportProgress({ open: true, percent: 0, message: 'Sayfa hazırlanıyor...' });
-      
-      const targetSelector = document.getElementById('print-container') ? '#print-container' : '.worksheet-page';
-      
+
+      const targetSelector = document.getElementById('print-container')
+        ? '#print-container'
+        : '.worksheet-page';
+
       if (method === 'v2') {
-         const { forceRenderAllPages, ensurePrintStyle } = await import('../../utils/print/CSSInjector');
-         forceRenderAllPages();
-         ensurePrintStyle(paperSize);
-         await new Promise(r => setTimeout(r, 500)); // CSS injection bekleme
+        const { forceRenderAllPages, ensurePrintStyle } = await import('../../utils/print/CSSInjector');
+        forceRenderAllPages();
+        ensurePrintStyle(paperSize);
+        await new Promise((resolve) => setTimeout(resolve, 500));
       }
 
       await printService.generatePdf(targetSelector, settings.title || 'bdmind_Calisma_Kagidi', {
@@ -90,118 +163,182 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
-       <ExportProgressModal 
-        isOpen={exportProgress.open} 
-        percent={exportProgress.percent} 
-        message={exportProgress.message} 
+      <ExportProgressModal
+        isOpen={exportProgress.open}
+        percent={exportProgress.percent}
+        message={exportProgress.message}
       />
 
+      {/* Düzenleme Grubu — seçim, geçmiş, önizleme ve zoom */}
+      <div
+        className="flex items-center bg-[var(--surface-glass)]/50 border border-[var(--border-color)] rounded-2xl p-1 gap-0.5 shadow-sm backdrop-blur-md"
+        role="group"
+        aria-label="Düzenleme araçları"
+      >
+        <IconButton
+          icon="fa-rotate-left"
+          title="Geri al (Ctrl+Z)"
+          onClick={() => {
+            if (!useA4EditorStore.getState().undo()) toast.info('Geri alınacak değişiklik yok.');
+          }}
+          disabled={!canUndo}
+          className="!w-8 !h-8"
+        />
+        <IconButton
+          icon="fa-rotate-right"
+          title="Yinele (Ctrl+Shift+Z)"
+          onClick={() => {
+            if (!useA4EditorStore.getState().redo()) toast.info('Yinelenecek değişiklik yok.');
+          }}
+          disabled={!canRedo}
+          className="!w-8 !h-8"
+        />
+        <IconButton
+          icon="fa-eye"
+          title={isPrintPreview ? 'Düzenleme görünümüne dön' : 'Baskı önizlemesi'}
+          onClick={() => useA4EditorStore.getState().setPrintPreview(!isPrintPreview)}
+          active={isPrintPreview}
+          className="!w-8 !h-8"
+        />
+      </div>
+
+      <ZoomGroup />
+
       {/* Dışa Aktarma Grubu */}
-      <div className="flex items-center bg-[var(--surface-glass)]/50 border border-[var(--border-color)] rounded-2xl p-1 gap-0.5 shadow-sm backdrop-blur-md">
+      <div
+        className="flex items-center bg-[var(--surface-glass)]/50 border border-[var(--border-color)] rounded-2xl p-1 gap-0.5 shadow-sm backdrop-blur-md"
+        role="group"
+        aria-label="Dışa aktarma"
+      >
         <button
+          type="button"
           title="PDF Olarak İndir"
           onClick={() => handleUnifiedPrint('pdf')}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black transition-all duration-200
-            bg-gradient-to-r from-red-500/10 to-orange-500/10 text-red-500 hover:scale-[1.03] active:scale-95 uppercase tracking-wider"
+            bg-[var(--accent-muted)] text-[var(--accent-color)] hover:scale-[1.03] active:scale-95 uppercase tracking-wider"
         >
           <i className="fa-solid fa-file-pdf text-xs"></i>
           <span className="hidden lg:inline">PDF</span>
         </button>
 
         <button
+          type="button"
           title="Sistem Yazdır"
           onClick={() => handleUnifiedPrint('print')}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black transition-all duration-200
-            bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-500 hover:scale-[1.03] active:scale-95 uppercase tracking-wider"
+            bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:scale-[1.03] active:scale-95 uppercase tracking-wider"
         >
           <i className="fa-solid fa-print text-xs"></i>
           <span className="hidden lg:inline">YAZDIR</span>
         </button>
 
         <button
-          title="Profesyonel Yazdır (V2)"
+          type="button"
+          title="Profesyonel Yazdır (V2) — tüm sayfaları zorla render eder"
           onClick={() => handleUnifiedPrint('v2')}
           className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black transition-all duration-200
-            bg-indigo-600 text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:scale-[1.03] active:scale-95 uppercase tracking-wider"
+            bg-[var(--accent-color)] text-[var(--bg-primary)] shadow-sm hover:scale-[1.03] active:scale-95 uppercase tracking-wider"
         >
           <i className="fa-solid fa-wand-magic-sparkles text-xs"></i>
           <span className="hidden lg:inline">YAZDIR V2</span>
         </button>
 
         <div className="relative">
-            <IconButton 
-                icon="fa-camera" 
-                title="Görüntü Al" 
-                onClick={() => setSnapshotMenuOpen(!snapshotMenuOpen)}
-                active={snapshotMenuOpen}
-                className="!w-9 !h-9"
-            />
-            {snapshotMenuOpen && (
-                <div className="absolute top-full mt-2 right-0 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl shadow-2xl z-50 p-1.5 min-w-[200px] animate-in fade-in zoom-in-95 backdrop-blur-xl ring-1 ring-black/5">
-                    <button
-                        onClick={() => { setSnapshotMenuOpen(false); snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'download'); }}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-[var(--text-secondary)] hover:bg-indigo-50 hover:text-indigo-700 transition-all"
-                    >
-                        <i className="fa-solid fa-image text-indigo-500 w-4"></i> Sayfayı Kaydet (PNG)
-                    </button>
-                    <button
-                        onClick={() => { setSnapshotMenuOpen(false); snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'clipboard'); }}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-[var(--text-secondary)] hover:bg-green-50 hover:text-green-700 transition-all"
-                    >
-                        <i className="fa-solid fa-copy text-green-500 w-4"></i> Panoya Kopyala
-                    </button>
-                </div>
-            )}
+          <IconButton
+            icon="fa-camera"
+            title="Görüntü Al (PNG / panoya kopyala)"
+            onClick={() => setSnapshotMenuOpen(!snapshotMenuOpen)}
+            active={snapshotMenuOpen}
+            className="!w-9 !h-9"
+          />
+          {snapshotMenuOpen && (
+            <div className="absolute top-full mt-2 right-0 z-50 min-w-[210px] rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)] p-1.5 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95">
+              <button
+                type="button"
+                onClick={() => {
+                  setSnapshotMenuOpen(false);
+                  snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'download');
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all"
+              >
+                <i className="fa-solid fa-image w-4 text-[var(--accent-color)]"></i> Sayfayı Kaydet (PNG)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSnapshotMenuOpen(false);
+                  snapshotService.takeSnapshot('.worksheet-page', 'etkinlik', 'clipboard');
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all"
+              >
+                <i className="fa-solid fa-copy w-4 text-emerald-500"></i> Panoya Kopyala
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Kaydetme & Atama Grubu */}
-      <div className="flex items-center bg-[var(--surface-glass)]/50 border border-[var(--border-color)] rounded-2xl p-1 gap-1 shadow-sm backdrop-blur-md">
-        <IconButton 
-            icon="fa-bookmark" 
-            title="Arşive Kaydet" 
-            onClick={onSave}
+      <div
+        className="flex items-center bg-[var(--surface-glass)]/50 border border-[var(--border-color)] rounded-2xl p-1 gap-1 shadow-sm backdrop-blur-md"
+        role="group"
+        aria-label="Kaydetme ve paylaşım"
+      >
+        <div className="relative">
+          <IconButton
+            icon="fa-bookmark"
+            title={dirty ? 'Arşive Kaydet — kaydedilmemiş değişiklik var' : 'Arşive Kaydet'}
+            onClick={() => void handleSave()}
+            isLoading={isSaving}
             colorClass="text-amber-500"
-        />
-        {onAssign && (
-            <IconButton 
-                icon="fa-user-plus" 
-                title="Öğrenciye Ata" 
-                onClick={onAssign}
-                colorClass="text-emerald-500"
+            active={dirty}
+          />
+          {dirty && (
+            <span
+              className="pointer-events-none absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-amber-400 ring-1 ring-[var(--bg-paper)]"
+              aria-hidden="true"
             />
+          )}
+        </div>
+        {onAssign && (
+          <IconButton
+            icon="fa-user-plus"
+            title="Öğrenciye Ata"
+            onClick={onAssign}
+            colorClass="text-emerald-500"
+          />
         )}
         {onShare && (
-            <IconButton 
-                icon="fa-share-nodes" 
-                title="Hızlı Paylaş" 
-                onClick={onShare}
-                colorClass="text-sky-500"
-            />
+          <IconButton
+            icon="fa-share-nodes"
+            title="Hızlı Paylaş"
+            onClick={onShare}
+            colorClass="text-sky-500"
+          />
         )}
-        <IconButton 
-            icon="fa-layer-group" 
-            title="Fasiküle Ekle" 
-            onClick={handleAddToFascicle}
-            colorClass="text-fuchsia-500"
+        <IconButton
+          icon="fa-layer-group"
+          title="Fasiküle Ekle"
+          onClick={handleAddToFascicle}
+          colorClass="text-fuchsia-500"
         />
-        <IconButton 
-            icon="fa-pen-ruler" 
-            title={useA4EditorStore.getState().isEditorOpen ? "A4 Tasarımcısını Kapat" : "A4 Tasarımcısını Aç"} 
-            onClick={() => {
-              const current = useA4EditorStore.getState().isEditorOpen;
-              useA4EditorStore.getState().setEditorOpen(!current);
-            }}
-            active={useA4EditorStore((state) => state.isEditorOpen)}
-            colorClass="text-indigo-500"
+        <IconButton
+          icon="fa-pen-ruler"
+          title={isEditorOpen ? 'A4 Tasarımcısını Kapat' : 'A4 Tasarımcısını Aç'}
+          onClick={() => {
+            const current = useA4EditorStore.getState().isEditorOpen;
+            useA4EditorStore.getState().setEditorOpen(!current);
+          }}
+          active={isEditorOpen}
+          colorClass="text-[var(--accent-color)]"
         />
         {onFeedback && (
-            <IconButton 
-                icon="fa-comment-dots" 
-                title="Geri Bildirim Gönder" 
-                onClick={onFeedback}
-                colorClass="text-purple-500"
-            />
+          <IconButton
+            icon="fa-comment-dots"
+            title="Geri Bildirim Gönder"
+            onClick={onFeedback}
+            colorClass="text-purple-500"
+          />
         )}
       </div>
     </div>

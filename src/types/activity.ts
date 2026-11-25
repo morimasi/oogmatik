@@ -314,11 +314,27 @@ export interface WorksheetBlock {
     textAlign?: string;
     fontWeight?: string;
     fontSize?: number;
+    fontStyle?: 'normal' | 'italic';
     backgroundColor?: string;
     borderRadius?: number;
     color?: string;
+    lineHeight?: number;
+    letterSpacing?: number;
+    paragraphSpacing?: number;
+    padding?: number;
+    marginTop?: number;
+    marginBottom?: number;
+    borderWidth?: number;
+    borderColor?: string;
+    opacity?: number;
   };
   weight?: number;
+  /** Öğretmene yönelik pedagojik gerekçe (blok bazlı etkinliklerde). */
+  pedagogicalNote?: string;
+  /** A4 tasarımcısı: gizlenen bileşen önizlemede ve baskıda görünmez. */
+  hidden?: boolean;
+  /** A4 tasarımcısı: kilitli bileşen sürüklenemez, yalnızca panelle düzenlenir. */
+  locked?: boolean;
 }
 
 export type CognitiveErrorTag =
