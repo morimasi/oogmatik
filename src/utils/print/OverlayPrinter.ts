@@ -219,7 +219,7 @@ export const print = async (
   injectPrintLockCSS(paperSize, isLandscape);
 
   // 4. Sayfaları klonla (export sayfaları zaten kağıt ölçüsünde)
-  printablePages.forEach((page) => {
+  printablePages.forEach((page, pageIdx) => {
     const clone = page.cloneNode(true) as HTMLElement;
 
     clone.classList.remove('hidden', 'invisible', 'opacity-0', 'd-none');
@@ -247,6 +247,16 @@ export const print = async (
     const wrapper = document.createElement('div');
     wrapper.className = 'bdmind-print-wrapper';
     wrapper.appendChild(clone);
+
+    if (printablePages.length > 1) {
+      const footer = document.createElement('div');
+      footer.className = 'bdmind-print-page-footer';
+      footer.textContent = `Sayfa ${pageIdx + 1} / ${printablePages.length}`;
+      footer.style.cssText =
+        'width:100%;text-align:center;font-family:Lexend,Inter,sans-serif;font-size:8pt;color:#64748b;margin-top:2mm;padding-top:1mm;';
+      wrapper.appendChild(footer);
+    }
+
     wrapperContainer.appendChild(wrapper);
   });
 

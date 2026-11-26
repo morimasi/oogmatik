@@ -259,15 +259,24 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       }
 
       /* Reading Studio Bileşenlerinin Yazdırmada Dikey Sıralı Akışı - Sayfa Akışına İzin Ver */
-      body.printing-mode #print-overlay .group {
+      body.printing-mode #print-overlay [data-reading-studio] .group,
+      body.printing-mode #print-overlay .reading-studio-group {
         position: relative !important;
         display: block !important;
         width: 100% !important;
         height: auto !important;
         min-height: auto !important;
-        margin-bottom: 28px !important;
+        margin-bottom: 8px !important;
         page-break-inside: auto !important;
         break-inside: auto !important;
+      }
+
+      .bdmind-print-page-footer {
+        display: block !important;
+        visibility: visible !important;
+        color: #64748b !important;
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
       }
 
       /* Hikaye ve uzun metin blokları için özel akış kuralı */
@@ -401,10 +410,10 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       h2 { font-size: 14pt !important; }
       h3 { font-size: 12pt !important; }
       h4 { font-size: 11pt !important; }
-      p, span, li {
+      p, li {
         font-size: 10pt !important;
-        line-height: 1.3 !important;
-        margin: 0.3em 0 !important;
+        line-height: 1.35 !important;
+        margin: 0.2em 0 !important;
       }
 
       /* === Table & Grid Special Rules === */

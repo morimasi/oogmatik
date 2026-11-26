@@ -322,12 +322,96 @@ const isHiddenForPrint = (el: HTMLElement): boolean => {
   );
 };
 
+const isEmptyVisualWrapper = (el: HTMLElement): boolean => {
+  const tag = el.tagName;
+  if (
+    tag === 'IMG' ||
+    tag === 'SVG' ||
+    tag === 'CANVAS' ||
+    tag === 'VIDEO' ||
+    tag === 'INPUT' ||
+    tag === 'TEXTAREA' ||
+    tag === 'SELECT' ||
+    tag === 'HR' ||
+    tag === 'BR' ||
+    tag === 'TABLE'
+  ) {
+    return false;
+  }
+  if ((el.textContent ?? '').trim().length > 0) return false;
+  if (el.querySelector('img, svg, canvas, video, input, textarea, select, table, hr')) {
+    return false;
+  }
+  return true;
+};
+
+const pruneEmptyWrappers = (root: HTMLElement): void => {
+  const candidates = Array.from(
+    root.querySelectorAll<HTMLElement>('div, section, header, footer, aside, nav, ul, ol')
+  ).reverse();
+  candidates.forEach((el) => {
+    if (el === root) return;
+    if (el.hasAttribute('data-keep-empty') || el.classList.contains('writing-line')) return;
+    if (isEmptyVisualWrapper(el)) {
+      const cs = typeof window !== 'undefined' ? window.getComputedStyle(el) : null;
+      // Yazma çizgisi/kutusu olarak kullanılan border/background kutularını koru
+      const hasBorder =
+        cs &&
+        ((parseFloat(cs.borderTopWidth) || 0) > 0 ||
+          (parseFloat(cs.borderBottomWidth) || 0) > 0 ||
+          (parseFloat(cs.borderLeftWidth) || 0) > 0);
+      if (!hasBorder) el.remove();
+    }
+  });
+};
+
 const stripNonPrintContent = (root: HTMLElement): void => {
   const candidates = Array.from(root.querySelectorAll<HTMLElement>('*'));
   candidates.forEach((el) => {
     if (isHiddenForPrint(el)) el.remove();
   });
-  Array.from(root.querySelectorAll('button')).forEach((btn) => btn.remove());
+  Array.from(root.querySelectorAll('button:not(.print-visible)')).forEach((btn) => btn.remove());
+  pruneEmptyWrappers(root);
+};
+
+/**
+ * Ekran için tasarlanmış aşırı dikey boşlukları ve space-between yayılmalarını
+ * A4 baskı ritmine sıkıştırır (bileşenler arası devasa boşlukları önler).
+ */
+const compactSpacingForPrint = (root: HTMLElement): void => {
+  if (typeof window === 'undefined') return;
+  const nodes = [root, ...Array.from(root.querySelectorAll<HTMLElement>('*'))];
+  nodes.forEach((el) => {
+    let cs: CSSStyleDeclaration;
+    try {
+      cs = window.getComputedStyle(el);
+    } catch {
+      return;
+    }
+    const rowGap = parseFloat(cs.rowGap);
+    if (Number.isFinite(rowGap) && rowGap > 18) {
+      el.style.setProperty('row-gap', '12px', 'important');
+    }
+    const mt = parseFloat(cs.marginTop);
+    if (Number.isFinite(mt) && mt > 24) {
+      el.style.setProperty('margin-top', '14px', 'important');
+    }
+    const mb = parseFloat(cs.marginBottom);
+    if (Number.isFinite(mb) && mb > 24) {
+      el.style.setProperty('margin-bottom', '14px', 'important');
+    }
+    const pt = parseFloat(cs.paddingTop);
+    if (Number.isFinite(pt) && pt > 24) {
+      el.style.setProperty('padding-top', '12px', 'important');
+    }
+    const pb = parseFloat(cs.paddingBottom);
+    if (Number.isFinite(pb) && pb > 24) {
+      el.style.setProperty('padding-bottom', '12px', 'important');
+    }
+    if (cs.display.includes('flex') && cs.flexDirection.includes('column') && cs.justifyContent === 'space-between') {
+      el.style.setProperty('justify-content', 'flex-start', 'important');
+    }
+  });
 };
 
 /**
@@ -502,13 +586,14 @@ const findContentRoot = (page: HTMLElement): HTMLElement => {
   return node;
 };
 
-/** Izgara çocuklarını görsel satırlara gruplar (offsetTop tabanlı). */
+/** Izgara/flex-wrap çocuklarını görsel satırlara gruplar (getBoundingClientRect + offsetTop). */
 const groupChildrenIntoRows = (kids: HTMLElement[]): HTMLElement[][] => {
   const rows: HTMLElement[][] = [];
   let currentTop: number | null = null;
   kids.forEach((kid) => {
-    const top = kid.offsetTop;
-    if (currentTop === null || Math.abs(top - currentTop) > 2) {
+    const rectTop = kid.getBoundingClientRect().top;
+    const top = rectTop !== 0 ? rectTop : kid.offsetTop;
+    if (currentTop === null || Math.abs(top - currentTop) > 4) {
       rows.push([kid]);
       currentTop = top;
     } else {
@@ -518,6 +603,32 @@ const groupChildrenIntoRows = (kids: HTMLElement[]): HTMLElement[][] => {
   return rows;
 };
 
+const isAtomicElement = (el: HTMLElement): boolean => {
+  if (el.getAttribute('data-keep-together') === 'true') return true;
+  const cls = typeof el.className === 'string' ? el.className : '';
+  return (
+    cls.includes('activity-card') ||
+    cls.includes('question-container') ||
+    cls.includes('problem-card') ||
+    cls.includes('operation-card') ||
+    cls.includes('logic-card') ||
+    cls.includes('worksheet-item') ||
+    cls.includes('math-division-card') ||
+    cls.includes('page-break-avoid')
+  );
+};
+
+const isHeadingOrInstruction = (el: HTMLElement): boolean => {
+  if (/^H[1-6]$/.test(el.tagName)) return true;
+  const cls = typeof el.className === 'string' ? el.className : '';
+  return (
+    cls.includes('worksheet-header') ||
+    cls.includes('activity-instruction') ||
+    cls.includes('section-title') ||
+    cls.includes('section-header')
+  );
+};
+
 const buildGridPart = (grid: HTMLElement, rows: HTMLElement[][]): HTMLElement => {
   const part = grid.cloneNode(false) as HTMLElement;
   try {
@@ -525,12 +636,29 @@ const buildGridPart = (grid: HTMLElement, rows: HTMLElement[][]): HTMLElement =>
     if (cs.gridTemplateColumns && cs.gridTemplateColumns !== 'none') {
       part.style.gridTemplateColumns = cs.gridTemplateColumns;
     }
+    if (cs.flexWrap && cs.flexWrap !== 'nowrap') {
+      part.style.flexWrap = cs.flexWrap;
+    }
     if (cs.gap) part.style.gap = cs.gap;
     if (cs.display) part.style.display = cs.display;
   } catch {
     /* devam */
   }
   rows.forEach((row) => row.forEach((cell) => part.appendChild(cell.cloneNode(true))));
+  return part;
+};
+
+const buildContainerPart = (container: HTMLElement, items: HTMLElement[]): HTMLElement => {
+  const part = container.cloneNode(false) as HTMLElement;
+  try {
+    const cs = window.getComputedStyle(container);
+    if (cs.display) part.style.display = cs.display;
+    if (cs.flexDirection) part.style.flexDirection = cs.flexDirection;
+    if (cs.gap) part.style.gap = cs.gap;
+  } catch {
+    /* devam */
+  }
+  items.forEach((item) => part.appendChild(item.cloneNode(true)));
   return part;
 };
 
@@ -547,28 +675,35 @@ const splitBlockForSpace = (
 
   let display = '';
   let rowGap = 0;
+  let flexWrap = '';
+  let flexDir = '';
   try {
     const cs = window.getComputedStyle(el);
     display = cs.display || '';
     rowGap = parseFloat(cs.rowGap) || 0;
+    flexWrap = cs.flexWrap || '';
+    flexDir = cs.flexDirection || '';
   } catch {
     /* ölçüm yok */
   }
+
+  if (isAtomicElement(el)) return null;
 
   const kids = Array.from(el.children).filter(
     (c): c is HTMLElement => c instanceof HTMLElement && isFlowChild(c)
   );
 
-  // 1) CSS Grid / kart ızgarası → görsel satır bütünlüğü
+  // 1) CSS Grid veya Flex-Wrap kart ızgarası → görsel satır bütünlüğü
   const looksLikeGrid =
     display.includes('grid') ||
+    (display.includes('flex') && flexWrap === 'wrap') ||
     (typeof el.className === 'string' && el.className.includes('grid-cols'));
 
   if (looksLikeGrid && kids.length > 1) {
     const rows = groupChildrenIntoRows(kids);
     if (rows.length > 1) {
       const rowHeights = rows.map((row) =>
-        Math.max(1, Math.max(...row.map((cell) => cell.offsetHeight || 0)) + rowGap)
+        Math.max(1, Math.max(...row.map((cell) => cell.getBoundingClientRect().height || cell.offsetHeight || 0)) + rowGap)
       );
       const take = planRowSplit(rowHeights, availableHeight);
       if (take !== null) {
@@ -616,6 +751,27 @@ const splitBlockForSpace = (
     }
   }
 
+  // 3) Dikey Liste / Flex-Col / Çoklu-Çocuk Kapsayıcı → çocuk bütünlüğü (orphan başlık bırakmaz)
+  const isVerticalContainer =
+    (display.includes('flex') && flexDir.includes('column')) ||
+    display === 'block' ||
+    el.tagName === 'UL' ||
+    el.tagName === 'OL';
+  if (isVerticalContainer && kids.length > 1) {
+    const kidHeights = kids.map((k) => Math.max(1, measureOuterHeight(k) + rowGap));
+    let take = planRowSplit(kidHeights, availableHeight);
+    // Son alınan eleman bir başlık/yönergeyse bir öncekine geri çek (orphan heading önlemi)
+    if (take !== null && take > 1 && isHeadingOrInstruction(kids[take - 1])) {
+      take -= 1;
+    }
+    if (take !== null && take >= 1 && !isHeadingOrInstruction(kids[take - 1])) {
+      return {
+        head: buildContainerPart(el, kids.slice(0, take)),
+        tail: buildContainerPart(el, kids.slice(take)),
+      };
+    }
+  }
+
   return null;
 };
 
@@ -633,23 +789,28 @@ const splitOversizedElement = (el: HTMLElement, box: PageBox): HTMLElement[] => 
 
   let display = '';
   let rowGap = 0;
+  let flexWrap = '';
+  let flexDir = '';
   try {
     const cs = window.getComputedStyle(el);
     display = cs.display || '';
     rowGap = parseFloat(cs.rowGap) || 0;
+    flexWrap = cs.flexWrap || '';
+    flexDir = cs.flexDirection || '';
   } catch {
     /* devam */
   }
 
-  // 1) CSS Grid / kart ızgarası → satır bütünlüğü
+  // 1) CSS Grid veya Flex-Wrap kart ızgarası → satır bütünlüğü
   const looksLikeGrid =
     display.includes('grid') ||
+    (display.includes('flex') && flexWrap === 'wrap') ||
     (typeof el.className === 'string' && el.className.includes('grid-cols'));
   if (looksLikeGrid && kids.length > 1) {
     const rows = groupChildrenIntoRows(kids);
     if (rows.length > 1) {
       const rowHeights = rows.map((row) => {
-        const tallest = Math.max(...row.map((cell) => cell.offsetHeight || 0));
+        const tallest = Math.max(...row.map((cell) => cell.getBoundingClientRect().height || cell.offsetHeight || 0));
         return Math.max(1, tallest + rowGap);
       });
       const rowGroups = rebalanceChunks(
@@ -698,6 +859,27 @@ const splitOversizedElement = (el: HTMLElement, box: PageBox): HTMLElement[] => 
     }
   }
 
+  // 3) Dikey Kapsayıcı / Liste / Flex-Col → çocuk bütünlüğünü koruyarak böl
+  const isVerticalContainer =
+    !isAtomicElement(el) &&
+    ((display.includes('flex') && flexDir.includes('column')) ||
+      display === 'block' ||
+      el.tagName === 'UL' ||
+      el.tagName === 'OL');
+  if (isVerticalContainer && kids.length > 1) {
+    const kidHeights = kids.map((kid) => Math.max(1, measureOuterHeight(kid) + rowGap));
+    const kidGroups = rebalanceChunks(
+      chunkByHeights(kidHeights, contentHeight),
+      kidHeights,
+      contentHeight
+    );
+    if (kidGroups.length > 1) {
+      return kidGroups.map((group) =>
+        buildContainerPart(el, group.map((idx) => kids[idx]))
+      );
+    }
+  }
+
   // 3) Tek parça → ölçekleyerek sığdır (en fazla %50 küçültme)
   const measured = measureOuterHeight(el);
   if (measured > contentHeight && measured <= contentHeight * 1.5) {
@@ -741,11 +923,28 @@ export interface ExportPage {
   box: PageBox;
 }
 
-const addContinuationChip = (page: HTMLElement, label: string, pageNumber: number, total: number): void => {
+const extractPageTitle = (page: HTMLElement): string => {
+  const titleEl = page.querySelector<HTMLElement>(
+    '.worksheet-header h1, .worksheet-header h2, h1, h2'
+  );
+  const raw = titleEl?.textContent?.trim() ?? '';
+  if (!raw) return '';
+  return raw.length > 48 ? `${raw.slice(0, 45).trim()}…` : raw;
+};
+
+const addContinuationChip = (
+  page: HTMLElement,
+  label: string,
+  pageNumber: number,
+  total: number,
+  pageTitle?: string
+): void => {
   const chip = document.createElement('div');
   chip.className = 'bdmind-continuation-chip';
   chip.setAttribute('data-print-piece', 'continuation');
-  chip.textContent = `${label} · ${pageNumber}/${total}`;
+  chip.textContent = pageTitle
+    ? `${pageTitle} · ${label} (${pageNumber}/${total})`
+    : `${label} · ${pageNumber}/${total}`;
   chip.style.cssText = [
     'display:block',
     'width:100%',
@@ -757,7 +956,7 @@ const addContinuationChip = (page: HTMLElement, label: string, pageNumber: numbe
     'color:#64748b',
     'text-align:right',
     'padding:0 0 2mm 0',
-    'margin:0 0 1mm 0',
+    'margin:0 0 2mm 0',
     'border-bottom:1px dashed #cbd5e1',
   ].join(';');
   page.insertBefore(chip, page.firstChild);
@@ -908,7 +1107,18 @@ const paginatePageElement = (
     }
 
     // Bu sayfayı kapat, aynı bloğu temiz sayfada yeniden dene.
+    // Eğer bu sayfanın en son öğesi bir başlık veya yönergeyse, yetim kalmaması için
+    // onu da sonraki sayfaya taşı (orphan heading koruması).
     if (currentGroup.length > 0) {
+      const lastEl = currentGroup[currentGroup.length - 1];
+      if (currentGroup.length > 1 && isHeadingOrInstruction(lastEl)) {
+        const orphanHeading = currentGroup.pop()!;
+        groups.push(currentGroup);
+        currentGroup = [orphanHeading];
+        used = measurePiece(orphanHeading);
+        queue = [piece, ...queue];
+        continue;
+      }
       groups.push(currentGroup);
       currentGroup = [];
       used = 0;
@@ -959,9 +1169,10 @@ const paginatePageElement = (
   if (pages.length <= 1) return [page];
 
   // 5) Devam rozetleri
+  const pageTitle = extractPageTitle(page);
   pages.forEach((shell, i) => {
     if (i > 0 && continuationLabel) {
-      addContinuationChip(shell, continuationLabel, i + 1, pages.length);
+      addContinuationChip(shell, continuationLabel, i + 1, pages.length, pageTitle);
     }
     shell.dataset.printSource = String(sourceIndex);
     shell.dataset.printPiece = String(i + 1);
@@ -1006,6 +1217,7 @@ export const buildExportPages = (
       stripNonPrintContent(clone);
       normalizePageClone(clone, box);
       stage.appendChild(clone);
+      compactSpacingForPrint(clone);
       releaseClippedDescendants(clone);
       // 297mm min-height gibi kağıdı aşan kilitleri ÖLÇÜMDEN ÖNCE kaldır.
       // Aksi halde sayfa taşmış sayılır ve sonuna boş sayfa eklenir.

@@ -10,9 +10,9 @@ export const A4PrintableWrapper: React.FC<Props> = ({ settings, children }) => {
   const { isLandscape, width, height } = useOrientationDimensions(settings?.orientation);
   const style: React.CSSProperties = {
     width: `${width}px`,
-    height: `${height}px`,
+    minHeight: `${height}px`,
   };
-  const className = `worksheet-page print-page shadow-2xl mb-8 ${isLandscape ? 'landscape' : ''}`;
+  const className = `worksheet-page print-page shadow-2xl mb-6 print:mb-0 print:min-h-0 print:h-auto ${isLandscape ? 'landscape' : ''}`;
   return (
     <div className={className} style={style}>
       {children}

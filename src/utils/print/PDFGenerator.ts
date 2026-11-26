@@ -223,13 +223,26 @@ export const generateRealPdf = async (
         const offsetX = marginMm + (contentW - drawW) / 2;
 
         if (i > 0) pdf.addPage([pageW, pageH], pdfOrientation);
-        const imgData = workingCanvas.toDataURL('image/jpeg', 0.92);
-        pdf.addImage(imgData, 'JPEG', offsetX, marginMm, drawW, drawH, undefined, 'FAST');
+        const useLossless = quality === 'print' || quality === 'high';
+        const imgFormat = useLossless ? 'PNG' : 'JPEG';
+        const imgData = useLossless
+          ? workingCanvas.toDataURL('image/png')
+          : workingCanvas.toDataURL('image/jpeg', 0.94);
+        pdf.addImage(imgData, imgFormat, offsetX, marginMm, drawW, drawH, undefined, 'FAST');
+
+        // Geçici canvas belleğini serbest bırak
+        if (workingCanvas !== canvas) {
+          workingCanvas.width = 0;
+          workingCanvas.height = 0;
+        }
+        canvas.width = 0;
+        canvas.height = 0;
 
         if (!hidePageNumbers && exportPages.length > 1) {
           pdf.setFontSize(8);
           pdf.setTextColor(120, 120, 120);
-          pdf.text(`${i + 1} / ${exportPages.length}`, pageW / 2, pageH - Math.max(2.5, marginMm / 2), {
+          const footerY = pageH - Math.max(4, marginMm * 0.55);
+          pdf.text(`Sayfa ${i + 1} / ${exportPages.length}`, pageW / 2, footerY, {
             align: 'center',
           });
         }

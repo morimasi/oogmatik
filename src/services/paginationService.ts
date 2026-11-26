@@ -50,7 +50,7 @@ export const getBlockWeight = (block: WorksheetBlock): number => {
             const cells = Array.isArray(content.cells) ? content.cells : [];
             const cols = typeof content.cols === 'number' && content.cols > 0 ? content.cols : 4;
             const rows = Math.max(1, Math.ceil(cells.length / cols));
-            return 45 + rows * 44;
+            return 45 + rows * 60;
         }
         case 'table': {
             const rawRows = Array.isArray(content.rows)
@@ -252,7 +252,21 @@ export const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): Works
     return [block];
 };
 
-const LIST_KEYS = ['blocks', 'puzzles', 'operations', 'steps', 'problems', 'items'] as const;
+const LIST_KEYS = [
+    'blocks',
+    'puzzles',
+    'operations',
+    'steps',
+    'problems',
+    'items',
+    'questions',
+    'exercises',
+    'rows',
+    'sentences',
+    'words',
+    'cards',
+    'tasks',
+] as const;
 
 export const paginationService = {
     process: (data: WorksheetData, _activityType: ActivityType, settings?: StyleSettings): WorksheetData => {

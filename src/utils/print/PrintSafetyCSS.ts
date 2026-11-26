@@ -89,15 +89,39 @@ export const PRINT_SAFETY_CSS = `
       margin-bottom: 0 !important;
     }
 
-    .gap-10, .gap-12, .gap-16, .gap-20, .gap-24,
-    .gap-y-10, .gap-y-12, .gap-y-16, .gap-y-20 {
-      gap: 4mm !important;
+    .gap-6, .gap-8, .gap-10, .gap-12, .gap-16, .gap-20, .gap-24,
+    .gap-y-6, .gap-y-8, .gap-y-10, .gap-y-12, .gap-y-16, .gap-y-20 {
+      gap: 3.5mm !important;
     }
 
+    .space-y-6 > :not([hidden]) ~ :not([hidden]),
+    .space-y-8 > :not([hidden]) ~ :not([hidden]),
     .space-y-10 > :not([hidden]) ~ :not([hidden]),
     .space-y-12 > :not([hidden]) ~ :not([hidden]),
     .space-y-16 > :not([hidden]) ~ :not([hidden]) {
       margin-top: 3mm !important;
+    }
+
+    .mb-6, .mb-8, .mb-10, .mb-12 {
+      margin-bottom: 3.5mm !important;
+    }
+
+    .mt-8, .mt-10, .mt-12 {
+      margin-top: 3.5mm !important;
+    }
+
+    .my-6, .my-8, .my-10 {
+      margin-top: 3mm !important;
+      margin-bottom: 3mm !important;
+    }
+
+    .py-8, .py-10, .py-12 {
+      padding-top: 3.5mm !important;
+      padding-bottom: 3.5mm !important;
+    }
+
+    .justify-between {
+      justify-content: flex-start !important;
     }
 
     /* İçi boş sarmalayıcılar sayfa kırılması üretmesin */

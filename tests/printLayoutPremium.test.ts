@@ -87,6 +87,25 @@ describe('Baskı güvenlik CSS — boşluk ve kırılma koruması', () => {
   it('boş yazdırma sarmalayıcısını gizler', () => {
     expect(PRINT_SAFETY_CSS).toContain('.bdmind-print-wrapper:empty');
   });
+
+  it('orta ve büyük Tailwind boşluklarını A4 ritmine sıkıştırır', () => {
+    expect(PRINT_SAFETY_CSS).toContain('.gap-6');
+    expect(PRINT_SAFETY_CSS).toContain('.space-y-6');
+    expect(PRINT_SAFETY_CSS).toContain('.justify-between');
+  });
+});
+
+describe('SmartLayout boş sarmalayıcı temizliği', () => {
+  it('buton veya no-print silinince boş kalan sarmalayıcıları temizler', () => {
+    document.body.innerHTML =
+      '<div class="worksheet-page"><div class="toolbar-wrap"><button class="no-print">Yazdır</button></div><p>İçerik</p></div>';
+    const source = document.querySelector('.worksheet-page') as HTMLElement;
+    const pages = buildExportPages([source], { paperSize: 'A4' });
+    expect(pages).toHaveLength(1);
+    expect(pages[0].element.querySelector('.toolbar-wrap')).toBeNull();
+    expect(pages[0].element.textContent).toContain('İçerik');
+    document.body.innerHTML = '';
+  });
 });
 
 describe('Türkçe ajan koordinasyonu', () => {

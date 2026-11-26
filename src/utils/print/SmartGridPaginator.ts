@@ -62,17 +62,22 @@ const splitGridElement = (
 
   const cs = window.getComputedStyle(gridEl);
   const templateCols = cs.gridTemplateColumns;
-  const colCount =
-    templateCols && templateCols !== 'none'
-      ? Math.max(1, templateCols.split(' ').filter(Boolean).length)
-      : 1;
 
-  // Izgarayı görsel satırlara böl: yarım kalan satır asla bir sonraki
-  // sayfaya tek başına taşınmaz, hücreler ait oldukları satırla birlikte kalır.
+  // Izgarayı gerçek görsel satırlara böl (getBoundingClientRect + offsetTop).
+  // Böylece repeat/minmax/auto-fit kullanan gridlerde bile yarım kalan satır
+  // asla sonraki sayfaya tek başına taşınmaz.
   const rows: HTMLElement[][] = [];
-  for (let i = 0; i < items.length; i += colCount) {
-    rows.push(items.slice(i, i + colCount));
-  }
+  let currentTop: number | null = null;
+  items.forEach((item) => {
+    const rectTop = item.getBoundingClientRect().top;
+    const top = rectTop !== 0 ? rectTop : item.offsetTop;
+    if (currentTop === null || Math.abs(top - currentTop) > 4) {
+      rows.push([item]);
+      currentTop = top;
+    } else {
+      rows[rows.length - 1].push(item);
+    }
+  });
 
   const sandbox = createMeasureSandbox(widthPx);
   const chunks: HTMLElement[] = [];
