@@ -17,6 +17,7 @@ import {
   FileCode2,
   FileImage,
   FileJson,
+  FileUp,
   Highlighter,
   ImagePlus,
   FileText,
@@ -27,6 +28,7 @@ import {
   List,
   ListOrdered,
   Magnet,
+  Map as MapIcon,
   Maximize2,
   Minus,
   MousePointer2,
@@ -56,6 +58,7 @@ import {
   ZoomOut,
   Calculator,
   Cloud as CloudIcon,
+  BarChart3,
 } from 'lucide-react';
 import type {
   BackgroundPattern,
@@ -193,6 +196,10 @@ export interface TopToolbarProps {
   onInsertVectorImage?: (file: File) => void;
   onInsertStamp: (stamp: VectorStamp) => void;
   onApplyTemplate: (template: HybridTemplate) => void;
+  onOpenChartModal?: () => void;
+  onImportPdf?: (file: File) => void;
+  showMinimap?: boolean;
+  onToggleMinimap?: () => void;
   onOpenMathModal?: () => void;
   onOpenAIVectorModal?: () => void;
   onOpenQRCodeModal?: () => void;
@@ -247,6 +254,10 @@ export const TopToolbar = ({
   onInsertVectorImage,
   onInsertStamp,
   onApplyTemplate,
+  onOpenChartModal,
+  onImportPdf,
+  showMinimap = false,
+  onToggleMinimap,
   onOpenMathModal,
   onOpenAIVectorModal,
   onOpenQRCodeModal,
@@ -260,6 +271,7 @@ export const TopToolbar = ({
   const vectorImageInputRef = React.useRef<HTMLInputElement>(null);
   const jsonInputRef = React.useRef<HTMLInputElement>(null);
   const svgInputRef = React.useRef<HTMLInputElement>(null);
+  const pdfInputRef = React.useRef<HTMLInputElement>(null);
   const [showMargins, setShowMargins] = React.useState(false);
 
   React.useEffect(() => {
@@ -436,6 +448,12 @@ export const TopToolbar = ({
         </Group>
 
         <div className="flex items-center gap-1">
+          {onOpenChartModal && (
+            <ToolButton label="33 tip HD matematik & veri grafiği ekle" onClick={onOpenChartModal}>
+              <BarChart3 size={14} className="text-blue-600" />
+              <span className="hidden lg:inline text-[10px]">Grafik</span>
+            </ToolButton>
+          )}
           {onOpenMathModal && (
             <ToolButton label="Matematik / Fen formülü ekle (KaTeX)" onClick={onOpenMathModal}>
               <Calculator size={14} className="text-indigo-600" />
@@ -452,6 +470,15 @@ export const TopToolbar = ({
             <ToolButton label="QR Kod vektörü ekle" onClick={onOpenQRCodeModal}>
               <QrCode size={14} className="text-emerald-600" />
               <span className="hidden lg:inline text-[10px]">QR Kod</span>
+            </ToolButton>
+          )}
+          {mode === 'whiteboard' && onToggleMinimap && (
+            <ToolButton
+              label={showMinimap ? 'Mini haritayı kapat' : 'Tahta mini haritasını aç'}
+              active={showMinimap}
+              onClick={onToggleMinimap}
+            >
+              <MapIcon size={14} />
             </ToolButton>
           )}
           {onToggleRulers && (
@@ -604,6 +631,17 @@ export const TopToolbar = ({
                       svgInputRef.current?.click();
                     }}
                   />
+                  {onImportPdf && (
+                    <ExportItem
+                      icon={<FileUp size={14} />}
+                      label="PDF içe aktar"
+                      hint="Sayfa olarak yükle"
+                      onClick={() => {
+                        setExportOpen(false);
+                        pdfInputRef.current?.click();
+                      }}
+                    />
+                  )}
                   <ExportItem
                     icon={<FileJson size={14} />}
                     label="JSON dışa aktar"
@@ -651,6 +689,20 @@ export const TopToolbar = ({
               event.target.value = '';
             }}
           />
+          {onImportPdf && (
+            <input
+              ref={pdfInputRef}
+              type="file"
+              accept="application/pdf,.pdf"
+              className="hidden"
+              aria-label="PDF belgesi içe aktar"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) onImportPdf(file);
+                event.target.value = '';
+              }}
+            />
+          )}
         </div>
       </div>
 

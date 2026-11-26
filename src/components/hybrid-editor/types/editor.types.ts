@@ -151,6 +151,10 @@ export interface VectorCanvasHandle {
   loadSnapshot: (snapshot: CanvasSnapshot) => void;
   exportPng: (options?: { multiplier?: number; transparent?: boolean; selectionOnly?: boolean }) => string | null;
   exportSvg: () => string | null;
+  applyImageFilter: (
+    filterType: 'grayscale' | 'sepia' | 'invert' | 'none',
+    options?: { brightness?: number; contrast?: number }
+  ) => void;
   clear: () => void;
 }
 

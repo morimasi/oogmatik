@@ -11,6 +11,9 @@ import { A4Ruler } from './components/A4Ruler';
 import { MathFormulaModal } from './components/modals/MathFormulaModal';
 import { AIVectorModal } from './components/modals/AIVectorModal';
 import { QRCodeModal } from './components/modals/QRCodeModal';
+import { ChartDiagramModal } from './components/modals/ChartDiagramModal';
+import { WhiteboardMinimap } from './components/WhiteboardMinimap';
+import { importPdfToHybridPages } from './utils/pdfImportService';
 import { useEditorHistory, useEditorShortcuts } from './hooks/useEditorHistory';
 import { useHybridCollaboration } from './hooks/useHybridCollaboration';
 import {
@@ -134,6 +137,8 @@ export const HybridEditor = ({
   const [mathModalOpen, setMathModalOpen] = React.useState(false);
   const [aiVectorModalOpen, setAiVectorModalOpen] = React.useState(false);
   const [qrModalOpen, setQrModalOpen] = React.useState(false);
+  const [chartModalOpen, setChartModalOpen] = React.useState(false);
+  const [showMinimap, setShowMinimap] = React.useState(true);
 
   const pageHandles = React.useRef(new Map<string, VectorCanvasHandle | null>());
   const whiteboardHandle = React.useRef<VectorCanvasHandle | null>(null);
@@ -506,6 +511,36 @@ export const HybridEditor = ({
     }
   };
 
+  const handleImportPdf = async (file: File) => {
+    setBusy(true);
+    setNotice({ kind: 'info', message: 'PDF sayfaları taranıyor ve içe aktarılıyor…' });
+    try {
+      const result = await importPdfToHybridPages(file, {
+        startIndex: docRef.current.pages.length,
+      });
+      if (!result.ok || !result.pages || result.pages.length === 0) {
+        setNotice({ kind: 'error', message: result.error || 'PDF içe aktarılamadı.' });
+        return;
+      }
+      commitDoc((current) => ({
+        ...current,
+        pages: [...current.pages, ...result.pages!],
+        activePageId: result.pages![0].id,
+      }));
+      setNotice({
+        kind: 'success',
+        message: `${result.pages.length} sayfalık PDF belgeye başarıyla eklendi.`,
+      });
+    } catch (err) {
+      setNotice({
+        kind: 'error',
+        message: err instanceof Error ? err.message : 'PDF işlenirken hata oluştu.',
+      });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const handleInsertStamp = (stamp: VectorStamp) => {
     const handle = activeHandle();
     if (!handle) {
@@ -683,6 +718,10 @@ export const HybridEditor = ({
         onInsertVectorImage={handleInsertVectorImage}
         onInsertStamp={handleInsertStamp}
         onApplyTemplate={handleApplyTemplate}
+        onOpenChartModal={() => setChartModalOpen(true)}
+        onImportPdf={handleImportPdf}
+        showMinimap={showMinimap}
+        onToggleMinimap={() => setShowMinimap((v) => !v)}
         onOpenMathModal={() => setMathModalOpen(true)}
         onOpenAIVectorModal={() => setAiVectorModalOpen(true)}
         onOpenQRCodeModal={() => setQrModalOpen(true)}
@@ -791,6 +830,11 @@ export const HybridEditor = ({
                   layers={layers}
                   showSelection={false}
                 />
+                {showMinimap && (
+                  <div className="absolute bottom-3 right-3 z-30">
+                    <WhiteboardMinimap layers={layers} zoom={pageScale} />
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -914,6 +958,7 @@ export const HybridEditor = ({
             onDuplicate={() => activeHandle()?.duplicateSelection()}
             onDelete={() => activeHandle()?.deleteSelection()}
             onChange={(patch) => activeHandle()?.updateSelection(patch)}
+            onApplyImageFilter={(type, opt) => activeHandle()?.applyImageFilter(type, opt)}
             onClose={() => setLayersOpen(false)}
           />
         )}
@@ -967,6 +1012,14 @@ export const HybridEditor = ({
       <QRCodeModal
         isOpen={qrModalOpen}
         onClose={() => setQrModalOpen(false)}
+        onInsert={(svg, label) => {
+          activeHandle()?.addSvg(svg, label);
+          setVectorEditing(true);
+        }}
+      />
+      <ChartDiagramModal
+        isOpen={chartModalOpen}
+        onClose={() => setChartModalOpen(false)}
         onInsert={(svg, label) => {
           activeHandle()?.addSvg(svg, label);
           setVectorEditing(true);

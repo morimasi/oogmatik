@@ -208,4 +208,15 @@ describe('Hibrit editör — KaTeX matematik & QR kod vektör motoru', () => {
     expect(qrSvg).toContain('<rect');
     expect(qrSvg).toContain('#1e293b');
   });
+
+  it('PDF import servisi Node ortamında veya dosya yokluğunda güvenli hata döner', async () => {
+    const fakeFile = new File(['fake content'], 'test.pdf', { type: 'application/pdf' });
+    const { importPdfToHybridPages } = await import(
+      '../src/components/hybrid-editor/utils/pdfImportService'
+    );
+    const res = await importPdfToHybridPages(fakeFile);
+    // Node.js veya geçersiz içerik durumunda ok false dönmeli ve çökmemeli
+    expect(res.ok).toBe(false);
+    expect(res.error).toBeDefined();
+  });
 });

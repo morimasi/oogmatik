@@ -124,6 +124,7 @@ export const LayersAndPropertiesPanel = ({
   onDuplicate,
   onDelete,
   onChange,
+  onApplyImageFilter,
   onClose,
   mode,
 }: {
@@ -138,6 +139,10 @@ export const LayersAndPropertiesPanel = ({
   onDuplicate: () => void;
   onDelete: () => void;
   onChange: (patch: LayerPatch) => void;
+  onApplyImageFilter?: (
+    filterType: 'grayscale' | 'sepia' | 'invert' | 'none',
+    options?: { brightness?: number; contrast?: number }
+  ) => void;
   onClose: () => void;
   mode: 'document' | 'whiteboard';
 }) => {
@@ -301,6 +306,44 @@ export const LayersAndPropertiesPanel = ({
                   value={primary.fontSize}
                   onChange={(fontSize) => onChange({ fontSize: Math.max(8, Math.min(144, fontSize)) })}
                 />
+              )}
+
+              {primary.type === 'image' && onApplyImageFilter && (
+                <div className="space-y-1.5 rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-2">
+                  <span className="block text-[8px] font-black uppercase tracking-wider text-indigo-600">
+                    Görsel Baskı &amp; Filtreleri
+                  </span>
+                  <div className="grid grid-cols-2 gap-1">
+                    <button
+                      type="button"
+                      onClick={() => onApplyImageFilter('grayscale')}
+                      className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-paper)] px-1.5 py-1 text-[9px] font-bold hover:border-indigo-500"
+                    >
+                      🖨️ Siyah-Beyaz
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onApplyImageFilter('none')}
+                      className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-paper)] px-1.5 py-1 text-[9px] font-bold hover:border-indigo-500"
+                    >
+                      📷 Orijinal
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onApplyImageFilter('sepia')}
+                      className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-paper)] px-1.5 py-1 text-[9px] font-bold hover:border-indigo-500"
+                    >
+                      🎞️ Sepia
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onApplyImageFilter('invert')}
+                      className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-paper)] px-1.5 py-1 text-[9px] font-bold hover:border-indigo-500"
+                    >
+                      🔄 Negatif
+                    </button>
+                  </div>
+                </div>
               )}
 
               <div className="grid grid-cols-2 gap-1.5">

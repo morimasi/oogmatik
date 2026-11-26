@@ -18,6 +18,7 @@ import {
   util,
   type TPointerEvent,
   Path,
+  filters,
 } from 'fabric';
 import {
   MAX_ZOOM,
@@ -1284,6 +1285,38 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
           const canvas = canvasRef.current;
           if (!canvas || !canvas.getObjects().length) return null;
           return canvas.toSVG();
+        },
+        applyImageFilter: (filterType, options) => {
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+          const targets = canvas.getActiveObjects();
+          if (!targets.length) return;
+
+          targets.forEach((obj) => {
+            if (obj instanceof FabricImage) {
+              const activeFilters = [];
+              if (filterType === 'grayscale') {
+                activeFilters.push(new filters.Grayscale());
+              } else if (filterType === 'sepia') {
+                activeFilters.push(new filters.Sepia());
+              } else if (filterType === 'invert') {
+                activeFilters.push(new filters.Invert());
+              }
+
+              if (typeof options?.brightness === 'number') {
+                activeFilters.push(new filters.Brightness({ brightness: options.brightness }));
+              }
+              if (typeof options?.contrast === 'number') {
+                activeFilters.push(new filters.Contrast({ contrast: options.contrast }));
+              }
+
+              obj.filters = activeFilters;
+              obj.applyFilters();
+            }
+          });
+
+          canvas.requestRenderAll();
+          emit();
         },
         addSvg: (svgString, label) => {
           const canvas = canvasRef.current;
