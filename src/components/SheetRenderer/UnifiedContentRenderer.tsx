@@ -595,15 +595,23 @@ export const UnifiedContentRenderer = ({
     const textureClass = settings?.paperTexture && settings.paperTexture !== 'none'
       ? `paper-texture-${settings.paperTexture}`
       : '';
-    const pageClass = hideWrapper ? `w-full flex-1 min-h-0 flex flex-col relative ${textureClass}` : `worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white flex flex-col ${isLandscape ? 'landscape landscape-print' : ''} ${textureClass}`;
+    const fontSizePx = resolveFontSizePx(settings?.fontSize);
+    const pageClass = hideWrapper
+      ? `w-full flex-1 min-h-0 flex flex-col relative ${textureClass}`
+      : `worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white flex flex-col ${isLandscape ? 'landscape landscape-print' : ''} ${textureClass}`;
 
     return (
       <div
         key={pageIdx}
         data-page-idx={pageIdx}
+        data-a4-styled="true"
+        data-show-title={settings?.showTitle !== false ? 'true' : 'false'}
+        data-show-instruction={settings?.showInstruction !== false ? 'true' : 'false'}
+        data-show-clues={settings?.showClues !== false ? 'true' : 'false'}
+        data-show-answers={settings?.showAnswers ? 'true' : 'false'}
         className={pageClass}
         style={{
-          backgroundColor: hideWrapper ? 'transparent' : 'white',
+          backgroundColor: hideWrapper ? 'transparent' : (textureClass ? undefined : 'white'),
           color: 'black',
           colorScheme: 'light' as const,
           boxSizing: 'border-box',
@@ -615,15 +623,11 @@ export const UnifiedContentRenderer = ({
           width: hideWrapper ? '100%' : (isLandscape ? '297mm' : '210mm'),
           minHeight: hideWrapper ? 'auto' : (isLandscape ? '210mm' : '297mm'),
           fontFamily: settings?.fontFamily || 'Lexend, sans-serif',
-          fontSize:
-            settings?.fontSize === 'büyük'
-              ? '1.25rem'
-              : settings?.fontSize === 'küçük'
-                ? '0.875rem'
-                : '1rem',
+          fontSize: `${fontSizePx}px`,
           lineHeight: settings?.lineHeight ? String(settings.lineHeight) : '1.6',
           '--worksheet-border-color': settings?.borderColor || '#000',
-          '--worksheet-font-size': `${settings?.fontSize === 'büyük' ? 20 : settings?.fontSize === 'küçük' ? 14 : 16}px`,
+          '--worksheet-border-width': `${settings?.borderWidth ?? 2}px`,
+          '--worksheet-font-size': `${fontSizePx}px`,
           '--worksheet-font-family': settings?.fontFamily || 'Lexend, sans-serif',
           '--worksheet-line-height': settings?.lineHeight ?? 1.6,
           '--worksheet-letter-spacing': `${settings?.letterSpacing ?? 0}px`,
@@ -644,36 +648,7 @@ export const UnifiedContentRenderer = ({
         >
           <div className="print-top-margin h-0" />
 
-          {settings?.showStudentInfo && (
-            <div className="w-full px-6 py-4 flex justify-between items-end border-b-2 border-zinc-900 mb-6 font-lexend">
-              <div className="flex gap-12">
-                <div className="flex flex-col">
-                  <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
-                    Öğrenci Adı Soyadı
-                  </span>
-                  <div className="h-6 border-b border-zinc-200 min-w-[180px] font-black text-sm uppercase text-black">
-                    {studentProfile?.name || '....................................'}
-                  </div>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
-                    Sınıf / Grup
-                  </span>
-                  <div className="h-6 border-b border-zinc-200 min-w-[60px] font-black text-sm text-center text-black">
-                    {studentProfile?.grade || '........'}
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col items-end">
-                <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
-                  Çalışma Tarihi
-                </span>
-                <div className="h-6 border-b border-zinc-200 min-w-[80px] font-black text-sm text-right text-black">
-                  {new Date().toLocaleDateString('tr-TR')}
-                </div>
-              </div>
-            </div>
-          )}
+          {settings?.showStudentInfo && <StudentInfoStrip studentProfile={studentProfile} />}
 
           <PedagogicalHeader
             title={pageIdx === 0 ? (data?.title || '') : `${data?.title || ''} (Dvm.)`}
@@ -681,43 +656,15 @@ export const UnifiedContentRenderer = ({
             data={data}
           />
 
-          {editorChrome && (showGrid || snapToGrid) && (
-            <div
-              className="absolute inset-0 pointer-events-none z-0 opacity-20 no-print"
-              style={{
-                backgroundImage: `linear-gradient(to right, #6366f1 1px, transparent 1px), linear-gradient(to bottom, #6366f1 1px, transparent 1px)`,
-                backgroundSize: `${gridSize}px ${gridSize}px`,
-              }}
-            />
-          )}
-
-          {editorChrome && showSafeArea && (
-            <div
-              className="pointer-events-none absolute inset-[4mm] z-0 rounded-sm border border-dashed border-emerald-500/30 no-print"
-              aria-hidden="true"
-            />
-          )}
-
-          {editorChrome && showRulers && (
-            <>
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-y-0 left-0 z-10 w-4 no-print"
-                style={{
-                  backgroundImage:
-                    'repeating-linear-gradient(to bottom, rgba(99,102,241,0.45) 0 1px, transparent 1px 10mm), repeating-linear-gradient(to bottom, rgba(99,102,241,0.9) 0 1px, transparent 1px 50mm)',
-                }}
-              />
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 top-0 z-10 h-4 no-print"
-                style={{
-                  backgroundImage:
-                    'repeating-linear-gradient(to right, rgba(99,102,241,0.45) 0 1px, transparent 1px 10mm), repeating-linear-gradient(to right, rgba(99,102,241,0.9) 0 1px, transparent 1px 50mm)',
-                }}
-              />
-            </>
-          )}
+          <A4EditorOverlays
+            editorChrome={editorChrome}
+            showGrid={showGrid}
+            snapToGrid={snapToGrid}
+            gridSize={gridSize}
+            showSafeArea={showSafeArea}
+            showRulers={showRulers}
+            safeMarginMm={settings?.safeMarginMm ?? 12}
+          />
 
           <DndContext
             sensors={sensors}

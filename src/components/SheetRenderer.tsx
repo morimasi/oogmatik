@@ -124,6 +124,7 @@ import { CurriculumSheet } from './sheets/CurriculumSheet';
 
 import { UnifiedContentRenderer } from './SheetRenderer/UnifiedContentRenderer';
 import { renderLegacySheet } from './SheetRenderer/LegacyRenderer';
+import { A4PageShell } from './SheetRenderer/A4PageShell';
 
 interface SheetRendererProps {
   activityType: ActivityType | null;
@@ -210,12 +211,17 @@ export const SheetRenderer = React.memo(
     }
 
 
-    const isLandscape = settings?.orientation === 'landscape';
-    const pageClass = `worksheet-page print-page shadow-2xl mb-8 ${isLandscape ? 'landscape' : ''}`;
-
     const withWrapper = (content: React.ReactNode) => {
       if (hideWrapper) return content;
-      return <div className={pageClass}>{content}</div>;
+      return (
+        <A4PageShell
+          settings={settings}
+          studentProfile={studentProfile}
+          pageData={activeData as SingleWorksheetData}
+        >
+          {content}
+        </A4PageShell>
+      );
     };
 
     // --- Special module renders ---
