@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ActivityType, StyleSettings, WorksheetData } from '../../types';
 import { IconButton } from './ToolbarShared';
 import { usePaperSizeStore } from '../../store/usePaperSizeStore';
@@ -124,6 +124,55 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
   const [snapshotMenuOpen, setSnapshotMenuOpen] = useState(false);
   const [studioMenuOpen, setStudioMenuOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const snapshotMenuRef = useRef<HTMLDivElement>(null);
+  const studioMenuRef = useRef<HTMLDivElement>(null);
+
+  // Dışarı tıklama ve Esc ile açılır menüleri kapat + panel kapalıyken global Ctrl+K / Ctrl+Z kısayolları
+  useEffect(() => {
+    const handlePointerDown = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (snapshotMenuOpen && snapshotMenuRef.current && !snapshotMenuRef.current.contains(target)) {
+        setSnapshotMenuOpen(false);
+      }
+      if (studioMenuOpen && studioMenuRef.current && !studioMenuRef.current.contains(target)) {
+        setStudioMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSnapshotMenuOpen(false);
+        setStudioMenuOpen(false);
+        return;
+      }
+      const target = e.target as HTMLElement | null;
+      const isTyping =
+        !!target &&
+        (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable);
+      const mod = e.ctrlKey || e.metaKey;
+      const key = e.key.toLowerCase();
+      const store = useA4EditorStore.getState();
+
+      // Panel açıkken A4EditorPanel kendi kısayollarını yönetir; kapalıyken buradan çalışır
+      if (!store.isEditorOpen && mod && key === 'k') {
+        e.preventDefault();
+        store.setEditorOpen(true);
+        store.setCommandPaletteOpen(true);
+        return;
+      }
+      if (!store.isEditorOpen && !isTyping && mod && key === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) store.redo();
+        else store.undo();
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [snapshotMenuOpen, studioMenuOpen]);
   const paperSizeStore = usePaperSizeStore();
   const toast = useToastStore();
   const paperSize = paperSizeStore.paperSize;
@@ -143,6 +192,11 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
     try {
       await onSave();
       useA4EditorStore.getState().markSaved();
+      try {
+        window.localStorage.removeItem(`bdmind.a4draft.v1:${activityType ?? 'genel'}`);
+      } catch {
+        /* storage kapalı olabilir */
+      }
     } catch (error) {
       logError(error as Error);
       toast.error('Kaydetme sırasında bir hata oluştu.');
@@ -334,7 +388,7 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
           <span className="hidden lg:inline">YAZDIR V2</span>
         </button>
 
-        <div className="relative">
+        <div className="relative" ref={snapshotMenuRef}>
           <IconButton
             icon="fa-camera"
             title="Görüntü Al (PNG / panoya kopyala)"
@@ -370,7 +424,7 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
       </div>
 
       {/* Stüdyo Grubu — komut paleti, cevap anahtarı, kağıt ekonomisi, dışa aktarma */}
-      <div className="relative">
+      <div className="relative" ref={studioMenuRef}>
         <button
           type="button"
           title="Stüdyo araçları — komut paleti, cevap anahtarı, Word, kağıt ekonomisi"
@@ -425,9 +479,13 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
               hint={answerKeyMode === 'appendix' ? 'Ayrı sayfa' : answerKeyMode === 'overlay' ? 'Rozet' : 'Kapalı'}
               active={answerKeyMode !== 'off'}
               onClick={() => {
-                useA4EditorStore
-                  .getState()
-                  .setAnswerKeyMode(answerKeyMode === 'off' ? 'appendix' : 'off');
+                const next =
+                  answerKeyMode === 'off'
+                    ? 'overlay'
+                    : answerKeyMode === 'overlay'
+                      ? 'appendix'
+                      : 'off';
+                useA4EditorStore.getState().setAnswerKeyMode(next);
               }}
             />
             <StudioItem
@@ -498,7 +556,7 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
         role="group"
         aria-label="Kaydetme ve paylaşım"
       >
-        <div className="relative">
+        <div className="relative" ref={snapshotMenuRef}>
           <IconButton
             icon="fa-bookmark"
             title={dirty ? 'Arşive Kaydet — kaydedilmemiş değişiklik var' : 'Arşive Kaydet'}

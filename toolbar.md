@@ -1,6 +1,6 @@
 # bdmind — Etkinlik Araç Çubuğu ve A4 Tasarımcısı Geliştirme Planı
 
-> Dosya adı bilinçli olarak `toolbar.mb` (uzantı değiştirilmedi).
+> Dosya adı `toolbar.md` olarak güncellenmiştir.
 > Bu belge hem geliştirme planı hem de uygulama kaydıdır; her aşamada güncellenir.
 
 ---
@@ -305,7 +305,7 @@ paketleri **tek ajan tarafından sırayla** yürütüldü; erişilemeyen ajan ku
 - `src/components/A4Editor/LayersPanel.tsx`
 - `src/components/A4Editor/PagePanel.tsx`
 - `tests/a4Editor.test.ts`
-- `toolbar.mb`
+- `toolbar.md`
 
 **Güncellenen**
 
@@ -436,3 +436,20 @@ işlevsiz düğme bırakılmamıştır.
 - Sürümlerin Firestore'a otomatik yedeği + iki cihaz çakışma çözümü.
 - E2E baseline'larının CI'da üretilmesi ve görsel regresyon eşiğinin kalibre edilmesi.
 - Denetim kurallarının etkinlik türüne göre profillenmesi (ör. matematikte tablo punto eşiği farklı).
+
+---
+
+## 21. v2.1 Entegrasyon ve Hata Giderme Kaydı (Son Güncelleme)
+
+Bu turda tüm `toolbar.md` adımları uygulamaya eksiksiz entegre edilmiş, aşağıdaki gerçek hatalar ve eksikler tespit edilip giderilmiştir:
+
+1. **`src/App.tsx` derleme bütünlüğü:** Çalışma ağacında önceden kalmış eksik modül referansları (`AgentStatusPanel`, `useAgentStore`) temizlenerek `npx tsc --noEmit` sıfır hataya indirildi.
+2. **`src/components/Toolbar/ActionModule.tsx` etkileşim ve kısayol iyileştirmeleri:**
+   - Görüntü Al (`snapshotMenuOpen`) ve Stüdyo (`studioMenuOpen`) açılır menülerine dışarı tıklama (`mousedown`) ve `Escape` tuşuyla otomatik kapanma eklendi.
+   - `STÜDYO → Cevap Anahtarı` düğmesi 3 aşamalı döngüye (`off → overlay → appendix → off`) geçirildi; sayfa içi rozet modu doğrudan araç çubuğundan erişilebilir hale geldi.
+   - Panel kapalıyken de `Ctrl+K` (paneli + komut paletini aç) ve `Ctrl+Z` / `Ctrl+Shift+Z` (geri al / yinele) global kısayolları çalışacak şekilde bağlandı.
+   - Araç çubuğundaki `Kaydet` eylemi başarılı olduğunda `localStorage` taslağı (`bdmind.a4draft.v1:<activityType>`) temizlenerek `A4EditorPanel` ile tam senkron sağlandı.
+3. **`src/components/A4Editor/InsightsPanel.tsx` toplu düzeltme ve çıktı tutarlılığı:**
+   - Üretim Denetimi bölümüne **"Tümünü Düzelt"** (`applyAllAutoFixes`) düğmesi eklendi; otomatik düzeltilebilir tüm okunabilirlik/kontrast sorunları tek tıkla uygulanabilir hale geldi.
+   - `downloadWord(true)` çıktısının dosya adı `ActionModule` ile uyumlu olacak şekilde `-cevap-anahtari.doc` sonekine kavuşturuldu.
+4. **Dokümantasyon:** `toolbar.md` içindeki eski `toolbar.mb` referansları `toolbar.md` olarak düzeltildi ve test kapsamı `tests/a4ToolbarIntegration.test.tsx` ile genişletildi.

@@ -135,6 +135,15 @@ export const InsightsPanel = ({
     }
   };
 
+  const applyAllAutoFixes = () => {
+    const fixable = issues.filter(
+      (issue) => issue.blockId && issue.fix && issue.fix !== 'open-content'
+    );
+    if (!fixable.length) return;
+    fixable.forEach((issue) => applyFix(issue));
+    toast.success(`${fixable.length} denetim önerisi otomatik uygulandı.`);
+  };
+
   const shrinkBlock = (blockId: string) => {
     const block = blockById.get(blockId);
     const current = block?.style?.fontSize ?? 16;
@@ -205,7 +214,7 @@ export const InsightsPanel = ({
     });
     const ok = downloadTextFile(
       html,
-      `${sanitizeFileBaseName(worksheetData?.[0]?.title ?? 'bdmind-etkinlik')}.doc`,
+      `${sanitizeFileBaseName(worksheetData?.[0]?.title ?? 'bdmind-etkinlik')}${withAnswers ? '-cevap-anahtari' : ''}.doc`,
       'application/msword;charset=utf-8'
     );
     if (ok) toast.success('Word belgesi indirildi.');
@@ -249,17 +258,27 @@ export const InsightsPanel = ({
         icon="fa-shield-heart"
         description="Disleksi dostu okunabilirlik, kontrast ve erişilebilirlik eşikleri."
         action={
-          <span
-            className={`rounded-lg px-2 py-1 text-[10px] font-black ${
-              summary.score >= 85
-                ? 'bg-emerald-500/15 text-emerald-500'
-                : summary.score >= 60
-                  ? 'bg-amber-500/15 text-amber-500'
-                  : 'bg-rose-500/15 text-rose-500'
-            }`}
-          >
-            {summary.score}/100
-          </span>
+          <div className="flex items-center gap-1.5">
+            {issues.some((i) => i.blockId && i.fix && i.fix !== 'open-content') && (
+              <MiniButton
+                icon="fa-wand-magic-sparkles"
+                label="Tümünü Düzelt"
+                title="Otomatik çözülebilir tüm denetim sorunlarını uygula"
+                onClick={applyAllAutoFixes}
+              />
+            )}
+            <span
+              className={`rounded-lg px-2 py-1 text-[10px] font-black ${
+                summary.score >= 85
+                  ? 'bg-emerald-500/15 text-emerald-500'
+                  : summary.score >= 60
+                    ? 'bg-amber-500/15 text-amber-500'
+                    : 'bg-rose-500/15 text-rose-500'
+              }`}
+            >
+              {summary.score}/100
+            </span>
+          </div>
         }
       >
         <div className="grid grid-cols-3 gap-1.5 text-center">
