@@ -527,7 +527,7 @@ const AppContent = () => {
           style={{
             width:
               isAdvancedScreeningOpen || ['assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio',
-              'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'mat-problem-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'fascicle-studio', 'ai-okuma-studio', 'ocr'].includes(currentView)
+              'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'mat-problem-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'fascicle-studio', 'hybrid-studio', 'ai-okuma-studio', 'ocr'].includes(currentView)
                 ? 0
                 : (currentView === 'generator' && selectedActivity) ? 296 : 250,
           }}
@@ -569,7 +569,7 @@ const AppContent = () => {
             onWidthChange={setSidebarWidth}
           />
         </div>
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="relative flex flex-1 flex-col overflow-hidden">
           <Suspense fallback={<LoadingSpinner />}>
             <ContentArea
               currentView={currentView as View}

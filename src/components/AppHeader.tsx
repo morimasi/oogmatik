@@ -365,6 +365,16 @@ export const AppHeader = ({
                             <i className="fa-solid fa-stethoscope text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
                         </button>
 
+                        {canAccess('hybrid-studio') && (
+                            <button
+                                onClick={() => handleOpenStudio('hybrid-studio')}
+                                className="flex shrink-0 items-center justify-center w-9 h-9 bg-sky-600 hover:bg-sky-500 text-white rounded-lg transition-all shadow-md hover:shadow-lg active:scale-[0.96] border border-white/10 group/nav"
+                                title="Hibrit Belge & Vektör Stüdyosu"
+                            >
+                                <i className="fa-solid fa-object-group text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
+                            </button>
+                        )}
+
                         <button
                             onClick={() => {
                                 if (typeof setIsSidebarOpen === 'function') setIsSidebarOpen(false);

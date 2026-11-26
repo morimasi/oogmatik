@@ -23,5 +23,6 @@ export const VIEWS: Record<string, View> = {
   KELIME_CUMLE_STUDIO: 'kelime-cumle-studio',
   MESSAGES: 'messages',
   AI_OKUMA_STUDIO: 'ai-okuma-studio',
+  HYBRID_STUDIO: 'hybrid-studio',
   STUDENTS: 'students'
 };
