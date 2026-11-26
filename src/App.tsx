@@ -143,11 +143,14 @@ import { useStudentStore } from './store/useStudentStore';
 import { logInfo, logError } from './utils/logger.js';
 import { ConnectPanel } from './components/Student/modules/ConnectPanel';
 import { LoadingSpinner as LoadingPlaceholder } from './components/shared/LoadingSpinner';
+import { activateAllAgents, bdmindAgentRoster, agentService } from './services/agentService';
+import { AgentStatusPanel } from './components/shared/AgentStatusPanel';
 
 const AppContent = () => {
   const authStore = useAuthStore();
   const studentStore = useStudentStore();
   const toast = useToastStore();
+  const [areAgentsActive, setAreAgentsActive] = useState(false);
 
   // Profile data hook
   const profileData = useProfileData();
@@ -169,6 +172,13 @@ const AppContent = () => {
       unsubscribeAuth();
     };
   }, []); // Remove authStore.initialize from dependencies to prevent re-renders
+
+  // Uygulama açılışında 13 Ordinaryüs ajanı etkinleştir (Türkçe koordinasyon kadrosu)
+  useEffect(() => {
+    const activated = activateAllAgents();
+    setAreAgentsActive(agentService.isActive());
+    logInfo(`BDMIND ajan kadrosu etkinleştirildi: ${activated.length} ajan`);
+  }, []);
 
   useEffect(() => {
     if (!authStore.user) return;
@@ -976,6 +986,9 @@ const AppContent = () => {
       )}
 
 
+
+      {/* Ajan Kadrosu Rozeti — açılışta etkinleştirilen 13 uzman */}
+      <AgentStatusPanel agents={bdmindAgentRoster} isActive={areAgentsActive} />
 
       {/* Premium Floating Chat Panel (Oogmatik Connect) */}
       <AnimatePresence>
