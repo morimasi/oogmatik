@@ -1,8 +1,8 @@
 import React from 'react';
-import type { WorksheetBlock } from '../../types';
-import { blockTypeIcon, blockTypeLabel } from '../../services/a4EditorService';
+import type { WorksheetBlock, WorksheetData } from '../../types';
+import { blockTypeIcon, blockTypeLabel, flattenBlocks } from '../../services/a4EditorService';
 import { useA4EditorStore } from '../../store/useA4EditorStore';
-import { EmptyState, Field, MiniButton, Section, TextField } from './controls';
+import { Field, MiniButton, Section, TextField } from './controls';
 
 const asRecord = (content: unknown): Record<string, unknown> =>
   content && typeof content === 'object' && !Array.isArray(content)
@@ -29,26 +29,86 @@ const asPairList = (value: unknown): Array<{ text: string }> =>
 
 /**
  * İçerik paneli — seçili bileşenin içeriğini türüne uygun formla düzenler.
- * Her değişiklik store üzerinden anında uygulanır (kaydet düğmesi gerekmez).
+ * Seçim yoksa sayfa başlığı ve yönergesini canlı düzenler.
  */
 export const ContentPanel = ({
   selectedBlock,
   selectedCount,
+  worksheetData,
 }: {
   selectedBlock?: WorksheetBlock;
   selectedCount: number;
+  worksheetData?: WorksheetData;
 }) => {
   const updateBlockContent = useA4EditorStore((state) => state.updateBlockContent);
   const applyBlockAction = useA4EditorStore((state) => state.applyBlockAction);
   const updateBlockMeta = useA4EditorStore((state) => state.updateBlockMeta);
+  const updatePageHeader = useA4EditorStore((state) => state.updatePageHeader);
+  const setSelectedBlockId = useA4EditorStore((state) => state.setSelectedBlockId);
+
+  const firstPage = Array.isArray(worksheetData) && worksheetData.length > 0 ? worksheetData[0] : null;
+  const pageTitle = firstPage?.title ?? '';
+  const pageInstruction = firstPage?.instruction ?? '';
+  const allEntries = React.useMemo(() => (worksheetData ? flattenBlocks(worksheetData) : []), [worksheetData]);
 
   if (!selectedBlock) {
     return (
-      <EmptyState
-        icon="fa-pen-to-square"
-        title="Bileşen Seçilmedi"
-        description="Düzenlemek için sayfadaki bir bileşene tıklayın veya Katmanlar sekmesinden seçin."
-      />
+      <div className="space-y-3 p-3">
+        <Section
+          title="Sayfa Başlığı & Yönerge"
+          icon="fa-heading"
+          description="Çalışma kağıdının ana başlığını ve öğrenci yönergesini anında güncelleyin."
+        >
+          <Field label="Etkinlik Başlığı">
+            <TextField
+              value={pageTitle}
+              placeholder="Örn: Hızlı Okuma & Anlama Çalışması"
+              onChange={(title) => updatePageHeader({ title })}
+            />
+          </Field>
+          <Field label="Öğrenci Yönergesi">
+            <TextField
+              multiline
+              rows={3}
+              value={pageInstruction}
+              placeholder="Örn: Aşağıdaki metni dikkatlice okuyup soruları cevaplayınız."
+              onChange={(instruction) => updatePageHeader({ instruction })}
+            />
+          </Field>
+        </Section>
+
+        {allEntries.length > 0 && (
+          <Section
+            title="Bileşen Seç"
+            icon="fa-layer-group"
+            description="İçeriğini düzenlemek istediğiniz bileşene tıklayın:"
+          >
+            <div className="space-y-1.5 max-h-60 overflow-y-auto custom-scrollbar">
+              {allEntries.map((entry) => (
+                <button
+                  key={entry.block.id || `${entry.pageIndex}-${entry.index}`}
+                  type="button"
+                  onClick={() => entry.block.id && setSelectedBlockId(entry.block.id)}
+                  className="flex w-full items-center gap-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)] p-2 text-left hover:border-[var(--accent-color)] hover:bg-[var(--surface-elevated)]"
+                >
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-muted)] text-[10px] text-[var(--accent-color)]">
+                    <i className={`fa-solid ${blockTypeIcon(entry.block.type)}`}></i>
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[10px] font-bold text-[var(--text-primary)]">
+                      {blockTypeLabel(entry.block.type)}
+                    </p>
+                    <p className="truncate text-[8px] text-[var(--text-muted)]">
+                      S{entry.pageIndex + 1} • {entry.block.id}
+                    </p>
+                  </div>
+                  <i className="fa-solid fa-pen text-[9px] text-[var(--text-muted)]"></i>
+                </button>
+              ))}
+            </div>
+          </Section>
+        )}
+      </div>
     );
   }
 

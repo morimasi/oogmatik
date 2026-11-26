@@ -75,7 +75,7 @@ export const CommandPalette = ({
       icon: definition.icon,
       keywords: definition.type,
       run: () => {
-        store().addBlock(
+        store().addCustomBlock(
           createBlock(definition.type, definition.content),
           store().selectedBlockId ?? null
         );

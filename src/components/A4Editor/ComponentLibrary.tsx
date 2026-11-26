@@ -111,27 +111,12 @@ export const ComponentLibrary = ({
   onOpenLayers: () => void;
   onOpenPage: () => void;
 }) => {
-  const addBlock = useA4EditorStore((state) => state.addBlock);
+  const addBlock = useA4EditorStore((state) => state.addCustomBlock);
   const applyMutation = useA4EditorStore((state) => state.applyMutation);
   const selectedBlockId = useA4EditorStore((state) => state.selectedBlockId);
   const bridge = useA4EditorStore((state) => state.bridge);
   const toast = useToastStore();
   const [library, setLibrary] = React.useState<A4SavedBlock[]>(() => loadBlockLibrary());
-
-  if (!canAddBlocks) {
-    return (
-      <EmptyState
-        icon="fa-shapes"
-        title="Blok Ekleme Kapalı"
-        description="Bu etkinlik, kendi özel sayfa şablonuyla (Legacy renderer) çiziliyor. Blok eklendiğinde şablon değişeceği için ekleme kapatıldı; sayfa ayarları ve çıktı seçenekleri kullanılabilir."
-      >
-        <div className="flex justify-center gap-2">
-          <MiniButton icon="fa-file-lines" label="Sayfa Ayarları" title="Sayfa ayarlarını aç" onClick={onOpenPage} />
-          <MiniButton icon="fa-layer-group" label="Katmanlar" title="Katmanları aç" onClick={onOpenLayers} />
-        </div>
-      </EmptyState>
-    );
-  }
 
   const saveSelectionToLibrary = () => {
     if (!bridge || !selectedBlockId) {
@@ -153,6 +138,13 @@ export const ComponentLibrary = ({
 
   return (
     <div className="space-y-3 p-3">
+      {!canAddBlocks && (
+        <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-2.5 text-[9px] leading-relaxed text-indigo-700 dark:text-indigo-300">
+          <i className="fa-solid fa-wand-magic-sparkles mr-1.5 text-indigo-500"></i>
+          <strong>Özel Şablon Modu:</strong> Ekleyeceğiniz bileşenler sayfa altına A4 akıllı blok katmanı olarak iliştirilir ve tüm tasarım araçlarıyla düzenlenebilir.
+        </div>
+      )}
+
       <Section
         title="Hızlı Başlangıç"
         icon="fa-bolt"

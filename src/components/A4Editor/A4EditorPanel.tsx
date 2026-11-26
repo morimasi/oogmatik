@@ -397,7 +397,7 @@ export const A4EditorPanel = ({
       <div className="custom-scrollbar flex-1 overflow-y-auto bg-[var(--bg-primary)]/40">
         {editorTab === 'library' && (
           <ComponentLibrary
-            canAddBlocks={blockPages.length > 0}
+            canAddBlocks={pages.length > 0}
             afterId={selectedBlockId}
             onOpenLayers={() => setEditorTab('layers')}
             onOpenPage={() => setEditorTab('page')}
@@ -407,7 +407,11 @@ export const A4EditorPanel = ({
           <LayersPanel worksheetData={worksheetData} setEditorTab={() => setEditorTab('page')} />
         )}
         {editorTab === 'content' && (
-          <ContentPanel selectedBlock={selectedBlock} selectedCount={Math.max(1, selectedBlockIds.length)} />
+          <ContentPanel
+            selectedBlock={selectedBlock}
+            selectedCount={Math.max(1, selectedBlockIds.length)}
+            worksheetData={worksheetData}
+          />
         )}
         {editorTab === 'styling' && (
           <StylePanel
