@@ -42,11 +42,16 @@ export const cloneValue = <T,>(value: T): T => {
 export const getPageBlocks = (page: SingleWorksheetData): WorksheetBlock[] => {
   if (Array.isArray(page.layoutArchitecture?.blocks)) return page.layoutArchitecture.blocks;
   if (Array.isArray(page.blocks)) return page.blocks;
+  if (Array.isArray((page as Record<string, unknown>).extraBlocks)) {
+    return (page as Record<string, unknown>).extraBlocks as WorksheetBlock[];
+  }
   return [];
 };
 
 export const pageSupportsBlocks = (page: SingleWorksheetData): boolean =>
-  !!page.layoutArchitecture || Array.isArray(page.blocks);
+  !!page.layoutArchitecture ||
+  Array.isArray(page.blocks) ||
+  Array.isArray((page as Record<string, unknown>).extraBlocks);
 
 export const withPageBlocks = (
   page: SingleWorksheetData,
@@ -57,6 +62,9 @@ export const withPageBlocks = (
   }
   if (Array.isArray(page.blocks)) {
     return { ...page, blocks };
+  }
+  if (Array.isArray((page as Record<string, unknown>).extraBlocks)) {
+    return { ...page, extraBlocks: blocks };
   }
   return page;
 };
@@ -204,6 +212,50 @@ export const addBlock = (
   const nextPages = pages.map((page, index) =>
     index === targetIndex ? withPageBlocks(page, nextBlocks) : page
   );
+  return restore(data, nextPages);
+};
+
+/**
+ * Legacy/özel şablonlu sayfalara da şablonu bozmadan ek blok katmanı (`extraBlocks`) ekler.
+ * Mevcut bloklu sayfalarda `addBlock` ile aynı davranır.
+ */
+export const addCustomBlock = (
+  data: WorksheetData,
+  block: WorksheetBlock,
+  afterId?: string | null
+): WorksheetData => {
+  const pages = normalize(data);
+  if (!pages.length) return data;
+
+  const targetIndex = (() => {
+    if (afterId) {
+      const entry = flattenBlocks(data).find((item) => item.block.id === afterId);
+      if (entry) return entry.pageIndex;
+    }
+    const firstBlockPage = pages.findIndex((page) => pageSupportsBlocks(page));
+    return firstBlockPage === -1 ? 0 : firstBlockPage;
+  })();
+
+  const target = pages[targetIndex];
+  if (pageSupportsBlocks(target)) {
+    return addBlock(data, block, afterId);
+  }
+
+  const nextPages = pages.map((page, index) =>
+    index === targetIndex ? { ...page, extraBlocks: [block] } : page
+  );
+  return restore(data, nextPages);
+};
+
+export const updatePageHeader = (
+  data: WorksheetData,
+  patch: { title?: string; instruction?: string },
+  pageIndex = 0
+): WorksheetData => {
+  const pages = normalize(data);
+  if (!pages.length) return data;
+  const idx = Math.min(Math.max(0, pageIndex), pages.length - 1);
+  const nextPages = pages.map((page, i) => (i === idx ? { ...page, ...patch } : page));
   return restore(data, nextPages);
 };
 

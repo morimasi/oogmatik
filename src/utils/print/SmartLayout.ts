@@ -1104,6 +1104,27 @@ const paginatePageElement = (
           continue;
         }
       }
+
+      // Kesilemeyecek bileşen koruması:
+      // Eğer blok bölünemiyorsa (resim, tek parça diyagram, svg, logic_card vb.)
+      // ve sayfada anlamlı yer varsa ve blok en fazla %35 taşma yapıyorsa:
+      // Bloğu sonraki sayfaya fırlatıp bu sayfanın yarısını BOŞ BIRAKMAK YERİNE,
+      // bloğu ölçekleyerek (scale-to-fit) bu sayfaya akıllıca sığdır!
+      if (freeSpace >= 100 && height > freeSpace && height <= freeSpace * 1.35) {
+        const scale = Math.max(0.72, Math.min(0.96, freeSpace / height));
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = `width:100%;height:${Math.round(freeSpace)}px;overflow:hidden;box-sizing:border-box;`;
+        const scaled = piece.element.cloneNode(true) as HTMLElement;
+        scaled.style.setProperty('transform-origin', 'top left', 'important');
+        scaled.style.setProperty('transform', `scale(${scale})`, 'important');
+        scaled.style.setProperty('width', `${100 / scale}%`, 'important');
+        scaled.style.setProperty('max-width', 'none', 'important');
+        scaled.style.setProperty('margin-bottom', '0', 'important');
+        wrapper.appendChild(scaled);
+        currentGroup.push(wrapper);
+        used += freeSpace;
+        continue;
+      }
     }
 
     // Bu sayfayı kapat, aynı bloğu temiz sayfada yeniden dene.

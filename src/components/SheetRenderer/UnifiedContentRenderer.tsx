@@ -23,6 +23,7 @@ import { useA4EditorStore } from '../../store/useA4EditorStore';
 import { getPageBlocks, reorderBlocks } from '../../services/a4EditorService';
 import { buildAnswerKeyPage } from '../../services/a4StudioService';
 import { SortableBlockItem } from './SortableBlockItem';
+import { A4EditorOverlays, resolveFontSizePx, StudentInfoStrip } from './A4PageShell';
 
 const getBlockWeight = (block: WorksheetBlock): number => {
   const type = block.type;
@@ -78,33 +79,85 @@ const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): WorksheetBlo
   const weight = getBlockWeight(block);
   if (weight <= maxWeight) return [block];
 
+  // 1. TEXT BLOKLARI (Paragraf ve Cümle bazlı)
   if (block.type === 'text') {
-    const text = recursiveSafeText(content.text || '');
+    const text = recursiveSafeText(content.text || content || '');
     const paragraphs = text.split(/\n+/);
     if (paragraphs.length > 1) {
-      const mid = Math.ceil(paragraphs.length / 2);
-      return [
-        { ...block, content: { ...content, text: paragraphs.slice(0, mid).join('\n').trim() } },
-        {
-          ...block,
-          content: {
-            ...content,
-            text: paragraphs.slice(mid).join('\n').trim(),
-            isContinuation: true,
+      const pWeights = paragraphs.map((p) => Math.ceil(p.length / 75) * 28);
+      let acc = 25;
+      let splitIdx = 0;
+      for (let i = 0; i < pWeights.length; i++) {
+        if (acc + pWeights[i] > maxWeight && i > 0) {
+          splitIdx = i;
+          break;
+        }
+        acc += pWeights[i];
+      }
+      if (splitIdx > 0 && splitIdx < paragraphs.length) {
+        return [
+          { ...block, content: { ...content, text: paragraphs.slice(0, splitIdx).join('\n').trim() } },
+          {
+            ...block,
+            content: {
+              ...content,
+              text: paragraphs.slice(splitIdx).join('\n').trim(),
+              isContinuation: true,
+            },
           },
-        },
-      ];
+        ];
+      }
     }
     const sentences = text.match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g) || [text];
     if (sentences.length >= 2) {
-      const mid = Math.ceil(sentences.length / 2);
+      const sWeights = sentences.map((s) => Math.ceil(s.length / 75) * 28);
+      let acc = 25;
+      let splitIdx = 0;
+      for (let i = 0; i < sWeights.length; i++) {
+        if (acc + sWeights[i] > maxWeight && i > 0) {
+          splitIdx = i;
+          break;
+        }
+        acc += sWeights[i];
+      }
+      if (splitIdx > 0 && splitIdx < sentences.length) {
+        return [
+          { ...block, content: { ...content, text: sentences.slice(0, splitIdx).join(' ').trim() } },
+          {
+            ...block,
+            content: {
+              ...content,
+              text: sentences.slice(splitIdx).join(' ').trim(),
+              isContinuation: true,
+            },
+          },
+        ];
+      }
+    }
+  }
+
+  // 2. GRID BLOKLARI (Satır Bütünlüğü ile Hücre Bölme)
+  if (block.type === 'grid') {
+    const cells: any[] = content.cells || content.items || content.data || [];
+    const cols = Math.max(1, content.cols || content.columns || 4);
+    const rowHeight = 44;
+    const headerHeight = 45;
+    const maxRows = Math.max(1, Math.floor((maxWeight - headerHeight) / rowHeight));
+    const cellsPerPart = maxRows * cols;
+    if (cells.length > cellsPerPart && cellsPerPart >= cols) {
       return [
-        { ...block, content: { ...content, text: sentences.slice(0, mid).join(' ').trim() } },
         {
           ...block,
           content: {
             ...content,
-            text: sentences.slice(mid).join(' ').trim(),
+            cells: cells.slice(0, cellsPerPart),
+          },
+        },
+        {
+          ...block,
+          content: {
+            ...content,
+            cells: cells.slice(cellsPerPart),
             isContinuation: true,
           },
         },
@@ -112,27 +165,67 @@ const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): WorksheetBlo
     }
   }
 
+  // 3. TABLE BLOKLARI (Satır Bazlı Bölme, Başlık Tekrarı)
+  if (block.type === 'table') {
+    const rowKey = Array.isArray(content.rows) ? 'rows' : Array.isArray(content.data) ? 'data' : null;
+    if (rowKey) {
+      const rows: any[] = content[rowKey];
+      const maxRows = Math.max(1, Math.floor((maxWeight - 55) / 36));
+      if (rows.length > maxRows && maxRows >= 1) {
+        return [
+          {
+            ...block,
+            content: {
+              ...content,
+              [rowKey]: rows.slice(0, maxRows),
+            },
+          },
+          {
+            ...block,
+            content: {
+              ...content,
+              [rowKey]: rows.slice(maxRows),
+              isContinuation: true,
+            },
+          },
+        ];
+      }
+    }
+  }
+
+  // 4. MATCH COLUMNS (Eşleştirme Çiftlerini Bölme)
   if (block.type === 'match_columns') {
     const left: any[] = content.leftColumn || content.left || [];
     const right: any[] = content.rightColumn || content.right || [];
-    const chunkSize = Math.max(1, Math.floor((maxWeight - 50) / 35));
-    const chunks: WorksheetBlock[] = [];
-    for (let i = 0; i < left.length; i += chunkSize) {
-      chunks.push({
-        ...block,
-        content: {
-          ...content,
-          leftColumn: left.slice(i, i + chunkSize),
-          left: left.slice(i, i + chunkSize),
-          rightColumn: right.slice(i, i + chunkSize),
-          right: right.slice(i, i + chunkSize),
-          isContinuation: i > 0,
+    const chunkSize = Math.max(1, Math.floor((maxWeight - 50) / 45));
+    if (left.length > chunkSize && chunkSize >= 1) {
+      return [
+        {
+          ...block,
+          content: {
+            ...content,
+            leftColumn: left.slice(0, chunkSize),
+            left: left.slice(0, chunkSize),
+            rightColumn: right.slice(0, chunkSize),
+            right: right.slice(0, chunkSize),
+          },
         },
-      });
+        {
+          ...block,
+          content: {
+            ...content,
+            leftColumn: left.slice(chunkSize),
+            left: left.slice(chunkSize),
+            rightColumn: right.slice(chunkSize),
+            right: right.slice(chunkSize),
+            isContinuation: true,
+          },
+        },
+      ];
     }
-    return chunks;
   }
 
+  // 5. CLOZE TEST
   if (block.type === 'cloze_test') {
     const text = recursiveSafeText(content.text || '');
     const sentences = text.match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g) || [text];
@@ -152,6 +245,7 @@ const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): WorksheetBlo
     }
   }
 
+  // 6. CATEGORICAL SORTING
   if (block.type === 'categorical_sorting') {
     const cats: string[] = content.categories || [];
     const items: any[] = content.items || [];
@@ -162,6 +256,40 @@ const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): WorksheetBlo
         {
           ...block,
           content: { ...content, categories: cats.slice(mid), items, isContinuation: true },
+        },
+      ];
+    }
+  }
+
+  // 7. SORU / PEKİŞTİRME LİSTELERİ (questions, items, exercises)
+  const listKey = Array.isArray(content.questions)
+    ? 'questions'
+    : Array.isArray(content.items)
+      ? 'items'
+      : Array.isArray(content.exercises)
+        ? 'exercises'
+        : null;
+
+  if (listKey && Array.isArray(content[listKey]) && content[listKey].length > 1) {
+    const items: any[] = content[listKey];
+    const itemWeight = Math.max(50, Math.floor(weight / items.length));
+    const maxItems = Math.max(1, Math.floor((maxWeight - 40) / itemWeight));
+    if (items.length > maxItems && maxItems >= 1) {
+      return [
+        {
+          ...block,
+          content: {
+            ...content,
+            [listKey]: items.slice(0, maxItems),
+          },
+        },
+        {
+          ...block,
+          content: {
+            ...content,
+            [listKey]: items.slice(maxItems),
+            isContinuation: true,
+          },
         },
       ];
     }
@@ -350,25 +478,49 @@ export const UnifiedContentRenderer = ({
 
     const pagesResult: WorksheetBlock[][] = [[]];
     let currentWeight = HEADER_RESERVE + STUDENT_INFO_RESERVE;
+    const CONTINUATION_HEADER_RESERVE = 45;
 
     allBlocks.forEach((block: WorksheetBlock) => {
       const weight = getBlockWeight(block);
+      const pageLimit = PAGE_MAX_WEIGHT - FOOTER_RESERVE;
 
-      if (currentWeight + weight > PAGE_MAX_WEIGHT - FOOTER_RESERVE) {
-        const remainingSpace = PAGE_MAX_WEIGHT - FOOTER_RESERVE - currentWeight;
+      if (currentWeight + weight > pageLimit) {
+        const remainingSpace = pageLimit - currentWeight;
 
-        if (remainingSpace > 150) {
+        // 1. Önce bloğu kalan alana akıllıca bölmeyi dene (satır, soru, eşleştirme, cümle bazlı)
+        if (remainingSpace >= 90) {
           const splitResults = splitLargeBlock(block, remainingSpace);
-          if (splitResults.length > 1) {
+          if (splitResults.length > 1 && getBlockWeight(splitResults[0]) <= remainingSpace + 35) {
             pagesResult[pagesResult.length - 1].push(splitResults[0]);
             pagesResult.push([splitResults[1]]);
-            currentWeight = HEADER_RESERVE + STUDENT_INFO_RESERVE + getBlockWeight(splitResults[1]);
+            currentWeight = CONTINUATION_HEADER_RESERVE + getBlockWeight(splitResults[1]);
+            return;
+          }
+
+          // 2. Eğer blok kesilemeyecek / bölünemeyecek bir bileşen ise:
+          // Sayfada anlamlı boşluk varsa ve aşırı taşmıyorsa (%35'e kadar),
+          // bloğu yeni sayfaya fırlatıp birinci sayfayı bomboş bırakmak YERİNE
+          // sayfaya zarifçe ölçekleyerek (scale-to-fit) o sayfaya sığdır!
+          if (remainingSpace >= 110 && weight <= remainingSpace * 1.35) {
+            const fitScale = Math.max(0.72, Math.min(0.96, Number((remainingSpace / weight).toFixed(2))));
+            const fittedBlock: WorksheetBlock = {
+              ...block,
+              style: {
+                ...(block.style || {}),
+                transform: `scale(${fitScale})`,
+                transformOrigin: 'top center',
+                marginBottom: 2,
+              },
+            };
+            pagesResult[pagesResult.length - 1].push(fittedBlock);
+            currentWeight += remainingSpace;
             return;
           }
         }
 
+        // 3. Bölünemiyor ve sığmıyorsa: Temiz yeni sayfaya başla
         pagesResult.push([block]);
-        currentWeight = HEADER_RESERVE + STUDENT_INFO_RESERVE + weight;
+        currentWeight = CONTINUATION_HEADER_RESERVE + weight;
       } else {
         pagesResult[pagesResult.length - 1].push(block);
         currentWeight += weight;
@@ -584,14 +736,14 @@ export const UnifiedContentRenderer = ({
               strategy={verticalListSortingStrategy}
             >
               <div
-                className={`print-content-area mt-4 ${cols > 1 ? 'grid' : 'flex flex-col'}`}
+                className={`print-content-area mt-2 print:mt-1 ${cols > 1 ? 'grid' : 'flex flex-col'}`}
                 style={
                   cols > 1
                     ? {
                       gridTemplateColumns: `repeat(${cols}, 1fr)`,
-                      gap: 'var(--worksheet-gutter, 20px)'
+                      gap: 'var(--worksheet-gutter, 10px)'
                     }
-                    : { gap: 'var(--worksheet-gutter, 20px)' }
+                    : { gap: 'var(--worksheet-gutter, 10px)' }
                 }
               >
                 {pageBlocks.filter((block) => !block.hidden || editorChrome).map((block, idx) => {

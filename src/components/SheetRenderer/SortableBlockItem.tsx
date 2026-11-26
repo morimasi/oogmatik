@@ -92,6 +92,7 @@ export const SortableBlockItem: React.FC<{
       style={wrapperStyle}
       data-block-id={block.id}
       data-block-type={block.type}
+      data-has-custom-color={style.color ? 'true' : undefined}
       onClick={(event) => {
         if (!editorChrome || !block.id) return;
         event.stopPropagation();

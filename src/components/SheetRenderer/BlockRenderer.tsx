@@ -30,12 +30,12 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
     case 'header':
       return (
         <h2
-          className="block-header font-black uppercase text-center mb-4 print:mb-2 border-b-4 border-[var(--worksheet-border-color,#000)] pb-2 print:pb-1 break-inside-avoid print:break-inside-avoid"
+          className="block-header font-black uppercase text-center mb-2 print:mb-1 border-b-2 border-[var(--worksheet-border-color,#000)] pb-1.5 print:pb-0.5 break-inside-avoid print:break-inside-avoid"
           style={{
             ...blockStyle,
             fontSize: block.style?.fontSize
               ? `${block.style.fontSize}px`
-              : 'calc(var(--worksheet-font-size, 16px) * 1.5)',
+              : 'calc(var(--worksheet-font-size, 16px) * 1.3)',
             fontFamily: 'var(--worksheet-font-family, Lexend)',
             letterSpacing:
               block.style?.letterSpacing !== undefined
@@ -51,17 +51,17 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
     case 'text':
       return (
         <div
-          className="block-text mb-4 print:mb-1 break-inside-avoid print:break-inside-avoid"
+          className="block-text mb-2 print:mb-1 break-inside-avoid print:break-inside-avoid"
           style={{
             ...blockStyle,
             fontSize: block.style?.fontSize
               ? `${block.style.fontSize}px`
-              : 'var(--worksheet-font-size, 18px)',
+              : 'var(--worksheet-font-size, 16px)',
             fontFamily: 'var(--worksheet-font-family, Lexend)',
             lineHeight:
               block.style?.lineHeight !== undefined
                 ? block.style.lineHeight
-                : 'var(--worksheet-line-height, 1.6)',
+                : 'var(--worksheet-line-height, 1.45)',
             letterSpacing:
               block.style?.letterSpacing !== undefined
                 ? `${block.style.letterSpacing}px`
@@ -70,31 +70,84 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
             marginBottom:
               block.style?.paragraphSpacing !== undefined
                 ? `${block.style.paragraphSpacing}px`
-                : 'var(--worksheet-paragraph-spacing, 20px)'
+                : 'var(--worksheet-paragraph-spacing, 10px)'
           }}
         >
           <EditableText value={recursiveSafeText(content.text || content)} tag="div" />
         </div>
       );
 
+    case 'question': {
+      const options: unknown[] = Array.isArray(content.options) ? content.options : [];
+      return (
+        <div
+          className="block-question p-3 print:p-2 bg-white border border-zinc-200 rounded-xl mb-2 print:mb-1 break-inside-avoid print:break-inside-avoid shadow-xs"
+          style={{
+            ...blockStyle,
+            fontSize: block.style?.fontSize
+              ? `${block.style.fontSize}px`
+              : 'var(--worksheet-font-size, 15px)',
+            fontFamily: 'var(--worksheet-font-family, Lexend)',
+            lineHeight:
+              block.style?.lineHeight !== undefined
+                ? block.style.lineHeight
+                : 'var(--worksheet-line-height, 1.45)',
+            letterSpacing:
+              block.style?.letterSpacing !== undefined
+                ? `${block.style.letterSpacing}px`
+                : 'var(--worksheet-letter-spacing)',
+            marginBottom:
+              block.style?.paragraphSpacing !== undefined
+                ? `${block.style.paragraphSpacing}px`
+                : undefined,
+          }}
+        >
+          <div className="font-bold mb-2 text-sm">
+            <EditableText value={recursiveSafeText(content.text || content.question || '')} tag="p" />
+          </div>
+          {options.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+              {options.map((opt: unknown, oIdx: number) => (
+                <div
+                  key={oIdx}
+                  className="flex items-center gap-2 p-1.5 rounded-lg border border-zinc-200 bg-zinc-50/70"
+                >
+                  <span className="w-5 h-5 rounded border border-zinc-400 bg-white flex items-center justify-center font-black text-[11px] shrink-0">
+                    {String.fromCharCode(65 + oIdx)}
+                  </span>
+                  <span className="font-semibold text-xs">
+                    <EditableText value={recursiveSafeText(opt)} tag="span" />
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
     case 'grid': {
       const cells = content.cells || content.items || content.data || [];
       const cols = Math.max(content.cols || content.columns || 4, 1);
       const colWidth = `calc(${100 / cols}% - ${(cols - 1) * 0.5 / cols}rem)`;
       return (
-        <div className="block-svg-shape flex justify-center mb-4 print:mb-2 break-inside-avoid print:break-inside-avoid">
+        <div
+          className="block-svg-shape flex justify-center mb-2 print:mb-1 break-inside-avoid print:break-inside-avoid"
+          style={blockStyle}
+        >
           <div
-            className="block-grid-container flex flex-wrap gap-2 border-4 border-black p-4 print:p-2 bg-zinc-50 rounded-2xl justify-center"
+            className="block-grid-container flex flex-wrap gap-1.5 border-2 border-black p-2.5 print:p-1.5 bg-zinc-50 rounded-xl justify-center"
           >
             {cells.map((cell: any, i: number) => (
               <div
                 key={i}
-                className="block-grid-cell border-2 border-zinc-300 bg-white rounded-lg flex items-center justify-center font-black text-xl"
+                className="block-grid-cell border border-zinc-300 bg-white rounded-md flex items-center justify-center font-black text-base"
                 style={{
                   width: colWidth,
                   aspectRatio: '1 / 1',
-                  maxWidth: '6rem',
+                  maxWidth: '4.5rem',
                   minWidth: '2rem',
+                  fontSize: block.style?.fontSize ? `${block.style.fontSize}px` : undefined,
                 }}
               >
                 <EditableText value={recursiveSafeText(cell)} tag="span" />
@@ -109,7 +162,10 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
       const headers: string[] = content.headers || content.columns || [];
       const rows: any[][] = content.rows || content.data || content.items || [];
       return (
-        <div className="block-table-container overflow-hidden border-4 border-black rounded-2xl mb-4 print:mb-2 bg-white mx-auto max-w-full shadow-sm break-inside-avoid print:break-inside-avoid">
+        <div
+          className="block-table-container overflow-hidden border-2 border-black rounded-xl mb-2 print:mb-1 bg-white mx-auto max-w-full shadow-xs break-inside-avoid print:break-inside-avoid"
+          style={blockStyle}
+        >
           <table className="w-full border-collapse">
             {headers.length > 0 && (
               <thead className="bg-zinc-100">
@@ -117,7 +173,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
                   {headers.map((h: string, i: number) => (
                     <th
                       key={i}
-                      className="p-3 text-[10px] font-black uppercase border-r border-black last:border-0"
+                      className="p-2 text-[9px] font-black uppercase border-r border-black last:border-0"
                     >
                       {recursiveSafeText(h)}
                     </th>
@@ -131,7 +187,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
                   {(Array.isArray(row) ? row : Object.values(row)).map((cell, j) => (
                     <td
                       key={j}
-                      className="p-3 text-center font-bold text-sm border-r border-zinc-100 last:border-0"
+                      className="p-1.5 text-center font-bold text-xs border-r border-zinc-100 last:border-0"
                     >
                       <EditableText value={recursiveSafeText(cell)} tag="span" />
                     </td>
@@ -183,32 +239,43 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
 
     case 'footer_validation':
       return (
-        <div className="block-footer-val mt-4 p-6 bg-zinc-900 text-white rounded-[2.5rem] border-4 border-white shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 break-inside-avoid print:break-inside-avoid">
+        <div className="block-footer-val mt-2 print:mt-1 p-3.5 print:p-2 bg-zinc-900 text-white rounded-2xl border-2 border-zinc-700 shadow-sm flex flex-row items-center justify-between gap-3 break-inside-avoid print:break-inside-avoid">
           <div className="flex-1">
-            <h4 className="text-xl font-black tracking-tight mb-1 uppercase">
+            <h4 className="text-sm font-black tracking-tight uppercase">
               KONTROL VE DOĞRULAMA
             </h4>
-            <p className="text-xs text-zinc-400 font-medium leading-relaxed italic">
-              <EditableText value={recursiveSafeText(content.text)} tag="span" />
+            <p className="text-[10px] text-zinc-400 font-medium leading-tight italic">
+              <EditableText value={recursiveSafeText(content.text || content.label || 'Çalışmanı tamamladıktan sonra doğrula.')} tag="span" />
             </p>
           </div>
-          <div className="flex items-center gap-5 bg-white/10 p-4 rounded-[1.5rem] border border-white/20">
-            <div className="text-center">
-              <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest block mb-1">
-                HEDEF
-              </span>
-              <div className="target-value text-3xl font-black text-amber-400 font-mono">
-                {content.targetValue}
+          {content.targetValue && (
+            <div className="flex items-center gap-3 bg-white/10 px-3 py-1.5 rounded-xl border border-white/20">
+              <div className="text-center">
+                <span className="text-[8px] font-black text-indigo-400 uppercase tracking-widest block">
+                  HEDEF
+                </span>
+                <div className="target-value text-xl font-black text-amber-400 font-mono leading-none">
+                  {content.targetValue}
+                </div>
+              </div>
+              <div className="w-px h-6 bg-white/20"></div>
+              <div className="text-center">
+                <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest block">
+                  CEVABIM
+                </span>
+                <div className="w-12 h-5 border-b-2 border-dashed border-zinc-400"></div>
               </div>
             </div>
-            <div className="w-px h-10 bg-white/20"></div>
-            <div className="text-center">
-              <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest block mb-1">
-                CEVABIM
-              </span>
-              <div className="w-16 h-8 border-b-4 border-dashed border-zinc-700"></div>
+          )}
+          {content.options && Array.isArray(content.options) && (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {content.options.map((opt: string, i: number) => (
+                <span key={i} className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded-lg text-xs cursor-pointer border border-white/10">
+                  {opt}
+                </span>
+              ))}
             </div>
-          </div>
+          )}
         </div>
       );
 
@@ -237,10 +304,20 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
       const parts = rawText.split(/(\[.*?\])/g);
       return (
         <div
-          className="block-cloze p-5 print:p-2 bg-zinc-50 border-2 border-dashed border-zinc-300 rounded-[2rem] mb-4 print:mb-1 relative break-inside-avoid print:break-inside-avoid"
-          style={{ lineHeight: '2.4', fontSize: '11px' }}
+          className="block-cloze p-3 print:p-2 bg-zinc-50 border border-dashed border-zinc-300 rounded-xl mb-2 print:mb-1 relative break-inside-avoid print:break-inside-avoid"
+          style={{
+            ...blockStyle,
+            lineHeight: block.style?.lineHeight !== undefined ? block.style.lineHeight : 2.0,
+            fontSize: block.style?.fontSize
+              ? `${block.style.fontSize}px`
+              : 'var(--worksheet-font-size, 15px)',
+            marginBottom:
+              block.style?.paragraphSpacing !== undefined
+                ? `${block.style.paragraphSpacing}px`
+                : undefined,
+          }}
         >
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-1.5">
             <span className="px-2 py-0.5 bg-zinc-900 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
               <i className="fa-solid fa-pen-nib mr-1"></i>Boşluk Doldur
             </span>
@@ -250,11 +327,11 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
               </span>
             )}
           </div>
-          <div className="font-dyslexic text-zinc-800" style={{ lineHeight: '2.4' }}>
+          <div className="font-dyslexic text-zinc-800" style={{ lineHeight: '2.0' }}>
             {parts.map((part: string, i: number) =>
               part.startsWith('[') && part.endsWith(']') ? (
                 <span key={i} className="inline-flex flex-col items-center mx-1 align-bottom">
-                  <span className="cloze-blank inline-block min-w-[80px] border-b-[2px] border-zinc-700 text-transparent select-none text-xs leading-none pb-0.5">
+                  <span className="cloze-blank inline-block min-w-[70px] border-b-[2px] border-zinc-700 text-transparent select-none text-xs leading-none pb-0.5">
                     {part.slice(1, -1)}
                   </span>
                   <span className="cloze-label text-[6px] text-zinc-300 font-bold tracking-widest">
@@ -342,8 +419,8 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
       const leftItems: any[] = content.leftColumn || content.left || [];
       const rightItems: any[] = content.rightColumn || content.right || [];
       return (
-        <div className="block-match mb-4 print:mb-1 break-inside-avoid print:break-inside-avoid p-4 print:p-2 bg-white border-2 border-zinc-100 rounded-[2rem] shadow-sm">
-          <div className="flex gap-3">
+        <div className="block-match mb-2 print:mb-1 break-inside-avoid print:break-inside-avoid p-3 print:p-2 bg-white border border-zinc-200 rounded-xl shadow-xs">
+          <div className="flex gap-2.5">
             <div className="flex-1 flex flex-col gap-1.5">
               <p className="block-match-label text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1 text-center">
                 Kavram
@@ -390,7 +467,10 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
 
     case 'visual_clue_card':
       return (
-        <div className="block-clue-card p-4 bg-gradient-to-br from-indigo-50 to-white border-2 border-indigo-100 rounded-[1.5rem] mb-3 flex items-start gap-3 border-l-4 border-l-indigo-500 break-inside-avoid print:break-inside-avoid">
+        <div
+          className="block-clue-card p-4 bg-gradient-to-br from-indigo-50 to-white border-2 border-indigo-100 rounded-[1.5rem] mb-3 flex items-start gap-3 border-l-4 border-l-indigo-500 break-inside-avoid print:break-inside-avoid"
+          style={blockStyle}
+        >
           <div className="clue-icon w-10 h-10 bg-indigo-500 text-white rounded-xl flex items-center justify-center text-base shadow-sm flex-shrink-0">
             <i className={`fa-solid ${content.icon || 'fa-lightbulb'}`}></i>
           </div>

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { WorksheetData, WorksheetBlock } from '../types';
 import {
   addBlock as addBlockToData,
+  addCustomBlock as addCustomBlockToData,
   allBlockIds,
   applyLayoutSettings,
   copyBlockStyle,
@@ -12,6 +13,7 @@ import {
   updateBlockContent as updateBlockContentInData,
   updateBlockFlags as updateBlockFlagsInData,
   updateBlockMeta as updateBlockMetaInData,
+  updatePageHeader as updatePageHeaderInData,
   type BlockMetaPatch,
   updateBlockStyle as updateBlockStyleInData,
   type BlockStylePatch,
@@ -174,6 +176,8 @@ interface A4EditorState {
   updateBlockFlags: (ids: string[], flags: { hidden?: boolean; locked?: boolean }) => void;
   updateBlockMeta: (id: string, patch: BlockMetaPatch) => void;
   addBlock: (block: WorksheetBlock, afterId?: string | null) => void;
+  addCustomBlock: (block: WorksheetBlock, afterId?: string | null) => void;
+  updatePageHeader: (patch: { title?: string; instruction?: string }, pageIndex?: number) => void;
   applyBlockAction: (action: A4BlockAction, ids: string[]) => void;
   applyLayout: (patch: { cols?: number; gap?: number }) => void;
 
@@ -381,6 +385,10 @@ export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
   updateBlockMeta: (id, patch) =>
     get().applyMutation((data) => updateBlockMetaInData(data, id, patch), `meta:${id}`),
   addBlock: (block, afterId) => get().applyMutation((data) => addBlockToData(data, block, afterId)),
+  addCustomBlock: (block, afterId) =>
+    get().applyMutation((data) => addCustomBlockToData(data, block, afterId)),
+  updatePageHeader: (patch, pageIndex) =>
+    get().applyMutation((data) => updatePageHeaderInData(data, patch, pageIndex), 'page-header'),
   applyLayout: (patch) => get().applyMutation((data) => applyLayoutSettings(data, patch)),
 
   applyBlockAction: (action, ids) => {

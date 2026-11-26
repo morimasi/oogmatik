@@ -178,9 +178,8 @@
   /* Temadan (üst katmanlardan) gelen arka plan, border, blur sızıntılarını engeller. */
   .worksheet-page {
     isolation: isolate !important;
-    background: white !important;
-    background-color: white !important;
-    color: black !important;
+    background-color: #ffffff;
+    color: #000000 !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     box-shadow: none !important;
@@ -192,6 +191,10 @@
     --tw-ring-shadow: 0 0 #0000 !important;
   }
 
+  .worksheet-page:not([class*="paper-texture-"]) {
+    background: #ffffff !important;
+  }
+
   /* İç elemanlar için eşdeğer klinik izolasyon - Tema efekt sızıntılarını yokediyoruz */
   .worksheet-page * {
     backdrop-filter: none !important;
@@ -200,19 +203,75 @@
     text-shadow: none !important;
   }
 
-  /* WORKSHEET CONTENT COLOR ISOLATION — Theme Color Bleed Fix (FAZ 4.1)
-   * Tüm worksheet içeriği için metin rengi siyah, arka plan beyaz zorlaması.
-   * Tailwind utility class'ları (text-white, dark:*, vb.) bu kuralla ezilir.
-   */
-  .worksheet-page {
-    color: #000000 !important;
-    background-color: #ffffff !important;
-  }
-
   .worksheet-page *,
   .worksheet-page *::before,
   .worksheet-page *::after {
     color: inherit !important;
+  }
+
+  /* A4 Tasarımcısı: Bileşen özel yazı rengi desteği */
+  .worksheet-page .block-container[data-has-custom-color="true"],
+  .worksheet-page .block-container[data-has-custom-color="true"] *:not(.no-print):not(.no-print *) {
+    color: var(--block-text-color) !important;
+  }
+
+  /* A4 Tasarımcısı: Sayfa geneli görünürlük ve tipografi kademesi */
+  .worksheet-page[data-show-title="false"] .pedagogical-header h3 {
+    display: none !important;
+  }
+  .worksheet-page[data-show-instruction="false"] .pedagogical-header .instruction {
+    display: none !important;
+  }
+  .worksheet-page[data-show-clues="false"] .block-clue-card,
+  .worksheet-page[data-show-clues="false"] .clinical-clue {
+    display: none !important;
+  }
+  .worksheet-page[data-a4-styled="true"] {
+    font-family: var(--worksheet-font-family, 'Lexend', sans-serif);
+    font-size: var(--worksheet-font-size, 16px);
+    line-height: var(--worksheet-line-height, 1.6);
+    letter-spacing: var(--worksheet-letter-spacing, 0px);
+    word-spacing: var(--worksheet-word-spacing, 0px);
+  }
+  .worksheet-page[data-a4-styled="true"] .pedagogical-header {
+    border-bottom-color: var(--worksheet-border-color, #18181b) !important;
+    border-bottom-width: var(--worksheet-border-width, 2px) !important;
+  }
+
+  /* A4 Tasarımcısı: Ekran önizlemesi için kesme çizgileri ve N-up görünümü */
+  body.a4-cut-lines .worksheet-page::after,
+  body.a4-cut-lines .print-page::after {
+    content: '';
+    position: absolute;
+    inset: 3mm;
+    border: 1px dashed #94a3b8;
+    pointer-events: none;
+    z-index: 15;
+  }
+  body.a4-cut-lines .worksheet-page::before,
+  body.a4-cut-lines .print-page::before {
+    content: '\2702';
+    position: absolute;
+    top: 1mm;
+    right: 2mm;
+    font-size: 9pt;
+    color: #64748b !important;
+    pointer-events: none;
+    z-index: 16;
+  }
+  body.a4-nup-2 #print-container {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    max-width: 100% !important;
+  }
+  body.a4-nup-2 #print-container .worksheet-page,
+  body.a4-nup-2 #print-container .print-page {
+    zoom: 0.48;
+    margin-bottom: 12px !important;
   }
 
   /* Override any Tailwind dark: classes inside worksheet */

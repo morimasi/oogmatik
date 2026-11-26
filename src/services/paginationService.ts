@@ -327,19 +327,15 @@ export const paginationService = {
             const limit = pageIndex === 0 ? pageWeightLimit : pageWeightLimit - CONTINUATION_HEADER_COST;
 
             // Akıllı Izgara / Blok Kalan Alan Kontrolü:
-            // Eğer blok tek başına sayfaya sığıyor ama mevcut sayfada yer kalmamışsa,
-            // yarım kesmeden temiz bir sonraki sayfaya taşı.
+            // Eğer blok tek başına sayfaya sığıyor ama mevcut sayfada yer kalmamışsa:
             if (currentWeight + weight > limit && currentItems.length > 0) {
-                // Eğer sığmayan öğe bir grid ise ve kalan alan en az %35 ise, grid'i 2 parçaya bölüp boşluğu verimli kullan
                 const remainingSpace = limit - currentWeight;
                 const maybeBlock = item as WorksheetBlock;
-                if (
-                    targetKey === 'blocks' &&
-                    maybeBlock?.type === 'grid' &&
-                    remainingSpace >= 160
-                ) {
+
+                // A) Sığmayan blok bölünebilir ise (grid, table, text, cloze, match, questions):
+                if (targetKey === 'blocks' && maybeBlock && typeof maybeBlock === 'object' && remainingSpace >= 90) {
                     const parts = splitLargeBlock(maybeBlock, remainingSpace);
-                    if (parts.length > 1 && getBlockWeight(parts[0]) <= remainingSpace) {
+                    if (parts.length > 1 && getBlockWeight(parts[0]) <= remainingSpace + 35) {
                         currentItems.push(parts[0]);
                         pages.push({
                             ...originalPageTemplate,
@@ -350,7 +346,7 @@ export const paginationService = {
                         currentItems = [];
                         currentWeight = 0;
                         pageIndex++;
-                        // Kalan parçaları sırayla yerleştir
+
                         parts.slice(1).forEach((restPart) => {
                             const w = getBlockWeight(restPart);
                             const nextLimit = pageWeightLimit - CONTINUATION_HEADER_COST;
@@ -368,6 +364,25 @@ export const paginationService = {
                             currentItems.push(restPart);
                             currentWeight += w;
                         });
+                        return;
+                    }
+
+                    // B) Sığmayan blok kesilemeyecek bir bileşen ise:
+                    // Sayfada anlamlı boşluk var ve aşırı taşmıyorsa (%35'e kadar):
+                    // Bloğu sonraki sayfaya fırlatıp bu sayfanın yarısını boş bırakmak YERİNE sayfaya sığdır!
+                    if (remainingSpace >= 110 && weight <= remainingSpace * 1.35) {
+                        const fitScale = Math.max(0.72, Math.min(0.96, Number((remainingSpace / weight).toFixed(2))));
+                        const fittedBlock: WorksheetBlock = {
+                            ...maybeBlock,
+                            style: {
+                                ...(maybeBlock.style || {}),
+                                transform: `scale(${fitScale})`,
+                                transformOrigin: 'top center',
+                                marginBottom: 2,
+                            },
+                        };
+                        currentItems.push(fittedBlock);
+                        currentWeight += remainingSpace;
                         return;
                     }
                 }

@@ -233,9 +233,19 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       }
     });
 
+    const isModernArchitecture = safeData.some(
+      (d) =>
+        d &&
+        typeof d === 'object' &&
+        ((d as Record<string, unknown>).layoutArchitecture ||
+          (Array.isArray((d as Record<string, unknown>).blocks) &&
+            ((d as Record<string, unknown>).blocks as unknown[]).some((b: unknown) => !!(b as Record<string, unknown>)?.type)))
+    );
+
     const isRichContent =
       activityType === ActivityType.AI_WORKSHEET_CONVERTER ||
       activityType === ActivityType.OCR_CONTENT ||
+      isModernArchitecture ||
       safeData.some((d) => d && typeof d === 'object' && Array.isArray(d.sections));
 
     if (activityType && !isRichContent) {
