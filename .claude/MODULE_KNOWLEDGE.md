@@ -1626,8 +1626,10 @@ Tüm bdmind modülleri/stüdyoları için AI destekli, özelleştirilebilir rekl
   - CSS Grid → satır bütünlüğünde bölünür (`grid-template-columns` korunur).
   - Tablo → satır bütünlüğünde bölünür, `thead` her parçada tekrarlanır.
   - Tek parça görsel/SVG → en fazla %50 küçültülerek tek sayfaya sığdırılır (scale-to-fit).
-- **Dengeleme**: `rebalanceChunks` son sayfada tek öğe kalmasını engeller.
-- **Devam Rozeti**: Sonraki sayfaların başına `Devam · n/toplam` rozeti eklenir.
+- **Boşluk Doldurma (v3.1)**: Bir blok kalan alana sığmadığında artık körlemesine sonraki sayfaya atılmaz. `planRowSplit` ile ızgara/tablo **kalan alanı dolduracak kadar satır** alır; kalan satırlar sonraki sayfaya geçer. Böylece sayfa sonunda devasa beyaz boşluk oluşmaz ve ızgara kareleri anlamsız biçimde bölünmez. Tek satırlık/okunamaz artık parçalar (`MIN_SPLIT_HEAD_HEIGHT`) üretilmez.
+- **Ölçüm Sırası**: `releaseOversizedMinimumHeights` artık mizanpajdan **önce** çalışır; `minHeight: 297mm` kilidi ölçümü şişirip her çıktının sonuna boş sayfa eklemez.
+- **Dengeleme**: `rebalanceChunks` ve yeni grup dengelemesi son sayfada tek öğe kalmasını engeller.
+- **Devam Rozeti**: Sonraki sayfaların başına `Devam · n/toplam` rozeti eklenir; rozet yüksekliği yalnızca gerçekten çok sayfa varsa düşülür.
 - **Sayfa Koruması**: `releaseOversizedMinimumHeights` studyolardaki `minHeight: 297mm` kilidini kaldırarak hayalet boş sayfaları önler.
 - **Saf Çekirdek**: `chunkByHeights`, `rebalanceChunks`, `planBreakOffsets`, `resolvePageBox` DOM'suz test edilebilir (`tests/smartLayout.test.ts`).
 - **Kullananlar**: `PDFGenerator`, `OverlayPrinter.print`, `PaginatedPreview`, `snapshotService` (PNG/ZIP).
@@ -1637,7 +1639,9 @@ Tüm bdmind modülleri/stüdyoları için AI destekli, özelleştirilebilir rekl
 - `@media print` altında tüm glassmorphism arka planları, bulanıklıkları ve renkli kutuları temizler.
 - Yazıcı mürekkebini korumak için saf beyaz arka plan ve net siyah metin (`--text-primary: #000000`) zorlar.
 - Disleksi fontu `Lexend`'i fiziksel kâğıt üzerinde en yüksek optik netlikte tutar.
-- **Baskı Güvenlik CSS'i** (`PrintSafetyCSS.ts`): `orphans/widows: 3`, başlık-içerik ayrılmaması ve kart/tablo satırı `break-inside: avoid` kuralları.
+- **Baskı Güvenlik CSS'i** (`PrintSafetyCSS.ts`): `orphans/widows: 3`, başlık-içerik ayrılmaması ve kart/tablo satırı `break-inside: avoid` kuralları. Ayrıca **boşluk kompaktlaştırma** katmanı (`row-gap: 3mm`, `.gap-12/16/20 → 4mm`, `space-y-* → 3mm`) ekran için tasarlanmış devasa boşlukların A4'e basılmasını engeller; `.bdmind-print-wrapper:empty` gizlenir.
+- **Boş Sayfa Kalkanı**: `print-exact` artık `height: 297mm` + çift padding almaz; `@page` 8mm marjıyla birlikte her görselin arkasına ikinci boş sayfa ekleyen kilit kaldırılmıştır. `buildCapturedPrintOverlay` görselleri `min-height: 0` ile en-boy oranında basar.
+- **Satır Bütünlüğü (SmartGridPaginator)**: Grid bölme, `grid-template-columns` sayısından satır grupları çıkarır; yarım satır tek başına sonraki sayfaya taşınmaz.
 
 ---
 

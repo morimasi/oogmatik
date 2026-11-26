@@ -62,33 +62,51 @@ const splitGridElement = (
 
   const cs = window.getComputedStyle(gridEl);
   const templateCols = cs.gridTemplateColumns;
+  const colCount =
+    templateCols && templateCols !== 'none'
+      ? Math.max(1, templateCols.split(' ').filter(Boolean).length)
+      : 1;
+
+  // Izgarayı görsel satırlara böl: yarım kalan satır asla bir sonraki
+  // sayfaya tek başına taşınmaz, hücreler ait oldukları satırla birlikte kalır.
+  const rows: HTMLElement[][] = [];
+  for (let i = 0; i < items.length; i += colCount) {
+    rows.push(items.slice(i, i + colCount));
+  }
 
   const sandbox = createMeasureSandbox(widthPx);
   const chunks: HTMLElement[] = [];
 
-  try {
-    let currentGrid = gridEl.cloneNode(false) as HTMLElement;
+  const createGridShell = (): HTMLElement => {
+    const grid = gridEl.cloneNode(false) as HTMLElement;
     if (templateCols && templateCols !== 'none') {
-      currentGrid.style.gridTemplateColumns = templateCols;
+      grid.style.gridTemplateColumns = templateCols;
     }
-    sandbox.appendChild(currentGrid);
+    return grid;
+  };
 
-    items.forEach((item) => {
-      const itemClone = item.cloneNode(true) as HTMLElement;
-      currentGrid.appendChild(itemClone);
+  try {
+    let currentGrid = createGridShell();
+    sandbox.appendChild(currentGrid);
+    let currentRowCount = 0;
+
+    rows.forEach((row) => {
+      const rowClones = row.map((cell) => cell.cloneNode(true) as HTMLElement);
+      rowClones.forEach((cell) => currentGrid.appendChild(cell));
+      currentRowCount += 1;
 
       const limit = chunks.length === 0 ? maxFirstPageHeight : fullPageHeight;
-      if (currentGrid.scrollHeight > limit && currentGrid.children.length > 1) {
-        currentGrid.removeChild(itemClone);
+      if (currentGrid.scrollHeight > limit && currentRowCount > 1) {
+        // Taşan satırı geri al ve sayfayı kapat.
+        rowClones.forEach((cell) => currentGrid.removeChild(cell));
+        currentRowCount -= 1;
         chunks.push(currentGrid);
 
-        currentGrid = gridEl.cloneNode(false) as HTMLElement;
-        if (templateCols && templateCols !== 'none') {
-          currentGrid.style.gridTemplateColumns = templateCols;
-        }
+        currentGrid = createGridShell();
         sandbox.innerHTML = '';
         sandbox.appendChild(currentGrid);
-        currentGrid.appendChild(itemClone);
+        rowClones.forEach((cell) => currentGrid.appendChild(cell));
+        currentRowCount = 1;
       }
     });
 

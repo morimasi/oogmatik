@@ -72,6 +72,39 @@ export const PRINT_SAFETY_CSS = `
       -webkit-print-color-adjust: exact !important;
     }
 
+    /* === Boşluk Kompaktlaştırma ===
+       Ekran için tasarlanmış büyük boşluklar A4'te "devasa boşluk" olarak
+       basılıyordu. Baskıda dikey ritim 3–4 mm'ye çekilir, son elemanın alt
+       marjı sıfırlanır (fazladan boş sayfa önlemi). */
+    .worksheet-page,
+    .a4-page,
+    .print-page {
+      row-gap: 3mm !important;
+    }
+
+    .worksheet-page > *:last-child,
+    .a4-page > *:last-child,
+    .print-page > *:last-child,
+    .bdmind-print-wrapper > *:last-child {
+      margin-bottom: 0 !important;
+    }
+
+    .gap-10, .gap-12, .gap-16, .gap-20, .gap-24,
+    .gap-y-10, .gap-y-12, .gap-y-16, .gap-y-20 {
+      gap: 4mm !important;
+    }
+
+    .space-y-10 > :not([hidden]) ~ :not([hidden]),
+    .space-y-12 > :not([hidden]) ~ :not([hidden]),
+    .space-y-16 > :not([hidden]) ~ :not([hidden]) {
+      margin-top: 3mm !important;
+    }
+
+    /* İçi boş sarmalayıcılar sayfa kırılması üretmesin */
+    #print-overlay .bdmind-print-wrapper:empty {
+      display: none !important;
+    }
+
     /* Yazdırma sırasında gizlenen yardımcı katmanlar */
     #bdmind-export-stage {
       display: none !important;

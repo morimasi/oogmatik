@@ -104,9 +104,9 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         width: 100% !important;
         max-width: 100% !important;
         height: auto !important;
-        min-height: 280mm !important;
+        min-height: 0 !important;
         margin: 0 !important;
-        padding: 4mm !important;
+        padding: 0 !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
         break-inside: avoid !important;
@@ -330,7 +330,9 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       }
       .print-exact {
         margin: 0 !important;
-        padding: 8mm !important;
+        /* @page margin 8mm zaten kâğıt kenarını veriyor; çift padding + 297mm
+           yükseklik her çıktının arkasına boş sayfa ekliyordu. */
+        padding: 0 !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
         border: none !important;
@@ -339,8 +341,9 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         background: white !important;
         display: block !important;
         position: relative !important;
-        overflow: hidden !important;
-        height: 297mm !important;
+        overflow: visible !important;
+        height: auto !important;
+        min-height: 0 !important;
       }
 
       /* Sayfa başı zorunlu boşluk kalkanı (Minimal 0.5cm ayarı için azaltıldı) */

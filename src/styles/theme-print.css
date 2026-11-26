@@ -205,6 +205,32 @@
     page-break-inside: avoid !important;
   }
 
+  /* === Boşluk Kompaktlaştırma ===
+     Ekran için tasarlanmış büyük boşluklar baskıda devasa beyaz alanlara
+     dönüşüyordu. Dikey ritim A4 için sıkılaştırılır. */
+  .worksheet-page,
+  .a4-page,
+  .print-page {
+    row-gap: 3mm !important;
+  }
+
+  .worksheet-page > *:last-child,
+  .a4-page > *:last-child,
+  .print-page > *:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .gap-10, .gap-12, .gap-16, .gap-20, .gap-24,
+  .gap-y-10, .gap-y-12, .gap-y-16, .gap-y-20 {
+    gap: 4mm !important;
+  }
+
+  .space-y-10 > :not([hidden]) ~ :not([hidden]),
+  .space-y-12 > :not([hidden]) ~ :not([hidden]),
+  .space-y-16 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 3mm !important;
+  }
+
   /* === Compact Layout - Minimal Spacing === */
   .container, .content-area {
     width: 100% !important;

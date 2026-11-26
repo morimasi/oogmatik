@@ -69,19 +69,27 @@ const buildCapturedPrintOverlay = (
     const page = document.createElement('div');
     page.className = 'print-page';
     page.style.width = dims?.width || '210mm';
-    page.style.minHeight = dims?.height || '297mm';
     page.style.maxWidth = dims?.width || '210mm';
+    // 297mm min-height + 8mm @page marjı = her görsel için ikinci boş sayfa.
+    // Yükseklik görselin en-boy oranına bırakılır.
+    page.style.minHeight = '0';
+    page.style.height = 'auto';
     page.style.margin = '0 auto';
     page.style.background = '#fff';
     page.style.pageBreakAfter = 'always';
     page.style.breakAfter = 'page';
+    page.style.pageBreakInside = 'avoid';
+    page.style.breakInside = 'avoid';
 
     const img = document.createElement('img');
     img.src = url;
     img.alt = 'print-page';
     img.style.display = 'block';
     img.style.width = '100%';
+    img.style.maxWidth = '100%';
     img.style.height = 'auto';
+    img.style.maxHeight = '100%';
+    img.style.objectFit = 'contain';
 
     page.appendChild(img);
     overlay!.appendChild(page);

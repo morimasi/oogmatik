@@ -165,6 +165,41 @@ export const rebalanceChunks = (
   return result.filter((g) => g.length > 0);
 };
 
+/** Bir bloğu kalan alana bölerken en az bu kadar yükseklik gerekir. */
+export const MIN_SPLIT_HEAD_HEIGHT = 88;
+
+/**
+ * Kalan alana kaç satırın sığacağını planlar (saf, DOM'suz).
+ *
+ * Amaç: sığmayan bir ızgara/tablo bloğunu tamamen sonraki sayfaya atmak yerine
+ * kalan alanı satır bütünlüğünde doldurmak. Tek satırlık artık parçalar ve
+ * okunamayacak kadar küçük parçalar üretilmez.
+ *
+ * @returns Alınacak satır sayısı; bölme anlamsızsa `null`.
+ */
+export const planRowSplit = (
+  rowHeights: number[],
+  availableHeight: number,
+  minHeadHeight = MIN_SPLIT_HEAD_HEIGHT
+): number | null => {
+  if (!Array.isArray(rowHeights) || rowHeights.length < 2) return null;
+  if (!Number.isFinite(availableHeight) || availableHeight <= 0) return null;
+
+  let used = 0;
+  let take = 0;
+  for (const raw of rowHeights) {
+    const height = Number.isFinite(raw) && raw > 0 ? raw : 1;
+    if (used + height > availableHeight) break;
+    used += height;
+    take += 1;
+  }
+
+  // En az bir satır alınmalı, en az bir satır da sonraki sayfaya kalmalı.
+  if (take < 1 || take >= rowHeights.length) return null;
+  if (used < Math.min(minHeadHeight, availableHeight)) return null;
+  return take;
+};
+
 export interface BlockMeasure {
   /** Sayfa içerik alanının üstüne göre göreli konum (px) */
   top: number;
@@ -500,6 +535,91 @@ const buildGridPart = (grid: HTMLElement, rows: HTMLElement[][]): HTMLElement =>
 };
 
 /**
+ * Kalan alana sığmayan bir bloğu, satır bütünlüğünü koruyarak iki parçaya böler.
+ * Öncelik: CSS Grid satırları → tablo satırları (başlık tekrarlanır).
+ * Bölme anlamsızsa (tek satır sığmıyor, artık çok küçük) `null` döner.
+ */
+const splitBlockForSpace = (
+  el: HTMLElement,
+  availableHeight: number
+): { head: HTMLElement; tail: HTMLElement } | null => {
+  if (typeof window === 'undefined') return null;
+
+  let display = '';
+  let rowGap = 0;
+  try {
+    const cs = window.getComputedStyle(el);
+    display = cs.display || '';
+    rowGap = parseFloat(cs.rowGap) || 0;
+  } catch {
+    /* ölçüm yok */
+  }
+
+  const kids = Array.from(el.children).filter(
+    (c): c is HTMLElement => c instanceof HTMLElement && isFlowChild(c)
+  );
+
+  // 1) CSS Grid / kart ızgarası → görsel satır bütünlüğü
+  const looksLikeGrid =
+    display.includes('grid') ||
+    (typeof el.className === 'string' && el.className.includes('grid-cols'));
+
+  if (looksLikeGrid && kids.length > 1) {
+    const rows = groupChildrenIntoRows(kids);
+    if (rows.length > 1) {
+      const rowHeights = rows.map((row) =>
+        Math.max(1, Math.max(...row.map((cell) => cell.offsetHeight || 0)) + rowGap)
+      );
+      const take = planRowSplit(rowHeights, availableHeight);
+      if (take !== null) {
+        return {
+          head: buildGridPart(el, rows.slice(0, take)),
+          tail: buildGridPart(el, rows.slice(take)),
+        };
+      }
+    }
+  }
+
+  // 2) Tablo → satır bütünlüğü; başlık her parçada tekrarlanır
+  const directTable =
+    el.tagName === 'TABLE'
+      ? (el as HTMLTableElement)
+      : (Array.from(el.children).find((c) => c.tagName === 'TABLE') as HTMLTableElement | undefined);
+  if (directTable) {
+    const tbody = directTable.querySelector('tbody');
+    const rows = Array.from(
+      tbody ? tbody.querySelectorAll('tr') : directTable.querySelectorAll('tr')
+    ) as HTMLElement[];
+    if (rows.length > 1) {
+      const head = directTable.querySelector('thead');
+      const headHeight = head ? measureOuterHeight(head as HTMLElement) : 0;
+      const rowHeights = rows.map((row) => Math.max(1, row.getBoundingClientRect().height || 0));
+      const take = planRowSplit(rowHeights, Math.max(0, availableHeight - headHeight - 2));
+      if (take !== null) {
+        const makePart = (partRows: HTMLElement[]): HTMLElement => {
+          const wrapper = document.createElement('div');
+          wrapper.style.width = '100%';
+          const part = directTable.cloneNode(false) as HTMLTableElement;
+          part.style.width = '100%';
+          if (head) part.appendChild(head.cloneNode(true));
+          const body = document.createElement('tbody');
+          partRows.forEach((row) => body.appendChild(row.cloneNode(true)));
+          part.appendChild(body);
+          wrapper.appendChild(part);
+          return wrapper;
+        };
+        return {
+          head: makePart(rows.slice(0, take)),
+          tail: makePart(rows.slice(take)),
+        };
+      }
+    }
+  }
+
+  return null;
+};
+
+/**
  * Tek başına sayfaya sığmayan bir bloğu akıllıca böler.
  * 1) Izgara → satır bütünlüğü
  * 2) Tablo → satır bütünlüğü + başlık tekrarı
@@ -719,7 +839,7 @@ const paginatePageElement = (
   }
   const pieces: Piece[] = [];
 
-  blocks.forEach((block) => {
+      blocks.forEach((block) => {
     const height = measureOuterHeight(block);
     if (height > availableHeight) {
       const parts = splitOversizedElement(block, box);
@@ -728,7 +848,8 @@ const paginatePageElement = (
         if (!part.isConnected) stage.appendChild(part);
         pieces.push({ element: part, height: Math.max(1, measureOuterHeight(part)) });
       });
-      if (block.isConnected) block.remove();
+      // Not: blok klondan kaldırılmaz. Tek sayfa kalırsa orijinal sayfa
+      // olduğu gibi döndürülür; aksi halde içerik kaybolurdu.
       return;
     }
     pieces.push({ element: block, height });
@@ -736,21 +857,101 @@ const paginatePageElement = (
 
   if (pieces.length === 0) return [page];
 
-  // 2) İlk deneme: başlık/chrome düşülmüş kullanılabilir yükseklik
-  let heights = pieces.map((p) => p.height);
-  let groups = rebalanceChunks(chunkByHeights(heights, availableHeight), heights, availableHeight);
+  const measurePiece = (el: HTMLElement): number => {
+    if (!el.isConnected) stage.appendChild(el);
+    return Math.max(1, measureOuterHeight(el));
+  };
 
-  // 3) Birden fazla sayfa varsa devam rozeti için yer ayır ve yeniden paketle
+  // 2) Akıllı paketleme. Devam rozeti yalnızca gerçekten çok sayfa varsa
+  //    yer kaplar; tek sayfa çıktısında boşuna yükseklik düşülmez.
+  const totalPieceHeight = pieces.reduce((sum, p) => sum + p.height, 0);
+  const willSpanPages = totalPieceHeight > availableHeight * FIT_TOLERANCE;
+  const pageLimit = willSpanPages
+    ? Math.max(200, availableHeight - CONTINUATION_CHIP_HEIGHT)
+    : availableHeight;
+
+  const groups: HTMLElement[][] = [];
+  let currentGroup: HTMLElement[] = [];
+  let used = 0;
+  let queue: Piece[] = pieces.map((p) => ({ ...p }));
+  let guard = 0;
+
+  while (queue.length > 0 && guard < 2000) {
+    guard += 1;
+    const piece = queue.shift();
+    if (!piece) break;
+    const height = measurePiece(piece.element);
+
+    // Sayfaya tam sığıyorsa doğrudan yerleştir.
+    if (used + height <= pageLimit * FIT_TOLERANCE) {
+      currentGroup.push(piece.element);
+      used += height;
+      continue;
+    }
+
+    const freeSpace = pageLimit - used;
+
+    // Kalan alan boşa gitmesin: ızgara/tablo satır bütünlüğünde bölünür.
+    if (freeSpace >= MIN_SPLIT_HEAD_HEIGHT && currentGroup.length > 0) {
+      const split = splitBlockForSpace(piece.element, freeSpace);
+      if (split) {
+        const headHeight = measurePiece(split.head);
+        if (used + headHeight <= pageLimit * FIT_TOLERANCE) {
+          currentGroup.push(split.head);
+          groups.push(currentGroup);
+          currentGroup = [];
+          used = 0;
+          queue = [{ element: split.tail, height: measurePiece(split.tail) }, ...queue];
+          continue;
+        }
+      }
+    }
+
+    // Bu sayfayı kapat, aynı bloğu temiz sayfada yeniden dene.
+    if (currentGroup.length > 0) {
+      groups.push(currentGroup);
+      currentGroup = [];
+      used = 0;
+      queue = [piece, ...queue];
+      continue;
+    }
+
+    // Tek başına sayfaya sığmayan blok: satır bazlı parçala.
+    const parts = splitOversizedElement(piece.element, box);
+    if (parts.length > 1) {
+      const [first, ...rest] = parts;
+      groups.push([first]);
+      queue = [
+        ...rest.map((part) => ({ element: part, height: measurePiece(part) })),
+        ...queue,
+      ];
+      continue;
+    }
+
+    // Bölünemiyor: olduğu gibi tek sayfaya koy (tarayıcı akışına bırakılır).
+    groups.push([piece.element]);
+  }
+
+  if (currentGroup.length > 0) groups.push(currentGroup);
+
+  // 3) Son sayfada tek kalan öğeyi önceki sayfadan kaydırarak dengele.
   if (groups.length > 1) {
-    const reserved = Math.max(160, availableHeight - CONTINUATION_CHIP_HEIGHT);
-    heights = pieces.map((p) => p.height);
-    groups = rebalanceChunks(chunkByHeights(heights, reserved), heights, reserved);
+    const lastGroup = groups[groups.length - 1];
+    const previousGroup = groups[groups.length - 2];
+    const usedOf = (group: HTMLElement[]): number =>
+      group.reduce((sum, el) => sum + measurePiece(el), 0);
+    if (previousGroup.length > 1 && usedOf(lastGroup) < pageLimit * MIN_LAST_PAGE_FILL) {
+      const candidate = previousGroup[previousGroup.length - 1];
+      if (usedOf(lastGroup) + measurePiece(candidate) <= pageLimit) {
+        previousGroup.pop();
+        lastGroup.unshift(candidate);
+      }
+    }
   }
 
   // 4) Her grup için yeni sayfa kabuğu üret
   const pages: HTMLElement[] = [];
-  groups.forEach((group, groupIndex) => {
-    const nodes = group.map((i) => pieces[i].element);
+  groups.forEach((nodes) => {
     const { shell } = createPageShell(page, contentRoot, nodes);
     pages.push(shell);
   });
@@ -806,6 +1007,9 @@ export const buildExportPages = (
       normalizePageClone(clone, box);
       stage.appendChild(clone);
       releaseClippedDescendants(clone);
+      // 297mm min-height gibi kağıdı aşan kilitleri ÖLÇÜMDEN ÖNCE kaldır.
+      // Aksi halde sayfa taşmış sayılır ve sonuna boş sayfa eklenir.
+      releaseOversizedMinimumHeights(clone, box.contentHeightPx);
       // Layout'u zorla (ölçüm için)
       void clone.offsetHeight;
 
