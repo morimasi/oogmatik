@@ -27,6 +27,12 @@ import {
   exportSvgFile,
   parseHybridDocumentJson,
 } from '../src/components/hybrid-editor/utils/exportEngine';
+import {
+  renderLatexToHtml,
+  renderLatexToSvg,
+  QUICK_FORMULAS,
+} from '../src/components/hybrid-editor/utils/mathRenderer';
+import { generateQrSvg } from '../src/components/hybrid-editor/utils/qrCodeGenerator';
 
 const memoryStorage = (): StorageLike & { data: Map<string, string> } => {
   const data = new Map<string, string>();
@@ -163,5 +169,43 @@ describe('Hibrit editör — vektör damgaları, şablonlar ve SVG çıktı', ()
   it('geçersiz SVG içeriğini reddeder', () => {
     const res = exportSvgFile('gecersiz-icerik', 'test');
     expect(res.ok).toBe(false);
+  });
+});
+
+describe('Hibrit editör — KaTeX matematik & QR kod vektör motoru', () => {
+  it('LaTeX formüllerini HTML formatında render eder', () => {
+    const res = renderLatexToHtml('\\frac{1}{2}');
+    expect(res.ok).toBe(true);
+    expect(res.html).toContain('katex');
+  });
+
+  it('boş formülde hata döndürür', () => {
+    const res = renderLatexToHtml('   ');
+    expect(res.ok).toBe(false);
+    expect(res.error).toBeDefined();
+  });
+
+  it('LaTeX formüllerini tuvale uygun SVG formatına dönüştürür', () => {
+    const res = renderLatexToSvg('E = mc^2', { fontSize: 28, color: '#4f46e5' });
+    expect(res.ok).toBe(true);
+    expect(res.svg).toContain('<svg');
+    expect(res.svg).toContain('foreignObject');
+    expect(res.svg).toContain('#4f46e5');
+  });
+
+  it('tüm hızlı formül şablonları geçerli LaTeX içerir', () => {
+    expect(QUICK_FORMULAS.length).toBeGreaterThanOrEqual(10);
+    QUICK_FORMULAS.forEach((item) => {
+      const res = renderLatexToHtml(item.latex);
+      expect(res.ok).toBe(true);
+    });
+  });
+
+  it('URL ve metin için geçerli SVG QR kod üretir', () => {
+    const qrSvg = generateQrSvg('https://bdmind.org/test', { size: 180, color: '#1e293b' });
+    expect(qrSvg).toContain('<svg');
+    expect(qrSvg).toContain('viewBox="0 0 180 180"');
+    expect(qrSvg).toContain('<rect');
+    expect(qrSvg).toContain('#1e293b');
   });
 });

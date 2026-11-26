@@ -7,6 +7,10 @@ import { TopToolbar } from './components/TopToolbar';
 import { LayersAndPropertiesPanel } from './components/LayersAndPropertiesPanel';
 import { CollaborationBar } from './components/CollaborationBar';
 import { LiveCursorsOverlay } from './components/LiveCursorsOverlay';
+import { A4Ruler } from './components/A4Ruler';
+import { MathFormulaModal } from './components/modals/MathFormulaModal';
+import { AIVectorModal } from './components/modals/AIVectorModal';
+import { QRCodeModal } from './components/modals/QRCodeModal';
 import { useEditorHistory, useEditorShortcuts } from './hooks/useEditorHistory';
 import { useHybridCollaboration } from './hooks/useHybridCollaboration';
 import {
@@ -125,6 +129,11 @@ export const HybridEditor = ({
   const [vectorEditing, setVectorEditing] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [notice, setNotice] = React.useState<Notice>(null);
+  const [showRulers, setShowRulers] = React.useState(false);
+  const [snapToGrid, setSnapToGrid] = React.useState(false);
+  const [mathModalOpen, setMathModalOpen] = React.useState(false);
+  const [aiVectorModalOpen, setAiVectorModalOpen] = React.useState(false);
+  const [qrModalOpen, setQrModalOpen] = React.useState(false);
 
   const pageHandles = React.useRef(new Map<string, VectorCanvasHandle | null>());
   const whiteboardHandle = React.useRef<VectorCanvasHandle | null>(null);
@@ -635,6 +644,10 @@ export const HybridEditor = ({
         }
         background={currentBackground}
         onBackgroundChange={handleBackgroundChange}
+        snapToGrid={snapToGrid}
+        onToggleSnapToGrid={() => setSnapToGrid((v) => !v)}
+        showRulers={showRulers}
+        onToggleRulers={() => setShowRulers((v) => !v)}
         tool={tool}
         onToolChange={(nextTool) => {
           setTool(nextTool);
@@ -670,6 +683,9 @@ export const HybridEditor = ({
         onInsertVectorImage={handleInsertVectorImage}
         onInsertStamp={handleInsertStamp}
         onApplyTemplate={handleApplyTemplate}
+        onOpenMathModal={() => setMathModalOpen(true)}
+        onOpenAIVectorModal={() => setAiVectorModalOpen(true)}
+        onOpenQRCodeModal={() => setQrModalOpen(true)}
         onPrint={() => window.print()}
       />
 
@@ -759,6 +775,7 @@ export const HybridEditor = ({
                   height={doc.whiteboard.canvas.height || WHITEBOARD_HEIGHT}
                   zoom={pageScale}
                   tool={tool}
+                  snapToGrid={snapToGrid}
                   style={doc.vectorStyle}
                   snapshot={doc.whiteboard.canvas}
                   onSnapshotChange={handleWhiteboardSnapshot}
@@ -787,8 +804,20 @@ export const HybridEditor = ({
                     style={{
                       width: A4_WIDTH * pageScale,
                       height: A4_HEIGHT * pageScale,
+                      marginTop: showRulers ? 24 : 0,
+                      marginLeft: showRulers ? 24 : 0,
                     }}
                   >
+                    {showRulers && (
+                      <div className="absolute -top-5 left-0 z-20">
+                        <A4Ruler orientation="horizontal" scale={pageScale} />
+                      </div>
+                    )}
+                    {showRulers && (
+                      <div className="absolute top-0 -left-5 z-20">
+                        <A4Ruler orientation="vertical" scale={pageScale} />
+                      </div>
+                    )}
                     <div
                       ref={(element) => {
                         if (element) pageElements.current.set(page.id, element);
@@ -822,6 +851,7 @@ export const HybridEditor = ({
                           height={A4_HEIGHT}
                           zoom={1}
                           tool={isActive ? tool : 'select'}
+                          snapToGrid={snapToGrid}
                           style={doc.vectorStyle}
                           snapshot={page.canvas}
                           onSnapshotChange={(snapshot) => handleCanvasSnapshot(page.id, snapshot)}
@@ -917,6 +947,31 @@ export const HybridEditor = ({
           {notice.message}
         </div>
       )}
+
+      <MathFormulaModal
+        isOpen={mathModalOpen}
+        onClose={() => setMathModalOpen(false)}
+        onInsert={(svg) => {
+          activeHandle()?.addSvg(svg, 'formula');
+          setVectorEditing(true);
+        }}
+      />
+      <AIVectorModal
+        isOpen={aiVectorModalOpen}
+        onClose={() => setAiVectorModalOpen(false)}
+        onInsert={(svg, label) => {
+          activeHandle()?.addSvg(svg, label);
+          setVectorEditing(true);
+        }}
+      />
+      <QRCodeModal
+        isOpen={qrModalOpen}
+        onClose={() => setQrModalOpen(false)}
+        onInsert={(svg, label) => {
+          activeHandle()?.addSvg(svg, label);
+          setVectorEditing(true);
+        }}
+      />
     </div>
   );
 };

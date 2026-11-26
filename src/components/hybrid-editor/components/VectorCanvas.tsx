@@ -17,6 +17,7 @@ import {
   loadSVGFromString,
   util,
   type TPointerEvent,
+  Path,
 } from 'fabric';
 import {
   MAX_ZOOM,
@@ -45,6 +46,7 @@ interface VectorCanvasProps {
   tool: VectorTool;
   style: VectorStyle;
   snapshot: CanvasSnapshot;
+  snapToGrid?: boolean;
   className?: string;
   onSnapshotChange: (snapshot: CanvasSnapshot) => void;
   onLayersChange: (layers: LayerInfo[]) => void;
@@ -55,7 +57,20 @@ interface VectorCanvasProps {
   onPointerActivity?: (point: { x: number; y: number } | null) => void;
 }
 
-const SHAPE_TOOLS: VectorTool[] = ['rect', 'ellipse', 'triangle', 'star', 'line', 'arrow', 'arrow-double'];
+const SHAPE_TOOLS: VectorTool[] = [
+  'rect',
+  'ellipse',
+  'triangle',
+  'diamond',
+  'parallelogram',
+  'hexagon',
+  'cylinder',
+  'cloud',
+  'star',
+  'line',
+  'arrow',
+  'arrow-double',
+];
 
 const newObjectId = (): string => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -173,6 +188,7 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
       tool,
       style,
       snapshot,
+      snapToGrid = false,
       className = '',
       onSnapshotChange,
       onLayersChange,
@@ -190,11 +206,14 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
       x: null,
       y: null,
     });
+    const [laserPoint, setLaserPoint] = React.useState<{ x: number; y: number } | null>(null);
 
     const toolRef = React.useRef(tool);
     const styleRef = React.useRef(style);
     const modeRef = React.useRef(mode);
     const zoomRef = React.useRef(zoom);
+    const snapToGridRef = React.useRef(snapToGrid);
+    snapToGridRef.current = snapToGrid;
     const lastEmittedRef = React.useRef<string>('');
     const isLoadingRef = React.useRef(false);
     const isSpaceDownRef = React.useRef(false);
@@ -361,6 +380,13 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
 
         if (snappedX !== null) moving.set({ left: nextLeft });
         if (snappedY !== null) moving.set({ top: nextTop });
+
+        if (snapToGridRef.current) {
+          const gridSize = 16;
+          if (snappedX === null) moving.set({ left: Math.round((moving.left ?? 0) / gridSize) * gridSize });
+          if (snappedY === null) moving.set({ top: Math.round((moving.top ?? 0) / gridSize) * gridSize });
+        }
+
         setGuides({ x: snappedX, y: snappedY });
       };
 
@@ -487,7 +513,7 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
           return;
         }
 
-        if (activeTool === 'pencil') return;
+        if (activeTool === 'pencil' || activeTool === 'highlighter' || activeTool === 'laser') return;
 
         if (SHAPE_TOOLS.includes(activeTool)) {
           let temp: FabricObject | null = null;
@@ -667,12 +693,24 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
 
       /* --------------------------- Ortak çalışma imleci --------------------------- */
       const handlePointerMove = (info: PointerEventInfo) => {
-        const callback = callbacksRef.current.onPointerActivity;
-        if (!callback) return;
         const viewport = canvas.getViewportPoint(info.e);
-        callback({ x: Math.round(viewport.x), y: Math.round(viewport.y) });
+        const point = { x: Math.round(viewport.x), y: Math.round(viewport.y) };
+
+        if (toolRef.current === 'laser') {
+          setLaserPoint(point);
+        } else {
+          setLaserPoint(null);
+        }
+
+        const callback = callbacksRef.current.onPointerActivity;
+        if (callback) {
+          callback(point);
+        }
       };
-      const handlePointerLeave = () => callbacksRef.current.onPointerActivity?.(null);
+      const handlePointerLeave = () => {
+        setLaserPoint(null);
+        callbacksRef.current.onPointerActivity?.(null);
+      };
       canvas.on('mouse:move', handlePointerMove);
       element.addEventListener('mouseleave', handlePointerLeave);
 
@@ -765,20 +803,35 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
       const canvas = canvasRef.current;
       if (!canvas) return;
       const pencil = tool === 'pencil';
-      canvas.isDrawingMode = pencil;
-      canvas.selection = !pencil && tool === 'select';
-      canvas.skipTargetFind = pencil;
-      const brush = new PencilBrush(canvas) as PencilBrush & { opacity?: number };
-      brush.color = style.stroke;
-      brush.width = Math.max(1, style.strokeWidth * 2);
-      brush.decimate = 3;
-      canvas.freeDrawingBrush = brush;
+      const highlighter = tool === 'highlighter';
+      const laser = tool === 'laser';
+
+      canvas.isDrawingMode = pencil || highlighter;
+      canvas.selection = !pencil && !highlighter && !laser && tool === 'select';
+      canvas.skipTargetFind = pencil || highlighter || laser;
+
+      if (highlighter) {
+        const brush = new PencilBrush(canvas) as PencilBrush & { opacity?: number };
+        brush.color = 'rgba(250, 204, 21, 0.45)';
+        brush.width = 28;
+        brush.decimate = 3;
+        canvas.freeDrawingBrush = brush;
+      } else {
+        const brush = new PencilBrush(canvas) as PencilBrush & { opacity?: number };
+        brush.color = style.stroke;
+        brush.width = Math.max(1, style.strokeWidth * 2);
+        brush.decimate = 3;
+        canvas.freeDrawingBrush = brush;
+      }
+
       canvas.defaultCursor =
         mode === 'whiteboard' && isSpaceDownRef.current
           ? 'grab'
-          : pencil || SHAPE_TOOLS.includes(tool) || tool === 'text' || tool === 'sticky'
-            ? 'crosshair'
-            : 'default';
+          : laser
+            ? 'none'
+            : pencil || highlighter || SHAPE_TOOLS.includes(tool) || tool === 'text' || tool === 'sticky'
+              ? 'crosshair'
+              : 'default';
       canvas.requestRenderAll();
     }, [mode, style.stroke, style.strokeWidth, tool]);
 
@@ -807,6 +860,59 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
         case 'triangle':
           object = new Triangle({ left: centerX - 80, top: centerY - 70, width: 160, height: 140, ...common });
           break;
+        case 'diamond':
+          object = new Polygon(
+            [
+              { x: 80, y: 0 },
+              { x: 160, y: 70 },
+              { x: 80, y: 140 },
+              { x: 0, y: 70 },
+            ],
+            { left: centerX - 80, top: centerY - 70, ...common }
+          );
+          break;
+        case 'parallelogram':
+          object = new Polygon(
+            [
+              { x: 40, y: 0 },
+              { x: 180, y: 0 },
+              { x: 140, y: 110 },
+              { x: 0, y: 110 },
+            ],
+            { left: centerX - 90, top: centerY - 55, ...common }
+          );
+          break;
+        case 'hexagon':
+          object = new Polygon(
+            [
+              { x: 40, y: 0 },
+              { x: 120, y: 0 },
+              { x: 160, y: 70 },
+              { x: 120, y: 140 },
+              { x: 40, y: 140 },
+              { x: 0, y: 70 },
+            ],
+            { left: centerX - 80, top: centerY - 70, ...common }
+          );
+          break;
+        case 'cylinder': {
+          const topEl = new Ellipse({ rx: 60, ry: 20, fill: currentStyle.fill, stroke: currentStyle.stroke, strokeWidth: currentStyle.strokeWidth });
+          const bottomEl = new Ellipse({ rx: 60, ry: 20, top: 90, fill: currentStyle.fill, stroke: currentStyle.stroke, strokeWidth: currentStyle.strokeWidth });
+          const body = new Rect({ left: -60, top: 20, width: 120, height: 90, fill: currentStyle.fill, stroke: currentStyle.stroke, strokeWidth: currentStyle.strokeWidth });
+          object = new Group([bottomEl, body, topEl], { left: centerX - 60, top: centerY - 65, opacity: currentStyle.opacity });
+          break;
+        }
+        case 'cloud': {
+          const cloudSvg = 'M25 45 a20 20 0 0 1 35 -12 a25 25 0 0 1 45 5 a20 20 0 0 1 35 15 a15 15 0 0 1 -10 22 h-95 a15 15 0 0 1 -10 -30 z';
+          object = new Path(cloudSvg, {
+            left: centerX - 80,
+            top: centerY - 50,
+            scaleX: 1.2,
+            scaleY: 1.2,
+            ...common,
+          });
+          break;
+        }
         case 'star': {
           const star = new Polygon(starPoints(60, 26, 5), {
             originX: 'center',
@@ -1290,6 +1396,19 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
           <div
             className="pointer-events-none absolute left-0 right-0 z-10 h-px bg-indigo-500/80"
             style={{ top: guides.y }}
+          />
+        )}
+        {laserPoint !== null && (
+          <div
+            className="pointer-events-none absolute z-50 -translate-x-1/2 -translate-y-1/2 rounded-full transition-transform"
+            style={{
+              left: laserPoint.x,
+              top: laserPoint.y,
+              width: 18,
+              height: 18,
+              backgroundColor: '#ef4444',
+              boxShadow: '0 0 16px 6px rgba(239, 68, 68, 0.75), 0 0 4px 2px #ffffff',
+            }}
           />
         )}
       </div>

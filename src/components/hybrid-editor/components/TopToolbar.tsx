@@ -17,13 +17,16 @@ import {
   FileCode2,
   FileImage,
   FileJson,
+  Highlighter,
   ImagePlus,
   FileText,
   Grid,
+  Hexagon as HexagonIcon,
   Italic,
   LayoutTemplate,
   List,
   ListOrdered,
+  Magnet,
   Maximize2,
   Minus,
   MousePointer2,
@@ -31,10 +34,14 @@ import {
   Pencil,
   Plus,
   Printer,
+  QrCode,
+  Radio,
   Redo2,
   RotateCcw,
   Rows3,
+  Ruler,
   Shapes,
+  Sparkles,
   Square,
   Star,
   StickyNote,
@@ -47,6 +54,8 @@ import {
   Undo2,
   ZoomIn,
   ZoomOut,
+  Calculator,
+  Cloud as CloudIcon,
 } from 'lucide-react';
 import type {
   BackgroundPattern,
@@ -76,9 +85,14 @@ const FONT_SIZES = [10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 40];
 const DRAW_TOOLS: Array<{ id: VectorTool; label: string; icon: React.ReactNode }> = [
   { id: 'select', label: 'Seç (V)', icon: <MousePointer2 size={14} /> },
   { id: 'pencil', label: 'Serbest kalem (P)', icon: <Pencil size={14} /> },
+  { id: 'highlighter', label: 'Fosforlu vurgulayıcı (H)', icon: <Highlighter size={14} className="text-amber-500" /> },
+  { id: 'laser', label: 'Lazer işaretçi (Sunum)', icon: <Radio size={14} className="text-rose-500" /> },
   { id: 'rect', label: 'Dikdörtgen (R)', icon: <Square size={14} /> },
   { id: 'ellipse', label: 'Daire / Elips (O)', icon: <Circle size={14} /> },
   { id: 'triangle', label: 'Üçgen (T)', icon: <Triangle size={14} /> },
+  { id: 'diamond', label: 'Eşkenar dörtgen / Karar', icon: <Square size={14} className="rotate-45" /> },
+  { id: 'hexagon', label: 'Altıgen', icon: <HexagonIcon size={14} /> },
+  { id: 'cloud', label: 'Bulut / Düşünce', icon: <CloudIcon size={14} /> },
   { id: 'star', label: 'Yıldız (Y)', icon: <Star size={14} /> },
   { id: 'line', label: 'Düz çizgi (L)', icon: <Minus size={14} /> },
   { id: 'arrow', label: 'Tek yönlü ok (A)', icon: <ArrowRight size={14} /> },
@@ -151,6 +165,10 @@ export interface TopToolbarProps {
   onMarginsChange: (margins: PageMargins) => void;
   background: BackgroundPattern;
   onBackgroundChange: (pattern: BackgroundPattern) => void;
+  snapToGrid?: boolean;
+  onToggleSnapToGrid?: () => void;
+  showRulers?: boolean;
+  onToggleRulers?: () => void;
   tool: VectorTool;
   onToolChange: (tool: VectorTool) => void;
   vectorStyle: VectorStyle;
@@ -175,6 +193,9 @@ export interface TopToolbarProps {
   onInsertVectorImage?: (file: File) => void;
   onInsertStamp: (stamp: VectorStamp) => void;
   onApplyTemplate: (template: HybridTemplate) => void;
+  onOpenMathModal?: () => void;
+  onOpenAIVectorModal?: () => void;
+  onOpenQRCodeModal?: () => void;
   onPrint?: () => void;
 }
 
@@ -198,6 +219,10 @@ export const TopToolbar = ({
   onMarginsChange,
   background,
   onBackgroundChange,
+  snapToGrid = false,
+  onToggleSnapToGrid,
+  showRulers = false,
+  onToggleRulers,
   tool,
   onToolChange,
   vectorStyle,
@@ -222,6 +247,9 @@ export const TopToolbar = ({
   onInsertVectorImage,
   onInsertStamp,
   onApplyTemplate,
+  onOpenMathModal,
+  onOpenAIVectorModal,
+  onOpenQRCodeModal,
   onPrint,
 }: TopToolbarProps) => {
   const [exportOpen, setExportOpen] = React.useState(false);
@@ -406,6 +434,45 @@ export const TopToolbar = ({
             </ToolButton>
           )}
         </Group>
+
+        <div className="flex items-center gap-1">
+          {onOpenMathModal && (
+            <ToolButton label="Matematik / Fen formülü ekle (KaTeX)" onClick={onOpenMathModal}>
+              <Calculator size={14} className="text-indigo-600" />
+              <span className="hidden lg:inline text-[10px]">Formül</span>
+            </ToolButton>
+          )}
+          {onOpenAIVectorModal && (
+            <ToolButton label="AI ile vektör çizim üret (Gemini)" onClick={onOpenAIVectorModal}>
+              <Sparkles size={14} className="text-purple-600" />
+              <span className="hidden lg:inline text-[10px]">AI Çizim</span>
+            </ToolButton>
+          )}
+          {onOpenQRCodeModal && (
+            <ToolButton label="QR Kod vektörü ekle" onClick={onOpenQRCodeModal}>
+              <QrCode size={14} className="text-emerald-600" />
+              <span className="hidden lg:inline text-[10px]">QR Kod</span>
+            </ToolButton>
+          )}
+          {onToggleRulers && (
+            <ToolButton
+              label={showRulers ? 'Cetveli gizle' : 'A4 Milimetrik cetveli göster'}
+              active={showRulers}
+              onClick={onToggleRulers}
+            >
+              <Ruler size={14} />
+            </ToolButton>
+          )}
+          {onToggleSnapToGrid && (
+            <ToolButton
+              label={snapToGrid ? 'Izgaraya yapışmayı kapat' : 'Izgaraya yapışmayı aç (Snap to Grid)'}
+              active={snapToGrid}
+              onClick={onToggleSnapToGrid}
+            >
+              <Magnet size={14} />
+            </ToolButton>
+          )}
+        </div>
 
         <div className="relative">
           <button
