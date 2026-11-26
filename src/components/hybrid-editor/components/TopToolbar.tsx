@@ -140,8 +140,6 @@ const ToolButton = ({
   </button>
 );
 
-const Divider = () => <span className="mx-1 h-6 w-px shrink-0 bg-[var(--border-color)]" aria-hidden />;
-
 const Group = ({ children, label }: { children: React.ReactNode; label: string }) => (
   <div
     role="group"

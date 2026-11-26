@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Loader2, Check, Wand2 } from 'lucide-react';
+import DOMPurify from 'isomorphic-dompurify';
 import { generateSvgCode } from '../../../../services/geminiClient';
 
 interface AIVectorModalProps {
@@ -37,7 +38,12 @@ export const AIVectorModal: React.FC<AIVectorModalProps> = ({
       const fullPrompt = `${prompt.trim()}. Disleksi ve özel eğitim dostu, sıfır bilişsel yüklü, yüksek kontrastlı, pastel tonlu (#4F46E5, #0D9488, #F59E0B) temiz saf SVG vektör çizimi. Sadece <svg> kodu üret.`;
       const svg = await generateSvgCode(fullPrompt);
       if (svg && svg.includes('<svg')) {
-        setGeneratedSvg(svg);
+        const sanitized = DOMPurify.sanitize(svg, { USE_PROFILES: { svg: true, svgFilters: true } });
+        if (sanitized && sanitized.includes('<svg')) {
+          setGeneratedSvg(sanitized);
+        } else {
+          setError('Üretilen SVG güvenlik filtresinden geçemedi.');
+        }
       } else {
         setError('Geçerli bir SVG çizimi üretilemedi, lütfen farklı bir prompt deneyin.');
       }
@@ -50,7 +56,8 @@ export const AIVectorModal: React.FC<AIVectorModalProps> = ({
 
   const handleInsert = () => {
     if (generatedSvg) {
-      onInsert(generatedSvg, prompt.slice(0, 20) || 'ai-vektor');
+      const sanitized = DOMPurify.sanitize(generatedSvg, { USE_PROFILES: { svg: true, svgFilters: true } });
+      onInsert(sanitized, prompt.slice(0, 20) || 'ai-vektor');
       onClose();
     }
   };

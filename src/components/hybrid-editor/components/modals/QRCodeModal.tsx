@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { X, QrCode, Check, Copy } from 'lucide-react';
+import { X, QrCode, Check } from 'lucide-react';
 import { generateQrSvg } from '../../utils/qrCodeGenerator';
 
 interface QRCodeModalProps {

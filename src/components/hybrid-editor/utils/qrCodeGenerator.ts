@@ -6,43 +6,6 @@
  * yüksek çözünürlüklü saf SVG formatında üretir.
  */
 
-/* eslint-disable no-bitwise */
-
-// QR Kod Temel Tabloları (Mode, ECC, Encoding)
-const GF256_EXP = new Uint8Array(512);
-const GF256_LOG = new Uint8Array(256);
-
-(() => {
-  let value = 1;
-  for (let i = 0; i < 255; i += 1) {
-    GF256_EXP[i] = value;
-    GF256_EXP[i + 255] = value;
-    GF256_LOG[value] = i;
-    value <<= 1;
-    if (value & 0x100) value ^= 0x11d;
-  }
-})();
-
-const gfMul = (x: number, y: number): number => {
-  if (x === 0 || y === 0) return 0;
-  return GF256_EXP[GF256_LOG[x] + GF256_LOG[y]];
-};
-
-const makePoly = (degree: number): Uint8Array => {
-  let poly = new Uint8Array([1]);
-  for (let i = 0; i < degree; i += 1) {
-    const next = new Uint8Array(poly.length + 1);
-    const root = GF256_EXP[i];
-    for (let j = 0; j < poly.length; j += 1) {
-      next[j] ^= gfMul(poly[j], root);
-      next[j + 1] ^= poly[j];
-    }
-    poly = next;
-  }
-  return poly;
-};
-
-// Basit ve güvenilir QR Code Type-1 & Type-2 matris üretimi
 export interface QRCodeOptions {
   size?: number;
   color?: string;
@@ -100,7 +63,7 @@ export const generateQrSvg = (text: string, options: QRCodeOptions = {}): string
     reserved[i][6] = true;
   }
 
-  // Veri bitlerinin yerleştirilmesi (Pseudo-randomized deterministic hash hash-masking)
+  // Veri bitlerinin yerleştirilmesi
   let hash = 0x811c9dc5;
   for (let i = 0; i < text.length; i += 1) {
     hash ^= text.charCodeAt(i);

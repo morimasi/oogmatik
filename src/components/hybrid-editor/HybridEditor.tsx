@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Editor } from '@tiptap/react';
 import { FileText, Layers, PenLine, Save } from 'lucide-react';
+import DOMPurify from 'isomorphic-dompurify';
 import { RichTextBlock } from './components/RichTextBlock';
 import { VectorCanvas } from './components/VectorCanvas';
 import { TopToolbar } from './components/TopToolbar';
@@ -111,11 +112,8 @@ export const HybridEditor = ({
   onCollaborationLeave,
   onCopyRoomLink,
 }: HybridEditorProps) => {
-  const initial = React.useMemo<HybridDocumentSchema>(
-    () => initialDocument ?? createEmptyDocument(title ?? 'Yeni Hibrit Belge'),
-    // Kasıtlı olarak yalnızca ilk bağlanışta okunur; içe aktarma `reset` ile yapılır.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+  const [initial] = React.useState<HybridDocumentSchema>(
+    () => initialDocument ?? createEmptyDocument(title ?? 'Yeni Hibrit Belge')
   );
 
   const history = useEditorHistory<HybridDocumentSchema>(initial, 50);
@@ -498,12 +496,17 @@ export const HybridEditor = ({
         setNotice({ kind: 'error', message: 'Geçerli bir SVG dosyası seçin.' });
         return;
       }
+      const sanitized = DOMPurify.sanitize(raw, { USE_PROFILES: { svg: true, svgFilters: true } });
+      if (!sanitized || !sanitized.includes('<svg')) {
+        setNotice({ kind: 'error', message: 'SVG dosyası güvenlik kontrolünden geçemedi.' });
+        return;
+      }
       const handle = activeHandle();
       if (!handle) {
         setNotice({ kind: 'error', message: 'Vektör tuvali hazır değil.' });
         return;
       }
-      handle.addSvg(raw, 'svg');
+      handle.addSvg(sanitized, 'svg');
       setVectorEditing(true);
       setNotice({ kind: 'success', message: 'SVG vektör katmanına eklendi.' });
     } catch {

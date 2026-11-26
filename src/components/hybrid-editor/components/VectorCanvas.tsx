@@ -752,16 +752,15 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
       window.addEventListener('keydown', handleKeyDown);
       window.addEventListener('keyup', handleKeyUp);
 
+      const containerEl = containerRef.current;
       return () => {
-        containerRef.current?.removeEventListener('wheel', handleWheel);
+        containerEl?.removeEventListener('wheel', handleWheel);
         element.removeEventListener('mouseleave', handlePointerLeave);
         window.removeEventListener('keydown', handleKeyDown);
         window.removeEventListener('keyup', handleKeyUp);
         canvas.dispose();
         canvasRef.current = null;
       };
-      // Yalnızca ilk kurulumda; prop değişimleri ayrı efektlerle yönetilir.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     /* ------------------------- Prop senkronizasyonu ------------------------- */
