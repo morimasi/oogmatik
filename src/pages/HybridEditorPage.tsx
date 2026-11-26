@@ -71,6 +71,8 @@ const HybridEditorPage = ({ onBack }: { onBack?: () => void }) => {
   );
   const [roomInput, setRoomInput] = React.useState('');
   const [roomNotice, setRoomNotice] = React.useState<string | null>(null);
+  const [editorResetCount, setEditorResetCount] = React.useState(0);
+  const [activeDoc, setActiveDoc] = React.useState<HybridDocumentSchema>(bootstrapped.doc);
 
   React.useEffect(() => {
     if (!roomNotice) return undefined;
@@ -153,6 +155,10 @@ const HybridEditorPage = ({ onBack }: { onBack?: () => void }) => {
       timerRef.current = null;
     }
     clearHybridDraft(undefined, ownerKey);
+    const fresh = createEmptyDocument('Hibrit Çalışma');
+    latestRef.current = fresh;
+    setActiveDoc(fresh);
+    setEditorResetCount((count) => count + 1);
     setSaveState({ kind: 'idle' });
   };
 
@@ -277,9 +283,10 @@ const HybridEditorPage = ({ onBack }: { onBack?: () => void }) => {
 
       <div className="min-h-0 flex-1 p-3">
         <HybridEditor
-          initialDocument={bootstrapped.doc}
+          key={editorResetCount}
+          initialDocument={activeDoc}
           onDocumentChange={handleDocumentChange}
-          title={bootstrapped.doc.title}
+          title={activeDoc.title}
           height="100%"
           className="h-full"
           collaboration={

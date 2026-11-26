@@ -16,8 +16,15 @@ import {
   exportElementToPng,
   exportElementsToPdf,
   exportHybridJson,
+  exportSvgFile,
   parseHybridDocumentJson,
 } from './utils/exportEngine';
+import {
+  countDocumentWords,
+  getBackgroundPatternStyle,
+  type HybridTemplate,
+} from './utils/documentTemplates';
+import type { VectorStamp } from './utils/vectorStamps';
 import {
   A4_HEIGHT,
   A4_WIDTH,
@@ -25,6 +32,7 @@ import {
   WHITEBOARD_WIDTH,
   createEmptyDocument,
   createEmptyPage,
+  type BackgroundPattern,
   type CanvasSnapshot,
   type HybridDocumentSchema,
   type HybridPage,
@@ -287,6 +295,51 @@ export const HybridEditor = ({
     setEditor(null);
   };
 
+  const duplicatePage = () => {
+    const current = docRef.current;
+    const source = current.pages.find((p) => p.id === current.activePageId) ?? current.pages[0];
+    const base = createEmptyPage(current.pages.length);
+    const cloned: HybridPage = {
+      ...base,
+      name: `${source.name} (Kopya)`,
+      margins: { ...source.margins },
+      background: source.background ?? 'blank',
+      doc: source.doc ? (JSON.parse(JSON.stringify(source.doc)) as HybridPage['doc']) : null,
+      canvas: { ...source.canvas },
+    };
+    commitDoc((existing) => ({
+      ...existing,
+      pages: [...existing.pages, cloned],
+      activePageId: cloned.id,
+    }));
+    setSelectedLayerIds([]);
+    setLayers([]);
+    setEditor(null);
+    setNotice({ kind: 'success', message: 'Sayfa çoğaltıldı.' });
+  };
+
+  const handleDocumentTitleChange = (nextTitle: string) => {
+    commitDoc((current) => ({ ...current, title: nextTitle }), 'doc-title');
+  };
+
+  const currentBackground: BackgroundPattern = isWhiteboard
+    ? (doc.whiteboard.background ?? 'blank')
+    : (activePage.background ?? 'blank');
+
+  const handleBackgroundChange = (pattern: BackgroundPattern) => {
+    if (docRef.current.mode === 'whiteboard') {
+      commitDoc(
+        (current) => ({
+          ...current,
+          whiteboard: { ...current.whiteboard, background: pattern },
+        }),
+        'bg:whiteboard'
+      );
+      return;
+    }
+    updateActivePage((page) => ({ ...page, background: pattern }), `bg:${activePage.id}`);
+  };
+
   /* --------------------------- İçerik senkronizasyonu -------------------------- */
   const handlePageDocChange = React.useCallback(
     (pageId: string, nextDoc: NonNullable<HybridPage['doc']>) => {
@@ -415,6 +468,60 @@ export const HybridEditor = ({
     notify(exportHybridJson(docRef.current, docRef.current.title));
   };
 
+  const handleExportSvg = () => {
+    const svg = activeHandle()?.exportSvg();
+    if (!svg) {
+      setNotice({ kind: 'error', message: 'Vektör katmanında dışa aktarılacak nesne yok.' });
+      return;
+    }
+    notify(exportSvgFile(svg, `${docRef.current.title || 'hibrit'}-vektor`));
+  };
+
+  const handleImportSvg = async (file: File) => {
+    try {
+      const raw = await file.text();
+      if (!raw.includes('<svg')) {
+        setNotice({ kind: 'error', message: 'Geçerli bir SVG dosyası seçin.' });
+        return;
+      }
+      const handle = activeHandle();
+      if (!handle) {
+        setNotice({ kind: 'error', message: 'Vektör tuvali hazır değil.' });
+        return;
+      }
+      handle.addSvg(raw, 'svg');
+      setVectorEditing(true);
+      setNotice({ kind: 'success', message: 'SVG vektör katmanına eklendi.' });
+    } catch {
+      setNotice({ kind: 'error', message: 'SVG dosyası okunamadı.' });
+    }
+  };
+
+  const handleInsertStamp = (stamp: VectorStamp) => {
+    const handle = activeHandle();
+    if (!handle) {
+      setNotice({ kind: 'error', message: 'Vektör tuvali hazır değil.' });
+      return;
+    }
+    handle.addSvg(stamp.svg, stamp.id);
+    setVectorEditing(true);
+    setNotice({ kind: 'success', message: `${stamp.label} eklendi.` });
+  };
+
+  const handleApplyTemplate = (template: HybridTemplate) => {
+    const built = template.build();
+    history.commit(built);
+    setSelectedLayerIds([]);
+    setLayers([]);
+    setEditor(null);
+    setZoom(1);
+    setTool('select');
+    setVectorEditing(template.mode === 'whiteboard');
+    setNotice({ kind: 'success', message: `"${template.title}" şablonu uygulandı.` });
+  };
+
+  const wordStats = React.useMemo(() => countDocumentWords(doc), [doc]);
+
   const handleInsertVectorImage = (file: File) => {
     if (!file.type.startsWith('image/')) {
       setNotice({ kind: 'error', message: 'Yalnızca görsel dosyaları eklenebilir.' });
@@ -513,16 +620,21 @@ export const HybridEditor = ({
       <TopToolbar
         mode={doc.mode}
         onModeChange={changeMode}
+        documentTitle={doc.title}
+        onDocumentTitleChange={handleDocumentTitleChange}
         editor={editor}
         pages={doc.pages.map((page) => ({ id: page.id, name: page.name }))}
         activePageId={activePage.id}
         onSelectPage={selectPage}
         onAddPage={addPage}
+        onDuplicatePage={duplicatePage}
         onDeletePage={deletePage}
         margins={activePage.margins}
         onMarginsChange={(margins) =>
           updateActivePage((page) => ({ ...page, margins }), `margins:${activePage.id}`)
         }
+        background={currentBackground}
+        onBackgroundChange={handleBackgroundChange}
         tool={tool}
         onToolChange={(nextTool) => {
           setTool(nextTool);
@@ -540,6 +652,7 @@ export const HybridEditor = ({
         }
         zoom={zoom}
         onZoomChange={setZoom}
+        onResetViewport={() => activeHandle()?.resetViewport()}
         canUndo={history.canUndo}
         canRedo={history.canRedo}
         onUndo={handleUndo}
@@ -550,9 +663,14 @@ export const HybridEditor = ({
         onExportPdf={() => void handleExportPdf()}
         onExportPng={() => void handleExportPng()}
         onExportDocx={() => void handleExportDocx()}
+        onExportSvg={handleExportSvg}
         onExportJson={handleExportJson}
         onImportJson={(file) => void handleImportJson(file)}
+        onImportSvg={(file) => void handleImportSvg(file)}
         onInsertVectorImage={handleInsertVectorImage}
+        onInsertStamp={handleInsertStamp}
+        onApplyTemplate={handleApplyTemplate}
+        onPrint={() => window.print()}
       />
 
       {collaborationEnabled && collaboration && (
@@ -629,6 +747,7 @@ export const HybridEditor = ({
                   width: doc.whiteboard.canvas.width || WHITEBOARD_WIDTH,
                   height: doc.whiteboard.canvas.height || WHITEBOARD_HEIGHT,
                   overflow: 'hidden',
+                  ...getBackgroundPatternStyle(doc.whiteboard.background),
                 }}
               >
                 <VectorCanvas
@@ -684,6 +803,7 @@ export const HybridEditor = ({
                         transform: `scale(${pageScale})`,
                         transformOrigin: 'top left',
                         fontFamily: 'Lexend, sans-serif',
+                        ...getBackgroundPatternStyle(page.background),
                       }}
                       data-page-index={index}
                     >
@@ -773,7 +893,7 @@ export const HybridEditor = ({
         <span>
           {isWhiteboard
             ? `Sınırsız tahta • ${layers.length} katman`
-            : `${activePage.name} • ${doc.pages.length} sayfa • ${layers.length} katman`}
+            : `${activePage.name} • ${doc.pages.length} sayfa • ${layers.length} katman • ${wordStats.words} kelime`}
         </span>
         <span className="flex items-center gap-3">
           <span>Ctrl+Z geri • Ctrl+Y yinele • Ctrl+D çoğalt • Del sil • Ok tuşları kaydır</span>

@@ -11,13 +11,17 @@ import {
   ChevronDown,
   Circle,
   Columns3,
+  Copy,
   Download,
   Eraser,
+  FileCode2,
   FileImage,
   FileJson,
   ImagePlus,
   FileText,
+  Grid,
   Italic,
+  LayoutTemplate,
   List,
   ListOrdered,
   Maximize2,
@@ -26,8 +30,11 @@ import {
   PanelRight,
   Pencil,
   Plus,
+  Printer,
   Redo2,
+  RotateCcw,
   Rows3,
+  Shapes,
   Square,
   Star,
   StickyNote,
@@ -42,12 +49,15 @@ import {
   ZoomOut,
 } from 'lucide-react';
 import type {
+  BackgroundPattern,
   EditorMode,
   PageMargins,
   VectorStyle,
   VectorTool,
 } from '../types/editor.types';
 import { MAX_ZOOM, MIN_ZOOM } from '../types/editor.types';
+import { VECTOR_STAMPS, type VectorStamp } from '../utils/vectorStamps';
+import { HYBRID_TEMPLATES, type HybridTemplate } from '../utils/documentTemplates';
 
 const MODES: Array<{ id: EditorMode; label: string; icon: React.ReactNode }> = [
   { id: 'document', label: 'A4 Belge', icon: <FileText size={14} /> },
@@ -128,20 +138,26 @@ const Group = ({ children, label }: { children: React.ReactNode; label: string }
 export interface TopToolbarProps {
   mode: EditorMode;
   onModeChange: (mode: EditorMode) => void;
+  documentTitle: string;
+  onDocumentTitleChange: (title: string) => void;
   editor: Editor | null;
   pages: Array<{ id: string; name: string }>;
   activePageId: string;
   onSelectPage: (pageId: string) => void;
   onAddPage: () => void;
+  onDuplicatePage: () => void;
   onDeletePage: () => void;
   margins: PageMargins;
   onMarginsChange: (margins: PageMargins) => void;
+  background: BackgroundPattern;
+  onBackgroundChange: (pattern: BackgroundPattern) => void;
   tool: VectorTool;
   onToolChange: (tool: VectorTool) => void;
   vectorStyle: VectorStyle;
   onVectorStyleChange: (patch: Partial<VectorStyle>) => void;
   zoom: number;
   onZoomChange: (zoom: number) => void;
+  onResetViewport?: () => void;
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
@@ -152,9 +168,14 @@ export interface TopToolbarProps {
   onExportPdf: () => void;
   onExportPng: () => void;
   onExportDocx: () => void;
+  onExportSvg: () => void;
   onExportJson: () => void;
   onImportJson: (file: File) => void;
+  onImportSvg: (file: File) => void;
   onInsertVectorImage?: (file: File) => void;
+  onInsertStamp: (stamp: VectorStamp) => void;
+  onApplyTemplate: (template: HybridTemplate) => void;
+  onPrint?: () => void;
 }
 
 /**
@@ -164,20 +185,26 @@ export interface TopToolbarProps {
 export const TopToolbar = ({
   mode,
   onModeChange,
+  documentTitle,
+  onDocumentTitleChange,
   editor,
   pages,
   activePageId,
   onSelectPage,
   onAddPage,
+  onDuplicatePage,
   onDeletePage,
   margins,
   onMarginsChange,
+  background,
+  onBackgroundChange,
   tool,
   onToolChange,
   vectorStyle,
   onVectorStyleChange,
   zoom,
   onZoomChange,
+  onResetViewport,
   canUndo,
   canRedo,
   onUndo,
@@ -188,15 +215,23 @@ export const TopToolbar = ({
   onExportPdf,
   onExportPng,
   onExportDocx,
+  onExportSvg,
   onExportJson,
   onImportJson,
+  onImportSvg,
   onInsertVectorImage,
+  onInsertStamp,
+  onApplyTemplate,
+  onPrint,
 }: TopToolbarProps) => {
   const [exportOpen, setExportOpen] = React.useState(false);
+  const [templatesOpen, setTemplatesOpen] = React.useState(false);
+  const [stampsOpen, setStampsOpen] = React.useState(false);
   const [, forceRender] = React.useState(0);
   const imageInputRef = React.useRef<HTMLInputElement>(null);
   const vectorImageInputRef = React.useRef<HTMLInputElement>(null);
   const jsonInputRef = React.useRef<HTMLInputElement>(null);
+  const svgInputRef = React.useRef<HTMLInputElement>(null);
   const [showMargins, setShowMargins] = React.useState(false);
 
   React.useEffect(() => {
@@ -266,6 +301,18 @@ export const TopToolbar = ({
           ))}
         </Group>
 
+        <Group label="Belge başlığı">
+          <input
+            type="text"
+            value={documentTitle}
+            onChange={(event) => onDocumentTitleChange(event.target.value)}
+            maxLength={80}
+            aria-label="Belge başlığı"
+            placeholder="Belge başlığı"
+            className="h-8 w-36 rounded-lg border border-[var(--border-color)] bg-[var(--bg-secondary)] px-2 text-[11px] font-bold text-[var(--text-primary)] outline-none focus:border-[var(--accent-color)]"
+          />
+        </Group>
+
         <Group label="Geçmiş">
           <ToolButton label="Geri al (Ctrl+Z)" disabled={!canUndo} onClick={onUndo}>
             <Undo2 size={14} />
@@ -292,6 +339,9 @@ export const TopToolbar = ({
             <ToolButton label="Yeni sayfa ekle" onClick={onAddPage}>
               <Plus size={14} />
             </ToolButton>
+            <ToolButton label="Sayfayı çoğalt" onClick={onDuplicatePage}>
+              <Copy size={13} />
+            </ToolButton>
             <ToolButton
               label="Etkin sayfayı sil"
               tone="danger"
@@ -311,6 +361,21 @@ export const TopToolbar = ({
             </button>
           </Group>
         )}
+
+        <Group label="Kağıt deseni">
+          <Grid size={13} className="ml-1 text-[var(--text-muted)]" />
+          <select
+            value={background}
+            onChange={(event) => onBackgroundChange(event.target.value as BackgroundPattern)}
+            aria-label="Kağıt deseni"
+            className="h-8 rounded-lg border border-[var(--border-color)] bg-[var(--bg-secondary)] px-1.5 text-[10px] font-bold text-[var(--text-primary)] outline-none"
+          >
+            <option value="blank">Düz</option>
+            <option value="lined">Çizgili</option>
+            <option value="grid">Kareli</option>
+            <option value="dots">Noktalı</option>
+          </select>
+        </Group>
 
         <Group label="Yakınlaştırma">
           <ToolButton
@@ -335,7 +400,51 @@ export const TopToolbar = ({
           >
             <ZoomIn size={14} />
           </ToolButton>
+          {mode === 'whiteboard' && onResetViewport && (
+            <ToolButton label="Tahta görünümünü sıfırla" onClick={onResetViewport}>
+              <RotateCcw size={13} />
+            </ToolButton>
+          )}
         </Group>
+
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setTemplatesOpen((value) => !value)}
+            aria-haspopup="menu"
+            aria-expanded={templatesOpen}
+            className="flex h-8 items-center gap-1 rounded-xl border border-[var(--border-color)] bg-[var(--surface-glass)]/60 px-2.5 text-[10px] font-black uppercase tracking-wider text-[var(--text-secondary)] hover:border-[var(--accent-color)] hover:text-[var(--accent-color)]"
+          >
+            <LayoutTemplate size={13} /> Şablonlar
+          </button>
+          {templatesOpen && (
+            <>
+              <button
+                type="button"
+                aria-label="Şablon menüsünü kapat"
+                className="fixed inset-0 z-30 cursor-default"
+                onClick={() => setTemplatesOpen(false)}
+              />
+              <div
+                role="menu"
+                className="absolute left-0 top-full z-40 mt-2 w-72 rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)] p-1.5 shadow-2xl"
+              >
+                {HYBRID_TEMPLATES.map((tpl) => (
+                  <ExportItem
+                    key={tpl.id}
+                    icon={<LayoutTemplate size={14} />}
+                    label={tpl.title}
+                    hint={tpl.description}
+                    onClick={() => {
+                      setTemplatesOpen(false);
+                      onApplyTemplate(tpl);
+                    }}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
 
         <div className="ml-auto flex items-center gap-1.5">
           <ToolButton
@@ -398,7 +507,36 @@ export const TopToolbar = ({
                       onExportDocx();
                     }}
                   />
+                  <ExportItem
+                    icon={<FileCode2 size={14} />}
+                    label="SVG Vektör (.svg)"
+                    hint="Ölçeklenebilir çizim"
+                    onClick={() => {
+                      setExportOpen(false);
+                      onExportSvg();
+                    }}
+                  />
+                  {onPrint && (
+                    <ExportItem
+                      icon={<Printer size={14} />}
+                      label="Yazdır"
+                      hint="Tarayıcı baskı önizleme"
+                      onClick={() => {
+                        setExportOpen(false);
+                        onPrint();
+                      }}
+                    />
+                  )}
                   <div className="my-1 h-px bg-[var(--border-color)]" />
+                  <ExportItem
+                    icon={<FileCode2 size={14} />}
+                    label="SVG içe aktar"
+                    hint="Düzenlenebilir vektör"
+                    onClick={() => {
+                      setExportOpen(false);
+                      svgInputRef.current?.click();
+                    }}
+                  />
                   <ExportItem
                     icon={<FileJson size={14} />}
                     label="JSON dışa aktar"
@@ -431,6 +569,18 @@ export const TopToolbar = ({
             onChange={(event) => {
               const file = event.target.files?.[0];
               if (file) onImportJson(file);
+              event.target.value = '';
+            }}
+          />
+          <input
+            ref={svgInputRef}
+            type="file"
+            accept="image/svg+xml,.svg"
+            className="hidden"
+            aria-label="SVG vektör içe aktar"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) onImportSvg(file);
               event.target.value = '';
             }}
           />
@@ -711,6 +861,43 @@ export const TopToolbar = ({
           >
             <Eraser size={14} />
           </ToolButton>
+          <div className="relative">
+            <ToolButton
+              label="Pedagojik vektör damgaları"
+              active={stampsOpen}
+              onClick={() => setStampsOpen((value) => !value)}
+            >
+              <Shapes size={14} />
+              <span className="hidden xl:inline text-[10px]">Damgalar</span>
+            </ToolButton>
+            {stampsOpen && (
+              <>
+                <button
+                  type="button"
+                  aria-label="Damga menüsünü kapat"
+                  className="fixed inset-0 z-30 cursor-default"
+                  onClick={() => setStampsOpen(false)}
+                />
+                <div
+                  role="menu"
+                  className="absolute left-0 top-full z-40 mt-2 grid w-64 grid-cols-1 gap-0.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)] p-1.5 shadow-2xl"
+                >
+                  {VECTOR_STAMPS.map((stamp) => (
+                    <ExportItem
+                      key={stamp.id}
+                      icon={<Shapes size={13} />}
+                      label={stamp.label}
+                      hint={stamp.category}
+                      onClick={() => {
+                        setStampsOpen(false);
+                        onInsertStamp(stamp);
+                      }}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
           {onInsertVectorImage && (
             <ToolButton
               label="Vektör katmanına görsel ekle"

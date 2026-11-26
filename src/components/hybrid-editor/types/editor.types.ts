@@ -17,6 +17,8 @@ export const WHITEBOARD_HEIGHT = 2000;
 
 export type EditorMode = 'document' | 'whiteboard';
 
+export type BackgroundPattern = 'blank' | 'lined' | 'grid' | 'dots';
+
 export type VectorTool =
   | 'select'
   | 'pencil'
@@ -51,6 +53,8 @@ export interface HybridPage {
   id: string;
   name: string;
   margins: PageMargins;
+  /** Sayfa arka plan deseni (çizgisiz, çizgili, kareli, noktalı). */
+  background?: BackgroundPattern;
   /** Word motoru: Tiptap JSON (başlık, paragraf, tablo, görsel). */
   doc: JSONContent | null;
   /** Sayfa üzerine bindirilen serbest çizim/şekil/metin katmanı. */
@@ -59,6 +63,7 @@ export interface HybridPage {
 
 export interface WhiteboardState {
   canvas: CanvasSnapshot;
+  background?: BackgroundPattern;
 }
 
 export interface VectorStyle {
@@ -121,6 +126,8 @@ export interface VectorCanvasHandle {
   addText: () => void;
   addSticky: () => void;
   addImage: (dataUrl: string) => void;
+  addSvg: (svgString: string, label?: string) => void;
+  resetViewport: () => void;
   nudgeSelection: (dx: number, dy: number) => void;
   clearSelection: () => void;
   deleteSelection: () => void;
@@ -136,6 +143,7 @@ export interface VectorCanvasHandle {
   getSnapshot: () => CanvasSnapshot;
   loadSnapshot: (snapshot: CanvasSnapshot) => void;
   exportPng: (options?: { multiplier?: number; transparent?: boolean; selectionOnly?: boolean }) => string | null;
+  exportSvg: () => string | null;
   clear: () => void;
 }
 

@@ -14,6 +14,8 @@ import {
   Rect,
   Textbox,
   Triangle,
+  loadSVGFromString,
+  util,
   type TPointerEvent,
 } from 'fabric';
 import {
@@ -769,6 +771,7 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
       const brush = new PencilBrush(canvas) as PencilBrush & { opacity?: number };
       brush.color = style.stroke;
       brush.width = Math.max(1, style.strokeWidth * 2);
+      brush.decimate = 3;
       canvas.freeDrawingBrush = brush;
       canvas.defaultCursor =
         mode === 'whiteboard' && isSpaceDownRef.current
@@ -1170,6 +1173,46 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
           canvas.backgroundColor = previousBackground;
           canvas.requestRenderAll();
           return dataUrl;
+        },
+        exportSvg: () => {
+          const canvas = canvasRef.current;
+          if (!canvas || !canvas.getObjects().length) return null;
+          return canvas.toSVG();
+        },
+        addSvg: (svgString, label) => {
+          const canvas = canvasRef.current;
+          if (!canvas || !svgString.trim()) return;
+          void loadSVGFromString(svgString)
+            .then(({ objects, options }) => {
+              const valid = objects.filter((item): item is FabricObject => item !== null);
+              if (!valid.length) return;
+              const group = util.groupSVGElements(valid, options);
+              const boundsWidth = group.width ?? 120;
+              const boundsHeight = group.height ?? 120;
+              const maxWidth = Math.min(360, canvas.getWidth() * 0.6);
+              const maxHeight = Math.min(360, canvas.getHeight() * 0.6);
+              const scale = Math.min(1, maxWidth / Math.max(1, boundsWidth), maxHeight / Math.max(1, boundsHeight));
+              group.set({
+                left: canvas.getWidth() / 2 - (boundsWidth * scale) / 2,
+                top: canvas.getHeight() / 2 - (boundsHeight * scale) / 2,
+                scaleX: scale,
+                scaleY: scale,
+                opacity: styleRef.current.opacity,
+              });
+              ensureId(group, label ?? 'svg');
+              canvas.add(group);
+              canvas.setActiveObject(group);
+              canvas.requestRenderAll();
+              emit();
+            })
+            .catch(() => undefined);
+        },
+        resetViewport: () => {
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+          canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+          canvas.requestRenderAll();
+          callbacksRef.current.onZoomChange(1);
         },
         addImage: (dataUrl) => {
           const canvas = canvasRef.current;

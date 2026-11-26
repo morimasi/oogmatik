@@ -17,6 +17,16 @@ import {
   writeHybridDraft,
   type StorageLike,
 } from '../src/services/hybridEditorDraftService';
+import { VECTOR_STAMPS } from '../src/components/hybrid-editor/utils/vectorStamps';
+import {
+  HYBRID_TEMPLATES,
+  countDocumentWords,
+  getBackgroundPatternStyle,
+} from '../src/components/hybrid-editor/utils/documentTemplates';
+import {
+  exportSvgFile,
+  parseHybridDocumentJson,
+} from '../src/components/hybrid-editor/utils/exportEngine';
 
 const memoryStorage = (): StorageLike & { data: Map<string, string> } => {
   const data = new Map<string, string>();
@@ -114,5 +124,44 @@ describe('Hibrit editör — cihaz taslağı', () => {
     const storage = memoryStorage();
     storage.setItem(hybridDraftKey(), '{bozuk-json');
     expect(readHybridDraft(storage)).toBeNull();
+  });
+});
+
+describe('Hibrit editör — vektör damgaları, şablonlar ve SVG çıktı', () => {
+  it('tüm pedagojik vektör damgaları geçerli SVG içerir', () => {
+    expect(VECTOR_STAMPS.length).toBeGreaterThanOrEqual(8);
+    VECTOR_STAMPS.forEach((stamp) => {
+      expect(stamp.svg).toContain('<svg');
+      expect(stamp.svg).toContain('</svg>');
+      expect(stamp.label.length).toBeGreaterThan(2);
+    });
+  });
+
+  it('hazır şablonlar geçerli belge şeması ve kelime sayısı üretir', () => {
+    expect(HYBRID_TEMPLATES.length).toBeGreaterThanOrEqual(3);
+    HYBRID_TEMPLATES.forEach((tpl) => {
+      const doc = tpl.build();
+      expect(doc.schemaVersion).toBe(1);
+      expect(doc.pages.length).toBeGreaterThanOrEqual(1);
+      const parsed = parseHybridDocumentJson(JSON.stringify(doc));
+      expect(parsed.ok).toBe(true);
+    });
+
+    const readingDoc = HYBRID_TEMPLATES[0].build();
+    const stats = countDocumentWords(readingDoc);
+    expect(stats.words).toBeGreaterThan(10);
+    expect(stats.chars).toBeGreaterThan(40);
+  });
+
+  it('kağıt arka plan desenleri doğru CSS stilleri üretir', () => {
+    expect(getBackgroundPatternStyle('blank')).toEqual({});
+    expect(getBackgroundPatternStyle('lined').backgroundImage).toContain('repeating-linear-gradient');
+    expect(getBackgroundPatternStyle('grid').backgroundImage).toContain('linear-gradient');
+    expect(getBackgroundPatternStyle('dots').backgroundImage).toContain('radial-gradient');
+  });
+
+  it('geçersiz SVG içeriğini reddeder', () => {
+    const res = exportSvgFile('gecersiz-icerik', 'test');
+    expect(res.ok).toBe(false);
   });
 });

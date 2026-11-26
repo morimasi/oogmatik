@@ -19,3 +19,5 @@ export {
 export * from './collaboration/collabModel';
 export * from './types/editor.types';
 export * from './utils/exportEngine';
+export * from './utils/vectorStamps';
+export * from './utils/documentTemplates';

@@ -84,10 +84,16 @@ export const exportElementsToPdf = async (
     for (let index = 0; index < elements.length; index += 1) {
       await waitForPaint();
       const dataUrl = await toPng(elements[index], {
+        width: A4_WIDTH,
+        height: A4_HEIGHT,
         pixelRatio: PRINT_DPI / CSS_DPI,
         backgroundColor: '#ffffff',
         cacheBust: true,
         skipAutoScale: true,
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left',
+        },
       });
 
       if (index > 0) pdf.addPage('a4', 'portrait');
@@ -112,10 +118,16 @@ export const exportElementToPng = async (
 ): Promise<ExportResult> => {
   try {
     const dataUrl = await toPng(element, {
+      width: A4_WIDTH,
+      height: A4_HEIGHT,
       pixelRatio: options.multiplier ?? PRINT_CAPTURE_MULTIPLIER,
       backgroundColor: options.transparent ? undefined : '#ffffff',
       cacheBust: true,
       skipAutoScale: true,
+      style: {
+        transform: 'scale(1)',
+        transformOrigin: 'top left',
+      },
     });
     saveAs(dataUrl, `${safeName(fileName, 'hibrit-gorsel')}.png`);
     return { ok: true, message: 'PNG indirildi.' };
@@ -134,10 +146,16 @@ export const captureElementToPng = async (
 ): Promise<string> => {
   await waitForPaint();
   return toPng(element, {
+    width: A4_WIDTH,
+    height: A4_HEIGHT,
     pixelRatio: multiplier,
     backgroundColor: '#ffffff',
     cacheBust: true,
     skipAutoScale: true,
+    style: {
+      transform: 'scale(1)',
+      transformOrigin: 'top left',
+    },
   });
 };
 
@@ -171,6 +189,23 @@ export const downloadPngDataUrl = (dataUrl: string, fileName: string): ExportRes
     return {
       ok: false,
       message: error instanceof Error ? error.message : 'PNG indirilemedi.',
+    };
+  }
+};
+
+/** Vektör katmanını gerçek ölçeklenebilir .svg dosyası olarak indirir. */
+export const exportSvgFile = (svgContent: string, fileName: string): ExportResult => {
+  if (!svgContent || !svgContent.includes('<svg')) {
+    return { ok: false, message: 'Dışa aktarılacak geçerli SVG içeriği bulunamadı.' };
+  }
+  try {
+    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+    saveAs(blob, `${safeName(fileName, 'hibrit-vektor')}.svg`);
+    return { ok: true, message: 'SVG vektör dosyası indirildi.' };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : 'SVG oluşturulamadı.',
     };
   }
 };
@@ -577,6 +612,9 @@ const normalizeSnapshot = (value: unknown, width: number, height: number): Canva
   };
 };
 
+const normalizeBackground = (value: unknown): HybridPage['background'] =>
+  value === 'lined' || value === 'grid' || value === 'dots' || value === 'blank' ? value : 'blank';
+
 const normalizePage = (value: unknown, index: number): HybridPage => {
   const record = isRecord(value) ? value : {};
   const fallback = createEmptyPage(index);
@@ -584,6 +622,7 @@ const normalizePage = (value: unknown, index: number): HybridPage => {
     id: typeof record.id === 'string' ? record.id : fallback.id,
     name: typeof record.name === 'string' ? record.name : fallback.name,
     margins: normalizeMargins(record.margins),
+    background: normalizeBackground(record.background),
     doc: isRecord(record.doc) ? (record.doc as JSONContent) : null,
     canvas: normalizeSnapshot(record.canvas, A4_WIDTH, A4_HEIGHT),
   };
