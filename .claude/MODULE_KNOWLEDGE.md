@@ -188,8 +188,13 @@
 - `components/VectorCanvas.tsx` — Fabric v6 tuvali: kalem, şekiller, oklar, metin kutuları, yapışkan notlar, görsel, akıllı hizalama, pan/zoom, imperatif katman API'si
 - `components/LayersAndPropertiesPanel.tsx` — Katman ağacı + X/Y/W/H/açı/opaklık/dolgu/çizgi/punto denetimi
 - `hooks/useEditorHistory.ts` — 50 adımlık birleşik undo/redo ve kısayol kancaları
+- `hooks/useHybridCollaboration.ts` — gerçek zamanlı oda kancası: 450 ms belge debounce, 120 ms imleç bütçesi, uzak değişikliği erteleme/uygulama kararı
+- `collaboration/collabModel.ts` — oda kodu, katılımcı/imleç ayrıştırma, ortak belge birleştirme (`mergeRemoteDocument`) ve `shouldApplyRemote` kararı (saf, test edilebilir)
+- `components/CollaborationBar.tsx` — oda kodu, bağlantı durumu, katılımcı avatarları, davet/ayrıl düğmeleri
+- `components/LiveCursorsOverlay.tsx` — canlı imleçler ve uzak seçim çerçeveleri (React overlay, tuvale nesne eklemez)
 - `types/editor.types.ts` — `HybridDocumentSchema`, A4/tahta sabitleri, fabrikalar, `VectorCanvasHandle`
 - `utils/exportEngine.ts` — 300 DPI PDF (`PRINT_CAPTURE_MULTIPLIER`), PNG, `.docx`, JSON içe/dışa aktarma
+- `services/hybridEditorCollabService.ts` — Firestore oda taşıması (`hybrid_rooms/{roomId}` + `presence/{clientId}`), 15 sn kalp atışı, ayrılırken durum temizliği
 
 **İşlevler**:
 1. **Üç Yüzey**: A4 belge (794×1123, çok sayfa, kenar boşluğu) + sayfa üstü vektör katmanı; sınırsız tahta (Space+sürükle pan, Ctrl+tekerlek %25–400); her ikisinde FreeHand ve katman paneli
@@ -199,12 +204,15 @@
 5. **Geçmiş**: Tek `HybridDocumentSchema` anlık görüntü yığını; `Ctrl+Z/Y`, `Ctrl+D`, `Delete`, `Esc`, ok tuşlarıyla 1 px / Shift+10 px kaydırma
 6. **Çıktı**: 300 DPI çok sayfalı PDF, yüksek çözünürlüklü PNG, metin+tablo+görsel içeren gerçek `.docx`, birleşik JSON içe/dışa aktarma
 7. **Taslak**: `services/hybridEditorDraftService.ts` — kullanıcı bazlı localStorage yuvası, 900 ms debounce, 4 MB boyut ve kota koruması, açılışta geri yükleme, "Taslağı sil"
+8. **Gerçek Zamanlı Ortak Çalışma**: Sayfa başlığından oda açılır/katılınır (`#ortak=KOD` bağlantısı). Oda belgesi Firestore `hybrid_rooms/{roomId}` üzerinden canlı senkronlanır; katılımcı imleci, seçimi ve etkin sayfası `presence/{clientId}` altında tutulur. Editörde canlı imleçler ve uzak seçim çerçeveleri görünür. Yerel düzenleme sırasında uzak değişiklik 600 ms ertelenir (sürükleme/yazma kesilmez), uzak belge uygulanırken mod ve etkin sayfa yerelde korunur. Bağlantı kurulamazsa düzenleme yerel olarak sürer ve şeritte "Bağlantı yok" görünür.
 
-**Erişim**: RBAC `hybrid-studio` modülü (Yaratıcı Atölye Stüdyoları); öğretmen/admin varsayılan olarak yetkili, `ProtectedRoute` ile korunur.
+**Erişim**: RBAC `hybrid-studio` modülü (Yaratıcı Atölye Stüdyoları); öğretmen/admin varsayılan olarak yetkili, `ProtectedRoute` ile korunur. Ortak çalışma odaları Firestore kurallarında yalnızca kimliği doğrulanmış kullanıcılara açıktır; katılımcı durumu yalnızca kendi `userId` adına yazılabilir (`firestore.rules` → `hybrid_rooms`).
 
-**Test**: `tests/hybridEditor.test.ts` — belge fabrikaları, taslak yazma/okuma/temizleme, kullanıcı izolasyonu, boyut sınırı, bozuk kayıt ve depolama yokluğu.
+**Test**: `tests/hybridEditor.test.ts` — belge fabrikaları, taslak yazma/okuma/temizleme, kullanıcı izolasyonu, boyut sınırı, bozuk kayıt ve depolama yokluğu. `tests/hybridCollaboration.test.ts` — oda kodu normalleştirme/üretme, bağlantı ayrıştırma, katılımcı durumu doğrulama, bayat katılımcı eleme, uzak değişiklik kararı ve belge birleştirme.
 
 **Yazılım Mühendisi Notu**: Metin akışı ile vektör katmanı aynı sayfada üst üste durur; "Metin / Çizim" düğmesi tıklama hedefini belirler. Vektör katmanı yalnızca çizim modunda işaretçi alır, böylece akan metin düzenlenebilir kalır. Dışa aktarma etkin sayfanın DOM düğümünden yapılır; ekrandaki zoom baskı kalitesini etkilemez.
+
+Ortak çalışma bilinçli olarak "son yazan kazanır" (whole-document LWW) modeliyle çalışır: aynı anda iki kişi aynı sayfayı düzenlerse son yayın geçerlidir, ancak kendi yazımızın yankısı `clientId` ile ayıklandığı için yayın döngüsü oluşmaz. Uzak belge geri alma yığınına yazılmaz (`history.replace`), böylece Ctrl+Z yalnızca yerel çalışmayı geri alır. Belge JSON'u 700 KB'ı aşarsa (gömülü görseller) oda yayını durur ve şeritte uyarı görünür; imleç/katılımcı bilgisi ayrı küçük belgelerde olduğu için çalışmaya devam eder. Canlı imleç katmanı React overlay'dir; Fabric tuvaline nesne eklemediği için PDF/PNG çıktısı ve katman listesi etkilenmez.
 
 ---
 

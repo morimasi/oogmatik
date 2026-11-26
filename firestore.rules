@@ -205,6 +205,23 @@ service cloud.firestore {
       allow create: if isAuthenticated();
     }
 
+    // Hibrit Stüdyo — Gerçek Zamanlı Ortak Çalışma Odaları
+    // Oda belgesi giriş yapmış kullanıcılarca okunur/yazılır; katılımcı durumu
+    // yalnızca kendi kimliği adına yazılabilir, böylece başkasının imleci
+    // taklit edilemez.
+    match /hybrid_rooms/{roomId} {
+      allow read, create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+
+      match /presence/{clientId} {
+        allow read: if isAuthenticated();
+        allow create, update: if isAuthenticated()
+          && request.resource.data.userId == request.auth.uid;
+        allow delete: if isAuthenticated()
+          && (resource.data.userId == request.auth.uid || isAdmin());
+      }
+    }
+
     // VisionStudio — Yüklenen Dosyalar
     match /visionStudioUploads/{uploadId} {
       allow read: if isAuthenticated() && (resource.data.uploadedBy == request.auth.uid || isAdmin());

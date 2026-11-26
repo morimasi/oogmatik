@@ -5,7 +5,10 @@ import { RichTextBlock } from './components/RichTextBlock';
 import { VectorCanvas } from './components/VectorCanvas';
 import { TopToolbar } from './components/TopToolbar';
 import { LayersAndPropertiesPanel } from './components/LayersAndPropertiesPanel';
+import { CollaborationBar } from './components/CollaborationBar';
+import { LiveCursorsOverlay } from './components/LiveCursorsOverlay';
 import { useEditorHistory, useEditorShortcuts } from './hooks/useEditorHistory';
+import { useHybridCollaboration } from './hooks/useHybridCollaboration';
 import {
   captureElementToPng,
   exportDataUrlToPdf,
@@ -30,6 +33,13 @@ import {
   type VectorTool,
 } from './types/editor.types';
 
+export interface HybridCollaborationOptions {
+  /** 4–12 karakterlik oda kodu; paylaşan kişi üretir, katılanlar aynı kodu girer. */
+  roomId: string;
+  userId: string;
+  displayName: string;
+}
+
 export interface HybridEditorProps {
   initialDocument?: HybridDocumentSchema;
   onDocumentChange?: (document: HybridDocumentSchema) => void;
@@ -37,6 +47,10 @@ export interface HybridEditorProps {
   title?: string;
   className?: string;
   height?: number | string;
+  /** Verilirse editör gerçek zamanlı odaya bağlanır (canlı imleç + belge senkronu). */
+  collaboration?: HybridCollaborationOptions;
+  onCollaborationLeave?: () => void;
+  onCopyRoomLink?: (roomId: string) => void;
 }
 
 type Notice = { kind: 'success' | 'error' | 'info'; message: string } | null;
@@ -78,6 +92,9 @@ export const HybridEditor = ({
   title,
   className = '',
   height = 760,
+  collaboration,
+  onCollaborationLeave,
+  onCopyRoomLink,
 }: HybridEditorProps) => {
   const initial = React.useMemo<HybridDocumentSchema>(
     () => initialDocument ?? createEmptyDocument(title ?? 'Yeni Hibrit Belge'),
@@ -108,10 +125,38 @@ export const HybridEditor = ({
   const activePage: HybridPage =
     doc.pages.find((page) => page.id === doc.activePageId) ?? doc.pages[0];
   const isWhiteboard = doc.mode === 'whiteboard';
+  const surfaceId: string | null = isWhiteboard ? null : activePage.id;
+
+  const replaceDocument = history.replace;
+  const applyRemoteDocument = React.useCallback(
+    (remote: HybridDocumentSchema) => {
+      // Uzak içerik geri alma yığınına yazılmaz: Ctrl+Z yerel çalışmayı geri alır.
+      replaceDocument(remote);
+    },
+    [replaceDocument]
+  );
+
+  const collaborationEnabled = !!collaboration?.roomId;
+  const collab = useHybridCollaboration({
+    enabled: collaborationEnabled,
+    roomId: collaboration?.roomId ?? '',
+    userId: collaboration?.userId ?? '',
+    displayName: collaboration?.displayName ?? '',
+    document: doc,
+    onRemoteDocument: applyRemoteDocument,
+  });
+  const { publishCursor, publishSelection } = collab;
 
   React.useEffect(() => {
     onDocumentChange?.(doc);
   }, [doc, onDocumentChange]);
+
+  /* Yüzey değişince imleç sıfırlanır; eski sayfada asılı kalmaz. */
+  React.useEffect(() => {
+    if (!collaborationEnabled) return;
+    publishCursor(null, surfaceId);
+    publishSelection([], surfaceId);
+  }, [surfaceId, collaborationEnabled, publishCursor, publishSelection]);
 
   React.useEffect(() => {
     if (!notice) return undefined;
@@ -429,6 +474,7 @@ export const HybridEditor = ({
   };
 
   const handleSelectionChange = (pageId: string | null, ids: string[]) => {
+    publishSelection(ids, pageId);
     if (pageId === null) {
       if (docRef.current.mode === 'whiteboard') setSelectedLayerIds(ids);
       return;
@@ -508,6 +554,18 @@ export const HybridEditor = ({
         onImportJson={(file) => void handleImportJson(file)}
         onInsertVectorImage={handleInsertVectorImage}
       />
+
+      {collaborationEnabled && collaboration && (
+        <CollaborationBar
+          roomCode={collaboration.roomId}
+          status={collab.status}
+          peers={collab.peers}
+          message={collab.message}
+          selfColor={collab.selfColor}
+          onLeave={() => onCollaborationLeave?.()}
+          onCopyLink={() => onCopyRoomLink?.(collaboration.roomId)}
+        />
+      )}
 
       <div className="relative flex min-h-0 flex-1">
         <div className="custom-scrollbar relative flex-1 overflow-auto bg-[var(--bg-secondary)] p-6">
@@ -589,6 +647,13 @@ export const HybridEditor = ({
                   onSelectionChange={(ids) => handleSelectionChange(null, ids)}
                   onZoomChange={(nextZoom) => setZoom(nextZoom)}
                   onToolConsumed={() => setTool('select')}
+                  onPointerActivity={(point) => publishCursor(point, null)}
+                />
+                <LiveCursorsOverlay
+                  peers={collab.peers}
+                  surfaceId={null}
+                  layers={layers}
+                  showSelection={false}
                 />
               </div>
             </div>
@@ -644,6 +709,7 @@ export const HybridEditor = ({
                           onSelectionChange={(ids) => handleSelectionChange(page.id, ids)}
                           onZoomChange={() => undefined}
                           onToolConsumed={() => setTool('select')}
+                          onPointerActivity={(point) => publishCursor(point, page.id)}
                         />
                       </div>
 
@@ -665,6 +731,13 @@ export const HybridEditor = ({
                           ariaLabel={`${page.name} belge metni`}
                         />
                       </div>
+
+                      <LiveCursorsOverlay
+                        peers={collab.peers}
+                        surfaceId={page.id}
+                        layers={isActive ? layers : []}
+                        showSelection={isActive}
+                      />
 
                       <span className="pointer-events-none absolute bottom-2 right-3 z-20 text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">
                         {index + 1} / {doc.pages.length}

@@ -49,6 +49,8 @@ interface VectorCanvasProps {
   onSelectionChange: (ids: string[]) => void;
   onZoomChange: (zoom: number) => void;
   onToolConsumed?: (tool: VectorTool) => void;
+  /** Ortak çalışma imleci: tuval yüzeyine göre piksel konumu; tuvalden çıkışta `null`. */
+  onPointerActivity?: (point: { x: number; y: number } | null) => void;
 }
 
 const SHAPE_TOOLS: VectorTool[] = ['rect', 'ellipse', 'triangle', 'star', 'line', 'arrow', 'arrow-double'];
@@ -175,6 +177,7 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
       onSelectionChange,
       onZoomChange,
       onToolConsumed,
+      onPointerActivity,
     },
     ref
   ) => {
@@ -203,6 +206,7 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
       onSelectionChange,
       onZoomChange,
       onToolConsumed,
+      onPointerActivity,
     });
     callbacksRef.current = {
       onSnapshotChange,
@@ -210,6 +214,7 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
       onSelectionChange,
       onZoomChange,
       onToolConsumed,
+      onPointerActivity,
     };
 
     toolRef.current = tool;
@@ -658,6 +663,17 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
       canvas.on('mouse:move', handleMouseMove);
       canvas.on('mouse:up', handleMouseUp);
 
+      /* --------------------------- Ortak çalışma imleci --------------------------- */
+      const handlePointerMove = (info: PointerEventInfo) => {
+        const callback = callbacksRef.current.onPointerActivity;
+        if (!callback) return;
+        const viewport = canvas.getViewportPoint(info.e);
+        callback({ x: Math.round(viewport.x), y: Math.round(viewport.y) });
+      };
+      const handlePointerLeave = () => callbacksRef.current.onPointerActivity?.(null);
+      canvas.on('mouse:move', handlePointerMove);
+      element.addEventListener('mouseleave', handlePointerLeave);
+
       /* ----------------------------- Zoom/pan ----------------------------- */
       const handleWheel = (event: WheelEvent) => {
         if (!event.ctrlKey && !event.metaKey) return;
@@ -697,6 +713,7 @@ export const VectorCanvas = React.forwardRef<VectorCanvasHandle, VectorCanvasPro
 
       return () => {
         containerRef.current?.removeEventListener('wheel', handleWheel);
+        element.removeEventListener('mouseleave', handlePointerLeave);
         window.removeEventListener('keydown', handleKeyDown);
         window.removeEventListener('keyup', handleKeyUp);
         canvas.dispose();
